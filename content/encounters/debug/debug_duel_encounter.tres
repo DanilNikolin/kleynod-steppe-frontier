@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" load_steps=7 format=3 uid="uid://dgp7p6h0tjn5n"]
+
+[ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
+[ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
+[ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://content/combatants/debug/debug_sechevik.tres" id="3_hero"]
+[ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
+
+[sub_resource type="Resource" id="Resource_hero_spawn"]
+script = ExtResource("2_spawn")
+instance_id = &"debug_hero"
+combatant_definition = ExtResource("3_hero")
+team_id = &"team_player"
+coordinate = Vector2i(2, 1)
+
+[sub_resource type="Resource" id="Resource_enemy_spawn"]
+script = ExtResource("2_spawn")
+instance_id = &"debug_enemy"
+combatant_definition = ExtResource("4_enemy")
+team_id = &"team_enemy"
+coordinate = Vector2i(6, 1)
+
+[resource]
+script = ExtResource("1_encounter")
+encounter_id = &"debug_duel"
+display_name = "Отладочная дуэль"
+description = "Простая дуэль для проверки базовой боевой системы."
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_hero_spawn"), SubResource("Resource_enemy_spawn")])

@@ -2,8 +2,20 @@ class_name BasicMeleeAITurnRunner
 extends RefCounted
 
 
-const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
-const FAILURE_INVALID_PLAN: StringName = &"invalid_plan"
+const FAILURE_INVALID_SESSION: StringName = (
+	&"invalid_session"
+)
+
+const FAILURE_INVALID_PLAN: StringName = (
+	&"invalid_plan"
+)
+
+const FAILURE_ACTION_LIMIT_REACHED: StringName = (
+	&"action_limit_reached"
+)
+
+
+const MAX_ACTIONS_PER_TURN: int = 64
 
 
 var movement_runner: BattleMovementRunner
@@ -16,12 +28,14 @@ func _init(
 ) -> void:
 	assert(
 		p_movement_runner != null,
-		"BasicMeleeAITurnRunner requires a movement runner."
+		"BasicMeleeAITurnRunner requires "
+		+"a movement runner."
 	)
 
 	assert(
 		p_action_runner != null,
-		"BasicMeleeAITurnRunner requires an action runner."
+		"BasicMeleeAITurnRunner requires "
+		+"an action runner."
 	)
 
 	movement_runner = p_movement_runner
@@ -29,15 +43,18 @@ func _init(
 
 
 func execute(
-	grid: BattleGrid,
+	session: BattleSession,
 	plan: BasicMeleeAITurnPlan,
 	animate_movement: bool = true,
 	animate_action: bool = true
 ) -> BasicMeleeAITurnOutcome:
 	var outcome := BasicMeleeAITurnOutcome.new()
 
-	if grid == null:
-		outcome.failure_code = FAILURE_INVALID_GRID
+	if session == null or session.grid == null:
+		outcome.failure_code = (
+			FAILURE_INVALID_SESSION
+		)
+
 		return outcome
 
 	if (
@@ -47,11 +64,21 @@ func execute(
 		or plan.target == null
 		or plan.ability == null
 	):
-		outcome.failure_code = FAILURE_INVALID_PLAN
+		outcome.failure_code = (
+			FAILURE_INVALID_PLAN
+		)
+
 		return outcome
 
-	outcome.actor_id = plan.actor.instance_id
-	outcome.target_id = plan.target.instance_id
+	var grid := session.grid
+
+	outcome.actor_id = (
+		plan.actor.instance_id
+	)
+
+	outcome.target_id = (
+		plan.target.instance_id
+	)
 
 	if plan.has_movement():
 		outcome.movement_outcome = await (
@@ -65,42 +92,90 @@ func execute(
 
 		if not outcome.movement_outcome.is_successful:
 			outcome.failure_code = (
-				outcome.movement_outcome.failure_code
+				outcome.movement_outcome
+				.failure_code
 			)
 
 			return outcome
+
+	if not plan.actor.is_alive:
+		outcome.is_successful = true
+		return outcome
 
 	if not plan.target.is_alive:
 		outcome.is_successful = true
 		return outcome
 
-	var command := BattleActionCommand.new(
-		plan.actor,
-		plan.target,
-		plan.ability
-	)
+	var executed_action_count: int = 0
 
-	if not action_runner.can_execute(
-		grid,
-		command
+	while (
+		plan.actor.is_alive
+		and plan.target.is_alive
 	):
-		outcome.is_successful = true
-		return outcome
+		if (
+			executed_action_count
+			>= MAX_ACTIONS_PER_TURN
+		):
+			outcome.failure_code = (
+				FAILURE_ACTION_LIMIT_REACHED
+			)
 
-	outcome.action_outcome = await (
-		action_runner.execute_melee(
-			grid,
-			command,
-			animate_action
+			return outcome
+
+		var command := BattleActionCommand.new(
+			plan.actor,
+			plan.ability,
+			plan.target.grid_position
 		)
-	)
 
-	if not outcome.action_outcome.is_successful:
-		outcome.failure_code = (
-			outcome.action_outcome.failure_code
+		if not action_runner.can_execute(
+			session,
+			command
+		):
+			break
+
+		var previous_actor_stamina := (
+			plan.actor.current_stamina
 		)
 
-		return outcome
+		var previous_target_health := (
+			plan.target.current_health
+		)
+
+		var current_action_outcome := await (
+			action_runner.execute_melee(
+				session,
+				command,
+				animate_action
+			)
+		)
+
+		if not current_action_outcome.is_successful:
+			outcome.failure_code = (
+				current_action_outcome
+				.failure_code
+			)
+
+			return outcome
+
+		outcome.add_action_outcome(
+			current_action_outcome
+		)
+
+		executed_action_count += 1
+
+		var stamina_changed := (
+			plan.actor.current_stamina
+			!= previous_actor_stamina
+		)
+
+		var health_changed := (
+			plan.target.current_health
+			!= previous_target_health
+		)
+
+		if not stamina_changed and not health_changed:
+			break
 
 	outcome.is_successful = true
 	return outcome

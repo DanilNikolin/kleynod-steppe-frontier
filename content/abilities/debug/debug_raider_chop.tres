@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=7 format=3 uid="uid://bfgvpavod3dxb"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+
+[sub_resource type="Resource" id="Resource_raider_damage"]
+script = ExtResource("4_damage")
+base_damage = 2
+effect_id = &"effect_raider_chop_damage"
+
+[sub_resource type="Resource" id="Resource_raider_targeting"]
+script = ExtResource("2_targeting")
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1), Vector2i(2, 1)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_raider_chop"
+display_name = "Рубящий удар"
+description = "Грубая атака одного врага на дистанции до двух клеток."
+stamina_cost = 2
+targeting = SubResource("Resource_raider_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_raider_damage")])

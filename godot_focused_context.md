@@ -1,9 +1,9 @@
 # GODOT FOCUSED PROJECT CONTEXT
 
 - Project: `kleynod-steppe-frontier`
-- Focus patterns: `['presentation/battle/ai/basic_melee_ai_turn_outcome.gd', 'presentation/battle/ai/basic_melee_ai_turn_runner.gd', 'scenes/debug/battle_grid_sandbox.gd']`
+- Focus patterns: `['core/battle/actions/battle_action_command.gd', 'core/battle/actions/battle_action_result.gd', 'core/battle/actions/battle_effect_result.gd', 'core/battle/grid/battle_grid.gd', 'core/battle/ai/basic_melee_ai_turn_plan.gd', 'presentation/battle/actions/battle_action_runner.gd', 'presentation/battle/actions/battle_action_outcome.gd', 'presentation/battle/ai/basic_melee_ai_turn_runner.gd', 'presentation/battle/combatants/battle_combatant_presenter.gd']`
 - Allow addons: `False`
-- Included files planned: `4`
+- Included files planned: `10`
 
 ## 🌳 PROJECT STRUCTURE
 
@@ -12,11 +12,21 @@ kleynod-steppe-frontier/
 ├── content
 │   ├── abilities
 │   │   └── debug
+│   │       ├── debug_raider_chop.tres
 │   │       └── debug_sabre_slash.tres
-│   └── combatants
+│   ├── combatants
+│   │   └── debug
+│   │       ├── debug_sechevik.tres
+│   │       └── debug_steppe_raider.tres
+│   ├── encounters
+│   │   └── debug
+│   │       ├── debug_duel_encounter.tres
+│   │       ├── debug_reinforcement_encounter.tres
+│   │       └── debug_skirmish_2v2.tres
+│   └── loadouts
 │       └── debug
-│           ├── debug_sechevik.tres
-│           └── debug_steppe_raider.tres
+│           ├── debug_sechevik_loadout.tres
+│           └── debug_steppe_raider_loadout.tres
 ├── core
 │   └── battle
 │       ├── abilities
@@ -38,14 +48,25 @@ kleynod-steppe-frontier/
 │       │   ├── battle_effect.gd
 │       │   ├── damage_effect.gd
 │       │   └── effect_resolver.gd
+│       ├── encounters
+│       │   ├── battle_encounter_definition.gd
+│       │   ├── battle_reinforcement_wave_definition.gd
+│       │   └── combatant_spawn_definition.gd
 │       ├── grid
 │       │   ├── battle_grid.gd
 │       │   └── battle_grid_cell.gd
+│       ├── loadouts
+│       │   └── combatant_loadout_definition.gd
 │       ├── movement
 │       │   ├── battle_movement_plan.gd
 │       │   └── battle_movement_service.gd
+│       ├── reinforcements
+│       │   └── battle_reinforcement_controller.gd
 │       ├── session
-│       │   └── battle_session.gd
+│       │   ├── battle_session.gd
+│       │   └── battle_session_factory.gd
+│       ├── sides
+│       │   └── battle_side_rules.gd
 │       └── turns
 │           └── battle_turn_controller.gd
 ├── editorconfig
@@ -54,6 +75,9 @@ kleynod-steppe-frontier/
 ├── godot_scout.py
 ├── presentation
 │   └── battle
+│       ├── actions
+│       │   ├── battle_action_outcome.gd
+│       │   └── battle_action_runner.gd
 │       ├── ai
 │       │   ├── basic_melee_ai_turn_outcome.gd
 │       │   └── basic_melee_ai_turn_runner.gd
@@ -81,9 +105,32 @@ kleynod-steppe-frontier/
 
 ## 📌 INCLUDED FILES
 
-## FILE: `presentation/battle/ai/basic_melee_ai_turn_outcome.gd`
+## FILE: `core/battle/actions/battle_action_command.gd`
 ```gdscript
-class_name BasicMeleeAITurnOutcome
+class_name BattleActionCommand
+extends RefCounted
+
+
+var actor: CombatantState
+var target: CombatantState
+var ability: AbilityDefinition
+
+
+func _init(
+	p_actor: CombatantState = null,
+	p_target: CombatantState = null,
+	p_ability: AbilityDefinition = null
+) -> void:
+	actor = p_actor
+	target = p_target
+	ability = p_ability
+```
+
+---
+
+## FILE: `core/battle/actions/battle_action_result.gd`
+```gdscript
+class_name BattleActionResult
 extends RefCounted
 
 
@@ -92,40 +139,396 @@ var failure_code: StringName = &""
 
 var actor_id: StringName = &""
 var target_id: StringName = &""
+var ability_id: StringName = &""
 
-var movement_outcome: BattleMovementOutcome
+var stamina_cost: int = 0
+var stamina_spent: int = 0
 
-var action_result: BattleActionResult
-var action_presented: bool = false
+var effect_results: Array[BattleEffectResult] = []
 
 
-func did_move() -> bool:
+func get_total_applied_amount(
+	effect_kind: StringName = &""
+) -> int:
+	var total: int = 0
+
+	for effect_result in effect_results:
+		if effect_result == null:
+			continue
+
+		if (
+			effect_kind != &""
+			and effect_result.effect_kind != effect_kind
+		):
+			continue
+
+		total += effect_result.applied_amount
+
+	return total
+
+
+func did_target_die() -> bool:
+	for effect_result in effect_results:
+		if (
+			effect_result != null
+			and effect_result.target_died
+		):
+			return true
+
+	return false
+```
+
+---
+
+## FILE: `core/battle/actions/battle_effect_result.gd`
+```gdscript
+class_name BattleEffectResult
+extends RefCounted
+
+
+var is_successful: bool = false
+var failure_code: StringName = &""
+
+var effect_id: StringName = &""
+var effect_kind: StringName = &""
+
+var source_id: StringName = &""
+var target_id: StringName = &""
+
+var raw_amount: int = 0
+var mitigated_amount: int = 0
+var resolved_amount: int = 0
+var applied_amount: int = 0
+
+var previous_value: int = 0
+var current_value: int = 0
+
+var target_died: bool = false
+```
+
+---
+
+## FILE: `core/battle/ai/basic_melee_ai_turn_plan.gd`
+```gdscript
+class_name BasicMeleeAITurnPlan
+extends RefCounted
+
+
+var is_valid: bool = false
+var failure_code: StringName = &""
+
+var actor: CombatantState
+var target: CombatantState
+var ability: AbilityDefinition
+
+var movement_plan: BattleMovementPlan
+var expects_attack_after_movement: bool = false
+
+
+func has_movement() -> bool:
 	return (
-		movement_outcome != null
-		and movement_outcome.did_move()
+		movement_plan != null
+		and movement_plan.is_valid
+		and movement_plan.has_path()
+	)
+```
+
+---
+
+## FILE: `core/battle/grid/battle_grid.gd`
+```gdscript
+class_name BattleGrid
+extends RefCounted
+
+
+const INVALID_COORDINATE: Vector2i = Vector2i(-1, -1)
+const EMPTY_ID: StringName = &""
+
+
+var rows: int
+var columns: int
+
+var _cells: Array[BattleGridCell] = []
+var _occupant_positions: Dictionary = {}
+var _obstacle_positions: Dictionary = {}
+
+
+func _init(p_rows: int = 3, p_columns: int = 10) -> void:
+	assert(p_rows > 0, "BattleGrid requires at least one row.")
+	assert(p_columns > 0, "BattleGrid requires at least one column.")
+
+	rows = p_rows
+	columns = p_columns
+
+	_build_cells()
+
+
+func _build_cells() -> void:
+	_cells.clear()
+	_cells.resize(rows * columns)
+
+	for row in range(rows):
+		for column in range(columns):
+			var coordinate := Vector2i(column, row)
+			_cells[_coordinate_to_index(coordinate)] = BattleGridCell.new(coordinate)
+
+
+func _coordinate_to_index(coordinate: Vector2i) -> int:
+	return coordinate.y * columns + coordinate.x
+
+
+func is_inside(coordinate: Vector2i) -> bool:
+	return (
+		coordinate.x >= 0
+		and coordinate.x < columns
+		and coordinate.y >= 0
+		and coordinate.y < rows
 	)
 
 
-func get_movement_step_count() -> int:
-	if movement_outcome == null:
-		return 0
+func get_cell(coordinate: Vector2i) -> BattleGridCell:
+	if not is_inside(coordinate):
+		return null
 
-	return movement_outcome.get_step_count()
+	return _cells[_coordinate_to_index(coordinate)]
 
 
-func did_attack() -> bool:
+func get_all_coordinates() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	for row in range(rows):
+		for column in range(columns):
+			result.append(Vector2i(column, row))
+
+	return result
+
+
+func get_cells_in_row(row: int) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	if row < 0 or row >= rows:
+		return result
+
+	for column in range(columns):
+		result.append(Vector2i(column, row))
+
+	return result
+
+
+func get_cells_in_column(column: int) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	if column < 0 or column >= columns:
+		return result
+
+	for row in range(rows):
+		result.append(Vector2i(column, row))
+
+	return result
+
+
+func get_orthogonal_neighbors(
+	coordinate: Vector2i,
+	walkable_only: bool = false
+) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	var directions: Array[Vector2i] = [
+		Vector2i(1, 0),
+		Vector2i(-1, 0),
+		Vector2i(0, 1),
+		Vector2i(0, -1),
+	]
+
+	for direction in directions:
+		var neighbor := coordinate + direction
+
+		if not is_inside(neighbor):
+			continue
+
+		if walkable_only:
+			var neighbor_cell := get_cell(neighbor)
+
+			if neighbor_cell == null or not neighbor_cell.is_walkable():
+				continue
+
+		result.append(neighbor)
+
+	return result
+
+
+func get_manhattan_distance(
+	first_coordinate: Vector2i,
+	second_coordinate: Vector2i
+) -> int:
+	return (
+		absi(first_coordinate.x - second_coordinate.x)
+		+ absi(first_coordinate.y - second_coordinate.y)
+	)
+
+
+func are_orthogonally_adjacent(
+	first_coordinate: Vector2i,
+	second_coordinate: Vector2i
+) -> bool:
+	return get_manhattan_distance(first_coordinate, second_coordinate) == 1
+
+
+func has_occupant(occupant_id: StringName) -> bool:
+	return _occupant_positions.has(occupant_id)
+
+
+func get_occupant_position(occupant_id: StringName) -> Vector2i:
+	return _occupant_positions.get(occupant_id, INVALID_COORDINATE)
+
+
+func try_place_occupant(
+	occupant_id: StringName,
+	coordinate: Vector2i
+) -> bool:
+	if occupant_id == EMPTY_ID:
+		return false
+
+	if _occupant_positions.has(occupant_id):
+		return false
+
+	var cell := get_cell(coordinate)
+
+	if cell == null or not cell.is_walkable():
+		return false
+
+	cell.occupant_id = occupant_id
+	_occupant_positions[occupant_id] = coordinate
+
+	return true
+
+
+func try_move_occupant(
+	occupant_id: StringName,
+	target_coordinate: Vector2i
+) -> bool:
+	if not _occupant_positions.has(occupant_id):
+		return false
+
+	var source_coordinate: Vector2i = _occupant_positions[occupant_id]
+
+	if source_coordinate == target_coordinate:
+		return false
+
+	var source_cell := get_cell(source_coordinate)
+	var target_cell := get_cell(target_coordinate)
+
+	if source_cell == null or target_cell == null:
+		return false
+
+	if not target_cell.is_walkable():
+		return false
+
+	source_cell.occupant_id = EMPTY_ID
+	target_cell.occupant_id = occupant_id
+	_occupant_positions[occupant_id] = target_coordinate
+
+	return true
+
+
+func remove_occupant(occupant_id: StringName) -> bool:
+	if not _occupant_positions.has(occupant_id):
+		return false
+
+	var coordinate: Vector2i = _occupant_positions[occupant_id]
+	var cell := get_cell(coordinate)
+
+	if cell != null and cell.occupant_id == occupant_id:
+		cell.occupant_id = EMPTY_ID
+
+	_occupant_positions.erase(occupant_id)
+	return true
+
+
+func has_obstacle(obstacle_id: StringName) -> bool:
+	return _obstacle_positions.has(obstacle_id)
+
+
+func get_obstacle_position(obstacle_id: StringName) -> Vector2i:
+	return _obstacle_positions.get(obstacle_id, INVALID_COORDINATE)
+
+
+func try_place_obstacle(
+	obstacle_id: StringName,
+	coordinate: Vector2i
+) -> bool:
+	if obstacle_id == EMPTY_ID:
+		return false
+
+	if _obstacle_positions.has(obstacle_id):
+		return false
+
+	var cell := get_cell(coordinate)
+
+	if cell == null or not cell.is_walkable():
+		return false
+
+	cell.obstacle_id = obstacle_id
+	_obstacle_positions[obstacle_id] = coordinate
+
+	return true
+
+
+func remove_obstacle(obstacle_id: StringName) -> bool:
+	if not _obstacle_positions.has(obstacle_id):
+		return false
+
+	var coordinate: Vector2i = _obstacle_positions[obstacle_id]
+	var cell := get_cell(coordinate)
+
+	if cell != null and cell.obstacle_id == obstacle_id:
+		cell.obstacle_id = EMPTY_ID
+
+	_obstacle_positions.erase(obstacle_id)
+	return true
+
+
+func clear() -> void:
+	for cell in _cells:
+		cell.clear()
+
+	_occupant_positions.clear()
+	_obstacle_positions.clear()
+```
+
+---
+
+## FILE: `presentation/battle/actions/battle_action_outcome.gd`
+```gdscript
+class_name BattleActionOutcome
+extends RefCounted
+
+
+var is_successful: bool = false
+var failure_code: StringName = &""
+
+var command: BattleActionCommand
+var action_result: BattleActionResult
+
+var action_presented: bool = false
+var defeated_view_removed: bool = false
+
+
+func did_execute() -> bool:
 	return (
 		action_result != null
 		and action_result.is_successful
 	)
 
 
-func get_damage_dealt() -> int:
+func get_total_applied_amount(
+	effect_kind: StringName = &""
+) -> int:
 	if action_result == null:
 		return 0
 
 	return action_result.get_total_applied_amount(
-		&"damage"
+		effect_kind
 	)
 
 
@@ -138,6 +541,148 @@ func did_target_die() -> bool:
 
 ---
 
+## FILE: `presentation/battle/actions/battle_action_runner.gd`
+```gdscript
+class_name BattleActionRunner
+extends RefCounted
+
+
+const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
+const FAILURE_INVALID_COMMAND: StringName = &"invalid_command"
+
+const FAILURE_EXECUTION_FAILED: StringName = (
+	&"execution_failed"
+)
+
+const FAILURE_PRESENTATION_FAILED: StringName = (
+	&"presentation_failed"
+)
+
+const FAILURE_DEFEATED_VIEW_REMOVAL_FAILED: StringName = (
+	&"defeated_view_removal_failed"
+)
+
+
+var action_service: BattleActionService
+var combatant_presenter: BattleCombatantPresenter
+
+
+func _init(
+	p_action_service: BattleActionService,
+	p_combatant_presenter: BattleCombatantPresenter
+) -> void:
+	assert(
+		p_action_service != null,
+		"BattleActionRunner requires an action service."
+	)
+
+	assert(
+		p_combatant_presenter != null,
+		"BattleActionRunner requires a combatant presenter."
+	)
+
+	action_service = p_action_service
+	combatant_presenter = p_combatant_presenter
+
+
+func can_execute(
+	grid: BattleGrid,
+	command: BattleActionCommand
+) -> bool:
+	return get_validation_failure(
+		grid,
+		command
+	) == &""
+
+
+func get_validation_failure(
+	grid: BattleGrid,
+	command: BattleActionCommand
+) -> StringName:
+	if grid == null:
+		return FAILURE_INVALID_GRID
+
+	if command == null:
+		return FAILURE_INVALID_COMMAND
+
+	return action_service.get_validation_failure(
+		grid,
+		command
+	)
+
+
+func execute_melee(
+	grid: BattleGrid,
+	command: BattleActionCommand,
+	animated: bool = true,
+	remove_defeated_view: bool = true
+) -> BattleActionOutcome:
+	var outcome := BattleActionOutcome.new()
+
+	outcome.command = command
+
+	var validation_failure := get_validation_failure(
+		grid,
+		command
+	)
+
+	if validation_failure != &"":
+		outcome.failure_code = validation_failure
+		return outcome
+
+	outcome.action_result = action_service.execute(
+		grid,
+		command
+	)
+
+	if not outcome.action_result.is_successful:
+		outcome.failure_code = (
+			outcome.action_result.failure_code
+			if outcome.action_result.failure_code != &""
+			else FAILURE_EXECUTION_FAILED
+		)
+
+		return outcome
+
+	outcome.action_presented = await (
+		combatant_presenter.play_melee_feedback(
+			command.actor.instance_id,
+			command.target.instance_id,
+			outcome.action_result.did_target_die(),
+			animated
+		)
+	)
+
+	if not outcome.action_presented:
+		outcome.failure_code = (
+			FAILURE_PRESENTATION_FAILED
+		)
+
+		return outcome
+
+	if (
+		remove_defeated_view
+		and outcome.action_result.did_target_die()
+	):
+		outcome.defeated_view_removed = (
+			combatant_presenter.remove_view(
+				command.target.instance_id
+			)
+		)
+
+		if not outcome.defeated_view_removed:
+			outcome.failure_code = (
+				FAILURE_DEFEATED_VIEW_REMOVAL_FAILED
+			)
+
+			return outcome
+
+	outcome.is_successful = true
+	return outcome
+```
+
+---
+
 ## FILE: `presentation/battle/ai/basic_melee_ai_turn_runner.gd`
 ```gdscript
 class_name BasicMeleeAITurnRunner
@@ -146,23 +691,22 @@ extends RefCounted
 
 const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
 const FAILURE_INVALID_PLAN: StringName = &"invalid_plan"
-const FAILURE_ACTION_EXECUTION_FAILED: StringName = (
-	&"action_execution_failed"
+const FAILURE_ACTION_LIMIT_REACHED: StringName = (
+	&"action_limit_reached"
 )
-const FAILURE_ACTION_PRESENTATION_FAILED: StringName = (
-	&"action_presentation_failed"
-)
+
+# Защита от бесконечного цикла для будущих
+# бесплатных способностей, лечения и прочих эффектов.
+const MAX_ACTIONS_PER_TURN: int = 64
 
 
 var movement_runner: BattleMovementRunner
-var action_service: BattleActionService
-var combatant_presenter: BattleCombatantPresenter
+var action_runner: BattleActionRunner
 
 
 func _init(
 	p_movement_runner: BattleMovementRunner,
-	p_action_service: BattleActionService,
-	p_combatant_presenter: BattleCombatantPresenter
+	p_action_runner: BattleActionRunner
 ) -> void:
 	assert(
 		p_movement_runner != null,
@@ -170,18 +714,12 @@ func _init(
 	)
 
 	assert(
-		p_action_service != null,
-		"BasicMeleeAITurnRunner requires an action service."
-	)
-
-	assert(
-		p_combatant_presenter != null,
-		"BasicMeleeAITurnRunner requires a combatant presenter."
+		p_action_runner != null,
+		"BasicMeleeAITurnRunner requires an action runner."
 	)
 
 	movement_runner = p_movement_runner
-	action_service = p_action_service
-	combatant_presenter = p_combatant_presenter
+	action_runner = p_action_runner
 
 
 func execute(
@@ -226,53 +764,323 @@ func execute(
 
 			return outcome
 
+	if not plan.actor.is_alive:
+		outcome.is_successful = true
+		return outcome
+
 	if not plan.target.is_alive:
 		outcome.is_successful = true
 		return outcome
 
-	var command := BattleActionCommand.new(
-		plan.actor,
-		plan.target,
-		plan.ability
-	)
+	var executed_action_count: int = 0
 
-	if not action_service.can_execute(
-		grid,
-		command
+	while (
+		plan.actor.is_alive
+		and plan.target.is_alive
 	):
-		outcome.is_successful = true
-		return outcome
+		if executed_action_count >= MAX_ACTIONS_PER_TURN:
+			outcome.failure_code = (
+				FAILURE_ACTION_LIMIT_REACHED
+			)
 
-	outcome.action_result = action_service.execute(
-		grid,
-		command
-	)
+			return outcome
 
-	if not outcome.action_result.is_successful:
-		outcome.failure_code = (
-			FAILURE_ACTION_EXECUTION_FAILED
+		var command := BattleActionCommand.new(
+			plan.actor,
+			plan.target,
+			plan.ability
 		)
 
-		return outcome
+		# Обычно цикл закончится здесь,
+		# когда не хватит выносливости.
+		if not action_runner.can_execute(
+			grid,
+			command
+		):
+			break
 
-	outcome.action_presented = await (
-		combatant_presenter.play_melee_feedback(
-			plan.actor.instance_id,
-			plan.target.instance_id,
-			outcome.action_result.did_target_die(),
-			animate_action
-		)
-	)
-
-	if not outcome.action_presented:
-		outcome.failure_code = (
-			FAILURE_ACTION_PRESENTATION_FAILED
+		var previous_actor_stamina := (
+			plan.actor.current_stamina
 		)
 
-		return outcome
+		var previous_target_health := (
+			plan.target.current_health
+		)
+
+		var current_action_outcome := await (
+			action_runner.execute_melee(
+				grid,
+				command,
+				animate_action
+			)
+		)
+
+		if not current_action_outcome.is_successful:
+			outcome.failure_code = (
+				current_action_outcome.failure_code
+			)
+
+			return outcome
+
+		outcome.add_action_outcome(
+			current_action_outcome
+		)
+
+		executed_action_count += 1
+
+		# Дополнительная страховка от способности,
+		# которая не тратит ресурс и ничего не меняет.
+		var stamina_changed := (
+			plan.actor.current_stamina
+			!= previous_actor_stamina
+		)
+
+		var health_changed := (
+			plan.target.current_health
+			!= previous_target_health
+		)
+
+		if not stamina_changed and not health_changed:
+			break
 
 	outcome.is_successful = true
 	return outcome
+```
+
+---
+
+## FILE: `presentation/battle/combatants/battle_combatant_presenter.gd`
+```gdscript
+class_name BattleCombatantPresenter
+extends RefCounted
+
+
+var grid_view: BattleGridView
+var combatant_layer: Node2D
+var combatant_view_scene: PackedScene
+
+var _views: Dictionary = {}
+
+
+func _init(
+	p_grid_view: BattleGridView,
+	p_combatant_layer: Node2D,
+	p_combatant_view_scene: PackedScene
+) -> void:
+	assert(p_grid_view != null, "Grid view is required.")
+	assert(p_combatant_layer != null, "Combatant layer is required.")
+	assert(p_combatant_view_scene != null, "Combatant view scene is required.")
+
+	grid_view = p_grid_view
+	combatant_layer = p_combatant_layer
+	combatant_view_scene = p_combatant_view_scene
+
+
+func add_combatant(
+	state: CombatantState,
+	selected: bool = false
+) -> CombatantView:
+	if state == null or state.instance_id == &"":
+		return null
+
+	if has_view(state.instance_id):
+		return null
+
+	var instance := combatant_view_scene.instantiate()
+
+	if not (instance is CombatantView):
+		push_error(
+			"Combatant view scene must inherit CombatantView."
+		)
+		instance.queue_free()
+		return null
+
+	var view := instance as CombatantView
+
+	combatant_layer.add_child(view)
+	view.bind_state(state)
+	view.set_selected_state(selected)
+	view.snap_to_local_position(
+		grid_view.get_cell_center(state.grid_position)
+	)
+
+	_views[state.instance_id] = view
+	return view
+
+
+func has_view(instance_id: StringName) -> bool:
+	return get_view(instance_id) != null
+
+
+func get_view(instance_id: StringName) -> CombatantView:
+	if not _views.has(instance_id):
+		return null
+
+	var value: Variant = _views[instance_id]
+
+	if not is_instance_valid(value):
+		_views.erase(instance_id)
+		return null
+
+	return value as CombatantView
+
+
+func move_along_grid_path(
+	instance_id: StringName,
+	grid_path: Array[Vector2i],
+	animated: bool = true
+) -> bool:
+	var view := get_view(instance_id)
+
+	if view == null or grid_path.is_empty():
+		return false
+
+	var local_path: Array[Vector2] = []
+
+	for coordinate in grid_path:
+		if not grid_view.is_valid_coordinate(coordinate):
+			return false
+
+		local_path.append(
+			grid_view.get_cell_center(coordinate)
+		)
+
+	view.move_along_local_path(local_path, animated)
+
+	if animated:
+		await view.movement_finished
+
+	return true
+
+
+func face_toward(
+	actor_id: StringName,
+	target_id: StringName
+) -> bool:
+	var actor_view := get_view(actor_id)
+	var target_view := get_view(target_id)
+
+	if actor_view == null or target_view == null:
+		return false
+
+	var horizontal_distance := (
+		target_view.position.x - actor_view.position.x
+	)
+
+	if not is_zero_approx(horizontal_distance):
+		actor_view.set_facing_direction(
+			1 if horizontal_distance > 0.0 else -1
+		)
+
+	return true
+
+
+func play_melee_feedback(
+	actor_id: StringName,
+	target_id: StringName,
+	target_died: bool = false,
+	animated: bool = true
+) -> bool:
+	var actor_view := get_view(actor_id)
+	var target_view := get_view(target_id)
+
+	if actor_view == null or target_view == null:
+		return false
+
+	face_toward(actor_id, target_id)
+
+	actor_view.play_visual_animation(&"attack", &"idle")
+	target_view.play_visual_animation(&"hit", &"idle")
+
+	if not animated:
+		_finish_melee_feedback(
+			actor_view,
+			target_view,
+			target_died
+		)
+		return true
+
+	var actor_start := actor_view.position
+	var target_original_modulate := target_view.modulate
+	var direction := (
+		target_view.position - actor_view.position
+	).normalized()
+
+	var tween := combatant_layer.create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+
+	tween.tween_property(
+		actor_view,
+		"position",
+		actor_start + direction * 22.0,
+		0.08
+	)
+
+	tween.parallel().tween_property(
+		target_view,
+		"modulate",
+		Color(1.0, 0.28, 0.22, 1.0),
+		0.06
+	)
+
+	tween.tween_property(
+		actor_view,
+		"position",
+		actor_start,
+		0.11
+	)
+
+	tween.parallel().tween_property(
+		target_view,
+		"modulate",
+		target_original_modulate,
+		0.11
+	)
+
+	await tween.finished
+
+	_finish_melee_feedback(
+		actor_view,
+		target_view,
+		target_died
+	)
+
+	return true
+
+
+func remove_view(instance_id: StringName) -> bool:
+	var view := get_view(instance_id)
+
+	if view == null:
+		return false
+
+	_views.erase(instance_id)
+	view.queue_free()
+	return true
+
+
+func clear() -> void:
+	for value in _views.keys():
+		var instance_id: StringName = value
+		remove_view(instance_id)
+
+
+func _finish_melee_feedback(
+	actor_view: CombatantView,
+	target_view: CombatantView,
+	target_died: bool
+) -> void:
+	if is_instance_valid(actor_view):
+		actor_view.play_visual_animation(&"idle", &"")
+
+	if not is_instance_valid(target_view):
+		return
+
+	if target_died:
+		target_view.play_visual_animation(&"death", &"")
+	else:
+		target_view.play_visual_animation(&"idle", &"")
 ```
 
 ---
@@ -305,978 +1113,10 @@ window/stretch/aspect="expand"
 
 ---
 
-## FILE: `scenes/debug/battle_grid_sandbox.gd`
-```gdscript
-extends Node2D
-
-
-const HERO_ID: StringName = &"debug_hero"
-const ENEMY_ID: StringName = &"debug_enemy"
-
-const PLAYER_TEAM_ID: StringName = &"team_player"
-const ENEMY_TEAM_ID: StringName = &"team_enemy"
-
-
-@export_group("Combatants")
-
-@export
-var combatant_view_scene: PackedScene
-
-@export
-var hero_definition: CombatantDefinition
-
-@export
-var enemy_definition: CombatantDefinition
-
-
-@export_group("Abilities")
-
-@export
-var sabre_slash_ability: AbilityDefinition
-
-
-@export_group("Presentation")
-
-@export
-var animate_movement: bool = true
-
-@export
-var animate_actions: bool = true
-
-@export_range(0.0, 2.0, 0.05)
-var ai_think_delay: float = 0.35
-
-
-@export_group("Movement")
-
-@export_range(1, 10, 1)
-var stamina_cost_per_cell: int = 1
-
-
-@onready
-var grid_view: BattleGridView = $BattleGridView
-
-@onready
-var combatant_layer: Node2D = (
-	$BattleGridView/CombatantLayer
-)
-
-@onready
-var status_label: Label = (
-	$CanvasLayer/InterfaceMargin/PanelContainer /
-	ContentMargin / VBoxContainer / StatusLabel
-)
-
-
-var session: BattleSession
-var grid: BattleGrid
-
-var hero_state: CombatantState
-var enemy_state: CombatantState
-
-var combatant_presenter: BattleCombatantPresenter
-var grid_overlay_presenter: BattleGridOverlayPresenter
-
-var movement_runner: BattleMovementRunner
-var turn_controller: BattleTurnController
-
-var ai_controller: BasicMeleeAIController
-var ai_turn_runner: BasicMeleeAITurnRunner
-
-var movement_service := BattleMovementService.new()
-var action_service := BattleActionService.new()
-
-var _obstacle_counter: int = 0
-var _interaction_in_progress: bool = false
-
-var _hovered_coordinate: Vector2i = (
-	BattleGridView.INVALID_COORDINATE
-)
-
-
-func _ready() -> void:
-	_validate_dependencies()
-	_create_battle_state()
-	_create_combatant_presenter()
-	_create_movement_runner()
-	_create_grid_overlay_presenter()
-	_create_ai_system()
-	_connect_grid_signals()
-	_create_turn_controller()
-
-func _create_ai_system() -> void:
-	ai_controller = BasicMeleeAIController.new(
-		movement_service,
-		action_service
-	)
-
-	ai_turn_runner = BasicMeleeAITurnRunner.new(
-		movement_runner,
-		action_service,
-		combatant_presenter
-	)
-
-func _create_turn_controller() -> void:
-	turn_controller = BattleTurnController.new()
-
-	turn_controller.turn_started.connect(
-		_on_turn_started
-	)
-
-	turn_controller.battle_finished.connect(
-		_on_battle_finished
-	)
-
-	var started := turn_controller.start(
-		session
-	)
-
-	assert(
-		started,
-		"Failed to start battle turn controller."
-	)
-
-
-func _validate_dependencies() -> void:
-	assert(
-		combatant_view_scene != null,
-		"Combatant view scene is not assigned."
-	)
-
-	assert(
-		hero_definition != null,
-		"Hero definition is not assigned."
-	)
-
-	assert(
-		enemy_definition != null,
-		"Enemy definition is not assigned."
-	)
-
-	assert(
-		sabre_slash_ability != null,
-		"Sabre slash ability is not assigned."
-	)
-
-	var hero_errors := (
-		hero_definition.get_validation_errors()
-	)
-
-	assert(
-		hero_errors.is_empty(),
-		"Invalid hero definition: %s"
-		% hero_errors
-	)
-
-	var enemy_errors := (
-		enemy_definition.get_validation_errors()
-	)
-
-	assert(
-		enemy_errors.is_empty(),
-		"Invalid enemy definition: %s"
-		% enemy_errors
-	)
-
-	var ability_errors := (
-		sabre_slash_ability.get_validation_errors()
-	)
-
-	assert(
-		ability_errors.is_empty(),
-		"Invalid sabre slash ability: %s"
-		% ability_errors
-	)
-
-
-func _create_battle_state() -> void:
-	session = BattleSession.new(
-		grid_view.rows,
-		grid_view.columns
-	)
-
-	grid = session.grid
-
-	var hero_start := Vector2i(2, 1)
-	var enemy_start := Vector2i(6, 1)
-
-	hero_state = session.add_combatant(
-		HERO_ID,
-		hero_definition,
-		PLAYER_TEAM_ID,
-		hero_start
-	)
-
-	assert(
-		hero_state != null,
-		"Failed to create the debug hero."
-	)
-
-	enemy_state = session.add_combatant(
-		ENEMY_ID,
-		enemy_definition,
-		ENEMY_TEAM_ID,
-		enemy_start
-	)
-
-	assert(
-		enemy_state != null,
-		"Failed to create the debug enemy."
-	)
-
-
-func _create_combatant_presenter() -> void:
-	combatant_presenter = BattleCombatantPresenter.new(
-		grid_view,
-		combatant_layer,
-		combatant_view_scene
-	)
-
-	var created_hero_view := (
-		combatant_presenter.add_combatant(
-			hero_state,
-			true
-		)
-	)
-
-	assert(
-		created_hero_view != null,
-		"Failed to create the hero view."
-	)
-
-	var created_enemy_view := (
-		combatant_presenter.add_combatant(
-			enemy_state,
-			false
-		)
-	)
-
-	assert(
-		created_enemy_view != null,
-		"Failed to create the enemy view."
-	)
-
-
-func _create_movement_runner() -> void:
-	movement_runner = BattleMovementRunner.new(
-		movement_service,
-		combatant_presenter
-	)
-
-
-func _create_grid_overlay_presenter() -> void:
-	grid_overlay_presenter = (
-		BattleGridOverlayPresenter.new(
-			grid_view,
-			movement_service,
-			action_service
-		)
-	)
-
-
-func _connect_grid_signals() -> void:
-	grid_view.cell_clicked.connect(
-		_on_grid_cell_clicked
-	)
-
-	grid_view.cell_hovered.connect(
-		_on_grid_cell_hovered
-	)
-
-
-func _unhandled_input(
-	event: InputEvent
-) -> void:
-	if _interaction_in_progress:
-		return
-
-	if turn_controller == null:
-		return
-
-	if not turn_controller.is_running:
-		return
-
-	if (
-		event is InputEventKey
-		and event.pressed
-		and not event.echo
-		and event.keycode == KEY_SPACE
-		and _is_player_turn()
-	):
-		_end_active_turn()
-
-
-func _on_grid_cell_hovered(
-	coordinate: Vector2i
-) -> void:
-	_hovered_coordinate = coordinate
-
-	if not _interaction_in_progress:
-		_refresh_grid_overlays()
-
-
-func _on_grid_cell_clicked(
-	coordinate: Vector2i,
-	mouse_button: int
-) -> void:
-	if _interaction_in_progress:
-		return
-
-	if turn_controller == null:
-		return
-
-	if not turn_controller.is_running:
-		return
-
-	if not _is_player_turn():
-		_set_status(
-			"Сейчас ход %s. "
-			% turn_controller.active_combatant.definition.display_name
-			+"Нажми Space, чтобы завершить его "
-			+"тестовый ход."
-		)
-
-		return
-
-	match mouse_button:
-		MOUSE_BUTTON_LEFT:
-			if _is_living_enemy_coordinate(
-				coordinate
-			):
-				_try_attack_enemy()
-			else:
-				_try_move_hero(
-					coordinate
-				)
-
-		MOUSE_BUTTON_RIGHT:
-			_toggle_obstacle(
-				coordinate
-			)
-
-
-func _is_living_enemy_coordinate(
-	coordinate: Vector2i
-) -> bool:
-	return (
-		enemy_state != null
-		and enemy_state.is_alive
-		and enemy_state.grid_position == coordinate
-	)
-
-func _is_player_turn() -> bool:
-	return (
-		turn_controller != null
-		and turn_controller.is_combatant_active(
-			hero_state
-		)
-	)
-
-
-func _end_active_turn() -> void:
-	if turn_controller == null:
-		return
-
-	if not turn_controller.is_running:
-		return
-
-	turn_controller.end_current_turn()
-
-
-func _on_turn_started(
-	combatant: CombatantState,
-	current_round: int,
-	_turn_index: int
-) -> void:
-	_set_active_combatant_selection(
-		combatant
-	)
-
-	_refresh_grid_overlays()
-
-	if combatant.team_id == PLAYER_TEAM_ID:
-		_interaction_in_progress = false
-
-		_set_status(
-			"Раунд %d. Твой ход: %s. "
-			% [
-				current_round,
-				combatant.definition.display_name,
-			]
-			+"Выносливость: %d/%d. "
-			% [
-				combatant.current_stamina,
-				combatant.max_stamina,
-			]
-			+"Space — завершить ход."
-		)
-
-		return
-
-	_interaction_in_progress = true
-
-	_set_status(
-		"Раунд %d. Ход врага: %s."
-		% [
-			current_round,
-			combatant.definition.display_name,
-		]
-	)
-
-	call_deferred(
-		"_run_ai_turn",
-		combatant
-	)
-
-
-func _on_battle_finished(
-	winning_team_id: StringName
-) -> void:
-	_interaction_in_progress = false
-
-	_set_active_combatant_selection(
-		null
-	)
-
-	grid_overlay_presenter.clear()
-
-	if winning_team_id == PLAYER_TEAM_ID:
-		_set_status(
-			"Бой завершён. Победа!"
-		)
-
-	elif winning_team_id == ENEMY_TEAM_ID:
-		_set_status(
-			"Бой завершён. Поражение."
-		)
-
-	else:
-		_set_status(
-			"Бой завершён без победителя."
-		)
-
-
-func _set_active_combatant_selection(
-	active: CombatantState
-) -> void:
-	for combatant in session.get_all_combatants():
-		var view := combatant_presenter.get_view(
-			combatant.instance_id
-		)
-
-		if view == null:
-			continue
-
-		view.set_selected_state(
-			combatant == active
-		)
-
-func _run_ai_turn(
-	combatant: CombatantState
-) -> void:
-	if not _is_combatant_still_active(
-		combatant
-	):
-		return
-
-	if ai_think_delay > 0.0:
-		await get_tree().create_timer(
-			ai_think_delay
-		).timeout
-
-	if not _is_combatant_still_active(
-		combatant
-	):
-		return
-
-	var plan := ai_controller.create_turn_plan(
-		grid,
-		session,
-		combatant,
-		sabre_slash_ability,
-		stamina_cost_per_cell
-	)
-
-	if not plan.is_valid:
-		_set_status(
-			"%s завершает ход: %s."
-			% [
-				combatant.definition.display_name,
-				plan.failure_code,
-			]
-		)
-
-		_finish_ai_turn(
-			combatant
-		)
-		return
-
-	grid_overlay_presenter.clear()
-
-	var outcome := await ai_turn_runner.execute(
-		grid,
-		plan,
-		animate_movement,
-		animate_actions
-	)
-
-	if outcome.did_target_die():
-		combatant_presenter.remove_view(
-			outcome.target_id
-		)
-
-	if turn_controller.is_finished:
-		_interaction_in_progress = false
-		return
-
-	if not outcome.is_successful:
-		_set_status(
-			"Ход ИИ выполнен не полностью: %s."
-			% outcome.failure_code
-		)
-
-	elif outcome.did_attack():
-		_set_status(
-			"%s атакует %s. Урон: %d. "
-			% [
-				combatant.definition.display_name,
-				plan.target.definition.display_name,
-				outcome.get_damage_dealt(),
-			]
-			+"Здоровье цели: %d/%d. "
-			% [
-				plan.target.current_health,
-				plan.target.max_health,
-			]
-			+"Выносливость врага: %d/%d."
-			% [
-				combatant.current_stamina,
-				combatant.max_stamina,
-			]
-		)
-
-	elif outcome.did_move():
-		_set_status(
-			"%s приближается к %s. "
-			% [
-				combatant.definition.display_name,
-				plan.target.definition.display_name,
-			]
-			+"Пройдено клеток: %d. "
-			% outcome.get_movement_step_count()
-			+"Осталось выносливости: %d/%d."
-			% [
-				combatant.current_stamina,
-				combatant.max_stamina,
-			]
-		)
-
-	else:
-		_set_status(
-			"%s не может действовать."
-			% combatant.definition.display_name
-		)
-
-	_refresh_grid_overlays()
-
-	_finish_ai_turn(
-		combatant
-	)
-
-
-func _is_combatant_still_active(
-	combatant: CombatantState
-) -> bool:
-	return (
-		turn_controller != null
-		and turn_controller.is_running
-		and turn_controller.is_combatant_active(
-			combatant
-		)
-	)
-
-
-func _finish_ai_turn(
-	combatant: CombatantState
-) -> void:
-	if not _is_combatant_still_active(
-		combatant
-	):
-		return
-
-	turn_controller.end_current_turn()
-	
-func _try_move_hero(
-	target_coordinate: Vector2i
-) -> void:
-	var plan := movement_service.create_plan(
-		grid,
-		hero_state,
-		target_coordinate,
-		stamina_cost_per_cell
-	)
-
-	if not plan.is_valid:
-		_set_status(
-			_get_movement_failure_message(
-				plan.failure_code,
-				plan
-			)
-		)
-
-		_refresh_grid_overlays()
-		return
-
-	var previous_coordinate := (
-		hero_state.grid_position
-	)
-
-	_interaction_in_progress = true
-
-	grid_overlay_presenter.clear()
-
-	_set_status(
-		"%s движется к клетке %s..."
-		% [
-			hero_definition.display_name,
-			plan.target_coordinate,
-		]
-	)
-
-	var movement_outcome := await (
-		movement_runner.execute(
-			grid,
-			hero_state,
-			plan,
-			animate_movement
-		)
-	)
-
-	if not movement_outcome.is_successful:
-		_interaction_in_progress = false
-
-		_set_status(
-			"Не удалось выполнить перемещение: %s."
-			% movement_outcome.failure_code
-		)
-
-		_refresh_grid_overlays()
-		return
-
-	_set_status(
-		"%s идёт %s → %s. Шагов: %d. "
-		% [
-			hero_definition.display_name,
-			previous_coordinate,
-			plan.target_coordinate,
-			movement_outcome.get_step_count(),
-		]
-		+"Потрачено выносливости: %d. Осталось: %d/%d."
-		% [
-			plan.stamina_cost,
-			hero_state.current_stamina,
-			hero_state.max_stamina,
-		]
-	)
-
-	_interaction_in_progress = false
-	_refresh_grid_overlays()
-
-
-func _try_attack_enemy() -> void:
-	var command := BattleActionCommand.new(
-		hero_state,
-		enemy_state,
-		sabre_slash_ability
-	)
-
-	var failure_code := (
-		action_service.get_validation_failure(
-			grid,
-			command
-		)
-	)
-
-	if failure_code != &"":
-		_set_status(
-			_get_action_failure_message(
-				failure_code
-			)
-		)
-
-		_refresh_grid_overlays()
-		return
-
-	_interaction_in_progress = true
-
-	grid_overlay_presenter.clear()
-
-	var result := action_service.execute(
-		grid,
-		command
-	)
-
-	if not result.is_successful:
-		_interaction_in_progress = false
-
-		_set_status(
-			"Действие не выполнено: %s."
-			% result.failure_code
-		)
-
-		_refresh_grid_overlays()
-		return
-
-	var action_presented: bool = await (
-		combatant_presenter.play_melee_feedback(
-			HERO_ID,
-			ENEMY_ID,
-			result.did_target_die(),
-			animate_actions
-		)
-	)
-
-	if not action_presented:
-		push_error(
-			"Failed to present melee action."
-		)
-
-	var damage_dealt := (
-		result.get_total_applied_amount(
-			&"damage"
-		)
-	)
-
-	if result.did_target_die():
-		_set_status(
-			"%s использует «%s». Урон: %d. "
-			% [
-				hero_definition.display_name,
-				sabre_slash_ability.display_name,
-				damage_dealt,
-			]
-			+"%s погиб. Его клетка освобождена. "
-			% enemy_definition.display_name
-			+"Выносливость героя: %d/%d."
-			% [
-				hero_state.current_stamina,
-				hero_state.max_stamina,
-			]
-		)
-
-		combatant_presenter.remove_view(
-			ENEMY_ID
-		)
-	else:
-		_set_status(
-			"%s использует «%s». Урон: %d. "
-			% [
-				hero_definition.display_name,
-				sabre_slash_ability.display_name,
-				damage_dealt,
-			]
-			+"Здоровье врага: %d/%d. "
-			% [
-				enemy_state.current_health,
-				enemy_state.max_health,
-			]
-			+"Выносливость героя: %d/%d."
-			% [
-				hero_state.current_stamina,
-				hero_state.max_stamina,
-			]
-		)
-
-	_interaction_in_progress = false
-	_refresh_grid_overlays()
-
-
-func _toggle_obstacle(
-	coordinate: Vector2i
-) -> void:
-	var cell := grid.get_cell(coordinate)
-
-	if cell == null:
-		return
-
-	if cell.is_occupied():
-		_set_status(
-			"Нельзя поставить препятствие под бойца."
-		)
-		return
-
-	if cell.has_obstacle():
-		var obstacle_id := cell.obstacle_id
-
-		grid.remove_obstacle(
-			obstacle_id
-		)
-
-		_set_status(
-			"Препятствие удалено с клетки %s."
-			% coordinate
-		)
-
-		_refresh_grid_overlays()
-		return
-
-	_obstacle_counter += 1
-
-	var new_obstacle_id := StringName(
-		"debug_obstacle_%d"
-		% _obstacle_counter
-	)
-
-	if not grid.try_place_obstacle(
-		new_obstacle_id,
-		coordinate
-	):
-		_set_status(
-			"Не удалось поставить препятствие."
-		)
-		return
-
-	_set_status(
-		"Препятствие установлено на клетку %s."
-		% coordinate
-	)
-
-	_refresh_grid_overlays()
-
-
-func _refresh_grid_overlays() -> void:
-	if grid_overlay_presenter == null:
-		return
-
-	if turn_controller == null:
-		grid_overlay_presenter.clear()
-		return
-
-	if not turn_controller.is_running:
-		grid_overlay_presenter.clear()
-		return
-
-	var active := (
-		turn_controller.active_combatant
-	)
-
-	if active == null:
-		grid_overlay_presenter.clear()
-		return
-
-	var target_candidates: Array[CombatantState] = []
-
-	for combatant in session.get_living_combatants():
-		if combatant.team_id == active.team_id:
-			continue
-
-		target_candidates.append(
-			combatant
-		)
-
-	grid_overlay_presenter.refresh(
-		grid,
-		active,
-		target_candidates,
-		sabre_slash_ability,
-		_hovered_coordinate,
-		stamina_cost_per_cell
-	)
-
-
-func _get_action_failure_message(
-	failure_code: StringName
-) -> String:
-	match failure_code:
-		BattleActionService.FAILURE_TARGET_OUT_OF_RANGE:
-			return (
-				"Враг слишком далеко. "
-				+"Для удара саблей нужно стоять "
-				+"на соседней клетке."
-			)
-
-		BattleActionService.FAILURE_NOT_ENOUGH_STAMINA:
-			return (
-				"Недостаточно выносливости для удара. "
-				+"Нужно: %d, доступно: %d."
-				% [
-					sabre_slash_ability.stamina_cost,
-					hero_state.current_stamina,
-				]
-			)
-
-		BattleActionService.FAILURE_TARGET_DEAD:
-			return "Этот противник уже погиб."
-
-		BattleActionService.FAILURE_ACTOR_DEAD:
-			return "Погибший герой не может атаковать."
-
-		BattleActionService.FAILURE_INVALID_TARGET_RELATION:
-			return "Эту цель нельзя атаковать данным приёмом."
-
-		_:
-			return (
-				"Действие невозможно: %s."
-				% failure_code
-			)
-
-
-func _get_movement_failure_message(
-	failure_code: StringName,
-	plan: BattleMovementPlan
-) -> String:
-	match failure_code:
-		BattleMovementService.FAILURE_TARGET_IS_START:
-			return (
-				"%s уже находится на выбранной клетке."
-				% hero_definition.display_name
-			)
-
-		BattleMovementService.FAILURE_TARGET_BLOCKED:
-			return (
-				"Клетка %s занята или заблокирована."
-				% plan.target_coordinate
-			)
-
-		BattleMovementService.FAILURE_NO_PATH:
-			return (
-				"До клетки %s невозможно построить маршрут."
-				% plan.target_coordinate
-			)
-
-		BattleMovementService.FAILURE_NOT_ENOUGH_STAMINA:
-			return (
-				"Недостаточно выносливости. "
-				+"Нужно: %d, доступно: %d."
-				% [
-					plan.stamina_cost,
-					hero_state.current_stamina,
-				]
-			)
-
-		BattleMovementService.FAILURE_TARGET_OUTSIDE_GRID:
-			return "Цель находится за пределами поля."
-
-		BattleMovementService.FAILURE_DEAD_COMBATANT:
-			return "Погибший боец не может двигаться."
-
-		_:
-			return (
-				"Перемещение невозможно: %s."
-				% failure_code
-			)
-
-
-func _set_status(message: String) -> void:
-	status_label.text = message
-```
-
----
-
 
 ## ✅ STATS
-- Total files in tree: 41
-- Readable files: 37
-- Included files written: 4
+- Total files in tree: 56
+- Readable files: 52
+- Included files written: 10
 - Trimmed files: 0
-- Total lines written: 1168
+- Total lines written: 948

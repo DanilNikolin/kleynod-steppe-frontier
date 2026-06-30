@@ -8,10 +8,27 @@ const FAILURE_DEAD_COMBATANT: StringName = &"dead_combatant"
 const FAILURE_INVALID_COST: StringName = &"invalid_cost"
 const FAILURE_INVALID_START: StringName = &"invalid_start"
 const FAILURE_TARGET_OUTSIDE_GRID: StringName = &"target_outside_grid"
+const FAILURE_TARGET_OUTSIDE_TEAM_SIDE: StringName = (
+	&"target_outside_team_side"
+)
 const FAILURE_TARGET_IS_START: StringName = &"target_is_start"
 const FAILURE_TARGET_BLOCKED: StringName = &"target_blocked"
 const FAILURE_NO_PATH: StringName = &"no_path"
 const FAILURE_NOT_ENOUGH_STAMINA: StringName = &"not_enough_stamina"
+
+
+var side_rules: BattleSideRules
+
+
+func _init(
+	p_side_rules: BattleSideRules
+) -> void:
+	assert(
+		p_side_rules != null,
+		"BattleMovementService requires BattleSideRules."
+	)
+
+	side_rules = p_side_rules
 
 
 func create_plan(
@@ -48,6 +65,14 @@ func create_plan(
 		plan.failure_code = FAILURE_INVALID_START
 		return plan
 
+	if not _is_coordinate_allowed(
+		grid,
+		combatant.team_id,
+		combatant.grid_position
+	):
+		plan.failure_code = FAILURE_INVALID_START
+		return plan
+
 	if (
 		not grid.has_occupant(combatant.instance_id)
 		or grid.get_occupant_position(
@@ -65,6 +90,17 @@ func create_plan(
 		plan.failure_code = FAILURE_TARGET_IS_START
 		return plan
 
+	if not _is_coordinate_allowed(
+		grid,
+		combatant.team_id,
+		target_coordinate
+	):
+		plan.failure_code = (
+			FAILURE_TARGET_OUTSIDE_TEAM_SIDE
+		)
+
+		return plan
+
 	var target_cell := grid.get_cell(target_coordinate)
 
 	if target_cell == null or not target_cell.is_walkable():
@@ -74,7 +110,8 @@ func create_plan(
 	plan.path = find_shortest_path(
 		grid,
 		combatant.grid_position,
-		target_coordinate
+		target_coordinate,
+		combatant.team_id
 	)
 
 	if plan.path.is_empty():
@@ -120,6 +157,7 @@ func commit_plan(
 
 	if not _is_path_currently_valid(
 		grid,
+		combatant.team_id,
 		plan.start_coordinate,
 		plan.path
 	):
@@ -155,16 +193,36 @@ func commit_plan(
 func find_shortest_path(
 	grid: BattleGrid,
 	start_coordinate: Vector2i,
-	target_coordinate: Vector2i
+	target_coordinate: Vector2i,
+	team_id: StringName
 ) -> Array[Vector2i]:
 	var empty_path: Array[Vector2i] = []
 
 	if grid == null:
 		return empty_path
 
+	if not side_rules.is_team_supported(
+		team_id
+	):
+		return empty_path
+
 	if (
 		not grid.is_inside(start_coordinate)
 		or not grid.is_inside(target_coordinate)
+	):
+		return empty_path
+
+	if (
+		not _is_coordinate_allowed(
+			grid,
+			team_id,
+			start_coordinate
+		)
+		or not _is_coordinate_allowed(
+			grid,
+			team_id,
+			target_coordinate
+		)
 	):
 		return empty_path
 
@@ -202,6 +260,13 @@ func find_shortest_path(
 		)
 
 		for neighbor_coordinate in neighbors:
+			if not _is_coordinate_allowed(
+				grid,
+				team_id,
+				neighbor_coordinate
+			):
+				continue
+
 			if came_from.has(neighbor_coordinate):
 				continue
 
@@ -236,7 +301,8 @@ func find_shortest_path(
 func get_reachable_coordinates(
 	grid: BattleGrid,
 	start_coordinate: Vector2i,
-	maximum_steps: int
+	maximum_steps: int,
+	team_id: StringName
 ) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 
@@ -246,7 +312,19 @@ func get_reachable_coordinates(
 	if maximum_steps <= 0:
 		return result
 
+	if not side_rules.is_team_supported(
+		team_id
+	):
+		return result
+
 	if not grid.is_inside(start_coordinate):
+		return result
+
+	if not _is_coordinate_allowed(
+		grid,
+		team_id,
+		start_coordinate
+	):
 		return result
 
 	var frontier: Array[Vector2i] = [
@@ -279,6 +357,13 @@ func get_reachable_coordinates(
 		)
 
 		for neighbor_coordinate in neighbors:
+			if not _is_coordinate_allowed(
+				grid,
+				team_id,
+				neighbor_coordinate
+			):
+				continue
+
 			if distances.has(neighbor_coordinate):
 				continue
 
@@ -303,10 +388,18 @@ func get_reachable_coordinates(
 
 func _is_path_currently_valid(
 	grid: BattleGrid,
+	team_id: StringName,
 	start_coordinate: Vector2i,
 	path: Array[Vector2i]
 ) -> bool:
 	if path.is_empty():
+		return false
+
+	if not _is_coordinate_allowed(
+		grid,
+		team_id,
+		start_coordinate
+	):
 		return false
 
 	var previous_coordinate := start_coordinate
@@ -314,6 +407,13 @@ func _is_path_currently_valid(
 	for step_coordinate in path:
 		if not grid.are_orthogonally_adjacent(
 			previous_coordinate,
+			step_coordinate
+		):
+			return false
+
+		if not _is_coordinate_allowed(
+			grid,
+			team_id,
 			step_coordinate
 		):
 			return false
@@ -328,6 +428,22 @@ func _is_path_currently_valid(
 		previous_coordinate = step_coordinate
 
 	return true
+
+
+func _is_coordinate_allowed(
+	grid: BattleGrid,
+	team_id: StringName,
+	coordinate: Vector2i
+) -> bool:
+	if grid == null or side_rules == null:
+		return false
+
+	return side_rules.is_coordinate_allowed(
+		team_id,
+		coordinate,
+		grid.rows,
+		grid.columns
+	)
 
 
 func _rollback_failed_movement(

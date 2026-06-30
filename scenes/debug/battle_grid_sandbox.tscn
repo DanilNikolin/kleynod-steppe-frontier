@@ -1,16 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://bvvj4s6x1f4km"]
+[gd_scene load_steps=5 format=3 uid="uid://bvvj4s6x1f4km"]
 
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
-[ext_resource type="Resource" uid="uid://dgp7p6h0tjn5n" path="res://content/encounters/debug/debug_duel_encounter.tres" id="4_encounter_definition"]
-[ext_resource type="Resource" uid="uid://bh0xtv0ndcte4" path="res://content/abilities/debug/debug_sabre_slash.tres" id="6_sabre_slash"]
+[ext_resource type="Resource" uid="uid://bcg0f3qjyahde" path="res://content/encounters/debug/debug_reinforcement_encounter.tres" id="4_encounter_definition"]
 
 [node name="BattleGridSandbox" type="Node2D"]
 script = ExtResource("1_sandbox")
 combatant_view_scene = ExtResource("3_combatant_view")
 encounter_definition = ExtResource("4_encounter_definition")
-sabre_slash_ability = ExtResource("6_sabre_slash")
 
 [node name="BattleGridView" parent="." instance=ExtResource("2_grid")]
 position = Vector2(958.43, 540)

@@ -2,8 +2,17 @@ class_name BattleActionRunner
 extends RefCounted
 
 
-const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
-const FAILURE_INVALID_COMMAND: StringName = &"invalid_command"
+const FAILURE_INVALID_SESSION: StringName = (
+	&"invalid_session"
+)
+
+const FAILURE_INVALID_COMMAND: StringName = (
+	&"invalid_command"
+)
+
+const FAILURE_REQUIRES_SINGLE_TARGET: StringName = (
+	&"requires_single_target"
+)
 
 const FAILURE_EXECUTION_FAILED: StringName = (
 	&"execution_failed"
@@ -33,7 +42,8 @@ func _init(
 
 	assert(
 		p_combatant_presenter != null,
-		"BattleActionRunner requires a combatant presenter."
+		"BattleActionRunner requires "
+		+"a combatant presenter."
 	)
 
 	action_service = p_action_service
@@ -41,33 +51,54 @@ func _init(
 
 
 func can_execute(
-	grid: BattleGrid,
+	session: BattleSession,
 	command: BattleActionCommand
 ) -> bool:
 	return get_validation_failure(
-		grid,
+		session,
 		command
 	) == &""
 
 
 func get_validation_failure(
-	grid: BattleGrid,
+	session: BattleSession,
 	command: BattleActionCommand
 ) -> StringName:
-	if grid == null:
-		return FAILURE_INVALID_GRID
+	if session == null:
+		return FAILURE_INVALID_SESSION
 
 	if command == null:
 		return FAILURE_INVALID_COMMAND
 
-	return action_service.get_validation_failure(
-		grid,
-		command
+	var action_failure := (
+		action_service.get_validation_failure(
+			session,
+			command
+		)
 	)
+
+	if action_failure != &"":
+		return action_failure
+
+	var targeting_result := (
+		action_service.get_targeting_result(
+			session,
+			command
+		)
+	)
+
+	if (
+		not targeting_result.is_valid
+		or targeting_result
+		.affected_combatants.size() != 1
+	):
+		return FAILURE_REQUIRES_SINGLE_TARGET
+
+	return &""
 
 
 func execute_melee(
-	grid: BattleGrid,
+	session: BattleSession,
 	command: BattleActionCommand,
 	animated: bool = true,
 	remove_defeated_view: bool = true
@@ -76,34 +107,53 @@ func execute_melee(
 
 	outcome.command = command
 
-	var validation_failure := get_validation_failure(
-		grid,
-		command
+	var validation_failure := (
+		get_validation_failure(
+			session,
+			command
+		)
 	)
 
 	if validation_failure != &"":
-		outcome.failure_code = validation_failure
+		outcome.failure_code = (
+			validation_failure
+		)
+
 		return outcome
 
-	outcome.action_result = action_service.execute(
-		grid,
-		command
+	outcome.action_result = (
+		action_service.execute(
+			session,
+			command
+		)
 	)
 
 	if not outcome.action_result.is_successful:
 		outcome.failure_code = (
 			outcome.action_result.failure_code
-			if outcome.action_result.failure_code != &""
+			if outcome.action_result.failure_code
+			!= &""
 			else FAILURE_EXECUTION_FAILED
 		)
 
 		return outcome
 
+	var target_id := (
+		outcome.action_result
+		.get_primary_target_id()
+	)
+
+	var target_died := (
+		outcome.action_result.did_target_die(
+			target_id
+		)
+	)
+
 	outcome.action_presented = await (
 		combatant_presenter.play_melee_feedback(
 			command.actor.instance_id,
-			command.target.instance_id,
-			outcome.action_result.did_target_die(),
+			target_id,
+			target_died,
 			animated
 		)
 	)
@@ -117,11 +167,11 @@ func execute_melee(
 
 	if (
 		remove_defeated_view
-		and outcome.action_result.did_target_die()
+		and target_died
 	):
 		outcome.defeated_view_removed = (
 			combatant_presenter.remove_view(
-				command.target.instance_id
+				target_id
 			)
 		)
 

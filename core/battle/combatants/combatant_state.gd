@@ -18,6 +18,7 @@ const INVALID_COORDINATE: Vector2i = Vector2i(-1, -1)
 var instance_id: StringName
 var definition: CombatantDefinition
 var team_id: StringName
+var loadout: CombatantLoadoutDefinition
 
 var grid_position: Vector2i = INVALID_COORDINATE
 
@@ -49,6 +50,7 @@ func _init(
 	p_instance_id: StringName,
 	p_definition: CombatantDefinition,
 	p_team_id: StringName,
+	p_loadout: CombatantLoadoutDefinition,
 	p_grid_position: Vector2i = INVALID_COORDINATE
 ) -> void:
 	assert(
@@ -61,9 +63,15 @@ func _init(
 		"CombatantState requires a CombatantDefinition."
 	)
 
+	assert(
+		p_loadout != null,
+		"CombatantState requires a CombatantLoadoutDefinition."
+	)
+
 	instance_id = p_instance_id
 	definition = p_definition
 	team_id = p_team_id
+	loadout = p_loadout
 	grid_position = p_grid_position
 
 	_initialize_runtime_attributes()
@@ -222,3 +230,39 @@ func change_morale(amount: int) -> int:
 	set_morale(current_morale + amount)
 
 	return current_morale - previous_value
+
+
+func get_abilities() -> Array[AbilityDefinition]:
+	if loadout == null:
+		return []
+
+	return loadout.get_abilities()
+
+
+func has_ability(
+	ability_id: StringName
+) -> bool:
+	return (
+		loadout != null
+		and loadout.has_ability(
+			ability_id
+		)
+	)
+
+
+func get_ability(
+	ability_id: StringName
+) -> AbilityDefinition:
+	if loadout == null:
+		return null
+
+	return loadout.get_ability(
+		ability_id
+	)
+
+
+func get_default_ability() -> AbilityDefinition:
+	if loadout == null:
+		return null
+
+	return loadout.get_default_ability()

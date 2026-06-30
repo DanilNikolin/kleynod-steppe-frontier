@@ -13,7 +13,7 @@ const INVALID_COORDINATE: Vector2i = Vector2i(-1, -1)
 @export_group("Grid Size")
 
 @export_range(1, 20, 1)
-var rows: int = 3:
+var rows: int = 5:
 	set(value):
 		rows = maxi(1, value)
 		queue_redraw()

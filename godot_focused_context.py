@@ -25,9 +25,15 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "presentation/battle/ai/basic_melee_ai_turn_outcome.gd",
+    "core/battle/actions/battle_action_command.gd",
+    "core/battle/actions/battle_action_result.gd",
+    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/grid/battle_grid.gd",
+    "core/battle/ai/basic_melee_ai_turn_plan.gd",
+    "presentation/battle/actions/battle_action_runner.gd",
+    "presentation/battle/actions/battle_action_outcome.gd",
     "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
-    "scenes/debug/battle_grid_sandbox.gd",
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
 ]
 
 

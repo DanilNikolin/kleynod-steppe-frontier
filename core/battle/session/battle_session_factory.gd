@@ -13,7 +13,8 @@ func create_from_encounter(
 
 	var session := BattleSession.new(
 		encounter.rows,
-		encounter.columns
+		encounter.columns,
+		encounter.side_rules
 	)
 
 	for spawn in encounter.combatant_spawns:
@@ -21,7 +22,8 @@ func create_from_encounter(
 			spawn.instance_id,
 			spawn.combatant_definition,
 			spawn.team_id,
-			spawn.coordinate
+			spawn.coordinate,
+			spawn.get_effective_loadout()
 		)
 
 		if combatant == null:

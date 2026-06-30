@@ -14,12 +14,6 @@ var combatant_view_scene: PackedScene
 var encounter_definition: BattleEncounterDefinition
 
 
-@export_group("Abilities")
-
-@export
-var sabre_slash_ability: AbilityDefinition
-
-
 @export_group("Presentation")
 
 @export
@@ -64,14 +58,16 @@ var movement_runner: BattleMovementRunner
 var action_runner: BattleActionRunner
 
 var turn_controller: BattleTurnController
+var reinforcement_controller: BattleReinforcementController
 
 var ai_controller: BasicMeleeAIController
 var ai_turn_runner: BasicMeleeAITurnRunner
 
 var session_factory := BattleSessionFactory.new()
 
-var movement_service := BattleMovementService.new()
-var action_service := BattleActionService.new()
+var movement_service: BattleMovementService
+var targeting_service: BattleTargetingService
+var action_service: BattleActionService
 
 var _obstacle_counter: int = 0
 var _interaction_in_progress: bool = false
@@ -84,23 +80,57 @@ var _hovered_coordinate: Vector2i = (
 func _ready() -> void:
 	_validate_dependencies()
 	_create_battle_state()
+	_create_action_services()
 	_create_combatant_presenter()
 	_create_movement_runner()
 	_create_action_runner()
 	_create_grid_overlay_presenter()
 	_create_ai_system()
+	_create_reinforcement_system()
 	_connect_grid_signals()
 	_create_turn_controller()
+
+
+func _create_action_services() -> void:
+	targeting_service = (
+		BattleTargetingService.new()
+	)
+
+	action_service = BattleActionService.new(
+		targeting_service
+	)
+
 
 func _create_ai_system() -> void:
 	ai_controller = BasicMeleeAIController.new(
 		movement_service,
-		action_service
+		action_service,
+		targeting_service
 	)
 
 	ai_turn_runner = BasicMeleeAITurnRunner.new(
 		movement_runner,
 		action_runner
+	)
+
+func _create_reinforcement_system() -> void:
+	reinforcement_controller = (
+		BattleReinforcementController.new(
+			session,
+			encounter_definition.reinforcement_waves
+		)
+	)
+
+	reinforcement_controller.combatant_spawned.connect(
+		_on_reinforcement_combatant_spawned
+	)
+
+	reinforcement_controller.wave_completed.connect(
+		_on_reinforcement_wave_completed
+	)
+
+	reinforcement_controller.wave_deferred.connect(
+		_on_reinforcement_wave_deferred
 	)
 
 func _create_turn_controller() -> void:
@@ -115,7 +145,8 @@ func _create_turn_controller() -> void:
 	)
 
 	var started := turn_controller.start(
-		session
+		session,
+		reinforcement_controller
 	)
 
 	assert(
@@ -145,21 +176,6 @@ func _validate_dependencies() -> void:
 		% encounter_errors
 	)
 
-	assert(
-		sabre_slash_ability != null,
-		"Sabre slash ability is not assigned."
-	)
-
-	var ability_errors := (
-		sabre_slash_ability.get_validation_errors()
-	)
-
-	assert(
-		ability_errors.is_empty(),
-		"Invalid sabre slash ability: %s"
-		% ability_errors
-	)
-
 
 func _create_battle_state() -> void:
 	session = session_factory.create_from_encounter(
@@ -174,11 +190,14 @@ func _create_battle_state() -> void:
 
 	grid = session.grid
 
-	assert(
-		grid.rows == grid_view.rows
-		and grid.columns == grid_view.columns,
-		"Encounter grid dimensions must match "
-		+"the current BattleGridView dimensions."
+	movement_service = BattleMovementService.new(
+		session.side_rules
+	)
+
+	grid_view.rows = grid.rows
+	grid_view.columns = grid.columns
+	grid_view.divider_column = (
+		session.side_rules.divider_column
 	)
 
 
@@ -227,6 +246,69 @@ func _create_grid_overlay_presenter() -> void:
 		)
 	)
 
+func _on_reinforcement_combatant_spawned(
+	combatant: CombatantState,
+	wave_id: StringName,
+	scheduled_round: int,
+	actual_round: int,
+	coordinate: Vector2i
+) -> void:
+	var created_view := (
+		combatant_presenter.add_combatant(
+			combatant,
+			false
+		)
+	)
+
+	assert(
+		created_view != null,
+		"Failed to create reinforcement view "
+		+"for combatant '%s'."
+		% combatant.instance_id
+	)
+
+	print(
+		"Reinforcement '%s' from wave '%s' "
+		% [
+			combatant.instance_id,
+			wave_id,
+		]
+		+"spawned at %s. Scheduled round: %d, "
+		% [
+			coordinate,
+			scheduled_round,
+		]
+		+"actual round: %d."
+		% actual_round
+	)
+
+
+func _on_reinforcement_wave_completed(
+	wave_id: StringName,
+	actual_round: int
+) -> void:
+	print(
+		"Reinforcement wave '%s' completed "
+		% wave_id
+		+"on round %d."
+		% actual_round
+	)
+
+
+func _on_reinforcement_wave_deferred(
+	wave_id: StringName,
+	pending_combatant_count: int,
+	actual_round: int
+) -> void:
+	print(
+		"Reinforcement wave '%s' deferred "
+		% wave_id
+		+"on round %d. Pending combatants: %d."
+		% [
+			actual_round,
+			pending_combatant_count,
+		]
+	)
 
 func _connect_grid_signals() -> void:
 	grid_view.cell_clicked.connect(
@@ -294,13 +376,35 @@ func _on_grid_cell_clicked(
 
 	match mouse_button:
 		MOUSE_BUTTON_LEFT:
+			var ability := (
+				_get_default_ability(
+					active_combatant
+				)
+			)
+
 			var target := (
 				_get_combatant_at_coordinate(
 					coordinate
 				)
 			)
 
-			if target == null:
+			# Это уже позволит следующим способностям
+			# применяться по пустым клеткам.
+			if (
+				ability != null
+				and targeting_service.can_target(
+					session,
+					active_combatant,
+					ability,
+					coordinate
+				)
+			):
+				_try_use_ability_at(
+					active_combatant,
+					coordinate
+				)
+
+			elif target == null:
 				_try_move_active_combatant(
 					active_combatant,
 					coordinate
@@ -310,7 +414,8 @@ func _on_grid_cell_clicked(
 				_set_status(
 					"%s уже находится на клетке %s."
 					% [
-						active_combatant.definition.display_name,
+						active_combatant
+						.definition.display_name,
 						coordinate,
 					]
 				)
@@ -328,9 +433,12 @@ func _on_grid_cell_clicked(
 				)
 
 			else:
-				_try_attack_target(
+				# Враг есть, но клетка может быть
+				# вне маски. Показываем ошибку атаки,
+				# а не ошибку движения.
+				_try_use_ability_at(
 					active_combatant,
-					target
+					coordinate
 				)
 
 		MOUSE_BUTTON_RIGHT:
@@ -347,6 +455,13 @@ func _get_active_combatant() -> CombatantState:
 		return null
 
 	return turn_controller.active_combatant
+func _get_default_ability(
+	combatant: CombatantState
+) -> AbilityDefinition:
+	if combatant == null:
+		return null
+
+	return combatant.get_default_ability()
 
 
 func _get_combatant_at_coordinate(
@@ -494,11 +609,26 @@ func _run_ai_turn(
 	):
 		return
 
+	var ability := _get_default_ability(
+		combatant
+	)
+
+	if ability == null:
+		_set_status(
+			"%s не имеет доступных способностей."
+			% combatant.definition.display_name
+		)
+
+		_finish_ai_turn(
+			combatant
+		)
+		return
+
 	var plan := ai_controller.create_turn_plan(
 		grid,
 		session,
 		combatant,
-		sabre_slash_ability,
+		ability,
 		stamina_cost_per_cell
 	)
 
@@ -519,7 +649,7 @@ func _run_ai_turn(
 	grid_overlay_presenter.clear()
 
 	var outcome := await ai_turn_runner.execute(
-		grid,
+		session,
 		plan,
 		animate_movement,
 		animate_actions
@@ -538,10 +668,15 @@ func _run_ai_turn(
 
 	elif outcome.did_attack():
 		_set_status(
-			"%s атакует %s. Урон: %d. "
+			"%s использует «%s» против %s. "
 			% [
 				combatant.definition.display_name,
+				ability.display_name,
 				plan.target.definition.display_name,
+			]
+			+"Ударов: %d. Общий урон: %d. "
+			% [
+				outcome.get_attack_count(),
 				outcome.get_damage_dealt(),
 			]
 			+"Здоровье цели: %d/%d. "
@@ -694,11 +829,11 @@ func _try_move_active_combatant(
 	_refresh_grid_overlays()
 
 
-func _try_attack_target(
+func _try_use_ability_at(
 	actor: CombatantState,
-	target: CombatantState
+	aim_coordinate: Vector2i
 ) -> void:
-	if actor == null or target == null:
+	if actor == null:
 		return
 
 	if not turn_controller.is_combatant_active(
@@ -706,15 +841,31 @@ func _try_attack_target(
 	):
 		return
 
+	var ability := _get_default_ability(
+		actor
+	)
+
+	if ability == null:
+		_set_status(
+			"%s не имеет доступных способностей."
+			% actor.definition.display_name
+		)
+
+		return
+
+	var target := _get_combatant_at_coordinate(
+		aim_coordinate
+	)
+
 	var command := BattleActionCommand.new(
 		actor,
-		target,
-		sabre_slash_ability
+		ability,
+		aim_coordinate
 	)
 
 	var failure_code := (
 		action_runner.get_validation_failure(
-			grid,
+			session,
 			command
 		)
 	)
@@ -723,7 +874,8 @@ func _try_attack_target(
 		_set_status(
 			_get_action_failure_message(
 				failure_code,
-				actor
+				actor,
+				ability
 			)
 		)
 
@@ -735,7 +887,7 @@ func _try_attack_target(
 
 	var action_outcome := await (
 		action_runner.execute_melee(
-			grid,
+			session,
 			command,
 			animate_actions
 		)
@@ -762,12 +914,15 @@ func _try_attack_target(
 		)
 	)
 
-	if action_outcome.did_target_die():
+	if (
+		target != null
+		and action_outcome.did_target_die()
+	):
 		_set_status(
 			"%s использует «%s». Урон: %d. "
 			% [
 				actor.definition.display_name,
-				sabre_slash_ability.display_name,
+				ability.display_name,
 				damage_dealt,
 			]
 			+"%s погиб. Его клетка освобождена. "
@@ -778,12 +933,13 @@ func _try_attack_target(
 				actor.max_stamina,
 			]
 		)
-	else:
+
+	elif target != null:
 		_set_status(
 			"%s использует «%s». Урон: %d. "
 			% [
 				actor.definition.display_name,
-				sabre_slash_ability.display_name,
+				ability.display_name,
 				damage_dealt,
 			]
 			+"Здоровье цели: %d/%d. "
@@ -795,6 +951,16 @@ func _try_attack_target(
 			% [
 				actor.current_stamina,
 				actor.max_stamina,
+			]
+		)
+
+	else:
+		_set_status(
+			"%s использует «%s» по клетке %s."
+			% [
+				actor.definition.display_name,
+				ability.display_name,
+				aim_coordinate,
 			]
 		)
 
@@ -885,11 +1051,17 @@ func _refresh_grid_overlays() -> void:
 			combatant
 		)
 
+	var selected_ability := (
+		_get_default_ability(
+			active
+		)
+	)
+
 	grid_overlay_presenter.refresh(
-		grid,
+		session,
 		active,
 		target_candidates,
-		sabre_slash_ability,
+		selected_ability,
 		_hovered_coordinate,
 		stamina_cost_per_cell
 	)
@@ -897,34 +1069,67 @@ func _refresh_grid_overlays() -> void:
 
 func _get_action_failure_message(
 	failure_code: StringName,
-	actor: CombatantState
+	actor: CombatantState,
+	ability: AbilityDefinition
 ) -> String:
 	match failure_code:
-		BattleActionService.FAILURE_TARGET_OUT_OF_RANGE:
+		BattleTargetingService.FAILURE_AIM_NOT_IN_PATTERN:
 			return (
-				"Враг слишком далеко. "
-				+"Для удара саблей нужно стоять "
-				+"на соседней клетке."
+				"Выбранная клетка не входит в зону "
+				+"досягаемости способности."
+			)
+
+		BattleTargetingService.FAILURE_AIM_OUTSIDE_GRID:
+			return (
+				"Выбранная клетка находится "
+				+"за пределами поля."
+			)
+
+		BattleTargetingService.FAILURE_AIM_CELL_MUST_BE_OCCUPIED:
+			return (
+				"Для этой способности нужно выбрать "
+				+"занятую клетку."
+			)
+
+		BattleTargetingService.FAILURE_AIM_CELL_MUST_BE_EMPTY:
+			return (
+				"Для этой способности нужно выбрать "
+				+"пустую клетку."
+			)
+
+		BattleTargetingService.FAILURE_INVALID_AIM_RELATION:
+			return (
+				"Эта способность не может быть "
+				+"применена к выбранному бойцу."
 			)
 
 		BattleActionService.FAILURE_NOT_ENOUGH_STAMINA:
+			var cost := (
+				ability.stamina_cost
+				if ability != null
+				else 0
+			)
+
 			return (
-				"Недостаточно выносливости для удара. "
+				"Недостаточно выносливости. "
 				+"Нужно: %d, доступно: %d."
 				% [
-					sabre_slash_ability.stamina_cost,
+					cost,
 					actor.current_stamina,
 				]
 			)
 
-		BattleActionService.FAILURE_TARGET_DEAD:
-			return "Этот противник уже погиб."
+		BattleActionService.FAILURE_ABILITY_NOT_IN_LOADOUT:
+			return (
+				"Выбранная способность отсутствует "
+				+"в loadout бойца."
+			)
 
-		BattleActionService.FAILURE_ACTOR_DEAD:
-			return "Погибший боец не может атаковать."
-
-		BattleActionService.FAILURE_INVALID_TARGET_RELATION:
-			return "Эту цель нельзя атаковать данным приёмом."
+		BattleTargetingService.FAILURE_ACTOR_DEAD:
+			return (
+				"Погибший боец не может "
+				+"использовать способности."
+			)
 
 		_:
 			return (
@@ -943,6 +1148,12 @@ func _get_movement_failure_message(
 			return (
 				"%s уже находится на выбранной клетке."
 				% combatant.definition.display_name
+			)
+
+		BattleMovementService.FAILURE_TARGET_OUTSIDE_TEAM_SIDE:
+			return (
+				"Обычным движением нельзя переходить "
+				+"на сторону противника."
 			)
 
 		BattleMovementService.FAILURE_TARGET_BLOCKED:

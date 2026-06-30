@@ -15,6 +15,12 @@ var display_name: String = "Unnamed Combatant"
 var description: String = ""
 
 
+@export_group("Battle")
+
+@export
+var default_loadout: CombatantLoadoutDefinition
+
+
 @export_group("Primary Attributes")
 
 @export_range(0, 999, 1)
@@ -81,6 +87,16 @@ func get_validation_errors() -> PackedStringArray:
 
 	if stamina_regeneration < 0:
 		errors.append("Stamina regeneration cannot be negative.")
+
+	if default_loadout == null:
+		errors.append(
+			"Default combatant loadout is not assigned."
+		)
+
+	elif not default_loadout.is_valid_definition():
+		errors.append(
+			"Default combatant loadout is invalid."
+		)
 
 	if visual_scene == null:
 		errors.append("Visual scene is not assigned.")

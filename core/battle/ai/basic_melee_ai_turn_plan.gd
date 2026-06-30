@@ -9,6 +9,10 @@ var actor: CombatantState
 var target: CombatantState
 var ability: AbilityDefinition
 
+var aim_coordinate: Vector2i = (
+	BattleGrid.INVALID_COORDINATE
+)
+
 var movement_plan: BattleMovementPlan
 var expects_attack_after_movement: bool = false
 

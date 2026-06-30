@@ -9,7 +9,12 @@ var actor_id: StringName = &""
 var target_id: StringName = &""
 
 var movement_outcome: BattleMovementOutcome
+
+# Последний выполненный результат оставляем
+# для совместимости с существующим кодом.
 var action_outcome: BattleActionOutcome
+
+var action_outcomes: Array[BattleActionOutcome] = []
 
 
 func did_move() -> bool:
@@ -26,24 +31,63 @@ func get_movement_step_count() -> int:
 	return movement_outcome.get_step_count()
 
 
-func did_attack() -> bool:
-	return (
-		action_outcome != null
-		and action_outcome.did_execute()
+func add_action_outcome(
+	outcome: BattleActionOutcome
+) -> void:
+	if outcome == null:
+		return
+
+	action_outcomes.append(
+		outcome
 	)
+
+	action_outcome = outcome
+
+
+func did_attack() -> bool:
+	for outcome in action_outcomes:
+		if (
+			outcome != null
+			and outcome.did_execute()
+		):
+			return true
+
+	return false
+
+
+func get_attack_count() -> int:
+	var result: int = 0
+
+	for outcome in action_outcomes:
+		if (
+			outcome != null
+			and outcome.did_execute()
+		):
+			result += 1
+
+	return result
 
 
 func get_damage_dealt() -> int:
-	if action_outcome == null:
-		return 0
+	var result: int = 0
 
-	return action_outcome.get_total_applied_amount(
-		&"damage"
-	)
+	for outcome in action_outcomes:
+		if outcome == null:
+			continue
+
+		result += outcome.get_total_applied_amount(
+			&"damage"
+		)
+
+	return result
 
 
 func did_target_die() -> bool:
-	return (
-		action_outcome != null
-		and action_outcome.did_target_die()
-	)
+	for outcome in action_outcomes:
+		if (
+			outcome != null
+			and outcome.did_target_die()
+		):
+			return true
+
+	return false

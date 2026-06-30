@@ -70,7 +70,7 @@ func _init(
 
 
 func refresh(
-	grid: BattleGrid,
+	session: BattleSession,
 	selected_combatant: CombatantState,
 	target_candidates: Array[CombatantState],
 	selected_ability: AbilityDefinition,
@@ -79,7 +79,12 @@ func refresh(
 ) -> void:
 	clear()
 
-	if grid == null or selected_combatant == null:
+	if session == null or session.grid == null:
+		return
+
+	var grid := session.grid
+
+	if selected_combatant == null:
 		return
 
 	if not selected_combatant.is_alive:
@@ -94,7 +99,7 @@ func refresh(
 	_draw_obstacles(grid)
 
 	_draw_target_candidates(
-		grid,
+		session,
 		selected_combatant,
 		target_candidates,
 		selected_ability
@@ -135,10 +140,11 @@ func _draw_reachable_coordinates(
 	)
 
 	var reachable_coordinates := (
-		movement_service.get_reachable_coordinates(
+				movement_service.get_reachable_coordinates(
 			grid,
 			combatant.grid_position,
-			maximum_steps
+			maximum_steps,
+			combatant.team_id
 		)
 	)
 
@@ -165,29 +171,38 @@ func _draw_obstacles(
 
 
 func _draw_target_candidates(
-	grid: BattleGrid,
+	session: BattleSession,
 	actor: CombatantState,
 	target_candidates: Array[CombatantState],
 	ability: AbilityDefinition
 ) -> void:
+	if session == null or session.grid == null:
+		return
+
+	var grid := session.grid
+
 	for target in target_candidates:
 		if target == null or not target.is_alive:
 			continue
 
-		if not grid.is_inside(target.grid_position):
+		if not grid.is_inside(
+			target.grid_position
+		):
 			continue
 
-		var overlay_color := ENEMY_OVERLAY_COLOR
+		var overlay_color := (
+			ENEMY_OVERLAY_COLOR
+		)
 
 		if ability != null:
 			var command := BattleActionCommand.new(
 				actor,
-				target,
-				ability
+				ability,
+				target.grid_position
 			)
 
 			if action_service.can_execute(
-				grid,
+				session,
 				command
 			):
 				overlay_color = (

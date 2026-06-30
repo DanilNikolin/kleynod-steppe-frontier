@@ -23,6 +23,7 @@ signal battle_finished(
 
 
 var session: BattleSession
+var reinforcement_controller: BattleReinforcementController
 
 var round_number: int = 0
 var active_combatant: CombatantState
@@ -45,7 +46,8 @@ var _finished: bool = false
 
 
 func start(
-	p_session: BattleSession
+	p_session: BattleSession,
+	p_reinforcement_controller: BattleReinforcementController = null
 ) -> bool:
 	if _started:
 		return false
@@ -54,36 +56,21 @@ func start(
 		return false
 
 	session = p_session
+	reinforcement_controller = (
+		p_reinforcement_controller
+	)
 
 	_started = true
 	_finished = false
 
-	round_number = 1
+	round_number = 0
 	winning_team_id = &""
 
 	_connect_session_signals()
-	_rebuild_turn_order()
-
-	if _turn_order.is_empty():
-		_finish_battle(&"")
-		return false
 
 	battle_started.emit()
 
-	if evaluate_battle_state():
-		return true
-
-	round_started.emit(
-		round_number
-	)
-
-	_current_turn_index = 0
-
-	_begin_turn(
-		_turn_order[_current_turn_index]
-	)
-
-	return true
+	return _start_round(1)
 
 
 func end_current_turn() -> bool:
@@ -122,16 +109,38 @@ func evaluate_battle_state() -> bool:
 	)
 
 	if living_combatants.is_empty():
+		if (
+			reinforcement_controller != null
+			and reinforcement_controller
+			.has_pending_reinforcements()
+		):
+			return false
+
 		_finish_battle(&"")
 		return true
 
-	var possible_winner := (
-		living_combatants[0].team_id
-	)
+	var living_team_ids: Dictionary = {}
 
 	for combatant in living_combatants:
-		if combatant.team_id != possible_winner:
-			return false
+		living_team_ids[
+			combatant.team_id
+		] = true
+
+	if living_team_ids.size() > 1:
+		return false
+
+	var possible_winner: StringName = (
+		living_team_ids.keys()[0]
+	)
+
+	if (
+		reinforcement_controller != null
+		and reinforcement_controller
+		.has_pending_opposition_to(
+			possible_winner
+		)
+	):
+		return false
 
 	_finish_battle(
 		possible_winner
@@ -158,6 +167,42 @@ func get_current_turn_index() -> int:
 	return _current_turn_index
 
 
+func _start_round(
+	new_round_number: int
+) -> bool:
+	if not is_running:
+		return false
+
+	round_number = new_round_number
+	active_combatant = null
+	_current_turn_index = -1
+
+	if reinforcement_controller != null:
+		reinforcement_controller.process_round(
+			round_number
+		)
+
+	_rebuild_turn_order()
+
+	if evaluate_battle_state():
+		return true
+
+	if _turn_order.is_empty():
+		return false
+
+	round_started.emit(
+		round_number
+	)
+
+	_current_turn_index = 0
+
+	_begin_turn(
+		_turn_order[_current_turn_index]
+	)
+
+	return true
+
+
 func _advance_to_next_turn() -> bool:
 	var next_index := (
 		_current_turn_index + 1
@@ -181,28 +226,9 @@ func _advance_to_next_turn() -> bool:
 
 
 func _start_next_round() -> bool:
-	if evaluate_battle_state():
-		return true
-
-	round_number += 1
-
-	_rebuild_turn_order()
-
-	if _turn_order.is_empty():
-		_finish_battle(&"")
-		return false
-
-	_current_turn_index = 0
-
-	round_started.emit(
-		round_number
+	return _start_round(
+		round_number + 1
 	)
-
-	_begin_turn(
-		_turn_order[_current_turn_index]
-	)
-
-	return true
 
 
 func _begin_turn(

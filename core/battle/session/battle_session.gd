@@ -8,15 +8,35 @@ signal combatant_defeated(combatant: CombatantState)
 
 
 var grid: BattleGrid
+var side_rules: BattleSideRules
 
 var _combatants: Dictionary = {}
 var _death_callbacks: Dictionary = {}
 
 
 func _init(
-	p_rows: int = 3,
-	p_columns: int = 10
+	p_rows: int = 5,
+	p_columns: int = 10,
+	p_side_rules: BattleSideRules = null
 ) -> void:
+	side_rules = (
+		p_side_rules
+		if p_side_rules != null
+		else BattleSideRules.new()
+	)
+
+	var side_errors := (
+		side_rules.get_validation_errors(
+			p_columns
+		)
+	)
+
+	assert(
+		side_errors.is_empty(),
+		"Invalid battle side rules: %s"
+		% side_errors
+	)
+
 	grid = BattleGrid.new(
 		p_rows,
 		p_columns
@@ -27,7 +47,8 @@ func add_combatant(
 	instance_id: StringName,
 	definition: CombatantDefinition,
 	team_id: StringName,
-	coordinate: Vector2i
+	coordinate: Vector2i,
+	loadout_override: CombatantLoadoutDefinition = null
 ) -> CombatantState:
 	if instance_id == &"":
 		return null
@@ -35,7 +56,25 @@ func add_combatant(
 	if definition == null:
 		return null
 
+	var resolved_loadout := (
+		loadout_override
+		if loadout_override != null
+		else definition.default_loadout
+	)
+
+	if resolved_loadout == null:
+		return null
+
+	if not resolved_loadout.is_valid_definition():
+		return null
+
 	if team_id == &"":
+		return null
+
+	if not is_coordinate_allowed_for_team(
+		team_id,
+		coordinate
+	):
 		return null
 
 	if _combatants.has(instance_id):
@@ -51,6 +90,7 @@ func add_combatant(
 		instance_id,
 		definition,
 		team_id,
+		resolved_loadout,
 		coordinate
 	)
 
@@ -128,6 +168,42 @@ func get_team_combatants(
 
 	return result
 
+
+func is_team_supported(
+	team_id: StringName
+) -> bool:
+	return (
+		side_rules != null
+		and side_rules.is_team_supported(
+			team_id
+		)
+	)
+
+
+func is_coordinate_allowed_for_team(
+	team_id: StringName,
+	coordinate: Vector2i
+) -> bool:
+	if side_rules == null or grid == null:
+		return false
+
+	return side_rules.is_coordinate_allowed(
+		team_id,
+		coordinate,
+		grid.rows,
+		grid.columns
+	)
+
+
+func get_team_forward_direction(
+	team_id: StringName
+) -> int:
+	if side_rules == null:
+		return 0
+
+	return side_rules.get_forward_direction(
+		team_id
+	)
 
 func remove_combatant(
 	instance_id: StringName

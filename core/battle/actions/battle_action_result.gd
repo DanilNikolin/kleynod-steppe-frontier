@@ -6,13 +6,26 @@ var is_successful: bool = false
 var failure_code: StringName = &""
 
 var actor_id: StringName = &""
-var target_id: StringName = &""
 var ability_id: StringName = &""
+
+var aim_coordinate: Vector2i = (
+	BattleGrid.INVALID_COORDINATE
+)
+
+var affected_coordinates: Array[Vector2i] = []
+var affected_target_ids: Array[StringName] = []
 
 var stamina_cost: int = 0
 var stamina_spent: int = 0
 
 var effect_results: Array[BattleEffectResult] = []
+
+
+func get_primary_target_id() -> StringName:
+	if affected_target_ids.is_empty():
+		return &""
+
+	return affected_target_ids[0]
 
 
 func get_total_applied_amount(
@@ -26,7 +39,8 @@ func get_total_applied_amount(
 
 		if (
 			effect_kind != &""
-			and effect_result.effect_kind != effect_kind
+			and effect_result.effect_kind
+			!= effect_kind
 		):
 			continue
 
@@ -35,12 +49,21 @@ func get_total_applied_amount(
 	return total
 
 
-func did_target_die() -> bool:
+func did_target_die(
+	target_id: StringName = &""
+) -> bool:
 	for effect_result in effect_results:
+		if effect_result == null:
+			continue
+
 		if (
-			effect_result != null
-			and effect_result.target_died
+			target_id != &""
+			and effect_result.target_id
+			!= target_id
 		):
+			continue
+
+		if effect_result.target_died:
 			return true
 
 	return false

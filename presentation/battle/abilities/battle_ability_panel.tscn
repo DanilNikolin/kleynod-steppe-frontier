@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://presentation/battle/abilities/battle_ability_panel.gd" id="1_panel"]
+
+[node name="BattleAbilityPanel" type="PanelContainer"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -230.0
+offset_right = 500.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ActorLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+text = "Способности"
+horizontal_alignment = 1
+
+[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+columns = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="DescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Способность не выбрана."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

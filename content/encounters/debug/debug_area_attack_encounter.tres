@@ -1,22 +1,17 @@
-[gd_resource type="Resource" script_class="BattleEncounterDefinition" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" load_steps=13 format=3 uid="uid://bj13r1qjrng4a"]
 
-[ext_resource type="Script" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
-[ext_resource type="Script" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_sechevik.tres" id="3_player"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
+[ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
+[ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="2_bfs6g"]
+[ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
+[ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
+[ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="5_o71o3"]
 [ext_resource type="Resource" path="res://content/loadouts/debug/debug_sweeping_sechevik_loadout.tres" id="5_player_loadout"]
-[ext_resource type="Script" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
-
-[sub_resource type="Resource" id="Resource_side_rules"]
-script = ExtResource("6_side_rules")
-left_team_id = &"team_player"
-right_team_id = &"team_enemy"
-divider_column = 5
+[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
 
 [sub_resource type="Resource" id="Resource_player"]
 script = ExtResource("2_spawn")
 instance_id = &"player_area_tester"
-combatant_definition = ExtResource("3_player")
+combatant_definition = ExtResource("2_bfs6g")
 team_id = &"team_player"
 loadout_override = ExtResource("5_player_loadout")
 coordinate = Vector2i(3, 2)
@@ -42,12 +37,13 @@ combatant_definition = ExtResource("4_enemy")
 team_id = &"team_enemy"
 coordinate = Vector2i(6, 3)
 
+[sub_resource type="Resource" id="Resource_side_rules"]
+script = ExtResource("6_side_rules")
+
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_area_attack"
 display_name = "Проверка площадной атаки"
 description = "Сечевик проверяет вертикальную площадную атаку против трёх врагов."
-rows = 5
-columns = 10
 side_rules = SubResource("Resource_side_rules")
 combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player"), SubResource("Resource_enemy_top"), SubResource("Resource_enemy_middle"), SubResource("Resource_enemy_bottom")])

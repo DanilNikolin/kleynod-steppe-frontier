@@ -49,6 +49,10 @@ var status_label: Label = (
 	ContentMargin / VBoxContainer / StatusLabel
 )
 
+@onready
+var ability_panel: BattleAbilityPanel = (
+	$CanvasLayer/AbilityPanel
+)
 
 var session: BattleSession
 var grid: BattleGrid
@@ -75,6 +79,8 @@ var action_service: BattleActionService
 var _obstacle_counter: int = 0
 var _interaction_in_progress: bool = false
 
+var _selected_ability: AbilityDefinition
+
 var _hovered_coordinate: Vector2i = (
 	BattleGridView.INVALID_COORDINATE
 )
@@ -91,8 +97,87 @@ func _ready() -> void:
 	_create_ai_system()
 	_create_reinforcement_system()
 	_connect_grid_signals()
+	_connect_ability_panel()
 	_create_turn_controller()
 
+func _connect_ability_panel() -> void:
+	assert(
+		ability_panel != null,
+		"Battle ability panel is required."
+	)
+
+	ability_panel.ability_selected.connect(
+		_on_ability_selected
+	)
+
+func _on_ability_selected(
+	ability: AbilityDefinition
+) -> void:
+	if ability == null:
+		return
+
+	if turn_controller == null:
+		return
+
+	if not turn_controller.is_running:
+		return
+
+	var active := (
+		turn_controller.active_combatant
+	)
+
+	if (
+		active == null
+		or active.team_id != PLAYER_TEAM_ID
+	):
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		return
+
+	if _interaction_in_progress:
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		return
+
+	if not active.has_ability(
+		ability.ability_id
+	):
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		return
+
+	if not active.can_spend_stamina(
+		ability.stamina_cost
+	):
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		return
+
+	_selected_ability = ability
+
+	ability_panel.set_selected_ability(
+		_selected_ability
+	)
+
+	_refresh_grid_overlays()
+
+	_set_status(
+		"%s выбирает «%s». "
+		% [
+			active.definition.display_name,
+			ability.display_name,
+		]
+		+"Стоимость: %d выносливости."
+		% ability.stamina_cost
+	)
 
 func _create_action_services() -> void:
 	targeting_service = (
@@ -382,10 +467,11 @@ func _on_grid_cell_clicked(
 	match mouse_button:
 		MOUSE_BUTTON_LEFT:
 			var ability := (
-				_get_default_ability(
+				_get_selected_ability(
 					active_combatant
 				)
 			)
+
 
 			var target := (
 				_get_combatant_at_coordinate(
@@ -460,6 +546,26 @@ func _get_active_combatant() -> CombatantState:
 		return null
 
 	return turn_controller.active_combatant
+
+func _get_selected_ability(
+	combatant: CombatantState
+) -> AbilityDefinition:
+	if combatant == null:
+		return null
+
+	if (
+		combatant.team_id == PLAYER_TEAM_ID
+		and _selected_ability != null
+		and combatant.has_ability(
+			_selected_ability.ability_id
+		)
+	):
+		return _selected_ability
+
+	return _get_default_ability(
+		combatant
+	)
+	
 func _get_default_ability(
 	combatant: CombatantState
 ) -> AbilityDefinition:
@@ -517,10 +623,31 @@ func _on_turn_started(
 		combatant
 	)
 
-	_refresh_grid_overlays()
-
 	if combatant.team_id == PLAYER_TEAM_ID:
 		_interaction_in_progress = false
+
+		_selected_ability = (
+			_get_default_ability(
+				combatant
+			)
+		)
+
+		ability_panel.bind_combatant(
+			combatant,
+			_selected_ability
+		)
+
+		ability_panel.set_interactable(
+			true
+		)
+
+		_refresh_grid_overlays()
+
+		var ability_name := (
+			_selected_ability.display_name
+			if _selected_ability != null
+			else "не выбрана"
+		)
 
 		_set_status(
 			"Раунд %d. Твой ход: %s. "
@@ -533,12 +660,19 @@ func _on_turn_started(
 				combatant.current_stamina,
 				combatant.max_stamina,
 			]
-			+"Space — завершить ход."
+			+"Выбрано: %s. "
+			% ability_name
+			+"1–9 — способность, Space — завершить ход."
 		)
 
 		return
 
 	_interaction_in_progress = true
+	_selected_ability = null
+
+	ability_panel.clear_combatant()
+
+	_refresh_grid_overlays()
 
 	_set_status(
 		"Раунд %d. Ход врага: %s."
@@ -563,6 +697,9 @@ func _on_battle_finished(
 		null
 	)
 
+	_selected_ability = null
+	ability_panel.clear_combatant()
+
 	grid_overlay_presenter.clear()
 
 	if winning_team_id == PLAYER_TEAM_ID:
@@ -581,6 +718,99 @@ func _on_battle_finished(
 		)
 
 
+func _input(
+	event: InputEvent
+) -> void:
+	if not (event is InputEventKey):
+		return
+
+	var key_event := (
+		event as InputEventKey
+	)
+
+	if (
+		not key_event.pressed
+		or key_event.echo
+	):
+		return
+
+	var ability_index := (
+		_get_ability_hotkey_index(
+			key_event
+		)
+	)
+
+	if ability_index < 0:
+		return
+
+	if turn_controller == null:
+		return
+
+	if not turn_controller.is_running:
+		return
+
+	var active := (
+		turn_controller.active_combatant
+	)
+
+	if (
+		active == null
+		or active.team_id != PLAYER_TEAM_ID
+		or _interaction_in_progress
+	):
+		return
+
+	var selected := (
+		ability_panel
+		.select_ability_by_index(
+			ability_index,
+			true
+		)
+	)
+
+	if selected:
+		get_viewport().set_input_as_handled()
+
+
+func _get_ability_hotkey_index(
+	event: InputEventKey
+) -> int:
+	var keycodes: Array[int] = [
+		event.keycode,
+		event.physical_keycode,
+	]
+
+	for keycode in keycodes:
+		match keycode:
+			KEY_1:
+				return 0
+
+			KEY_2:
+				return 1
+
+			KEY_3:
+				return 2
+
+			KEY_4:
+				return 3
+
+			KEY_5:
+				return 4
+
+			KEY_6:
+				return 5
+
+			KEY_7:
+				return 6
+
+			KEY_8:
+				return 7
+
+			KEY_9:
+				return 8
+
+	return -1
+	
 func _set_active_combatant_selection(
 	active: CombatantState
 ) -> void:
@@ -846,7 +1076,7 @@ func _try_use_ability_at(
 	):
 		return
 
-	var ability := _get_default_ability(
+	var ability := _get_selected_ability(
 		actor
 	)
 
@@ -1033,7 +1263,7 @@ func _refresh_grid_overlays() -> void:
 		)
 
 	var selected_ability := (
-		_get_default_ability(
+		_get_selected_ability(
 			active
 		)
 	)

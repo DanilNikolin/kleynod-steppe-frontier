@@ -9,6 +9,7 @@ var grid: BattleGrid
 var turn_controller: BattleTurnController
 
 var ability_panel: BattleAbilityPanel
+var combatant_hover_panel: BattleCombatantHoverPanel
 
 var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
@@ -38,6 +39,7 @@ func _init(
 	p_session: BattleSession,
 	p_turn_controller: BattleTurnController,
 	p_ability_panel: BattleAbilityPanel,
+    p_combatant_hover_panel: BattleCombatantHoverPanel,
 	p_movement_service: BattleMovementService,
 	p_targeting_service: BattleTargetingService,
 	p_movement_runner: BattleMovementRunner,
@@ -66,6 +68,12 @@ func _init(
 	assert(
 		p_ability_panel != null,
 		"Interaction controller requires an ability panel."
+	)
+
+    assert(
+		p_combatant_hover_panel != null,
+		"Interaction controller requires "
+		+"a combatant hover panel."
 	)
 
 	assert(
@@ -105,6 +113,9 @@ func _init(
 	turn_controller = p_turn_controller
 
 	ability_panel = p_ability_panel
+    combatant_hover_panel = (
+		p_combatant_hover_panel
+	)
 
 	movement_service = p_movement_service
 	targeting_service = p_targeting_service
@@ -159,6 +170,7 @@ func finish_battle() -> void:
 	_selected_ability = null
 
 	ability_panel.clear_combatant()
+    combatant_hover_panel.clear_combatant()
 	grid_overlay_presenter.clear()
 
 
@@ -392,6 +404,8 @@ func on_grid_cell_hovered(
 ) -> void:
 	_hovered_coordinate = coordinate
 
+	_refresh_hover_panel()
+
 	if not _interaction_in_progress:
 		refresh_grid_overlays()
 
@@ -522,6 +536,30 @@ func refresh_grid_overlays() -> void:
 		stamina_cost_per_cell
 	)
 
+	_refresh_hover_panel()
+
+
+func _refresh_hover_panel() -> void:
+	if combatant_hover_panel == null:
+		return
+
+	var hovered_combatant := (
+		_get_combatant_at_coordinate(
+			_hovered_coordinate
+		)
+	)
+
+	if (
+		hovered_combatant == null
+		or not hovered_combatant.is_alive
+	):
+		combatant_hover_panel.clear_combatant()
+		return
+
+	combatant_hover_panel.bind_combatant(
+		hovered_combatant,
+		player_team_id
+	)
 
 func _apply_debug_status_to_hovered_combatant() -> void:
 	var target := _get_combatant_at_coordinate(
@@ -685,11 +723,15 @@ func _try_use_ability_at(
 	_interaction_in_progress = true
 	grid_overlay_presenter.clear()
 
+	debug_log_presenter.suspend_status_signal_logging()
+
 	var action_outcome := await action_runner.execute_action(
 		session,
 		command,
 		animate_actions
 	)
+
+	debug_log_presenter.resume_status_signal_logging()
 
 	if not action_outcome.is_successful:
 		_interaction_in_progress = false
@@ -702,7 +744,7 @@ func _try_use_ability_at(
 		refresh_grid_overlays()
 		return
 
-	debug_log_presenter.append_damage_results(
+	debug_log_presenter.append_action_results(
 		action_outcome.action_result
 	)
 

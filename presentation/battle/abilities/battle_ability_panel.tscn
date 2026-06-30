@@ -9,12 +9,13 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -500.0
-offset_top = -230.0
-offset_right = 500.0
+offset_left = -550.0
+offset_top = -300.0
+offset_right = 550.0
 offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 1
 script = ExtResource("1_panel")
 
 [node name="ContentMargin" type="MarginContainer" parent="."]
@@ -30,7 +31,7 @@ theme_override_constants/separation = 8
 
 [node name="ActorLabel" type="Label" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
-text = "Способности"
+text = "Боец | Выносливость"
 horizontal_alignment = 1
 
 [node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer"]
@@ -39,10 +40,43 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 4
 
-[node name="DescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer"]
-custom_minimum_size = Vector2(0, 46)
+[node name="CardPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
-text = "Способность не выбрана."
-horizontal_alignment = 1
+size_flags_vertical = 3
+
+[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CardPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Название способности"
+
+[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+layout_mode = 2
+text = "Цена • Цель • Дальность"
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+layout_mode = 2
+
+[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+layout_mode = 2
+text = "Описание способности."
+autowrap_mode = 2
+
+[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Эффекты способности."
 vertical_alignment = 1
 autowrap_mode = 2

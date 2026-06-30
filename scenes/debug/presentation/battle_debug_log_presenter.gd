@@ -9,6 +9,7 @@ var max_battle_log_lines: int = 6
 
 var _status_headline: String = ""
 var _battle_log_lines := PackedStringArray()
+var _status_signal_logging_suspended: bool = false
 
 
 func _init(
@@ -117,6 +118,12 @@ func push_battle_log(
 
 	_refresh_status_label()
 
+func suspend_status_signal_logging() -> void:
+	_status_signal_logging_suspended = true
+
+
+func resume_status_signal_logging() -> void:
+	_status_signal_logging_suspended = false
 
 func apply_debug_status(
 	target: CombatantState,
@@ -249,78 +256,218 @@ func format_status_for_player(
 	)
 
 
-func append_damage_results(
+func append_action_results(
 	action_result: BattleActionResult
 ) -> void:
 	if action_result == null:
 		return
 
-	for effect_result in action_result.effect_results:
+	for effect_result in (
+		action_result.effect_results
+	):
 		if effect_result == null:
 			continue
 
-		if (
-			not effect_result.is_successful
-			or effect_result.effect_kind != &"damage"
-		):
+		if not effect_result.is_successful:
 			continue
 
-		var target := session.get_combatant(
-			effect_result.target_id
+		match effect_result.effect_kind:
+			&"damage":
+				_append_damage_result(
+					effect_result
+				)
+
+			&"apply_status":
+				_append_status_result(
+					effect_result
+				)
+
+
+func _append_damage_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
 		)
 
-		var target_name := String(
-			effect_result.target_id
+	var armor_text := (
+		"%d"
+		% effect_result.target_base_armor
+	)
+
+	if (
+		effect_result
+		.target_status_armor_modifier != 0
+	):
+		armor_text += (
+			" %s от статусов = %d"
+			% [
+				format_signed_integer(
+					effect_result
+					.target_status_armor_modifier
+				),
+				effect_result
+				.target_modified_armor,
+			]
+		)
+
+	var message := (
+		"%s получает %d урона. "
+		% [
+			target_name,
+			effect_result.applied_amount,
+		]
+		+ "Сила удара: %d. "
+		% effect_result.raw_amount
+		+ "Броня: %s. "
+		% armor_text
+		+ "Пробитие: %d. "
+		% effect_result.armor_piercing
+		+ "Защита после пробития: %d."
+		% effect_result.effective_armor
+	)
+
+	if effect_result.target_died:
+		message += " Цель погибает."
+
+	push_battle_log(
+		message
+	)
+
+
+func _append_status_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var status_name := String(
+		effect_result.status_id
+	)
+
+	if target != null:
+		var status := target.get_status(
+			effect_result.status_id
 		)
 
 		if (
-			target != null
-			and target.definition != null
+			status != null
+			and status.definition != null
 		):
-			target_name = target.definition.display_name
-
-		var armor_text := (
-			"%d"
-			% effect_result.target_base_armor
-		)
-
-		if (
-			effect_result
-			.target_status_armor_modifier != 0
-		):
-			armor_text += (
-				" %s от статусов = %d"
-				% [
-					format_signed_integer(
-						effect_result
-						.target_status_armor_modifier
-					),
-					effect_result.target_modified_armor,
-				]
+			status_name = (
+				status.definition.display_name
 			)
 
-		var message := (
-			"%s получает %d урона. "
+	var message: String
+
+	if effect_result.status_was_added:
+		message = (
+			"%s получает «%s»."
 			% [
 				target_name,
-				effect_result.applied_amount,
+				status_name,
 			]
-			+"Сила удара: %d. "
-			% effect_result.raw_amount
-			+"Броня: %s. "
-			% armor_text
-			+"Пробитие: %d. "
-			% effect_result.armor_piercing
-			+"Защита после пробития: %d."
-			% effect_result.effective_armor
+		)
+	else:
+		message = (
+			"«%s» у %s обновляется."
+			% [
+				status_name,
+				target_name,
+			]
 		)
 
-		if effect_result.target_died:
-			message += " Цель погибает."
-
-		push_battle_log(
-			message
+	if (
+		effect_result
+		.previous_target_effective_armor
+		!= effect_result
+		.current_target_effective_armor
+	):
+		message += (
+			" Броня: %d → %d."
+			% [
+				effect_result
+				.previous_target_effective_armor,
+				effect_result
+				.current_target_effective_armor,
+			]
 		)
+
+	if (
+		effect_result
+		.previous_status_stack_count
+		!= effect_result
+		.current_status_stack_count
+		and effect_result
+		.current_status_stack_count > 1
+	):
+		message += (
+			" Стаки: %d → %d."
+			% [
+				effect_result
+				.previous_status_stack_count,
+				effect_result
+				.current_status_stack_count,
+			]
+		)
+
+	if effect_result.status_was_added:
+		message += (
+			" Длительность: %s."
+			% format_turn_count(
+				effect_result
+				.current_status_remaining_turns
+			)
+		)
+
+	elif (
+		effect_result
+		.previous_status_remaining_turns
+		!= effect_result
+		.current_status_remaining_turns
+	):
+		message += (
+			" Длительность: %s → %s."
+			% [
+				format_turn_count(
+					effect_result
+					.previous_status_remaining_turns
+				),
+				format_turn_count(
+					effect_result
+					.current_status_remaining_turns
+				),
+			]
+		)
+
+	push_battle_log(
+		message
+	)
 
 
 func get_status_stat_modifier_amount(
@@ -399,6 +546,9 @@ func _on_combatant_status_added(
 	status: BattleStatusInstance,
 	combatant: CombatantState
 ) -> void:
+	if _status_signal_logging_suspended:
+		return
+
 	var status_armor_modifier := (
 		get_status_stat_modifier_amount(
 			status,
@@ -456,6 +606,9 @@ func _on_combatant_status_updated(
 	previous_remaining_turns: int,
 	combatant: CombatantState
 ) -> void:
+	if _status_signal_logging_suspended:
+		return
+
 	var current_status_modifier := (
 		get_status_stat_modifier_amount(
 			status,
@@ -560,6 +713,9 @@ func _on_combatant_status_removed(
 	reason: StringName,
 	combatant: CombatantState
 ) -> void:
+	if _status_signal_logging_suspended:
+		return
+
 	var removed_armor_modifier := (
 		get_status_stat_modifier_amount(
 			status,

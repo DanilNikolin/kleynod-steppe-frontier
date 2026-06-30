@@ -23,6 +23,19 @@ var target_modified_armor: int = 0
 var armor_piercing: int = 0
 var effective_armor: int = 0
 
+var status_id: StringName = &""
+
+var status_was_added: bool = false
+
+var previous_status_stack_count: int = 0
+var current_status_stack_count: int = 0
+
+var previous_status_remaining_turns: int = 0
+var current_status_remaining_turns: int = 0
+
+var previous_target_effective_armor: int = 0
+var current_target_effective_armor: int = 0
+
 var previous_value: int = 0
 var current_value: int = 0
 

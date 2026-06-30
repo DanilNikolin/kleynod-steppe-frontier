@@ -25,8 +25,11 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/damage/damage_calculator.gd",
-    "core/battle/effects/effect_resolver.gd",
+    "presentation/battle/abilities/battle_ability_panel.gd",
+    "presentation/battle/abilities/battle_ability_panel.tscn",
+    "scenes/debug/battle_grid_sandbox.gd",
+    "scenes/debug/battle_grid_sandbox.tscn",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
 ]
 
 

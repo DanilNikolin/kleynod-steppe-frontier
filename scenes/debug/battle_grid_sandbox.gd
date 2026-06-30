@@ -62,6 +62,11 @@ var ability_panel: BattleAbilityPanel = (
 	$CanvasLayer/AbilityPanel
 )
 
+@onready
+var combatant_hover_panel: BattleCombatantHoverPanel = (
+	$CanvasLayer/CombatantHoverPanel
+)
+
 
 var session: BattleSession
 var grid: BattleGrid
@@ -291,6 +296,7 @@ func _create_interaction_controller() -> void:
 			session,
 			turn_controller,
 			ability_panel,
+			combatant_hover_panel,
 			movement_service,
 			targeting_service,
 			movement_runner,

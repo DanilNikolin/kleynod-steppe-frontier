@@ -18,8 +18,27 @@ var ability_grid: GridContainer = (
 )
 
 @onready
-var description_label: Label = (
-	$ContentMargin/VBoxContainer/DescriptionLabel
+var card_title_label: Label = (
+	$ContentMargin/VBoxContainer/CardPanel /
+	CardMargin / CardVBox / CardTitleLabel
+)
+
+@onready
+var card_meta_label: Label = (
+	$ContentMargin/VBoxContainer/CardPanel /
+	CardMargin / CardVBox / CardMetaLabel
+)
+
+@onready
+var card_description_label: Label = (
+	$ContentMargin/VBoxContainer/CardPanel /
+	CardMargin / CardVBox / CardDescriptionLabel
+)
+
+@onready
+var card_effects_label: Label = (
+	$ContentMargin/VBoxContainer/CardPanel /
+	CardMargin / CardVBox / CardEffectsLabel
 )
 
 
@@ -65,11 +84,6 @@ func bind_combatant(
 		_stamina_changed_callback
 	)
 
-	actor_label.text = (
-		"%s — способности"
-		% _combatant.definition.display_name
-	)
-
 	_rebuild_buttons()
 
 	if (
@@ -84,8 +98,7 @@ func bind_combatant(
 
 	else:
 		var default_ability := (
-			_combatant.loadout
-			.get_default_ability()
+			_combatant.get_default_ability()
 		)
 
 		_selected_ability_id = (
@@ -108,7 +121,10 @@ func clear_combatant() -> void:
 	_clear_buttons()
 
 	actor_label.text = ""
-	description_label.text = ""
+	card_title_label.text = ""
+	card_meta_label.text = ""
+	card_description_label.text = ""
+	card_effects_label.text = ""
 
 	visible = false
 
@@ -200,10 +216,15 @@ func _rebuild_buttons() -> void:
 	if _combatant == null:
 		return
 
-	_abilities = (
-		_combatant.loadout
-		.get_abilities()
+	var loadout_abilities := (
+		_combatant.get_abilities()
 	)
+
+	for ability in loadout_abilities:
+		if ability != null:
+			_abilities.append(
+				ability
+			)
 
 	_button_group = ButtonGroup.new()
 	_button_group.allow_unpress = false
@@ -215,21 +236,18 @@ func _rebuild_buttons() -> void:
 			ability_index
 		]
 
-		if ability == null:
-			continue
-
 		var button := Button.new()
 
 		button.custom_minimum_size = Vector2(
-			220.0,
-			72.0
+			230.0,
+			68.0
 		)
 
 		button.toggle_mode = true
 		button.button_group = _button_group
 
 		button.text = (
-			"%d. %s\nВыносливость: %d"
+			"%d. %s\n%d выносливости"
 			% [
 				ability_index + 1,
 				ability.display_name,
@@ -274,6 +292,15 @@ func _refresh_visual_state() -> void:
 	if _combatant == null:
 		return
 
+	actor_label.text = (
+		"%s  |  Выносливость: %d/%d"
+		% [
+			_combatant.definition.display_name,
+			_combatant.current_stamina,
+			_combatant.max_stamina,
+		]
+	)
+
 	for ability_index in range(
 		_buttons.size()
 	):
@@ -307,40 +334,61 @@ func _refresh_visual_state() -> void:
 			== _selected_ability_id
 		)
 
-	_refresh_description()
+	_refresh_card()
 
 
-func _refresh_description() -> void:
+func _refresh_card() -> void:
 	var selected_ability := (
 		get_selected_ability()
 	)
 
 	if selected_ability == null:
-		description_label.text = (
-			"Способность не выбрана."
+		card_title_label.text = (
+			"Способность не выбрана"
 		)
+
+		card_meta_label.text = ""
+		card_description_label.text = ""
+		card_effects_label.text = ""
 
 		return
 
 	var affordability_text := (
-		"доступно"
+		"ДОСТУПНО"
 		if (
 			_combatant != null
 			and _combatant.can_spend_stamina(
 				selected_ability.stamina_cost
 			)
 		)
-		else "не хватает выносливости"
+		else "НЕ ХВАТАЕТ ВЫНОСЛИВОСТИ"
 	)
 
-	description_label.text = (
-		"Выбрано: %s | Цена: %d | %s\n%s"
+	card_title_label.text = (
+		selected_ability.display_name
+	)
+
+	card_meta_label.text = (
+		"%s  •  %s"
 		% [
-			selected_ability.display_name,
-			selected_ability.stamina_cost,
+			BattleAbilityPresentationBuilder
+			.build_meta_text(
+				selected_ability
+			),
 			affordability_text,
-			selected_ability.description,
 		]
+	)
+
+	card_description_label.text = (
+		selected_ability.description
+	)
+
+	card_effects_label.text = (
+		BattleAbilityPresentationBuilder
+		.build_effects_text(
+			selected_ability,
+			_combatant
+		)
 	)
 
 

@@ -7,12 +7,25 @@ const FAILURE_INVALID_SOURCE: StringName = &"invalid_source"
 const FAILURE_INVALID_TARGET: StringName = &"invalid_target"
 const FAILURE_UNSUPPORTED_EFFECT: StringName = &"unsupported_effect"
 
+const FAILURE_INVALID_STATUS_DEFINITION: StringName = (
+	&"invalid_status_definition"
+)
+
+const FAILURE_STATUS_APPLICATION_FAILED: StringName = (
+	&"status_application_failed"
+)
+
 
 var damage_calculator := DamageCalculator.new()
 
 
-func can_resolve(effect: BattleEffect) -> bool:
-	return effect is DamageEffect
+func can_resolve(
+	effect: BattleEffect
+) -> bool:
+	return (
+		effect is DamageEffect
+		or effect is ApplyStatusEffect
+	)
 
 
 func resolve(
@@ -47,6 +60,13 @@ func resolve(
 	if effect is DamageEffect:
 		return _resolve_damage(
 			effect as DamageEffect,
+			source,
+			target
+		)
+
+	if effect is ApplyStatusEffect:
+		return _resolve_apply_status(
+			effect as ApplyStatusEffect,
 			source,
 			target
 		)
@@ -135,6 +155,88 @@ func _resolve_damage(
 	return result
 
 
+func _resolve_apply_status(
+	effect: ApplyStatusEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"apply_status"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	if (
+		effect.status_definition == null
+		or not effect
+		.status_definition
+		.is_valid_definition()
+	):
+		result.failure_code = (
+			FAILURE_INVALID_STATUS_DEFINITION
+		)
+
+		return result
+
+	var status_definition := (
+		effect.status_definition
+	)
+
+	result.status_id = (
+		status_definition.status_id
+	)
+
+	var existing_status := target.get_status(
+		status_definition.status_id
+	)
+
+	result.status_was_added = (
+		existing_status == null
+	)
+
+	if existing_status != null:
+		result.previous_status_stack_count = (
+			existing_status.stack_count
+		)
+
+		result.previous_status_remaining_turns = (
+			existing_status.remaining_turns
+		)
+
+	result.previous_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	var applied_status := target.add_status(
+		status_definition,
+		source.instance_id
+	)
+
+	if applied_status == null:
+		result.failure_code = (
+			FAILURE_STATUS_APPLICATION_FAILED
+		)
+
+		return result
+
+	result.current_status_stack_count = (
+		applied_status.stack_count
+	)
+
+	result.current_status_remaining_turns = (
+		applied_status.remaining_turns
+	)
+
+	result.current_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	result.is_successful = true
+
+	return result
+	
 func _create_failure_result(
 	failure_code: StringName,
 	effect: BattleEffect,

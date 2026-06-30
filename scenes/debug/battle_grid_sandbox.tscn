@@ -15,7 +15,7 @@ encounter_definition = ExtResource("4_encounter_definition")
 debug_status_definition = ExtResource("6_debug_status")
 
 [node name="BattleGridView" parent="." instance=ExtResource("2_grid")]
-position = Vector2(958.43, 540)
+position = Vector2(958.43, 498.68)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -39,7 +39,7 @@ func _init(
 	p_session: BattleSession,
 	p_turn_controller: BattleTurnController,
 	p_ability_panel: BattleAbilityPanel,
-    p_combatant_hover_panel: BattleCombatantHoverPanel,
+	p_combatant_hover_panel: BattleCombatantHoverPanel,
 	p_movement_service: BattleMovementService,
 	p_targeting_service: BattleTargetingService,
 	p_movement_runner: BattleMovementRunner,
@@ -70,7 +70,7 @@ func _init(
 		"Interaction controller requires an ability panel."
 	)
 
-    assert(
+	assert(
 		p_combatant_hover_panel != null,
 		"Interaction controller requires "
 		+"a combatant hover panel."
@@ -113,7 +113,7 @@ func _init(
 	turn_controller = p_turn_controller
 
 	ability_panel = p_ability_panel
-    combatant_hover_panel = (
+	combatant_hover_panel = (
 		p_combatant_hover_panel
 	)
 
@@ -170,7 +170,7 @@ func finish_battle() -> void:
 	_selected_ability = null
 
 	ability_panel.clear_combatant()
-    combatant_hover_panel.clear_combatant()
+	combatant_hover_panel.clear_combatant()
 	grid_overlay_presenter.clear()
 
 

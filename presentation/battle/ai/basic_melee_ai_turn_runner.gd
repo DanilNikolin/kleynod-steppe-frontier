@@ -143,7 +143,7 @@ func execute(
 		)
 
 		var current_action_outcome := await (
-			action_runner.execute_melee(
+			action_runner.execute_action(
 				session,
 				command,
 				animate_action

@@ -163,6 +163,137 @@ func create_result(
 	result.is_valid = true
 	return result
 
+func get_aim_coordinates(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition
+) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	if (
+		session == null
+		or session.grid == null
+		or actor == null
+		or ability == null
+		or ability.targeting == null
+	):
+		return result
+
+	if not actor.is_alive:
+		return result
+
+	if not session.has_combatant(
+		actor.instance_id
+	):
+		return result
+
+	var forward_direction := (
+		session.get_team_forward_direction(
+			actor.team_id
+		)
+	)
+
+	if forward_direction == 0:
+		return result
+
+	var used_coordinates: Dictionary = {}
+
+	for aim_offset in (
+		ability.targeting.aim_offsets
+	):
+		var oriented_offset := Vector2i(
+			aim_offset.x * forward_direction,
+			aim_offset.y
+		)
+
+		var coordinate := (
+			actor.grid_position
+			+ oriented_offset
+		)
+
+		if not session.grid.is_inside(
+			coordinate
+		):
+			continue
+
+		if used_coordinates.has(
+			coordinate
+		):
+			continue
+
+		used_coordinates[coordinate] = true
+		result.append(coordinate)
+
+	return result
+
+
+func get_impact_coordinates(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	aim_coordinate: Vector2i
+) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	if (
+		session == null
+		or session.grid == null
+		or actor == null
+		or ability == null
+		or ability.targeting == null
+	):
+		return result
+
+	var aim_coordinates := get_aim_coordinates(
+		session,
+		actor,
+		ability
+	)
+
+	if not aim_coordinates.has(
+		aim_coordinate
+	):
+		return result
+
+	var forward_direction := (
+		session.get_team_forward_direction(
+			actor.team_id
+		)
+	)
+
+	if forward_direction == 0:
+		return result
+
+	var used_coordinates: Dictionary = {}
+
+	for impact_offset in (
+		ability.targeting.impact_offsets
+	):
+		var oriented_offset := Vector2i(
+			impact_offset.x * forward_direction,
+			impact_offset.y
+		)
+
+		var coordinate := (
+			aim_coordinate
+			+ oriented_offset
+		)
+
+		# Область за краем поля обрезается.
+		if not session.grid.is_inside(
+			coordinate
+		):
+			continue
+
+		if used_coordinates.has(
+			coordinate
+		):
+			continue
+
+		used_coordinates[coordinate] = true
+		result.append(coordinate)
+
+	return result
 
 func can_target(
 	session: BattleSession,

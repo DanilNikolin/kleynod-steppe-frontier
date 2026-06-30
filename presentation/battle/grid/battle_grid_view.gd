@@ -136,11 +136,66 @@ var selected_line_width: float = 4.0:
 		selected_line_width = maxf(1.0, value)
 		queue_redraw()
 
+@export_group("Targeting Debug")
+
+@export
+var targeting_aim_marker_color: Color = Color(
+	0.30,
+	0.90,
+	1.0,
+	0.95
+):
+	set(value):
+		targeting_aim_marker_color = value
+		queue_redraw()
+
+@export_range(2.0, 20.0, 0.5)
+var targeting_aim_marker_radius: float = 5.0:
+	set(value):
+		targeting_aim_marker_radius = maxf(
+			2.0,
+			value
+		)
+
+		queue_redraw()
+
+@export
+var targeting_impact_marker_color: Color = Color(
+	1.0,
+	0.82,
+	0.18,
+	1.0
+):
+	set(value):
+		targeting_impact_marker_color = value
+		queue_redraw()
+
+@export_range(4.0, 30.0, 0.5)
+var targeting_impact_marker_size: float = 12.0:
+	set(value):
+		targeting_impact_marker_size = maxf(
+			4.0,
+			value
+		)
+
+		queue_redraw()
+
+@export_range(1.0, 8.0, 0.5)
+var targeting_impact_line_width: float = 3.0:
+	set(value):
+		targeting_impact_line_width = maxf(
+			1.0,
+			value
+		)
+
+		queue_redraw()
 
 var hovered_cell: Vector2i = INVALID_COORDINATE
 var selected_cell: Vector2i = INVALID_COORDINATE
 
 var _cell_overlays: Dictionary = {}
+var _targeting_aim_coordinates: Array[Vector2i] = []
+var _targeting_impact_coordinates: Array[Vector2i] = []
 
 
 func _ready() -> void:
@@ -186,6 +241,8 @@ func _draw() -> void:
 
 	_draw_side_divider()
 
+	_draw_targeting_debug_markers()
+
 
 func _draw_side_divider() -> void:
 	if divider_column <= 0 or divider_column >= columns:
@@ -208,7 +265,144 @@ func _draw_side_divider() -> void:
 		true
 	)
 
+func _draw_targeting_debug_markers() -> void:
+	for coordinate in (
+		_targeting_aim_coordinates
+	):
+		if not is_valid_coordinate(
+			coordinate
+		):
+			continue
 
+		var cell_rect := get_cell_rect(
+			coordinate
+		)
+
+		# Точка в левом верхнем углу клетки,
+		# чтобы её не закрывал персонаж.
+		var marker_position := (
+			cell_rect.position
+			+ Vector2(12.0, 12.0)
+		)
+
+		draw_circle(
+			marker_position,
+			targeting_aim_marker_radius,
+			targeting_aim_marker_color,
+			true
+		)
+
+	for coordinate in (
+		_targeting_impact_coordinates
+	):
+		if not is_valid_coordinate(
+			coordinate
+		):
+			continue
+
+		var cell_rect := get_cell_rect(
+			coordinate
+		)
+
+		# Крестик справа сверху, отдельно
+		# от aim-точки.
+		var marker_position := (
+			cell_rect.position
+			+ Vector2(
+				cell_rect.size.x - 14.0,
+				14.0
+			)
+		)
+
+		var half_size := (
+			targeting_impact_marker_size
+			* 0.5
+		)
+
+		draw_line(
+			marker_position
+			+ Vector2(
+				- half_size,
+				- half_size
+			),
+			marker_position
+			+ Vector2(
+				half_size,
+				half_size
+			),
+			targeting_impact_marker_color,
+			targeting_impact_line_width,
+			true
+		)
+
+		draw_line(
+			marker_position
+			+ Vector2(
+				- half_size,
+				half_size
+			),
+			marker_position
+			+ Vector2(
+				half_size,
+				- half_size
+			),
+			targeting_impact_marker_color,
+			targeting_impact_line_width,
+			true
+		)
+
+
+func set_targeting_debug_markers(
+	aim_coordinates: Array[Vector2i],
+	impact_coordinates: Array[Vector2i]
+) -> void:
+	_targeting_aim_coordinates.clear()
+	_targeting_impact_coordinates.clear()
+
+	for coordinate in aim_coordinates:
+		if not is_valid_coordinate(
+			coordinate
+		):
+			continue
+
+		if _targeting_aim_coordinates.has(
+			coordinate
+		):
+			continue
+
+		_targeting_aim_coordinates.append(
+			coordinate
+		)
+
+	for coordinate in impact_coordinates:
+		if not is_valid_coordinate(
+			coordinate
+		):
+			continue
+
+		if _targeting_impact_coordinates.has(
+			coordinate
+		):
+			continue
+
+		_targeting_impact_coordinates.append(
+			coordinate
+		)
+
+	queue_redraw()
+
+
+func clear_targeting_debug_markers() -> void:
+	if (
+		_targeting_aim_coordinates.is_empty()
+		and _targeting_impact_coordinates.is_empty()
+	):
+		return
+
+	_targeting_aim_coordinates.clear()
+	_targeting_impact_coordinates.clear()
+
+	queue_redraw()
 func _unhandled_input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return

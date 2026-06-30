@@ -9,7 +9,8 @@ var command: BattleActionCommand
 var action_result: BattleActionResult
 
 var action_presented: bool = false
-var defeated_view_removed: bool = false
+
+var defeated_view_ids_removed: Array[StringName] = []
 
 
 func did_execute() -> bool:
@@ -30,8 +31,26 @@ func get_total_applied_amount(
 	)
 
 
-func did_target_die() -> bool:
+func get_affected_target_count() -> int:
+	if action_result == null:
+		return 0
+
+	return action_result.get_affected_target_count()
+
+
+func get_defeated_target_ids() -> Array[StringName]:
+	if action_result == null:
+		return []
+
+	return action_result.get_defeated_target_ids()
+
+
+func did_target_die(
+	target_id: StringName = &""
+) -> bool:
 	return (
 		action_result != null
-		and action_result.did_target_die()
+		and action_result.did_target_die(
+			target_id
+		)
 	)

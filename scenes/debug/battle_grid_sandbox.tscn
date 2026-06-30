@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
-[ext_resource type="Resource" uid="uid://bcg0f3qjyahde" path="res://content/encounters/debug/debug_reinforcement_encounter.tres" id="4_encounter_definition"]
+[ext_resource type="Resource" path="res://content/encounters/debug/debug_area_attack_encounter.tres" id="4_encounter_definition"]
 
 [node name="BattleGridSandbox" type="Node2D"]
 script = ExtResource("1_sandbox")

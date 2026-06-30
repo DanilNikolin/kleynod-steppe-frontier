@@ -122,75 +122,146 @@ func face_toward(
 	return true
 
 
-func play_melee_feedback(
+func play_action_feedback(
 	actor_id: StringName,
-	target_id: StringName,
-	target_died: bool = false,
+	target_ids: Array[StringName],
+	defeated_target_ids: Array[StringName] = [],
 	animated: bool = true
 ) -> bool:
-	var actor_view := get_view(actor_id)
-	var target_view := get_view(target_id)
+	var actor_view := get_view(
+		actor_id
+	)
 
-	if actor_view == null or target_view == null:
+	if actor_view == null:
 		return false
 
-	face_toward(actor_id, target_id)
+	var target_views: Array[CombatantView] = []
+	var original_modulates: Array[Color] = []
 
-	actor_view.play_visual_animation(&"attack", &"idle")
-	target_view.play_visual_animation(&"hit", &"idle")
+	for target_id in target_ids:
+		var target_view := get_view(
+			target_id
+		)
+
+		if target_view == null:
+			return false
+
+		target_views.append(
+			target_view
+		)
+
+		original_modulates.append(
+			target_view.modulate
+		)
+
+	if not target_ids.is_empty():
+		face_toward(
+			actor_id,
+			target_ids[0]
+		)
+
+	actor_view.play_visual_animation(
+		&"attack",
+		&"idle"
+	)
+
+	for target_view in target_views:
+		target_view.play_visual_animation(
+			&"hit",
+			&"idle"
+		)
 
 	if not animated:
-		_finish_melee_feedback(
+		_finish_action_feedback(
 			actor_view,
-			target_view,
-			target_died
+			target_views,
+			defeated_target_ids
 		)
+
 		return true
 
-	var actor_start := actor_view.position
-	var target_original_modulate := target_view.modulate
-	var direction := (
-		target_view.position - actor_view.position
-	).normalized()
-
-	var tween := combatant_layer.create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-
-	tween.tween_property(
-		actor_view,
-		"position",
-		actor_start + direction * 22.0,
-		0.08
+	var tween := (
+		combatant_layer.create_tween()
 	)
 
-	tween.parallel().tween_property(
-		target_view,
-		"modulate",
-		Color(1.0, 0.28, 0.22, 1.0),
-		0.06
+	tween.set_trans(
+		Tween.TRANS_QUAD
 	)
 
-	tween.tween_property(
-		actor_view,
-		"position",
-		actor_start,
-		0.11
+	tween.set_ease(
+		Tween.EASE_OUT
 	)
 
-	tween.parallel().tween_property(
-		target_view,
-		"modulate",
-		target_original_modulate,
-		0.11
-	)
+	if target_views.is_empty():
+		tween.tween_interval(
+			0.08
+		)
+
+	else:
+		var actor_start := (
+			actor_view.position
+		)
+
+		var primary_target_view := (
+			target_views[0]
+		)
+
+		var direction := (
+			primary_target_view.position
+			- actor_view.position
+		).normalized()
+
+		tween.tween_property(
+			actor_view,
+			"position",
+			actor_start + direction * 22.0,
+			0.08
+		)
+
+		for target_view in target_views:
+			tween.parallel().tween_property(
+				target_view,
+				"modulate",
+				Color(
+					1.0,
+					0.28,
+					0.22,
+					1.0
+				),
+				0.06
+			)
+
+		tween.tween_property(
+			actor_view,
+			"position",
+			actor_start,
+			0.11
+		)
+
+		for target_index in range(
+			target_views.size()
+		):
+			var target_view := (
+				target_views[
+					target_index
+				]
+			)
+
+			tween.parallel().tween_property(
+				target_view,
+				"modulate",
+				original_modulates[
+					target_index
+				],
+				0.11
+			)
 
 	await tween.finished
 
-	_finish_melee_feedback(
+	_finish_action_feedback(
 		actor_view,
-		target_view,
-		target_died
+		target_views,
+		defeated_target_ids
 	)
 
 	return true
@@ -213,18 +284,47 @@ func clear() -> void:
 		remove_view(instance_id)
 
 
-func _finish_melee_feedback(
+func _finish_action_feedback(
 	actor_view: CombatantView,
-	target_view: CombatantView,
-	target_died: bool
+	target_views: Array[CombatantView],
+	defeated_target_ids: Array[StringName]
 ) -> void:
-	if is_instance_valid(actor_view):
-		actor_view.play_visual_animation(&"idle", &"")
+	if is_instance_valid(
+		actor_view
+	):
+		actor_view.play_visual_animation(
+			&"idle",
+			&""
+		)
 
-	if not is_instance_valid(target_view):
-		return
+	var defeated_lookup: Dictionary = {}
 
-	if target_died:
-		target_view.play_visual_animation(&"death", &"")
-	else:
-		target_view.play_visual_animation(&"idle", &"")
+	for target_id in defeated_target_ids:
+		defeated_lookup[target_id] = true
+
+	for target_view in target_views:
+		if not is_instance_valid(
+			target_view
+		):
+			continue
+
+		var target_id: StringName = &""
+
+		if target_view.state != null:
+			target_id = (
+				target_view.state.instance_id
+			)
+
+		if defeated_lookup.has(
+			target_id
+		):
+			target_view.play_visual_animation(
+				&"death",
+				&""
+			)
+
+		else:
+			target_view.play_visual_animation(
+				&"idle",
+				&""
+			)

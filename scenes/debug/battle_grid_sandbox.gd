@@ -22,6 +22,9 @@ var animate_movement: bool = true
 @export
 var animate_actions: bool = true
 
+@export
+var show_targeting_debug: bool = true
+
 @export_range(0.0, 2.0, 0.05)
 var ai_think_delay: float = 0.35
 
@@ -242,7 +245,9 @@ func _create_grid_overlay_presenter() -> void:
 		BattleGridOverlayPresenter.new(
 			grid_view,
 			movement_service,
-			action_service
+			action_service,
+			targeting_service,
+			show_targeting_debug
 		)
 	)
 
@@ -853,10 +858,6 @@ func _try_use_ability_at(
 
 		return
 
-	var target := _get_combatant_at_coordinate(
-		aim_coordinate
-	)
-
 	var command := BattleActionCommand.new(
 		actor,
 		ability,
@@ -886,7 +887,7 @@ func _try_use_ability_at(
 	grid_overlay_presenter.clear()
 
 	var action_outcome := await (
-		action_runner.execute_melee(
+		action_runner.execute_action(
 			session,
 			command,
 			animate_actions
@@ -914,59 +915,39 @@ func _try_use_ability_at(
 		)
 	)
 
-	if (
-		target != null
-		and action_outcome.did_target_die()
-	):
-		_set_status(
-			"%s использует «%s». Урон: %d. "
-			% [
-				actor.definition.display_name,
-				ability.display_name,
-				damage_dealt,
-			]
-			+"%s погиб. Его клетка освобождена. "
-			% target.definition.display_name
-			+"Выносливость бойца: %d/%d."
-			% [
-				actor.current_stamina,
-				actor.max_stamina,
-			]
-		)
+	var affected_count := (
+		action_outcome
+		.get_affected_target_count()
+	)
 
-	elif target != null:
-		_set_status(
-			"%s использует «%s». Урон: %d. "
-			% [
-				actor.definition.display_name,
-				ability.display_name,
-				damage_dealt,
-			]
-			+"Здоровье цели: %d/%d. "
-			% [
-				target.current_health,
-				target.max_health,
-			]
-			+"Выносливость бойца: %d/%d."
-			% [
-				actor.current_stamina,
-				actor.max_stamina,
-			]
-		)
+	var defeated_count := (
+		action_outcome
+		.get_defeated_target_ids()
+		.size()
+	)
 
-	else:
-		_set_status(
-			"%s использует «%s» по клетке %s."
-			% [
-				actor.definition.display_name,
-				ability.display_name,
-				aim_coordinate,
-			]
-		)
+	_set_status(
+		"%s использует «%s» по клетке %s. "
+		% [
+			actor.definition.display_name,
+			ability.display_name,
+			aim_coordinate,
+		]
+		+"Задето целей: %d. "
+		% affected_count
+		+"Общий урон: %d. "
+		% damage_dealt
+		+"Погибло целей: %d. "
+		% defeated_count
+		+"Выносливость: %d/%d."
+		% [
+			actor.current_stamina,
+			actor.max_stamina,
+		]
+	)
 
 	_interaction_in_progress = false
 	_refresh_grid_overlays()
-
 
 func _toggle_obstacle(
 	coordinate: Vector2i

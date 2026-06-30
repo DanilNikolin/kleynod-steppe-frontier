@@ -42,12 +42,17 @@ var grid_view: BattleGridView
 
 var movement_service: BattleMovementService
 var action_service: BattleActionService
+var targeting_service: BattleTargetingService
+
+var show_targeting_debug: bool = true
 
 
 func _init(
 	p_grid_view: BattleGridView,
 	p_movement_service: BattleMovementService,
-	p_action_service: BattleActionService
+	p_action_service: BattleActionService,
+	p_targeting_service: BattleTargetingService,
+	p_show_targeting_debug: bool = true
 ) -> void:
 	assert(
 		p_grid_view != null,
@@ -56,17 +61,30 @@ func _init(
 
 	assert(
 		p_movement_service != null,
-		"BattleGridOverlayPresenter requires a movement service."
+		"BattleGridOverlayPresenter requires "
+		+"a movement service."
 	)
 
 	assert(
 		p_action_service != null,
-		"BattleGridOverlayPresenter requires an action service."
+		"BattleGridOverlayPresenter requires "
+		+"an action service."
+	)
+
+	assert(
+		p_targeting_service != null,
+		"BattleGridOverlayPresenter requires "
+		+"a targeting service."
 	)
 
 	grid_view = p_grid_view
 	movement_service = p_movement_service
 	action_service = p_action_service
+	targeting_service = p_targeting_service
+
+	show_targeting_debug = (
+		p_show_targeting_debug
+	)
 
 
 func refresh(
@@ -105,6 +123,14 @@ func refresh(
 		selected_ability
 	)
 
+	if show_targeting_debug:
+		_draw_targeting_debug(
+			session,
+			selected_combatant,
+			selected_ability,
+			hovered_coordinate
+		)
+
 	_draw_hovered_path(
 		grid,
 		selected_combatant,
@@ -124,6 +150,55 @@ func refresh(
 func clear() -> void:
 	grid_view.clear_cell_overlays()
 	grid_view.clear_selected_cell()
+	grid_view.clear_targeting_debug_markers()
+
+
+func _draw_targeting_debug(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	hovered_coordinate: Vector2i
+) -> void:
+	if (
+		session == null
+		or actor == null
+		or ability == null
+		or ability.targeting == null
+	):
+		grid_view.clear_targeting_debug_markers()
+		return
+
+	var aim_coordinates := (
+		targeting_service.get_aim_coordinates(
+			session,
+			actor,
+			ability
+		)
+	)
+
+	var impact_coordinates: Array[Vector2i] = []
+
+	if (
+		hovered_coordinate
+		!= BattleGridView.INVALID_COORDINATE
+		and aim_coordinates.has(
+			hovered_coordinate
+		)
+	):
+		impact_coordinates = (
+			targeting_service
+			.get_impact_coordinates(
+				session,
+				actor,
+				ability,
+				hovered_coordinate
+			)
+		)
+
+	grid_view.set_targeting_debug_markers(
+		aim_coordinates,
+		impact_coordinates
+	)
 
 
 func _draw_reachable_coordinates(

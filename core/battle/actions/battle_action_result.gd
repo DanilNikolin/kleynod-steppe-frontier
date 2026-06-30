@@ -67,3 +67,19 @@ func did_target_die(
 			return true
 
 	return false
+
+func get_defeated_target_ids() -> Array[StringName]:
+	var result: Array[StringName] = []
+
+	for target_id in affected_target_ids:
+		if target_id == &"":
+			continue
+
+		if did_target_die(target_id):
+			result.append(target_id)
+
+	return result
+
+
+func get_affected_target_count() -> int:
+	return affected_target_ids.size()

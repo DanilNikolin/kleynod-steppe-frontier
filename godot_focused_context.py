@@ -25,15 +25,19 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
+    "core/battle/targeting/ability_targeting_definition.gd",
+    "core/battle/targeting/battle_targeting_result.gd",
+    "core/battle/targeting/battle_targeting_service.gd",
     "core/battle/actions/battle_action_command.gd",
     "core/battle/actions/battle_action_result.gd",
     "core/battle/actions/battle_effect_result.gd",
-    "core/battle/grid/battle_grid.gd",
-    "core/battle/ai/basic_melee_ai_turn_plan.gd",
+    "core/battle/actions/battle_action_service.gd",
     "presentation/battle/actions/battle_action_runner.gd",
     "presentation/battle/actions/battle_action_outcome.gd",
-    "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
     "presentation/battle/combatants/battle_combatant_presenter.gd",
+    "scenes/debug/battle_grid_sandbox.gd",
+    "content/encounters/debug/debug_reinforcement_encounter.tres",
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
 ]
 
 

@@ -72,6 +72,31 @@ func _resolve_damage(
 	result.source_id = source.instance_id
 	result.target_id = target.instance_id
 
+	result.target_base_armor = (
+		target.armor
+	)
+
+	result.target_status_armor_modifier = (
+		target.get_status_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	result.target_modified_armor = (
+		target.get_effective_armor()
+	)
+
+	result.armor_piercing = (
+		effect.armor_piercing
+	)
+
+	result.effective_armor = (
+		damage_calculator.calculate_effective_armor(
+			target,
+			effect
+		)
+	)
+
 	result.raw_amount = (
 		damage_calculator.calculate_raw_damage(
 			source,

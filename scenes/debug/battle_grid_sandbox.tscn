@@ -1,15 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://bvvj4s6x1f4km"]
+[gd_scene load_steps=7 format=3 uid="uid://bvvj4s6x1f4km"]
 
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
-[ext_resource type="Resource" path="res://content/encounters/debug/debug_reinforcement_encounter.tres" id="4_encounter_definition"]
-[ext_resource type="PackedScene" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_7mp7c"]
+[ext_resource type="Resource" uid="uid://bcg0f3qjyahde" path="res://content/encounters/debug/debug_reinforcement_encounter.tres" id="4_encounter_definition"]
+[ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_7mp7c"]
+[ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 
 [node name="BattleGridSandbox" type="Node2D"]
 script = ExtResource("1_sandbox")
 combatant_view_scene = ExtResource("3_combatant_view")
 encounter_definition = ExtResource("4_encounter_definition")
+debug_status_definition = ExtResource("6_debug_status")
 
 [node name="BattleGridView" parent="." instance=ExtResource("2_grid")]
 position = Vector2(958.43, 540)
@@ -55,4 +57,3 @@ text = "Ожидание..."
 autowrap_mode = 2
 
 [node name="AbilityPanel" parent="CanvasLayer" instance=ExtResource("5_7mp7c")]
-anchors_preset = 7

@@ -5,6 +5,20 @@ extends RefCounted
 signal health_changed(previous_value: int, current_value: int)
 signal stamina_changed(previous_value: int, current_value: int)
 signal morale_changed(previous_value: int, current_value: int)
+signal status_added(
+	status: BattleStatusInstance
+)
+
+signal status_updated(
+	status: BattleStatusInstance,
+	previous_stack_count: int,
+	previous_remaining_turns: int
+)
+
+signal status_removed(
+	status: BattleStatusInstance,
+	reason: StringName
+)
 signal grid_position_changed(
 	previous_position: Vector2i,
 	current_position: Vector2i
@@ -39,6 +53,8 @@ var initiative: int
 
 var max_morale: int
 var current_morale: int
+
+var _statuses_by_id: Dictionary = {}
 
 
 var is_alive: bool:
@@ -178,6 +194,10 @@ func apply_resolved_damage(amount: int) -> int:
 		)
 
 	if previous_value > 0 and current_health == 0:
+		clear_statuses(
+			&"owner_defeated"
+		)
+
 		died.emit()
 
 	return received_damage
@@ -266,3 +286,215 @@ func get_default_ability() -> AbilityDefinition:
 		return null
 
 	return loadout.get_default_ability()
+
+func get_active_statuses() -> Array[BattleStatusInstance]:
+	var result: Array[BattleStatusInstance] = []
+
+	for value in _statuses_by_id.values():
+		var status := (
+			value as BattleStatusInstance
+		)
+
+		if status == null:
+			continue
+
+		result.append(
+			status
+		)
+
+	return result
+
+
+func get_status(
+	status_id: StringName
+) -> BattleStatusInstance:
+	if status_id == &"":
+		return null
+
+	if not _statuses_by_id.has(
+		status_id
+	):
+		return null
+
+	return (
+		_statuses_by_id[status_id]
+		as BattleStatusInstance
+	)
+
+
+func has_status(
+	status_id: StringName
+) -> bool:
+	return get_status(
+		status_id
+	) != null
+
+
+func add_status(
+	status_definition: BattleStatusDefinition,
+	source_instance_id: StringName = &""
+) -> BattleStatusInstance:
+	if status_definition == null:
+		return null
+
+	if not status_definition.is_valid_definition():
+		return null
+
+	var existing_status := get_status(
+		status_definition.status_id
+	)
+
+	if existing_status != null:
+		var previous_stack_count := (
+			existing_status.stack_count
+		)
+
+		var previous_remaining_turns := (
+			existing_status.remaining_turns
+		)
+
+		existing_status.reapply(
+			source_instance_id
+		)
+
+		status_updated.emit(
+			existing_status,
+			previous_stack_count,
+			previous_remaining_turns
+		)
+
+		return existing_status
+
+	var new_status := BattleStatusInstance.new(
+		status_definition,
+		source_instance_id
+	)
+
+	_statuses_by_id[
+		status_definition.status_id
+	] = new_status
+
+	status_added.emit(
+		new_status
+	)
+
+	return new_status
+
+
+func remove_status(
+	status_id: StringName,
+	reason: StringName = &"removed"
+) -> bool:
+	var status := get_status(
+		status_id
+	)
+
+	if status == null:
+		return false
+
+	_statuses_by_id.erase(
+		status_id
+	)
+
+	status_removed.emit(
+		status,
+		reason
+	)
+
+	return true
+
+
+func clear_statuses(
+	reason: StringName = &"cleared"
+) -> void:
+	var status_ids: Array = (
+		_statuses_by_id.keys()
+	)
+
+	for value in status_ids:
+		var status_id: StringName = value
+
+		remove_status(
+			status_id,
+			reason
+		)
+
+
+func advance_statuses_after_owner_turn() -> Array[StringName]:
+	var expired_status_ids: Array[StringName] = []
+
+	var statuses := get_active_statuses()
+
+	for status in statuses:
+		if status == null:
+			continue
+
+		var previous_stack_count := (
+			status.stack_count
+		)
+
+		var previous_remaining_turns := (
+			status.remaining_turns
+		)
+
+		status.advance_owner_turn()
+
+		if status.is_expired:
+			expired_status_ids.append(
+				status.status_id
+			)
+
+			remove_status(
+				status.status_id,
+				&"expired"
+			)
+
+			continue
+
+		status_updated.emit(
+			status,
+			previous_stack_count,
+			previous_remaining_turns
+		)
+
+	return expired_status_ids
+
+func get_status_modifier_total(
+	stat: int
+) -> int:
+	var total: int = 0
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		for modifier in (
+			status.definition.stat_modifiers
+		):
+			if modifier == null:
+				continue
+
+			if modifier.stat != stat:
+				continue
+
+			total += modifier.get_total_amount(
+				status.stack_count
+			)
+
+	return total
+
+
+func get_effective_armor() -> int:
+	var status_modifier := (
+		get_status_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	return maxi(
+		0,
+		armor + status_modifier
+	)

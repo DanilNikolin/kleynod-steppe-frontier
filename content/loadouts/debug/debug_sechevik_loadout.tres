@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bis4duqvyinf4" path="res://core/battle/loadouts/combatant_loadout_definition.gd" id="1_loadout"]
 [ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
 [ext_resource type="Resource" uid="uid://bh0xtv0ndcte4" path="res://content/abilities/debug/debug_sabre_slash.tres" id="3_sabre"]
-[ext_resource type="Resource" path="res://content/abilities/debug/debug_sweeping_slash.tres" id="4_sweeping"]
+[ext_resource type="Resource" uid="uid://bl21cyxngsid0" path="res://content/abilities/debug/debug_sweeping_slash.tres" id="4_sweeping"]
 
 [resource]
 script = ExtResource("1_loadout")

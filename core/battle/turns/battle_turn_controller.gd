@@ -5,7 +5,19 @@ extends RefCounted
 signal battle_started
 signal round_started(round_number: int)
 
+signal turn_starting(
+	combatant: CombatantState,
+	round_number: int,
+	turn_index: int
+)
+
 signal turn_started(
+	combatant: CombatantState,
+	round_number: int,
+	turn_index: int
+)
+
+signal turn_ending(
 	combatant: CombatantState,
 	round_number: int,
 	turn_index: int
@@ -82,6 +94,14 @@ func end_current_turn() -> bool:
 
 	var ended_combatant := active_combatant
 	var ended_index := _current_turn_index
+
+	turn_ending.emit(
+		ended_combatant,
+		round_number,
+		ended_index
+	)
+
+	ended_combatant.advance_statuses_after_owner_turn()
 
 	turn_ended.emit(
 		ended_combatant,
@@ -238,6 +258,12 @@ func _begin_turn(
 		return
 
 	active_combatant = combatant
+
+	turn_starting.emit(
+		combatant,
+		round_number,
+		_current_turn_index
+	)
 
 	combatant.restore_round_stamina()
 

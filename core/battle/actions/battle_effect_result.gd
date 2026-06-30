@@ -16,6 +16,13 @@ var mitigated_amount: int = 0
 var resolved_amount: int = 0
 var applied_amount: int = 0
 
+var target_base_armor: int = 0
+var target_status_armor_modifier: int = 0
+var target_modified_armor: int = 0
+
+var armor_piercing: int = 0
+var effective_armor: int = 0
+
 var previous_value: int = 0
 var current_value: int = 0
 

@@ -4,6 +4,8 @@ extends Node2D
 const PLAYER_TEAM_ID: StringName = &"team_player"
 const ENEMY_TEAM_ID: StringName = &"team_enemy"
 
+const MAX_BATTLE_LOG_LINES: int = 6
+
 
 @export_group("Combatants")
 
@@ -33,6 +35,12 @@ var ai_think_delay: float = 0.35
 
 @export_range(1, 10, 1)
 var stamina_cost_per_cell: int = 1
+
+
+@export_group("Status Debug")
+
+@export
+var debug_status_definition: BattleStatusDefinition
 
 
 @onready
@@ -80,6 +88,10 @@ var _obstacle_counter: int = 0
 var _interaction_in_progress: bool = false
 
 var _selected_ability: AbilityDefinition
+
+var _status_headline: String = ""
+
+var _battle_log_lines := PackedStringArray()
 
 var _hovered_coordinate: Vector2i = (
 	BattleGridView.INVALID_COORDINATE
@@ -310,6 +322,10 @@ func _create_combatant_presenter() -> void:
 			% combatant.instance_id
 		)
 
+		_connect_combatant_status_signals(
+			combatant
+		)
+
 
 func _create_movement_runner() -> void:
 	movement_runner = BattleMovementRunner.new(
@@ -355,6 +371,10 @@ func _on_reinforcement_combatant_spawned(
 		"Failed to create reinforcement view "
 		+"for combatant '%s'."
 		% combatant.instance_id
+	)
+
+	_connect_combatant_status_signals(
+		combatant
 	)
 
 	print(
@@ -422,14 +442,26 @@ func _unhandled_input(
 	if not turn_controller.is_running:
 		return
 
-	if (
+	if not (
 		event is InputEventKey
 		and event.pressed
 		and not event.echo
-		and event.keycode == KEY_SPACE
+	):
+		return
+
+	if event.keycode == KEY_T:
+		_apply_debug_status_to_hovered_combatant()
+
+		get_viewport().set_input_as_handled()
+		return
+
+	if (
+		event.keycode == KEY_SPACE
 		and _is_player_turn()
 	):
 		_end_active_turn()
+
+		get_viewport().set_input_as_handled()
 
 
 func _on_grid_cell_hovered(
@@ -660,6 +692,10 @@ func _on_turn_started(
 				combatant.current_stamina,
 				combatant.max_stamina,
 			]
+			+"Статусы: %s. "
+			% _get_status_summary(
+				combatant
+			)
 			+"Выбрано: %s. "
 			% ability_name
 			+"1–9 — способность, Space — завершить ход."
@@ -675,11 +711,15 @@ func _on_turn_started(
 	_refresh_grid_overlays()
 
 	_set_status(
-		"Раунд %d. Ход врага: %s."
+		"Раунд %d. Ход врага: %s. "
 		% [
 			current_round,
 			combatant.definition.display_name,
 		]
+		+"Статусы: %s."
+		% _get_status_summary(
+			combatant
+		)
 	)
 
 	call_deferred(
@@ -1135,6 +1175,10 @@ func _try_use_ability_at(
 		_refresh_grid_overlays()
 		return
 
+	_append_damage_results_to_log(
+		action_outcome.action_result
+	)
+
 	if turn_controller.is_finished:
 		_interaction_in_progress = false
 		return
@@ -1402,5 +1446,622 @@ func _get_movement_failure_message(
 			)
 
 
-func _set_status(message: String) -> void:
-	status_label.text = message
+func _set_status(
+	message: String
+) -> void:
+	_status_headline = message
+	_refresh_status_label()
+
+
+func _push_battle_log(
+	message: String
+) -> void:
+	if message.strip_edges().is_empty():
+		return
+
+	_battle_log_lines.append(
+		message
+	)
+
+	while (
+		_battle_log_lines.size()
+		> MAX_BATTLE_LOG_LINES
+	):
+		_battle_log_lines.remove_at(0)
+
+	print(message)
+
+	_refresh_status_label()
+
+
+func _refresh_status_label() -> void:
+	var text := _status_headline
+
+	if not _battle_log_lines.is_empty():
+		if not text.is_empty():
+			text += "\n\n"
+
+		text += "Журнал боя:\n• "
+		text += "\n• ".join(
+			_battle_log_lines
+		)
+
+	status_label.text = text
+
+
+func _connect_combatant_status_signals(
+	combatant: CombatantState
+) -> void:
+	if combatant == null:
+		return
+
+	var added_callback := Callable(
+		self,
+		"_on_combatant_status_added"
+	).bind(
+		combatant
+	)
+
+	var updated_callback := Callable(
+		self,
+		"_on_combatant_status_updated"
+	).bind(
+		combatant
+	)
+
+	var removed_callback := Callable(
+		self,
+		"_on_combatant_status_removed"
+	).bind(
+		combatant
+	)
+
+	if not combatant.is_connected(
+		&"status_added",
+		added_callback
+	):
+		combatant.connect(
+			&"status_added",
+			added_callback
+		)
+
+	if not combatant.is_connected(
+		&"status_updated",
+		updated_callback
+	):
+		combatant.connect(
+			&"status_updated",
+			updated_callback
+		)
+
+	if not combatant.is_connected(
+		&"status_removed",
+		removed_callback
+	):
+		combatant.connect(
+			&"status_removed",
+			removed_callback
+		)
+
+
+func _on_combatant_status_added(
+	status: BattleStatusInstance,
+	combatant: CombatantState
+) -> void:
+	var status_armor_modifier := (
+		_get_status_stat_modifier_amount(
+			status,
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var current_modifier_total := (
+		combatant.get_status_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var previous_armor := maxi(
+		0,
+		combatant.armor
+		+ current_modifier_total
+		- status_armor_modifier
+	)
+
+	var current_armor := (
+		combatant.get_effective_armor()
+	)
+
+	var message := (
+		"%s получает «%s»."
+		% [
+			combatant.definition.display_name,
+			status.definition.display_name,
+		]
+	)
+
+	if previous_armor != current_armor:
+		message += (
+			" Броня: %d → %d."
+			% [
+				previous_armor,
+				current_armor,
+			]
+		)
+
+	message += (
+		" Длительность: %s."
+		% _format_turn_count(
+			status.remaining_turns
+		)
+	)
+
+	_push_battle_log(
+		message
+	)
+
+
+func _on_combatant_status_updated(
+	status: BattleStatusInstance,
+	previous_stack_count: int,
+	previous_remaining_turns: int,
+	combatant: CombatantState
+) -> void:
+	var current_status_modifier := (
+		_get_status_stat_modifier_amount(
+			status,
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var previous_status_modifier: int = 0
+
+	if (
+		status != null
+		and status.definition != null
+	):
+		for modifier in (
+			status.definition.stat_modifiers
+		):
+			if (
+				modifier != null
+				and modifier.stat
+				== BattleStatModifier.Stat.ARMOR
+			):
+				previous_status_modifier += (
+					modifier.get_total_amount(
+						previous_stack_count
+					)
+				)
+
+	var current_modifier_total := (
+		combatant.get_status_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var previous_modifier_total := (
+		current_modifier_total
+		- current_status_modifier
+		+ previous_status_modifier
+	)
+
+	var previous_armor := maxi(
+		0,
+		combatant.armor
+		+ previous_modifier_total
+	)
+
+	var current_armor := (
+		combatant.get_effective_armor()
+	)
+
+	var changes := PackedStringArray()
+
+	if previous_stack_count != status.stack_count:
+		changes.append(
+			"стаки: %d → %d"
+			% [
+				previous_stack_count,
+				status.stack_count,
+			]
+		)
+
+	if previous_armor != current_armor:
+		changes.append(
+			"броня: %d → %d"
+			% [
+				previous_armor,
+				current_armor,
+			]
+		)
+
+	if (
+		previous_remaining_turns
+		!= status.remaining_turns
+	):
+		if (
+			status.remaining_turns
+			> previous_remaining_turns
+		):
+			changes.append(
+				"длительность обновлена: %s → %s"
+				% [
+					_format_turn_count(
+						previous_remaining_turns
+					),
+					_format_turn_count(
+						status.remaining_turns
+					),
+				]
+			)
+
+		else:
+			changes.append(
+				"осталось %s"
+				% _format_turn_count(
+					status.remaining_turns
+				)
+			)
+
+	if changes.is_empty():
+		changes.append("обновлён")
+
+	_push_battle_log(
+		"«%s» у %s: %s."
+		% [
+			status.definition.display_name,
+			combatant.definition.display_name,
+			", ".join(changes),
+		]
+	)
+
+
+func _on_combatant_status_removed(
+	status: BattleStatusInstance,
+	reason: StringName,
+	combatant: CombatantState
+) -> void:
+	var removed_armor_modifier := (
+		_get_status_stat_modifier_amount(
+			status,
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var current_modifier_total := (
+		combatant.get_status_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	var previous_armor := maxi(
+		0,
+		combatant.armor
+		+ current_modifier_total
+		+ removed_armor_modifier
+	)
+
+	var current_armor := (
+		combatant.get_effective_armor()
+	)
+
+	var message: String
+
+	match reason:
+		&"expired":
+			message = (
+				"«%s» у %s заканчивается."
+				% [
+					status.definition.display_name,
+					combatant.definition.display_name,
+				]
+			)
+
+		&"owner_defeated":
+			message = (
+				"«%s» снимается после гибели %s."
+				% [
+					status.definition.display_name,
+					combatant.definition.display_name,
+				]
+			)
+
+		_:
+			message = (
+				"«%s» снимается с %s."
+				% [
+					status.definition.display_name,
+					combatant.definition.display_name,
+				]
+			)
+
+	if previous_armor != current_armor:
+		message += (
+			" Броня: %d → %d."
+			% [
+				previous_armor,
+				current_armor,
+			]
+		)
+
+	_push_battle_log(
+		message
+	)
+
+
+func _apply_debug_status_to_hovered_combatant() -> void:
+	if debug_status_definition == null:
+		_set_status(
+			"Debug-статус не назначен в Inspector."
+		)
+
+		return
+
+	if not debug_status_definition.is_valid_definition():
+		_set_status(
+			"Назначен некорректный debug-статус."
+		)
+
+		return
+
+	var target := _get_combatant_at_coordinate(
+		_hovered_coordinate
+	)
+
+	if target == null:
+		_set_status(
+			"Наведи курсор на бойца и нажми T."
+		)
+
+		return
+
+	var source := _get_active_combatant()
+
+	var source_instance_id: StringName = &""
+
+	if source != null:
+		source_instance_id = (
+			source.instance_id
+		)
+
+	var applied_status := target.add_status(
+		debug_status_definition,
+		source_instance_id
+	)
+
+	if applied_status == null:
+		_set_status(
+			"Не удалось применить debug-статус."
+		)
+
+		return
+
+	_set_status(
+		"%s: %s. Текущая броня: %d."
+		% [
+			target.definition.display_name,
+			_format_status_for_player(
+				applied_status
+			),
+			target.get_effective_armor(),
+		]
+	)
+
+
+func _get_status_summary(
+	combatant: CombatantState
+) -> String:
+	if combatant == null:
+		return "нет"
+
+	var statuses := (
+		combatant.get_active_statuses()
+	)
+
+	if statuses.is_empty():
+		return "нет"
+
+	var parts := PackedStringArray()
+
+	for status in statuses:
+		if status == null:
+			continue
+
+		parts.append(
+			_format_status_for_player(
+				status
+			)
+		)
+
+	if parts.is_empty():
+		return "нет"
+
+	return "; ".join(parts)
+
+func _format_status_for_player(
+	status: BattleStatusInstance
+) -> String:
+	if (
+		status == null
+		or status.definition == null
+	):
+		return "Неизвестный статус"
+
+	var title := (
+		status.definition.display_name
+	)
+
+	if status.stack_count > 1:
+		title += " ×%d" % status.stack_count
+
+	var effects := PackedStringArray()
+
+	var armor_modifier := (
+		_get_status_stat_modifier_amount(
+			status,
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	if armor_modifier != 0:
+		effects.append(
+			"броня %s"
+			% _format_signed_integer(
+				armor_modifier
+			)
+		)
+
+	if effects.is_empty():
+		effects.append(
+			"без активных модификаторов"
+		)
+
+	return (
+		"%s — %s, осталось %s"
+		% [
+			title,
+			", ".join(effects),
+			_format_turn_count(
+				status.remaining_turns
+			),
+		]
+	)
+
+func _get_status_stat_modifier_amount(
+	status: BattleStatusInstance,
+	stat: int
+) -> int:
+	if (
+		status == null
+		or status.definition == null
+	):
+		return 0
+
+	var total: int = 0
+
+	for modifier in (
+		status.definition.stat_modifiers
+	):
+		if modifier == null:
+			continue
+
+		if modifier.stat != stat:
+			continue
+
+		total += modifier.get_total_amount(
+			status.stack_count
+		)
+
+	return total
+
+
+func _format_signed_integer(
+	value: int
+) -> String:
+	if value > 0:
+		return "+%d" % value
+
+	return str(value)
+
+
+func _format_turn_count(
+	value: int
+) -> String:
+	var absolute_value := absi(value)
+	var last_two_digits := absolute_value % 100
+	var last_digit := absolute_value % 10
+
+	if (
+		last_two_digits >= 11
+		and last_two_digits <= 14
+	):
+		return "%d ходов" % value
+
+	if last_digit == 1:
+		return "%d ход" % value
+
+	if last_digit >= 2 and last_digit <= 4:
+		return "%d хода" % value
+
+	return "%d ходов" % value
+
+
+func _append_damage_results_to_log(
+	action_result: BattleActionResult
+) -> void:
+	if action_result == null:
+		return
+
+	for effect_result in (
+		action_result.effect_results
+	):
+		if effect_result == null:
+			continue
+
+		if (
+			not effect_result.is_successful
+			or effect_result.effect_kind
+			!= &"damage"
+		):
+			continue
+
+		var target := session.get_combatant(
+			effect_result.target_id
+		)
+
+		var target_name := String(
+			effect_result.target_id
+		)
+
+		if (
+			target != null
+			and target.definition != null
+		):
+			target_name = (
+				target.definition.display_name
+			)
+
+		var armor_text := (
+			"%d"
+			% effect_result.target_base_armor
+		)
+
+		if (
+			effect_result
+			.target_status_armor_modifier != 0
+		):
+			armor_text += (
+				" %s от статусов = %d"
+				% [
+					_format_signed_integer(
+						effect_result
+						.target_status_armor_modifier
+					),
+					effect_result
+					.target_modified_armor,
+				]
+			)
+
+		var message := (
+			"%s получает %d урона. "
+			% [
+				target_name,
+				effect_result.applied_amount,
+			]
+			+"Сила удара: %d. "
+			% effect_result.raw_amount
+			+"Броня: %s. "
+			% armor_text
+			+"Пробитие: %d. "
+			% effect_result.armor_piercing
+			+"Защита после пробития: %d."
+			% effect_result.effective_armor
+		)
+
+		if effect_result.target_died:
+			message += " Цель погибает."
+
+		_push_battle_log(
+			message
+		)

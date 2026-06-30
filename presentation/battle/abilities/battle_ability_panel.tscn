@@ -1,11 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://bgg8ap77su8v1"]
 
-[ext_resource type="Script" path="res://presentation/battle/abilities/battle_ability_panel.gd" id="1_panel"]
+[ext_resource type="Script" uid="uid://gy6q3opjvjqv" path="res://presentation/battle/abilities/battle_ability_panel.gd" id="1_panel"]
 
 [node name="BattleAbilityPanel" type="PanelContainer"]
 visible = false
-layout_mode = 3
-anchors_preset = 0
+anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -36,9 +35,9 @@ horizontal_alignment = 1
 
 [node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
-columns = 4
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
+columns = 4
 
 [node name="DescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer"]
 custom_minimum_size = Vector2(0, 46)

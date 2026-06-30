@@ -29,7 +29,8 @@ func calculate_effective_armor(
 
 	return maxi(
 		0,
-		target.armor - effect.armor_piercing
+		target.get_effective_armor()
+		- effect.armor_piercing
 	)
 
 

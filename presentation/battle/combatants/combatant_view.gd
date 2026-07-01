@@ -70,6 +70,11 @@ var outline_width: float = 3.0:
 var visual_container: Node2D = $VisualContainer
 
 @onready
+var status_strip: BattleStatusStrip = (
+	$StatusAnchor/BattleStatusStrip
+)
+
+@onready
 var name_label: Label = (
 	$InterfaceRoot/VBoxContainer/NameLabel
 )
@@ -102,6 +107,11 @@ var _movement_tween: Tween
 
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		status_strip.bind_state(
+			state
+		)
+
 	queue_redraw()
 
 
@@ -135,8 +145,15 @@ func _draw() -> void:
 		)
 
 
-func bind_state(new_state: CombatantState) -> void:
+func bind_state(
+	new_state: CombatantState
+) -> void:
 	if state == new_state:
+		if is_node_ready() and not Engine.is_editor_hint():
+			status_strip.bind_state(
+				state
+			)
+
 		refresh_from_state()
 		return
 
@@ -145,6 +162,12 @@ func bind_state(new_state: CombatantState) -> void:
 	state = new_state
 
 	_connect_state_signals()
+
+	if is_node_ready() and not Engine.is_editor_hint():
+		status_strip.bind_state(
+			state
+		)
+
 	_rebuild_visual()
 	refresh_from_state()
 

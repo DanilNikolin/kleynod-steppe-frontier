@@ -9,35 +9,42 @@ signal ability_selected(
 
 @onready
 var actor_label: Label = (
-	$ContentMargin/VBoxContainer/ActorLabel
+	$ContentMargin/VBoxContainer /
+	HeaderRow / ActorLabel
 )
 
 @onready
 var ability_grid: GridContainer = (
-	$ContentMargin/VBoxContainer/AbilityGrid
+	$ContentMargin/VBoxContainer /
+	CollapsibleContent / AbilityGrid
 )
 
 @onready
 var card_title_label: Label = (
-	$ContentMargin/VBoxContainer/CardPanel /
+	$ContentMargin/VBoxContainer /
+	CollapsibleContent / CardPanel /
 	CardMargin / CardVBox / CardTitleLabel
 )
 
 @onready
 var card_meta_label: Label = (
-	$ContentMargin/VBoxContainer/CardPanel /
+	$ContentMargin/VBoxContainer /
+	CollapsibleContent / CardPanel /
 	CardMargin / CardVBox / CardMetaLabel
 )
 
 @onready
 var card_description_label: Label = (
-	$ContentMargin/VBoxContainer/CardPanel /
-	CardMargin / CardVBox / CardDescriptionLabel
+	$ContentMargin/VBoxContainer /
+	CollapsibleContent / CardPanel /
+	CardMargin / CardVBox /
+	CardDescriptionLabel
 )
 
 @onready
 var card_effects_label: Label = (
-	$ContentMargin/VBoxContainer/CardPanel /
+	$ContentMargin/VBoxContainer /
+	CollapsibleContent / CardPanel /
 	CardMargin / CardVBox / CardEffectsLabel
 )
 

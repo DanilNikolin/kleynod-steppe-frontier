@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bvvj4s6x1f4km"]
+[gd_scene load_steps=9 format=3 uid="uid://bvvj4s6x1f4km"]
 
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_ability_panel"]
 [ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 [ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
+[ext_resource type="Script" uid="uid://btdu08wkb7o5t" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="8_collapse"]
 
 [node name="BattleGridSandbox" type="Node2D"]
 script = ExtResource("1_sandbox")
@@ -31,19 +32,37 @@ layout_mode = 2
 [node name="ContentMargin" type="MarginContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TitleLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer"]
 layout_mode = 2
-text = "Combat Action Sandbox"
+theme_override_constants/separation = 8
 
-[node name="InstructionsLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Combat Action Sandbox"
+vertical_alignment = 1
+
+[node name="CollapseButton" type="Button" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+tooltip_text = "Свернуть"
+mouse_default_cursor_shape = 2
+text = "−"
+
+[node name="CollapsibleContent" type="VBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="InstructionsLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent"]
 layout_mode = 2
 text = "ЛКМ по пустой клетке: движение
 ЛКМ по допустимой цели: применить выбранную способность
@@ -52,10 +71,17 @@ text = "ЛКМ по пустой клетке: движение
 T: наложить debug-статус на бойца под курсором
 Space: завершить ход игрока"
 
-[node name="StatusLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent"]
 layout_mode = 2
 text = "Ожидание..."
 autowrap_mode = 2
+
+[node name="CollapsibleController" type="Node" parent="CanvasLayer/InterfaceMargin"]
+script = ExtResource("8_collapse")
+target_control_path = NodePath("..")
+content_control_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent")
+toggle_button_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/HeaderRow/CollapseButton")
+collapsed_height = 52.0
 
 [node name="AbilityPanel" parent="CanvasLayer" instance=ExtResource("5_ability_panel")]
 

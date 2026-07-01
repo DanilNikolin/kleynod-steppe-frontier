@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bgg8ap77su8v1"]
+[gd_scene load_steps=3 format=3 uid="uid://bgg8ap77su8v1"]
 
 [ext_resource type="Script" uid="uid://gy6q3opjvjqv" path="res://presentation/battle/abilities/battle_ability_panel.gd" id="1_panel"]
+[ext_resource type="Script" uid="uid://btdu08wkb7o5t" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="2_collapse"]
 
 [node name="BattleAbilityPanel" type="PanelContainer"]
 visible = false
@@ -21,62 +22,88 @@ script = ExtResource("1_panel")
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ActorLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ActorLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Боец | Выносливость"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer"]
+[node name="CollapseButton" type="Button" parent="ContentMargin/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+tooltip_text = "Свернуть"
+mouse_default_cursor_shape = 2
+text = "−"
+
+[node name="CollapsibleContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent"]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 4
 
-[node name="CardPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
+[node name="CardPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent"]
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CardPanel"]
+[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
-[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin"]
+[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Название способности"
 
-[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox"]
 layout_mode = 2
 text = "Цена • Цель • Дальность"
 autowrap_mode = 2
 
-[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox"]
 layout_mode = 2
 
-[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox"]
 layout_mode = 2
 text = "Описание способности."
 autowrap_mode = 2
 
-[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CardPanel/CardMargin/CardVBox"]
+[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 text = "Эффекты способности."
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="CollapsibleController" type="Node" parent="."]
+script = ExtResource("2_collapse")
+target_control_path = NodePath("..")
+content_control_path = NodePath("../ContentMargin/VBoxContainer/CollapsibleContent")
+toggle_button_path = NodePath("../ContentMargin/VBoxContainer/HeaderRow/CollapseButton")
+fixed_edge = 1
+collapsed_height = 52.0

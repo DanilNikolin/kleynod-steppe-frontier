@@ -54,7 +54,8 @@ var combatant_layer: Node2D = (
 @onready
 var status_label: Label = (
 	$CanvasLayer/InterfaceMargin/PanelContainer /
-	ContentMargin / VBoxContainer / StatusLabel
+	ContentMargin / VBoxContainer /
+	CollapsibleContent / StatusLabel
 )
 
 @onready

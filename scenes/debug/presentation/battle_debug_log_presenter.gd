@@ -324,18 +324,22 @@ func _append_damage_result(
 		)
 
 	var message := (
-		"%s получает %d урона. "
+		"%s: расчётный урон — %d; "
 		% [
 			target_name,
-			effect_result.applied_amount,
+			effect_result.resolved_amount,
 		]
-		+ "Сила удара: %d. "
+		+"потеря HP — %d; "
+		% effect_result.applied_amount
+		+"overkill — %d. "
+		% effect_result.overkill_amount
+		+"Сила удара: %d. "
 		% effect_result.raw_amount
-		+ "Броня: %s. "
+		+"Броня: %s. "
 		% armor_text
-		+ "Пробитие: %d. "
+		+"Пробитие: %d. "
 		% effect_result.armor_piercing
-		+ "Защита после пробития: %d."
+		+"Защита после пробития: %d."
 		% effect_result.effective_armor
 	)
 

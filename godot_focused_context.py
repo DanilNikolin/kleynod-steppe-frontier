@@ -27,9 +27,9 @@ PROJECT_ROOT = Path(".").resolve()
 FOCUS_PATTERNS = [
     "presentation/battle/abilities/battle_ability_panel.gd",
     "presentation/battle/abilities/battle_ability_panel.tscn",
-    "scenes/debug/battle_grid_sandbox.gd",
+
     "scenes/debug/battle_grid_sandbox.tscn",
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "scenes/debug/battle_grid_sandbox.gd",
 ]
 
 
@@ -58,11 +58,11 @@ READ_EXTENSIONS = {
     ".gd", ".tscn", ".tres", ".json", ".cfg", ".txt", ".md", ".shader", ".godot"
 }
 
-AUTO_INCLUDE_REFERENCED_GD = True
-AUTO_INCLUDE_REFERENCED_TSCN = True
-AUTO_INCLUDE_REFERENCED_TRES = True
+AUTO_INCLUDE_REFERENCED_GD = False
+AUTO_INCLUDE_REFERENCED_TSCN = False
+AUTO_INCLUDE_REFERENCED_TRES = False
 AUTO_INCLUDE_REFERENCED_DIALOGUE = False
-ALWAYS_INCLUDE_PROJECT_GODOT = True
+ALWAYS_INCLUDE_PROJECT_GODOT = False
 
 MAX_TOTAL_LINES = 30000
 MAX_FILE_LINES = 3500

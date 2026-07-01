@@ -16,6 +16,16 @@ var mitigated_amount: int = 0
 var resolved_amount: int = 0
 var applied_amount: int = 0
 
+var overkill_amount: int:
+	get:
+		if effect_kind != &"damage":
+			return 0
+
+		return maxi(
+			0,
+			resolved_amount - applied_amount
+		)
+
 var target_base_armor: int = 0
 var target_status_armor_modifier: int = 0
 var target_modified_armor: int = 0

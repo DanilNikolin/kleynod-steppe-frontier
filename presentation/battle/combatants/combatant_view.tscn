@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dogan5u1eqtfl"]
+[gd_scene load_steps=3 format=3 uid="uid://dogan5u1eqtfl"]
 
 [ext_resource type="Script" uid="uid://c7bb0h5o5mji0" path="res://presentation/battle/combatants/combatant_view.gd" id="1_view"]
+[ext_resource type="PackedScene" uid="uid://cumyipr8kc74u" path="res://presentation/battle/combatants/statuses/battle_status_strip.tscn" id="2_status_strip"]
 
 [node name="CombatantView" type="Node2D"]
 script = ExtResource("1_view")
@@ -11,7 +12,9 @@ script = ExtResource("1_view")
 position = Vector2(0, -38)
 
 [node name="StatusAnchor" type="Node2D" parent="."]
-position = Vector2(0, -92)
+position = Vector2(0, -150)
+
+[node name="BattleStatusStrip" parent="StatusAnchor" instance=ExtResource("2_status_strip")]
 
 [node name="IntentAnchor" type="Node2D" parent="."]
 position = Vector2(0, -125)

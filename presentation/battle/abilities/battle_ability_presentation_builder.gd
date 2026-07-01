@@ -85,6 +85,14 @@ static func build_effects_text(
 				)
 			)
 
+		elif effect is HealEffect:
+			lines.append(
+				_build_heal_effect_text(
+					effect as HealEffect,
+					actor
+				)
+			)
+
 		elif effect is GrantGuardEffect:
 			lines.append(
 				_build_guard_effect_text(
@@ -123,7 +131,9 @@ static func _build_damage_effect_text(
 
 	if actor != null:
 		var strength_damage := floori(
-			float(actor.strength)
+			float(
+				actor.get_effective_strength()
+			)
 			* effect.strength_scaling
 		)
 
@@ -176,6 +186,61 @@ static func _build_damage_effect_text(
 		)
 
 	return damage_text
+
+static func _build_heal_effect_text(
+	effect: HealEffect,
+	actor: CombatantState
+) -> String:
+	var scaling_percent := roundi(
+		effect.spirit_scaling * 100.0
+	)
+
+	if actor == null:
+		var text := (
+			"• Лечение: %d базового"
+			% effect.base_healing
+		)
+
+		if effect.spirit_scaling > 0.0:
+			text += (
+				" + %d%% духа"
+				% scaling_percent
+			)
+
+		return text
+
+	var spirit_healing := floori(
+		float(
+			actor.get_effective_spirit()
+		)
+		* effect.spirit_scaling
+	)
+
+	var predicted_healing := maxi(
+		0,
+		effect.base_healing
+		+ spirit_healing
+	)
+
+	var text := (
+		"• Лечение: %d "
+		% predicted_healing
+		+"(%d базового"
+		% effect.base_healing
+	)
+
+	if effect.spirit_scaling > 0.0:
+		text += (
+			" + %d%% духа = %d"
+			% [
+				scaling_percent,
+				spirit_healing,
+			]
+		)
+
+	text += ")"
+
+	return text
 
 static func _build_guard_effect_text(
 	effect: GrantGuardEffect
@@ -363,8 +428,6 @@ static func _get_stat_name(
 		BattleStatModifier.Stat.SPIRIT:
 			return "дух"
 
-		BattleStatModifier.Stat.INITIATIVE:
-			return "инициатива"
 
 	return "характеристика"
 

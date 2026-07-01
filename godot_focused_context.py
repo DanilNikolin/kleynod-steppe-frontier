@@ -25,24 +25,55 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Неизвестное API прямого перемещения по сетке
-    "core/battle/grid/battle_grid.gd",
+    # Файл изменился после добавления Guard.
+    # Здесь сделаем единые методы effective Strength / Agility / Spirit / Armor
+    # и оставим инициативу неизменяемой во время боя.
+    "core/battle/combatants/combatant_state.gd",
 
-    # Изменён после periodic/heal
+    # Нужно увидеть точные базовые поля характеристик бойца
+    # и проверить разделение предбоевых значений от боевых runtime-значений.
+    "core/battle/combatants/combatant_definition.gd",
+
+    # Текущая модель модификатора:
+    # проверим enum, правила расчёта и уберём инициативу
+    # из доступных временных боевых модификаторов.
+    "core/battle/stats/battle_stat_modifier.gd",
+
+    # Проверим, как статусы хранят массив модификаторов
+    # и нужна ли дополнительная валидация запрещённых характеристик.
+    "core/battle/statuses/battle_status_definition.gd",
+    "core/battle/statuses/battle_status_instance.gd",
+
+    # Файл изменился после Guard.
+    # Здесь урон и лечение сейчас могут читать сырые strength / spirit;
+    # переведём их на эффективные значения.
     "core/battle/effects/effect_resolver.gd",
 
-    # Нужны поля результата нового эффекта
-    "core/battle/actions/battle_effect_result.gd",
-    "core/battle/actions/battle_action_result.gd",
+    # Этот файл я полностью ещё не видел.
+    # Проверим текущие параметры лечения и масштабирование от Духа.
+    "core/battle/effects/heal_effect.gd",
 
-    # Нужно понять текущую передачу результатов в presentation
-    "presentation/battle/actions/battle_action_outcome.gd",
-    "presentation/battle/actions/battle_action_runner.gd",
+    # Файл изменился после кулдаунов и Guard.
+    # Карточка способности должна показывать расчёты
+    # от эффективных характеристик, а не от сырых.
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
 
-    # Анимация и фактическое перемещение view
-    "presentation/battle/movement/battle_movement_runner.gd",
-    "presentation/battle/combatants/battle_combatant_presenter.gd",
-    "presentation/battle/combatants/combatant_view.gd",
+    # Файл изменился после Guard.
+    # Покажем итоговые характеристики и расшифровку:
+    # база 8, модификаторы +2, итог 10.
+    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
+
+    # Проверим текущий формат Armor-дебаффа
+    # как уже работающий пример BattleStatModifier.
+    "content/statuses/debug/debug_cracked_defense.tres",
+
+    # Проверим способность, которая накладывает этот статус,
+    # чтобы на её основе сделать тесты Силы / Спритности / Духа.
+    "content/abilities/debug/debug_sabre_slash.tres",
+
+    # Нужен актуальный набор способностей после добавления Guard,
+    # если будем подключать новые тестовые навыки.
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
 ]
 
 

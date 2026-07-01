@@ -10,7 +10,9 @@ func calculate_raw_damage(
 		return 0
 
 	var attribute_damage := floori(
-		float(attacker.strength)
+		float(
+			attacker.get_effective_strength()
+		)
 		* effect.strength_scaling
 	)
 

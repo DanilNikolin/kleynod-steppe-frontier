@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://bs8deir7raav6"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
+[ext_resource type="Resource" uid="uid://cbu6nr2flo2tp" path="res://content/statuses/debug/debug_battle_focus.tres" id="5_status"]
+
+[sub_resource type="Resource" id="Resource_battle_focus_status"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("5_status")
+effect_id = &"effect_battle_focus_status"
+
+[sub_resource type="Resource" id="Resource_battle_focus_targeting"]
+script = ExtResource("2_targeting")
+aim_relation_mask = 1
+aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
+affected_relation_mask = 1
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_battle_focus"
+display_name = "Боевой настрой"
+description = "Временно повышает силу, ловкость и дух."
+stamina_cost = 2
+cooldown_turns = 2
+targeting = SubResource("Resource_battle_focus_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_battle_focus_status")])

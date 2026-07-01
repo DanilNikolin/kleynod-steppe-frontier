@@ -8,7 +8,6 @@ enum Stat {
 	STRENGTH,
 	AGILITY,
 	SPIRIT,
-	INITIATIVE,
 }
 
 

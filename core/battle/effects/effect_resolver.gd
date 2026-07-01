@@ -130,7 +130,7 @@ func _resolve_damage(
 	)
 
 	result.target_status_armor_modifier = (
-		target.get_status_modifier_total(
+		target.get_stat_modifier_total(
 			BattleStatModifier.Stat.ARMOR
 		)
 	)
@@ -231,7 +231,9 @@ func _resolve_heal(
 	result.target_id = target.instance_id
 
 	var spirit_healing := floori(
-		float(source.spirit)
+		float(
+			source.get_effective_spirit()
+		)
 		* effect.spirit_scaling
 	)
 

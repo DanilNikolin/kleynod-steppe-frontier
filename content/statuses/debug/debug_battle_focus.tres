@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3 uid="uid://cbu6nr2flo2tp"]
+
+[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="1_qre0n"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="2_modifier"]
+
+[sub_resource type="Resource" id="Resource_strength_modifier"]
+script = ExtResource("2_modifier")
+stat = 1
+amount_per_stack = 3
+
+[sub_resource type="Resource" id="Resource_agility_modifier"]
+script = ExtResource("2_modifier")
+stat = 2
+amount_per_stack = 2
+
+[sub_resource type="Resource" id="Resource_spirit_modifier"]
+script = ExtResource("2_modifier")
+stat = 3
+amount_per_stack = 4
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"status_debug_battle_focus"
+display_name = "Боевой настрой"
+description = "Повышает силу на 3, ловкость на 2 и дух на 4."
+duration_turns = 2
+stat_modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_strength_modifier"), SubResource("Resource_agility_modifier"), SubResource("Resource_spirit_modifier")])

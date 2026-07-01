@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CombatantLoadoutDefinition" load_steps=12 format=3 uid="uid://cl0uv1vtgisk5"]
+[gd_resource type="Resource" script_class="CombatantLoadoutDefinition" format=3 uid="uid://cl0uv1vtgisk5"]
 
 [ext_resource type="Script" uid="uid://bis4duqvyinf4" path="res://core/battle/loadouts/combatant_loadout_definition.gd" id="1_loadout"]
 [ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
@@ -11,10 +11,12 @@
 [ext_resource type="Resource" uid="uid://ctwbkmrr7q72" path="res://content/abilities/debug/debug_shield_bash.tres" id="9_shield"]
 [ext_resource type="Resource" uid="uid://cvop7dch0d1j3" path="res://content/abilities/debug/debug_fire_line.tres" id="10_fire_line"]
 [ext_resource type="Resource" uid="uid://tv50qeyb1d5t" path="res://content/abilities/debug/debug_guard_stance.tres" id="11_guard"]
+[ext_resource type="Resource" uid="uid://bs8deir7raav6" path="res://content/abilities/debug/debug_battle_focus.tres" id="12_focus"]
+[ext_resource type="Resource" uid="uid://bnk0vuvlj8iqp" path="res://content/abilities/debug/debug_spirit_mend.tres" id="13_mend"]
 
 [resource]
 script = ExtResource("1_loadout")
 loadout_id = &"loadout_debug_sechevik"
 display_name = "Сечевик с боевым набором"
 default_ability_id = &"ability_sabre_slash"
-abilities = Array[ExtResource("2_ability")]([ExtResource("3_sabre"), ExtResource("4_sweeping"), ExtResource("5_rending"), ExtResource("6_bandage"), ExtResource("7_stunning"), ExtResource("8_hamstring"), ExtResource("9_shield"), ExtResource("10_fire_line"), ExtResource("11_guard")])
+abilities = Array[ExtResource("2_ability")]([ExtResource("3_sabre"), ExtResource("4_sweeping"), ExtResource("5_rending"), ExtResource("6_bandage"), ExtResource("7_stunning"), ExtResource("8_hamstring"), ExtResource("9_shield"), ExtResource("10_fire_line"), ExtResource("11_guard"), ExtResource("12_focus"), ExtResource("13_mend")])

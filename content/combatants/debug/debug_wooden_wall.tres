@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CombatantDefinition" load_steps=4 format=3 uid="uid://cdyjatctxc7xo"]
+[gd_resource type="Resource" script_class="CombatantDefinition" format=3 uid="uid://cdyjatctxc7xo"]
 
 [ext_resource type="Script" uid="uid://djbs8im0vo51" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
 [ext_resource type="PackedScene" uid="uid://frc3c1tiqsau" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]

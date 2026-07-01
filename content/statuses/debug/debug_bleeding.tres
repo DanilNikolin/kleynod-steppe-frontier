@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattleStatusDefinition" load_steps=8 format=3 uid="uid://blpdtthp366w6"]
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3 uid="uid://blpdtthp366w6"]
 
 [ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
 [ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="2_mig4r"]

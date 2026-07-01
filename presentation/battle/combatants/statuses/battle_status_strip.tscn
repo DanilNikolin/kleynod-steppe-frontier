@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cumyipr8kc74u"]
+[gd_scene format=3 uid="uid://cumyipr8kc74u"]
 
 [ext_resource type="Script" uid="uid://bmur6fs4k5v1j" path="res://presentation/battle/combatants/statuses/battle_status_strip.gd" id="1_strip"]
 [ext_resource type="PackedScene" uid="uid://b7lsydad2v0am" path="res://presentation/battle/combatants/statuses/battle_status_chip.tscn" id="2_chip"]
 
-[node name="BattleStatusStrip" type="Control"]
+[node name="BattleStatusStrip" type="Control" unique_id=372132327]
 visible = false
 layout_mode = 3
 anchors_preset = 0
@@ -15,7 +15,7 @@ mouse_filter = 2
 script = ExtResource("1_strip")
 chip_scene = ExtResource("2_chip")
 
-[node name="ChipContainer" type="HBoxContainer" parent="."]
+[node name="ChipContainer" type="HBoxContainer" parent="." unique_id=1102920387]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

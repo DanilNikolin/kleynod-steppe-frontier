@@ -873,7 +873,26 @@ func _is_status_id_before(
 ) -> bool:
 	return String(first) < String(second)
 
-func get_status_modifier_total(
+func get_stat_base_value(
+	stat: int
+) -> int:
+	match stat:
+		BattleStatModifier.Stat.ARMOR:
+			return armor
+
+		BattleStatModifier.Stat.STRENGTH:
+			return strength
+
+		BattleStatModifier.Stat.AGILITY:
+			return agility
+
+		BattleStatModifier.Stat.SPIRIT:
+			return spirit
+
+	return 0
+
+
+func get_stat_modifier_total(
 	stat: int
 ) -> int:
 	var total: int = 0
@@ -901,14 +920,45 @@ func get_status_modifier_total(
 	return total
 
 
-func get_effective_armor() -> int:
-	var status_modifier := (
-		get_status_modifier_total(
-			BattleStatModifier.Stat.ARMOR
-		)
+# Оставляем старое имя как совместимый переходный метод,
+# чтобы уже существующий код не сломался.
+func get_status_modifier_total(
+	stat: int
+) -> int:
+	return get_stat_modifier_total(
+		stat
 	)
 
+
+func get_effective_stat(
+	stat: int
+) -> int:
 	return maxi(
 		0,
-		armor + status_modifier
+		get_stat_base_value(stat)
+		+ get_stat_modifier_total(stat)
+	)
+
+
+func get_effective_strength() -> int:
+	return get_effective_stat(
+		BattleStatModifier.Stat.STRENGTH
+	)
+
+
+func get_effective_agility() -> int:
+	return get_effective_stat(
+		BattleStatModifier.Stat.AGILITY
+	)
+
+
+func get_effective_spirit() -> int:
+	return get_effective_stat(
+		BattleStatModifier.Stat.SPIRIT
+	)
+
+
+func get_effective_armor() -> int:
+	return get_effective_stat(
+		BattleStatModifier.Stat.ARMOR
 	)

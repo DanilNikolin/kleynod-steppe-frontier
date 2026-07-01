@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattleEncounterDefinition" load_steps=10 format=3 uid="uid://dgp7p6h0tjn5n"]
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" format=3 uid="uid://dgp7p6h0tjn5n"]
 
 [ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
 [ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]

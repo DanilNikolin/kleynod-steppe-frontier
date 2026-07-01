@@ -132,7 +132,7 @@ func refresh() -> void:
 	)
 
 	var armor_modifier := (
-		_combatant.get_status_modifier_total(
+		_combatant.get_stat_modifier_total(
 			BattleStatModifier.Stat.ARMOR
 		)
 	)
@@ -156,16 +156,34 @@ func refresh() -> void:
 		)
 
 	attributes_label.text = (
-		"Сила: %d  |  Ловкость: %d\n"
-		% [
+		_build_stat_line(
+			"Сила",
 			_combatant.strength,
+			_combatant.get_effective_strength(),
+			_combatant.get_stat_modifier_total(
+				BattleStatModifier.Stat.STRENGTH
+			)
+		)
+		+"\n"
+		+ _build_stat_line(
+			"Ловкость",
 			_combatant.agility,
-		]
-		+"Дух: %d  |  Инициатива: %d"
-		% [
+			_combatant.get_effective_agility(),
+			_combatant.get_stat_modifier_total(
+				BattleStatModifier.Stat.AGILITY
+			)
+		)
+		+"\n"
+		+ _build_stat_line(
+			"Дух",
 			_combatant.spirit,
-			_combatant.initiative,
-		]
+			_combatant.get_effective_spirit(),
+			_combatant.get_stat_modifier_total(
+				BattleStatModifier.Stat.SPIRIT
+			)
+		)
+		+"\nИнициатива: %d  (предбоевая)"
+		% _combatant.initiative
 	)
 
 	statuses_label.text = (
@@ -455,6 +473,33 @@ func _on_died() -> void:
 	refresh()
 
 
+func _build_stat_line(
+	stat_name: String,
+	base_value: int,
+	effective_value: int,
+	modifier_total: int
+) -> String:
+	if modifier_total == 0:
+		return (
+			"%s: %d"
+			% [
+				stat_name,
+				effective_value,
+			]
+		)
+
+	return (
+		"%s: %d  (база %d, модификаторы %s)"
+		% [
+			stat_name,
+			effective_value,
+			base_value,
+			_format_signed_integer(
+				modifier_total
+			),
+		]
+	)
+
 func _get_stat_name(
 	stat: int
 ) -> String:
@@ -471,8 +516,6 @@ func _get_stat_name(
 		BattleStatModifier.Stat.SPIRIT:
 			return "дух"
 
-		BattleStatModifier.Stat.INITIATIVE:
-			return "инициатива"
 
 	return "характеристика"
 

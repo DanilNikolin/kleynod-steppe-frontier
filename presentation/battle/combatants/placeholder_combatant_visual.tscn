@@ -1,31 +1,31 @@
-[gd_scene load_steps=2 format=3 uid="uid://frc3c1tiqsau"]
+[gd_scene format=3 uid="uid://frc3c1tiqsau"]
 
 [ext_resource type="Script" uid="uid://dd83mhrnk6jbc" path="res://presentation/battle/combatants/combatant_visual.gd" id="1_visual"]
 
-[node name="PlaceholderCombatantVisual" type="Node2D"]
+[node name="PlaceholderCombatantVisual" type="Node2D" unique_id=2070835626]
 script = ExtResource("1_visual")
 
-[node name="VisualRoot" type="Node2D" parent="."]
+[node name="VisualRoot" type="Node2D" parent="." unique_id=525450510]
 
-[node name="Shadow" type="Polygon2D" parent="VisualRoot"]
+[node name="Shadow" type="Polygon2D" parent="VisualRoot" unique_id=1996262574]
 color = Color(0.08, 0.08, 0.1, 0.45)
 polygon = PackedVector2Array(-28, 3, -18, -4, 18, -4, 28, 3, 18, 10, -18, 10)
 
-[node name="Body" type="Polygon2D" parent="VisualRoot"]
+[node name="Body" type="Polygon2D" parent="VisualRoot" unique_id=509446708]
 polygon = PackedVector2Array(-23, 0, -20, -35, -12, -53, 12, -53, 20, -35, 23, 0)
 
-[node name="Head" type="Polygon2D" parent="VisualRoot"]
+[node name="Head" type="Polygon2D" parent="VisualRoot" unique_id=511618404]
 color = Color(0.92, 0.92, 0.92, 1)
 polygon = PackedVector2Array(-12, -53, -9, -66, 0, -72, 9, -66, 12, -53, 8, -44, -8, -44)
 
-[node name="Weapon" type="Line2D" parent="VisualRoot"]
+[node name="Weapon" type="Line2D" parent="VisualRoot" unique_id=2146048342]
 points = PackedVector2Array(10, -45, 36, -73)
 width = 6.0
 default_color = Color(0.9, 0.9, 0.9, 1)
 begin_cap_mode = 2
 end_cap_mode = 2
 
-[node name="Symbol" type="Label" parent="VisualRoot"]
+[node name="Symbol" type="Label" parent="VisualRoot" unique_id=219863922]
 offset_left = -8.0
 offset_top = -43.0
 offset_right = 8.0
@@ -34,13 +34,13 @@ text = "С"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HitAnchor" type="Marker2D" parent="."]
+[node name="HitAnchor" type="Marker2D" parent="." unique_id=1264037906]
 position = Vector2(0, -42)
 
-[node name="ProjectileAnchor" type="Marker2D" parent="."]
+[node name="ProjectileAnchor" type="Marker2D" parent="." unique_id=812448668]
 position = Vector2(32, -70)
 
-[node name="EffectsAnchor" type="Marker2D" parent="."]
+[node name="EffectsAnchor" type="Marker2D" parent="." unique_id=1446494992]
 position = Vector2(0, -30)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1279483286]

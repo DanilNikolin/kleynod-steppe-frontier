@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattleEncounterDefinition" load_steps=13 format=3 uid="uid://bj13r1qjrng4a"]
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" format=3 uid="uid://bj13r1qjrng4a"]
 
 [ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="2_bfs6g"]

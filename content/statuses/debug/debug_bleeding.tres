@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BattleStatusDefinition" load_steps=8 format=3 uid="uid://blpdtthp366w6"]
+
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="2_mig4r"]
+[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="3_damage"]
+[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="5_pn5lx"]
+
+[sub_resource type="Resource" id="Resource_bleeding_damage"]
+script = ExtResource("3_damage")
+base_damage = 2
+strength_scaling = 0.0
+armor_piercing = 999
+minimum_damage = 2
+effect_id = &"bleeding_tick"
+
+[sub_resource type="Resource" id="Resource_end_trigger"]
+script = ExtResource("2_trigger")
+effects = Array[ExtResource("2_mig4r")]([SubResource("Resource_bleeding_damage")])
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"debug_bleeding"
+display_name = "Кровотечение"
+description = "Наносит 2 единицы урона в конце хода носителя."
+duration_turns = 2
+periodic_triggers = Array[ExtResource("2_trigger")]([SubResource("Resource_end_trigger")])

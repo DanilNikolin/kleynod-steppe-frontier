@@ -38,6 +38,12 @@ var reapply_rule: ReapplyRule = (
 )
 
 
+@export_group("Periodic Effects")
+
+@export
+var periodic_triggers: Array[BattleStatusPeriodicTrigger] = []
+
+
 @export_group("Stat Modifiers")
 
 @export
@@ -94,6 +100,32 @@ func get_validation_errors() -> PackedStringArray:
 				% [
 					modifier_index,
 					modifier_error,
+				]
+			)
+
+	for trigger_index in range(
+		periodic_triggers.size()
+	):
+		var trigger := periodic_triggers[
+			trigger_index
+		]
+
+		if trigger == null:
+			errors.append(
+				"Periodic trigger at index %d is null."
+				% trigger_index
+			)
+
+			continue
+
+		for trigger_error in (
+			trigger.get_validation_errors()
+		):
+			errors.append(
+				"Periodic trigger %d: %s"
+				% [
+					trigger_index,
+					trigger_error,
 				]
 			)
 

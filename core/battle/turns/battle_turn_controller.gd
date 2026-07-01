@@ -29,6 +29,12 @@ signal turn_ended(
 	turn_index: int
 )
 
+signal periodic_status_effects_resolved(
+	combatant: CombatantState,
+	timing: int,
+	results: Array[BattleStatusPeriodicTriggerResult]
+)
+
 signal battle_finished(
 	winning_team_id: StringName
 )
@@ -37,13 +43,17 @@ signal battle_finished(
 var session: BattleSession
 var reinforcement_controller: BattleReinforcementController
 
+var periodic_status_processor: BattleStatusPeriodicProcessor
+
 var round_number: int = 0
 var active_combatant: CombatantState
 var winning_team_id: StringName = &""
 
+
 var is_running: bool:
 	get:
 		return _started and not _finished
+
 
 var is_finished: bool:
 	get:
@@ -55,6 +65,18 @@ var _current_turn_index: int = -1
 
 var _started: bool = false
 var _finished: bool = false
+
+var _is_processing_periodic_statuses: bool = false
+
+
+func _init(
+	p_periodic_status_processor: BattleStatusPeriodicProcessor = null
+) -> void:
+	periodic_status_processor = (
+		p_periodic_status_processor
+		if p_periodic_status_processor != null
+		else BattleStatusPeriodicProcessor.new()
+	)
 
 
 func start(
@@ -101,7 +123,15 @@ func end_current_turn() -> bool:
 		ended_index
 	)
 
-	ended_combatant.advance_statuses_after_owner_turn()
+	_process_periodic_status_effects(
+		ended_combatant,
+		BattleStatusPeriodicTrigger
+		.Timing
+		.OWNER_TURN_END
+	)
+
+	if ended_combatant.is_alive:
+		ended_combatant.advance_statuses_after_owner_turn()
 
 	turn_ended.emit(
 		ended_combatant,
@@ -231,7 +261,10 @@ func _advance_to_next_turn() -> bool:
 	while next_index < _turn_order.size():
 		var candidate := _turn_order[next_index]
 
-		if candidate != null and candidate.is_alive:
+		if (
+			candidate != null
+			and candidate.is_alive
+		):
 			_current_turn_index = next_index
 
 			_begin_turn(
@@ -254,7 +287,10 @@ func _start_next_round() -> bool:
 func _begin_turn(
 	combatant: CombatantState
 ) -> void:
-	if combatant == null or not combatant.is_alive:
+	if (
+		combatant == null
+		or not combatant.is_alive
+	):
 		return
 
 	active_combatant = combatant
@@ -265,6 +301,22 @@ func _begin_turn(
 		_current_turn_index
 	)
 
+	_process_periodic_status_effects(
+		combatant,
+		BattleStatusPeriodicTrigger
+		.Timing
+		.OWNER_TURN_START
+	)
+
+	if not combatant.is_alive:
+		active_combatant = null
+
+		if evaluate_battle_state():
+			return
+
+		_advance_to_next_turn()
+		return
+
 	combatant.restore_round_stamina()
 
 	turn_started.emit(
@@ -272,6 +324,38 @@ func _begin_turn(
 		round_number,
 		_current_turn_index
 	)
+
+
+func _process_periodic_status_effects(
+	combatant: CombatantState,
+	timing: int
+) -> Array[BattleStatusPeriodicTriggerResult]:
+	var results: Array[BattleStatusPeriodicTriggerResult] = []
+
+	if periodic_status_processor == null:
+		return results
+
+	_is_processing_periodic_statuses = true
+
+	results = (
+		periodic_status_processor
+		.process_owner_timing(
+			session,
+			combatant,
+			timing
+		)
+	)
+
+	_is_processing_periodic_statuses = false
+
+	if not results.is_empty():
+		periodic_status_effects_resolved.emit(
+			combatant,
+			timing,
+			results
+		)
+
+	return results
 
 
 func _rebuild_turn_order() -> void:
@@ -319,6 +403,9 @@ func _connect_session_signals() -> void:
 func _on_combatant_defeated(
 	_combatant: CombatantState
 ) -> void:
+	if _is_processing_periodic_statuses:
+		return
+
 	evaluate_battle_state()
 
 

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=8 format=3 uid="uid://c1sqi1lcu365d"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
+[ext_resource type="Resource" uid="uid://cgmel2oj0ewfe" path="res://content/statuses/debug/debug_regeneration.tres" id="5_regeneration"]
+
+[sub_resource type="Resource" id="Resource_bandage_regeneration"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("5_regeneration")
+effect_id = &"effect_bandage_regeneration"
+
+[sub_resource type="Resource" id="Resource_bandage_targeting"]
+script = ExtResource("2_targeting")
+aim_relation_mask = 1
+aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
+affected_relation_mask = 1
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_bandage"
+display_name = "Перевязка"
+description = "Наложить на себя регенерацию. Требует явного выбора собственной клетки."
+stamina_cost = 2
+targeting = SubResource("Resource_bandage_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_bandage_regeneration")])

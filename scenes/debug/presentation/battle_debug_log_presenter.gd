@@ -239,6 +239,32 @@ func format_status_for_player(
 			)
 		)
 
+	var has_turn_start_trigger := false
+	var has_turn_end_trigger := false
+
+	for trigger in (
+		status.definition.periodic_triggers
+	):
+		if trigger == null:
+			continue
+
+		match trigger.timing:
+			BattleStatusPeriodicTrigger.Timing.OWNER_TURN_START:
+				has_turn_start_trigger = true
+
+			BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END:
+				has_turn_end_trigger = true
+
+	if has_turn_start_trigger:
+		effects.append(
+			"эффект в начале хода"
+		)
+
+	if has_turn_end_trigger:
+		effects.append(
+			"эффект в конце хода"
+		)
+
 	if effects.is_empty():
 		effects.append(
 			"без активных модификаторов"
@@ -277,10 +303,80 @@ func append_action_results(
 					effect_result
 				)
 
+			&"heal":
+				_append_heal_result(
+					effect_result
+				)
+
 			&"apply_status":
 				_append_status_result(
 					effect_result
 				)
+
+
+func append_periodic_trigger_results(
+	combatant: CombatantState,
+	timing: int,
+	trigger_results: Array[
+		BattleStatusPeriodicTriggerResult
+	]
+) -> void:
+	if combatant == null:
+		return
+
+	for trigger_result in trigger_results:
+		if trigger_result == null:
+			continue
+
+		var status_name := (
+			trigger_result.status_display_name
+		)
+
+		if status_name.strip_edges().is_empty():
+			status_name = String(
+				trigger_result.status_id
+			)
+
+		push_battle_log(
+			"«%s» срабатывает у %s %s."
+			% [
+				status_name,
+				combatant.definition.display_name,
+				format_periodic_timing(
+					timing
+				),
+			]
+		)
+
+		for effect_result in (
+			trigger_result.effect_results
+		):
+			if effect_result == null:
+				continue
+
+			if not effect_result.is_successful:
+				push_battle_log(
+					"Периодический эффект не выполнен: %s."
+					% effect_result.failure_code
+				)
+
+				continue
+
+			match effect_result.effect_kind:
+				&"damage":
+					_append_damage_result(
+						effect_result
+					)
+
+				&"heal":
+					_append_heal_result(
+						effect_result
+					)
+
+				# ApplyStatusEffect уже сообщает
+				# об изменении через status-сигналы.
+				&"apply_status":
+					pass
 
 
 func _append_damage_result(
@@ -345,6 +441,47 @@ func _append_damage_result(
 
 	if effect_result.target_died:
 		message += " Цель погибает."
+
+	push_battle_log(
+		message
+	)
+
+
+func _append_heal_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var message := (
+		"%s: расчётное лечение — %d; "
+		% [
+			target_name,
+			effect_result.resolved_amount,
+		]
+		+ "восстановлено HP — %d; "
+		% effect_result.applied_amount
+		+ "overheal — %d. "
+		% effect_result.overheal_amount
+		+ "Здоровье: %d → %d."
+		% [
+			effect_result.previous_value,
+			effect_result.current_value,
+		]
+	)
 
 	push_battle_log(
 		message
@@ -529,6 +666,19 @@ func format_turn_count(
 		return "%d хода" % value
 
 	return "%d ходов" % value
+
+
+func format_periodic_timing(
+	timing: int
+) -> String:
+	match timing:
+		BattleStatusPeriodicTrigger.Timing.OWNER_TURN_START:
+			return "в начале хода"
+
+		BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END:
+			return "в конце хода"
+
+	return "в неизвестный момент"
 
 
 func _refresh_status_label() -> void:

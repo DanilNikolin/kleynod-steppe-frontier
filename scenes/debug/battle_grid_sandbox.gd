@@ -337,6 +337,10 @@ func _connect_turn_signals() -> void:
 		_on_turn_started
 	)
 
+	turn_controller.periodic_status_effects_resolved.connect(
+		_on_periodic_status_effects_resolved
+	)
+
 	turn_controller.battle_finished.connect(
 		_on_battle_finished
 	)
@@ -423,6 +427,48 @@ func _on_reinforcement_wave_deferred(
 	)
 
 
+func _on_periodic_status_effects_resolved(
+	combatant: CombatantState,
+	timing: int,
+	trigger_results: Array[
+		BattleStatusPeriodicTriggerResult
+	]
+) -> void:
+	debug_log_presenter.append_periodic_trigger_results(
+		combatant,
+		timing,
+		trigger_results
+	)
+
+	var removed_view_ids: Dictionary = {}
+
+	for trigger_result in trigger_results:
+		if trigger_result == null:
+			continue
+
+		for target_id in (
+			trigger_result
+			.get_defeated_target_ids()
+		):
+			if removed_view_ids.has(
+				target_id
+			):
+				continue
+
+			removed_view_ids[
+				target_id
+			] = true
+
+			if combatant_presenter.has_view(
+				target_id
+			):
+				combatant_presenter.remove_view(
+					target_id
+				)
+
+	if interaction_controller != null:
+		interaction_controller.refresh_grid_overlays()
+		
 func _on_turn_started(
 	combatant: CombatantState,
 	current_round: int,

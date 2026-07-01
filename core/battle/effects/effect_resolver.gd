@@ -24,6 +24,7 @@ func can_resolve(
 ) -> bool:
 	return (
 		effect is DamageEffect
+		or effect is HealEffect
 		or effect is ApplyStatusEffect
 	)
 
@@ -60,6 +61,13 @@ func resolve(
 	if effect is DamageEffect:
 		return _resolve_damage(
 			effect as DamageEffect,
+			source,
+			target
+		)
+
+	if effect is HealEffect:
+		return _resolve_heal(
+			effect as HealEffect,
 			source,
 			target
 		)
@@ -148,6 +156,51 @@ func _resolve_damage(
 	result.target_died = (
 		result.previous_value > 0
 		and result.current_value == 0
+	)
+
+	result.is_successful = true
+
+	return result
+
+
+func _resolve_heal(
+	effect: HealEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"heal"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	var spirit_healing := floori(
+		float(source.spirit)
+		* effect.spirit_scaling
+	)
+
+	result.raw_amount = maxi(
+		0,
+		effect.base_healing
+		+ spirit_healing
+	)
+
+	result.resolved_amount = (
+		result.raw_amount
+	)
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	result.applied_amount = target.heal(
+		result.resolved_amount
+	)
+
+	result.current_value = (
+		target.current_health
 	)
 
 	result.is_successful = true

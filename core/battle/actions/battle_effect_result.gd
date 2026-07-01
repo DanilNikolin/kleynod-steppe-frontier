@@ -26,6 +26,16 @@ var overkill_amount: int:
 			resolved_amount - applied_amount
 		)
 
+var overheal_amount: int:
+	get:
+		if effect_kind != &"heal":
+			return 0
+
+		return maxi(
+			0,
+			resolved_amount - applied_amount
+		)
+
 var target_base_armor: int = 0
 var target_status_armor_modifier: int = 0
 var target_modified_armor: int = 0

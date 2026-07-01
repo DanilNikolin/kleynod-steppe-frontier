@@ -25,11 +25,20 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "presentation/battle/abilities/battle_ability_panel.gd",
-    "presentation/battle/abilities/battle_ability_panel.tscn",
+    # Точные поля AbilityDefinition и targeting-конфига
+    "core/battle/abilities/ability_definition.gd",
+    "core/battle/targeting/ability_targeting_definition.gd",
 
-    "scenes/debug/battle_grid_sandbox.tscn",
-    "scenes/debug/battle_grid_sandbox.gd",
+    # Примеры корректной сериализации обычной и AoE-способности
+    "content/abilities/debug/debug_sabre_slash.tres",
+    "content/abilities/debug/debug_sweeping_slash.tres",
+
+    # Loadout игрока, куда добавим две новые способности
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
+
+    # На всякий случай второй loadout игрока, чтобы понять,
+    # используется ли он отдельным debug encounter
+    "content/loadouts/debug/debug_sweeping_sechevik_loadout.tres",
 ]
 
 

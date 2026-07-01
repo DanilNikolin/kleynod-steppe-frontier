@@ -3,6 +3,7 @@ extends RefCounted
 
 
 signal health_changed(previous_value: int, current_value: int)
+signal guard_changed(previous_value: int, current_value: int)
 signal stamina_changed(previous_value: int, current_value: int)
 signal ability_lock_changed(
 	ability_id: StringName,
@@ -51,6 +52,8 @@ var spirit: int
 
 var max_health: int
 var current_health: int
+
+var current_guard: int
 
 var armor: int
 
@@ -111,6 +114,8 @@ func _initialize_runtime_attributes() -> void:
 
 	max_health = definition.max_health
 	current_health = max_health
+
+	current_guard = 0
 
 	armor = definition.base_armor
 
@@ -186,19 +191,96 @@ func restore_stamina(amount: int) -> int:
 func restore_round_stamina() -> int:
 	return restore_stamina(stamina_regeneration)
 
-
-func apply_resolved_damage(amount: int) -> int:
+func grant_guard(amount: int) -> int:
 	if amount <= 0 or not is_alive:
+		return 0
+
+	var previous_value := current_guard
+
+	current_guard = mini(
+		max_health,
+		current_guard + amount
+	)
+
+	var granted_amount := (
+		current_guard - previous_value
+	)
+
+	if granted_amount > 0:
+		guard_changed.emit(
+			previous_value,
+			current_guard
+		)
+
+	return granted_amount
+
+
+func absorb_damage_with_guard(
+	amount: int
+) -> int:
+	if amount <= 0 or current_guard <= 0:
+		return 0
+
+	var previous_value := current_guard
+
+	var absorbed_amount := mini(
+		amount,
+		current_guard
+	)
+
+	current_guard -= absorbed_amount
+
+	guard_changed.emit(
+		previous_value,
+		current_guard
+	)
+
+	return absorbed_amount
+
+
+func clear_guard() -> int:
+	if current_guard <= 0:
+		return 0
+
+	var previous_value := current_guard
+	current_guard = 0
+
+	guard_changed.emit(
+		previous_value,
+		current_guard
+	)
+
+	return previous_value
+
+func apply_resolved_damage(
+	amount: int,
+	bypass_guard: bool = false
+) -> int:
+	if amount <= 0 or not is_alive:
+		return 0
+
+	var remaining_damage := amount
+
+	if not bypass_guard:
+		remaining_damage -= (
+			absorb_damage_with_guard(
+				remaining_damage
+			)
+		)
+
+	if remaining_damage <= 0:
 		return 0
 
 	var previous_value := current_health
 
 	current_health = maxi(
 		0,
-		current_health - amount
+		current_health - remaining_damage
 	)
 
-	var received_damage := previous_value - current_health
+	var received_damage := (
+		previous_value - current_health
+	)
 
 	if received_damage > 0:
 		health_changed.emit(
@@ -207,6 +289,8 @@ func apply_resolved_damage(amount: int) -> int:
 		)
 
 	if previous_value > 0 and current_health == 0:
+		clear_guard()
+
 		clear_statuses(
 			&"owner_defeated"
 		)
@@ -478,7 +562,7 @@ func _initialize_ability_locks() -> void:
 		_initially_locked_ability_ids[
 			ability.ability_id
 		] = true
-		
+
 func get_active_statuses() -> Array[BattleStatusInstance]:
 	var result: Array[BattleStatusInstance] = []
 

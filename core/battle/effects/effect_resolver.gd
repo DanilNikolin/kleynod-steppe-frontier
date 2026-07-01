@@ -29,6 +29,7 @@ func can_resolve(
 	return (
 		effect is DamageEffect
 		or effect is HealEffect
+		or effect is GrantGuardEffect
 		or effect is ApplyStatusEffect
 		or effect is ForcedMovementEffect
 	)
@@ -38,7 +39,8 @@ func resolve(
 	effect: BattleEffect,
 	source: CombatantState,
 	target: CombatantState,
-	session: BattleSession = null
+	session: BattleSession = null,
+	bypass_guard: bool = false
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -68,12 +70,20 @@ func resolve(
 		return _resolve_damage(
 			effect as DamageEffect,
 			source,
-			target
+			target,
+			bypass_guard
 		)
 
 	if effect is HealEffect:
 		return _resolve_heal(
 			effect as HealEffect,
+			source,
+			target
+		)
+
+	if effect is GrantGuardEffect:
+		return _resolve_grant_guard(
+			effect as GrantGuardEffect,
 			source,
 			target
 		)
@@ -104,7 +114,8 @@ func resolve(
 func _resolve_damage(
 	effect: DamageEffect,
 	source: CombatantState,
-	target: CombatantState
+	target: CombatantState,
+	bypass_guard: bool
 ) -> BattleEffectResult:
 	var result := BattleEffectResult.new()
 
@@ -159,13 +170,42 @@ func _resolve_damage(
 		result.raw_amount - result.resolved_amount
 	)
 
-	result.previous_value = target.current_health
-
-	result.applied_amount = target.apply_resolved_damage(
-		result.resolved_amount
+	result.previous_guard = (
+		target.current_guard
 	)
 
-	result.current_value = target.current_health
+	result.guard_was_bypassed = (
+		bypass_guard
+	)
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	result.applied_amount = (
+		target.apply_resolved_damage(
+			result.resolved_amount,
+			bypass_guard
+		)
+	)
+
+	result.current_guard = (
+		target.current_guard
+	)
+
+	if bypass_guard:
+		result.guard_absorbed_amount = 0
+
+	else:
+		result.guard_absorbed_amount = maxi(
+			0,
+			result.previous_guard
+			- result.current_guard
+		)
+
+	result.current_value = (
+		target.current_health
+	)
 
 	result.target_died = (
 		result.previous_value > 0
@@ -221,7 +261,52 @@ func _resolve_heal(
 
 	return result
 
+func _resolve_grant_guard(
+	effect: GrantGuardEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
 
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"grant_guard"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = maxi(
+		0,
+		effect.guard_amount
+	)
+
+	result.resolved_amount = (
+		result.raw_amount
+	)
+
+	result.previous_guard = (
+		target.current_guard
+	)
+
+	result.previous_value = (
+		target.current_guard
+	)
+
+	result.applied_amount = target.grant_guard(
+		result.resolved_amount
+	)
+
+	result.current_guard = (
+		target.current_guard
+	)
+
+	result.current_value = (
+		target.current_guard
+	)
+
+	result.is_successful = true
+
+	return result
+	
 func _resolve_apply_status(
 	effect: ApplyStatusEffect,
 	source: CombatantState,
@@ -396,7 +481,7 @@ func _resolve_forced_movement(
 
 	result.is_successful = true
 	return result
-	
+
 func _create_failure_result(
 	failure_code: StringName,
 	effect: BattleEffect,

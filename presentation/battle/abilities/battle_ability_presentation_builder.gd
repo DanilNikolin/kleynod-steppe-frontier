@@ -85,6 +85,13 @@ static func build_effects_text(
 				)
 			)
 
+		elif effect is GrantGuardEffect:
+			lines.append(
+				_build_guard_effect_text(
+					effect as GrantGuardEffect
+				)
+			)
+
 		elif effect is ApplyStatusEffect:
 			lines.append(
 				_build_status_effect_text(
@@ -170,6 +177,14 @@ static func _build_damage_effect_text(
 
 	return damage_text
 
+static func _build_guard_effect_text(
+	effect: GrantGuardEffect
+) -> String:
+	return (
+		"• Оборона: +%d"
+		% effect.guard_amount
+		+"\n  Максимум: здоровье бойца"
+	)
 
 static func _build_status_effect_text(
 	effect: ApplyStatusEffect

@@ -341,6 +341,11 @@ func append_action_results(
 					effect_result
 				)
 
+			&"grant_guard":
+				_append_guard_result(
+					effect_result
+				)
+
 			&"apply_status":
 				_append_status_result(
 					effect_result
@@ -411,6 +416,11 @@ func append_periodic_trigger_results(
 						effect_result
 					)
 
+				&"grant_guard":
+					_append_guard_result(
+						effect_result
+					)
+
 				# ApplyStatusEffect уже сообщает
 				# об изменении через status-сигналы.
 				&"apply_status":
@@ -457,24 +467,46 @@ func _append_damage_result(
 			]
 		)
 
+	var guard_text: String
+
+	if effect_result.guard_was_bypassed:
+		guard_text = (
+			"оборона проигнорирована "
+			+"(было %d)"
+			% effect_result.previous_guard
+		)
+
+	else:
+		guard_text = (
+			"оборона: %d → %d, поглощено %d"
+			% [
+				effect_result.previous_guard,
+				effect_result.current_guard,
+				effect_result
+					.guard_absorbed_amount,
+			]
+		)
+
 	var message := (
-		"%s: расчётный урон — %d; "
+		"%s: сила удара — %d; "
 		% [
 			target_name,
-			effect_result.resolved_amount,
+			effect_result.raw_amount,
 		]
+		+"броня — %s; "
+		% armor_text
+		+"пробитие — %d; "
+		% effect_result.armor_piercing
+		+"итоговая броня — %d; "
+		% effect_result.effective_armor
+		+"урон после брони — %d; "
+		% effect_result.resolved_amount
+		+"%s; "
+		% guard_text
 		+"потеря HP — %d; "
 		% effect_result.applied_amount
-		+"overkill — %d. "
+		+"overkill — %d."
 		% effect_result.overkill_amount
-		+"Сила удара: %d. "
-		% effect_result.raw_amount
-		+"Броня: %s. "
-		% armor_text
-		+"Пробитие: %d. "
-		% effect_result.armor_piercing
-		+"Защита после пробития: %d."
-		% effect_result.effective_armor
 	)
 
 	if effect_result.target_died:
@@ -510,11 +542,11 @@ func _append_heal_result(
 			target_name,
 			effect_result.resolved_amount,
 		]
-		+ "восстановлено HP — %d; "
+		+"восстановлено HP — %d; "
 		% effect_result.applied_amount
-		+ "overheal — %d. "
+		+"overheal — %d. "
 		% effect_result.overheal_amount
-		+ "Здоровье: %d → %d."
+		+"Здоровье: %d → %d."
 		% [
 			effect_result.previous_value,
 			effect_result.current_value,
@@ -526,6 +558,48 @@ func _append_heal_result(
 	)
 
 
+func _append_guard_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var message := (
+		"%s получает оборону: +%d; "
+		% [
+			target_name,
+			effect_result.applied_amount,
+		]
+		+"оборона %d → %d."
+		% [
+			effect_result.previous_guard,
+			effect_result.current_guard,
+		]
+	)
+
+	if effect_result.overguard_amount > 0:
+		message += (
+			" Сверх лимита потеряно: %d."
+			% effect_result.overguard_amount
+		)
+
+	push_battle_log(
+		message
+	)
+    
 func _append_forced_movement_result(
 	effect_result: BattleEffectResult
 ) -> void:
@@ -548,7 +622,7 @@ func _append_forced_movement_result(
 	var message := (
 		"%s принудительно перемещается "
 		% target_name
-		+ "на %d/%d клеток: %s → %s."
+		+"на %d/%d клеток: %s → %s."
 		% [
 			effect_result
 				.applied_movement_distance,
@@ -777,7 +851,6 @@ func format_forced_movement_block_reason(
 			return "клетка занята или заблокирована"
 
 	return String(reason)
-
 
 
 func _refresh_status_label() -> void:

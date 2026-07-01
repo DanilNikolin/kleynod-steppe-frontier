@@ -134,12 +134,16 @@ func _process_trigger(
 		if not owner.is_alive:
 			break
 
+		# Все периодические эффекты разрешаются
+		# в периодическом контексте.
+		# Для урона это означает обход Guard.
 		var effect_result := (
 			effect_resolver.resolve(
 				effect,
 				source,
 				owner,
-				session
+				session,
+				true
 			)
 		)
 

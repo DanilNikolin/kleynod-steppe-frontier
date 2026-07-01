@@ -90,6 +90,16 @@ var health_value_label: Label = (
 )
 
 @onready
+var guard_bar: ProgressBar = (
+	$InterfaceRoot/VBoxContainer/GuardRow/GuardBar
+)
+
+@onready
+var guard_value_label: Label = (
+	$InterfaceRoot/VBoxContainer/GuardRow/GuardValueLabel
+)
+
+@onready
 var stamina_bar: ProgressBar = (
 	$InterfaceRoot/VBoxContainer/StaminaRow/StaminaBar
 )
@@ -182,6 +192,11 @@ func _connect_state_signals() -> void:
 	)
 
 	state.connect(
+		&"guard_changed",
+		Callable(self, "_on_guard_changed")
+	)
+
+	state.connect(
 		&"stamina_changed",
 		Callable(self, "_on_stamina_changed")
 	)
@@ -205,6 +220,10 @@ func _disconnect_state_signals() -> void:
 		[
 			&"health_changed",
 			Callable(self, "_on_health_changed")
+		],
+		[
+			&"guard_changed",
+			Callable(self, "_on_guard_changed")
 		],
 		[
 			&"stamina_changed",
@@ -279,6 +298,10 @@ func refresh_from_state() -> void:
 		health_bar.value = 0
 		health_value_label.text = "0 / 0"
 
+		guard_bar.max_value = 1
+		guard_bar.value = 0
+		guard_value_label.text = "0 / 0"
+
 		stamina_bar.max_value = 1
 		stamina_bar.value = 0
 		stamina_value_label.text = "0 / 0"
@@ -292,6 +315,14 @@ func refresh_from_state() -> void:
 
 	health_value_label.text = "%d / %d" % [
 		state.current_health,
+		state.max_health,
+	]
+
+	guard_bar.max_value = state.max_health
+	guard_bar.value = state.current_guard
+
+	guard_value_label.text = "%d / %d" % [
+		state.current_guard,
 		state.max_health,
 	]
 
@@ -440,6 +471,13 @@ func _on_movement_tween_finished() -> void:
 
 
 func _on_health_changed(
+	_previous_value: int,
+	_current_value: int
+) -> void:
+	refresh_from_state()
+
+
+func _on_guard_changed(
 	_previous_value: int,
 	_current_value: int
 ) -> void:

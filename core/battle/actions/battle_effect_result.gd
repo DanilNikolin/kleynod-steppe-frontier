@@ -23,12 +23,23 @@ var overkill_amount: int:
 
 		return maxi(
 			0,
-			resolved_amount - applied_amount
+			resolved_amount
+			- guard_absorbed_amount
+			- applied_amount
 		)
 
 var overheal_amount: int:
 	get:
 		if effect_kind != &"heal":
+			return 0
+
+		return maxi(
+			0,
+			resolved_amount - applied_amount
+		)
+var overguard_amount: int:
+	get:
+		if effect_kind != &"grant_guard":
 			return 0
 
 		return maxi(
@@ -42,6 +53,11 @@ var target_modified_armor: int = 0
 
 var armor_piercing: int = 0
 var effective_armor: int = 0
+
+var previous_guard: int = 0
+var current_guard: int = 0
+var guard_absorbed_amount: int = 0
+var guard_was_bypassed: bool = false
 
 var status_id: StringName = &""
 

@@ -109,6 +109,11 @@ func refresh() -> void:
 			_combatant.current_health,
 			_combatant.max_health,
 		]
+		+"Оборона: %d/%d\n"
+		% [
+			_combatant.current_guard,
+			_combatant.max_health,
+		]
 		+"Выносливость: %d/%d  (+%d за раунд)\n"
 		% [
 			_combatant.current_stamina,
@@ -264,6 +269,14 @@ func _connect_combatant_signals() -> void:
 	)
 
 	_connect_signal_if_needed(
+		&"guard_changed",
+		Callable(
+			self,
+			"_on_resource_changed"
+		)
+	)
+
+	_connect_signal_if_needed(
 		&"stamina_changed",
 		Callable(
 			self,
@@ -319,6 +332,13 @@ func _disconnect_combatant_signals() -> void:
 	var connections: Array[Array] = [
 		[
 			&"health_changed",
+			Callable(
+				self,
+				"_on_resource_changed"
+			),
+		],
+		[
+			&"guard_changed",
 			Callable(
 				self,
 				"_on_resource_changed"

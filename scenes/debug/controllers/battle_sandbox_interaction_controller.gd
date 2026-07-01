@@ -211,6 +211,12 @@ func get_selected_ability_for(
 		and combatant.has_ability(
 			_selected_ability.ability_id
 		)
+		and not combatant.is_ability_locked(
+			_selected_ability.ability_id
+		)
+		and not combatant.is_ability_restricted(
+			_selected_ability.ability_id
+		)
 	):
 		return _selected_ability
 
@@ -231,6 +237,9 @@ func get_default_ability(
 
 	if (
 		default_ability != null
+		and not combatant.is_ability_locked(
+			default_ability.ability_id
+		)
 		and not combatant
 		.is_ability_restricted(
 			default_ability.ability_id
@@ -240,6 +249,11 @@ func get_default_ability(
 
 	for ability in combatant.get_abilities():
 		if ability == null:
+			continue
+
+		if combatant.is_ability_locked(
+			ability.ability_id
+		):
 			continue
 
 		if combatant.is_ability_restricted(
@@ -397,6 +411,22 @@ func on_ability_selected(
 	):
 		ability_panel.set_selected_ability(
 			_selected_ability
+		)
+
+		return
+
+	if active.is_ability_locked(
+		ability.ability_id
+	):
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		debug_log_presenter.set_headline(
+			_get_ability_lock_message(
+				active,
+				ability
+			)
 		)
 
 		return
@@ -792,6 +822,19 @@ func _try_use_ability_at(
 		action_outcome.action_result
 	)
 
+	if (
+		action_outcome
+		.action_result
+		.cooldown_started
+	):
+		_selected_ability = get_default_ability(
+			actor
+		)
+
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
 	if turn_controller.is_finished:
 		_interaction_in_progress = false
 		return
@@ -989,6 +1032,12 @@ func _get_action_failure_message(
 				]
 			)
 
+		BattleActionService.FAILURE_ABILITY_ON_COOLDOWN:
+			return _get_ability_lock_message(
+				actor,
+				ability
+			)
+
 		BattleActionService.FAILURE_ABILITY_RESTRICTED:
 			return (
 				"Боец не может использовать "
@@ -1012,6 +1061,49 @@ func _get_action_failure_message(
 				"Действие невозможно: %s."
 				% failure_code
 			)
+
+
+func _get_ability_lock_message(
+	actor: CombatantState,
+	ability: AbilityDefinition
+) -> String:
+	if actor == null or ability == null:
+		return "Способность временно недоступна."
+
+	var remaining_turns := (
+		actor.get_ability_lock_remaining_turns(
+			ability.ability_id
+		)
+	)
+
+	var formatted_turns := (
+		BattleAbilityPresentationBuilder
+		.format_turn_count(
+			remaining_turns
+		)
+	)
+
+	if (
+		actor.get_ability_lock_kind(
+			ability.ability_id
+		)
+		== CombatantState
+		.AbilityLockKind
+		.INITIAL
+	):
+		return (
+			"«%s» ещё закрыта стартовой задержкой. "
+			% ability.display_name
+			+"Осталось: %s."
+			% formatted_turns
+		)
+
+	return (
+		"«%s» восстанавливается. "
+		% ability.display_name
+		+"Осталось: %s."
+		% formatted_turns
+	)
 
 
 func _get_movement_failure_message(

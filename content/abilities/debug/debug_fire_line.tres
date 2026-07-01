@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=7 format=3 uid="uid://cvop7dch0d1j3"]
 
-[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
-[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
-[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
-[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
 
 [sub_resource type="Resource" id="Resource_fire_line_damage"]
 script = ExtResource("4_damage")
-effect_id = &"effect_debug_fire_line_damage"
 base_damage = 100
 strength_scaling = 0.0
 armor_piercing = 999
 minimum_damage = 100
+effect_id = &"effect_debug_fire_line_damage"
 
 [sub_resource type="Resource" id="Resource_fire_line_targeting"]
 script = ExtResource("2_targeting")

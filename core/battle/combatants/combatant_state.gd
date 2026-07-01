@@ -4,6 +4,11 @@ extends RefCounted
 
 signal health_changed(previous_value: int, current_value: int)
 signal stamina_changed(previous_value: int, current_value: int)
+signal ability_lock_changed(
+	ability_id: StringName,
+	previous_remaining_turns: int,
+	current_remaining_turns: int
+)
 signal morale_changed(previous_value: int, current_value: int)
 signal status_added(
 	status: BattleStatusInstance
@@ -28,7 +33,11 @@ signal died
 
 const INVALID_COORDINATE: Vector2i = Vector2i(-1, -1)
 
-
+enum AbilityLockKind {
+	NONE,
+	INITIAL,
+	COOLDOWN,
+}
 var instance_id: StringName
 var definition: CombatantDefinition
 var team_id: StringName
@@ -55,7 +64,9 @@ var max_morale: int
 var current_morale: int
 
 var _statuses_by_id: Dictionary = {}
-
+var _ability_lock_turns_by_id: Dictionary = {}
+var _initially_locked_ability_ids: Dictionary = {}
+var _cooldowns_started_this_turn: Dictionary = {}
 
 var is_alive: bool:
 	get:
@@ -111,6 +122,8 @@ func _initialize_runtime_attributes() -> void:
 
 	max_morale = definition.base_morale
 	current_morale = max_morale
+
+	_initialize_ability_locks()
 
 
 func set_grid_position(new_position: Vector2i) -> void:
@@ -287,6 +300,185 @@ func get_default_ability() -> AbilityDefinition:
 
 	return loadout.get_default_ability()
 
+func get_ability_lock_remaining_turns(
+	ability_id: StringName
+) -> int:
+	if ability_id == &"":
+		return 0
+
+	if not _ability_lock_turns_by_id.has(
+		ability_id
+	):
+		return 0
+
+	return maxi(
+		0,
+		int(
+			_ability_lock_turns_by_id[
+				ability_id
+			]
+		)
+	)
+
+
+func get_ability_lock_kind(
+	ability_id: StringName
+) -> int:
+	if (
+		get_ability_lock_remaining_turns(
+			ability_id
+		) <= 0
+	):
+		return AbilityLockKind.NONE
+
+	if _initially_locked_ability_ids.has(
+		ability_id
+	):
+		return AbilityLockKind.INITIAL
+
+	return AbilityLockKind.COOLDOWN
+
+
+func is_ability_locked(
+	ability_id: StringName
+) -> bool:
+	return (
+		get_ability_lock_remaining_turns(
+			ability_id
+		) > 0
+	)
+
+
+func start_ability_cooldown(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	if ability.ability_id == &"":
+		return false
+
+	if not has_ability(
+		ability.ability_id
+	):
+		return false
+
+	var cooldown_turns := maxi(
+		0,
+		ability.cooldown_turns
+	)
+
+	if cooldown_turns <= 0:
+		return false
+
+	var previous_remaining_turns := (
+		get_ability_lock_remaining_turns(
+			ability.ability_id
+		)
+	)
+
+	_ability_lock_turns_by_id[
+		ability.ability_id
+	] = cooldown_turns
+
+	_initially_locked_ability_ids.erase(
+		ability.ability_id
+	)
+
+	_cooldowns_started_this_turn[
+		ability.ability_id
+	] = true
+
+	ability_lock_changed.emit(
+		ability.ability_id,
+		previous_remaining_turns,
+		cooldown_turns
+	)
+
+	return true
+
+
+func advance_ability_cooldowns_after_owner_turn() -> void:
+	var ability_ids: Array = (
+		_ability_lock_turns_by_id.keys()
+	)
+
+	for value in ability_ids:
+		var ability_id: StringName = value
+
+		if _cooldowns_started_this_turn.has(
+			ability_id
+		):
+			continue
+
+		var previous_remaining_turns := (
+			get_ability_lock_remaining_turns(
+				ability_id
+			)
+		)
+
+		if previous_remaining_turns <= 0:
+			_ability_lock_turns_by_id.erase(
+				ability_id
+			)
+
+			_initially_locked_ability_ids.erase(
+				ability_id
+			)
+
+			continue
+
+		var current_remaining_turns := maxi(
+			0,
+			previous_remaining_turns - 1
+		)
+
+		if current_remaining_turns <= 0:
+			_ability_lock_turns_by_id.erase(
+				ability_id
+			)
+
+			_initially_locked_ability_ids.erase(
+				ability_id
+			)
+
+		else:
+			_ability_lock_turns_by_id[
+				ability_id
+			] = current_remaining_turns
+
+		ability_lock_changed.emit(
+			ability_id,
+			previous_remaining_turns,
+			current_remaining_turns
+		)
+
+	_cooldowns_started_this_turn.clear()
+
+
+func _initialize_ability_locks() -> void:
+	_ability_lock_turns_by_id.clear()
+	_initially_locked_ability_ids.clear()
+	_cooldowns_started_this_turn.clear()
+
+	if loadout == null:
+		return
+
+	for ability in loadout.get_abilities():
+		if ability == null:
+			continue
+
+		if ability.initial_lock_turns <= 0:
+			continue
+
+		_ability_lock_turns_by_id[
+			ability.ability_id
+		] = ability.initial_lock_turns
+
+		_initially_locked_ability_ids[
+			ability.ability_id
+		] = true
+		
 func get_active_statuses() -> Array[BattleStatusInstance]:
 	var result: Array[BattleStatusInstance] = []
 
@@ -596,7 +788,7 @@ func _is_status_id_before(
 	second: StringName
 ) -> bool:
 	return String(first) < String(second)
-	
+
 func get_status_modifier_total(
 	stat: int
 ) -> int:

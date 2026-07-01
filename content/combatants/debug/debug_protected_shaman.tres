@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="CombatantDefinition" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CombatantDefinition" load_steps=4 format=3 uid="uid://c1o6ssw4iet61"]
 
-[ext_resource type="Script" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
-[ext_resource type="PackedScene" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]
-[ext_resource type="Resource" path="res://content/loadouts/debug/debug_steppe_raider_loadout.tres" id="3_loadout"]
+[ext_resource type="Script" uid="uid://djbs8im0vo51" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
+[ext_resource type="PackedScene" uid="uid://frc3c1tiqsau" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]
+[ext_resource type="Resource" uid="uid://byd2vij4ptc86" path="res://content/loadouts/debug/debug_steppe_raider_loadout.tres" id="3_loadout"]
 
 [resource]
 script = ExtResource("1_definition")
@@ -11,15 +11,11 @@ display_name = "Отладочный шаман"
 description = "Неподвижная цель для проверки защиты за стеной. Не является утверждённым архетипом врага."
 default_loadout = ExtResource("3_loadout")
 participates_in_turn_order = false
-blocks_hostile_targeting_behind = false
 base_strength = 0
 base_agility = 0
 base_spirit = 3
 max_health = 24
-base_armor = 0
 max_stamina = 1
 stamina_regeneration = 0
-base_initiative = 0
-base_morale = 2
 visual_scene = ExtResource("2_visual")
 visual_tint = Color(0.62, 0.32, 0.86, 1)

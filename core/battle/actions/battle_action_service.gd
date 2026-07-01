@@ -26,6 +26,10 @@ const FAILURE_ABILITY_NOT_IN_LOADOUT: StringName = (
 	&"ability_not_in_loadout"
 )
 
+const FAILURE_ABILITY_ON_COOLDOWN: StringName = (
+	&"ability_on_cooldown"
+)
+
 const FAILURE_ABILITY_RESTRICTED: StringName = (
 	&"ability_restricted"
 )
@@ -158,6 +162,18 @@ func execute(
 				return result
 
 	result.is_successful = true
+
+	result.cooldown_started = (
+		command.actor.start_ability_cooldown(
+			command.ability
+		)
+	)
+
+	if result.cooldown_started:
+		result.cooldown_turns = (
+			command.ability.cooldown_turns
+		)
+
 	return result
 
 
@@ -222,6 +238,11 @@ func _get_validation_failure(
 		ability.ability_id
 	):
 		return FAILURE_ABILITY_NOT_IN_LOADOUT
+	
+	if actor.is_ability_locked(
+		ability.ability_id
+	):
+		return FAILURE_ABILITY_ON_COOLDOWN
 
 	if actor.is_ability_restricted(
 		ability.ability_id

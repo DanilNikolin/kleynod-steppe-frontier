@@ -21,5 +21,6 @@ ability_id = &"ability_sweeping_slash"
 display_name = "Размашистый удар"
 description = "Удар по выбранному врагу и противникам в рядах сверху и снизу."
 stamina_cost = 5
+cooldown_turns = 2
 targeting = SubResource("Resource_sweeping_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_sweeping_damage")])

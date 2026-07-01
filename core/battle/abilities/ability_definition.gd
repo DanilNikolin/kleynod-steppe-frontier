@@ -20,6 +20,14 @@ var description: String = ""
 @export_range(0, 999, 1)
 var stamina_cost: int = 1
 
+@export_group("Cooldown")
+
+@export_range(0, 999, 1)
+var initial_lock_turns: int = 0
+
+@export_range(0, 999, 1)
+var cooldown_turns: int = 0
+
 
 @export_group("Targeting")
 
@@ -55,6 +63,16 @@ func get_validation_errors() -> PackedStringArray:
 			"Stamina cost cannot be negative."
 		)
 
+	if initial_lock_turns < 0:
+		errors.append(
+			"Initial lock turns cannot be negative."
+		)
+
+	if cooldown_turns < 0:
+		errors.append(
+			"Cooldown turns cannot be negative."
+		)
+		
 	if targeting == null:
 		errors.append(
 			"Ability targeting definition is not assigned."

@@ -15,6 +15,22 @@ static func build_meta_text(
 		% ability.stamina_cost
 	)
 
+	if ability.initial_lock_turns > 0:
+		parts.append(
+			"Стартовая задержка: %s"
+			% format_turn_count(
+				ability.initial_lock_turns
+			)
+		)
+
+	if ability.cooldown_turns > 0:
+		parts.append(
+			"Кулдаун: %s"
+			% format_turn_count(
+				ability.cooldown_turns
+			)
+		)
+
 	if ability.targeting != null:
 		parts.append(
 			"Цель: %s"
@@ -170,7 +186,7 @@ static func _build_status_effect_text(
 
 	text += (
 		"\n  Длительность: %s"
-		% _format_turn_count(
+		% format_turn_count(
 			status.duration_turns
 		)
 	)
@@ -347,7 +363,7 @@ static func _format_signed_integer(
 	return str(value)
 
 
-static func _format_turn_count(
+static func format_turn_count(
 	value: int
 ) -> String:
 	var absolute_value := absi(value)

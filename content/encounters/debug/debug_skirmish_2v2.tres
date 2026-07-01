@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="4_wave"]
 [ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="5_enemy"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_wooden_wall.tres" id="7_wall"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_protected_shaman.tres" id="8_shaman"]
+[ext_resource type="Resource" uid="uid://cdyjatctxc7xo" path="res://content/combatants/debug/debug_wooden_wall.tres" id="7_wall"]
+[ext_resource type="Resource" uid="uid://c1o6ssw4iet61" path="res://content/combatants/debug/debug_protected_shaman.tres" id="8_shaman"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")

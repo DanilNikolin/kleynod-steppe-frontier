@@ -140,6 +140,8 @@ func end_current_turn() -> bool:
 	if ended_combatant.is_alive:
 		ended_combatant.advance_statuses_after_owner_turn()
 
+	ended_combatant.advance_ability_cooldowns_after_owner_turn()
+
 	turn_ended.emit(
 		ended_combatant,
 		round_number,

@@ -16,6 +16,9 @@ var affected_target_ids: Array[StringName] = []
 var stamina_cost: int = 0
 var stamina_spent: int = 0
 
+var cooldown_started: bool = false
+var cooldown_turns: int = 0
+
 var effect_results: Array[BattleEffectResult] = []
 
 

@@ -61,14 +61,21 @@ var _button_group: ButtonGroup
 
 var _stamina_changed_callback: Callable
 
+var _ability_lock_changed_callback: Callable
+
 
 func _ready() -> void:
 	_stamina_changed_callback = Callable(
 		self,
 		"_on_combatant_stamina_changed"
 	)
-
+	
 	visible = false
+
+	_ability_lock_changed_callback = Callable(
+		self,
+		"_on_combatant_ability_lock_changed"
+	)
 
 
 func bind_combatant(
@@ -91,6 +98,10 @@ func bind_combatant(
 		_stamina_changed_callback
 	)
 
+	_combatant.ability_lock_changed.connect(
+		_ability_lock_changed_callback
+	)
+	
 	_rebuild_buttons()
 
 	if (
@@ -100,6 +111,9 @@ func bind_combatant(
 		)
 		and not _combatant
 		.is_ability_restricted(
+			selected_ability.ability_id
+		)
+		and not _combatant.is_ability_locked(
 			selected_ability.ability_id
 		)
 	):
@@ -147,9 +161,16 @@ func set_selected_ability(
 		return false
 
 	if ability == null:
-		return false
+		_selected_ability_id = &""
+		_refresh_visual_state()
+		return true
 
 	if not _combatant.has_ability(
+		ability.ability_id
+	):
+		return false
+
+	if _combatant.is_ability_locked(
 		ability.ability_id
 	):
 		return false
@@ -165,7 +186,6 @@ func set_selected_ability(
 
 	_refresh_visual_state()
 	return true
-
 
 func select_ability_by_index(
 	ability_index: int,
@@ -191,6 +211,11 @@ func select_ability_by_index(
 		return false
 
 	if _combatant.is_ability_restricted(
+		ability.ability_id
+	):
+		return false
+
+	if _combatant.is_ability_locked(
 		ability.ability_id
 	):
 		return false
@@ -267,13 +292,9 @@ func _rebuild_buttons() -> void:
 		button.toggle_mode = true
 		button.button_group = _button_group
 
-		button.text = (
-			"%d. %s\n%d выносливости"
-			% [
-				ability_index + 1,
-				ability.display_name,
-				ability.stamina_cost,
-			]
+		button.text = _build_button_text(
+			ability_index,
+			ability
 		)
 
 		button.tooltip_text = (
@@ -323,6 +344,9 @@ func _get_first_available_ability() -> AbilityDefinition:
 		.is_ability_restricted(
 			default_ability.ability_id
 		)
+		and not _combatant.is_ability_locked(
+			default_ability.ability_id
+		)
 	):
 		return default_ability
 
@@ -335,10 +359,15 @@ func _get_first_available_ability() -> AbilityDefinition:
 		):
 			continue
 
+		if _combatant.is_ability_locked(
+			ability.ability_id
+		):
+			continue
+
 		return ability
 
 	return null
-	
+
 func _refresh_visual_state() -> void:
 	if _combatant == null:
 		return
@@ -381,10 +410,22 @@ func _refresh_visual_state() -> void:
 			)
 		)
 
+		var ability_locked := (
+			_combatant.is_ability_locked(
+				ability.ability_id
+			)
+		)
+
+		button.text = _build_button_text(
+			ability_index,
+			ability
+		)
+
 		button.disabled = (
 			not _interactable
 			or not affordable
 			or restricted
+			or ability_locked
 		)
 
 		button.set_pressed_no_signal(
@@ -411,6 +452,19 @@ func _refresh_card() -> void:
 
 		return
 
+	var remaining_lock_turns := (
+		_combatant
+		.get_ability_lock_remaining_turns(
+			selected_ability.ability_id
+		)
+	)
+
+	var lock_kind := (
+		_combatant.get_ability_lock_kind(
+			selected_ability.ability_id
+		)
+	)
+
 	var ability_restricted := (
 		_combatant != null
 		and _combatant.is_ability_restricted(
@@ -420,7 +474,32 @@ func _refresh_card() -> void:
 
 	var affordability_text: String
 
-	if ability_restricted:
+	if remaining_lock_turns > 0:
+		var formatted_turns := (
+			BattleAbilityPresentationBuilder
+			.format_turn_count(
+				remaining_lock_turns
+			)
+		)
+
+		if (
+			lock_kind
+			== CombatantState
+			.AbilityLockKind
+			.INITIAL
+		):
+			affordability_text = (
+				"СТАРТОВАЯ ЗАДЕРЖКА: %s"
+				% formatted_turns
+			)
+
+		else:
+			affordability_text = (
+				"КУЛДАУН: %s"
+				% formatted_turns
+			)
+
+	elif ability_restricted:
 		affordability_text = (
 			"ЗАПРЕЩЕНО СТАТУСОМ"
 		)
@@ -470,16 +549,28 @@ func _disconnect_combatant_signals() -> void:
 	if _combatant == null:
 		return
 
-	if not _stamina_changed_callback.is_valid():
-		return
-
-	if _combatant.is_connected(
-		&"stamina_changed",
-		_stamina_changed_callback
+	if (
+		_stamina_changed_callback.is_valid()
+		and _combatant.is_connected(
+			&"stamina_changed",
+			_stamina_changed_callback
+		)
 	):
 		_combatant.disconnect(
 			&"stamina_changed",
 			_stamina_changed_callback
+		)
+
+	if (
+		_ability_lock_changed_callback.is_valid()
+		and _combatant.is_connected(
+			&"ability_lock_changed",
+			_ability_lock_changed_callback
+		)
+	):
+		_combatant.disconnect(
+			&"ability_lock_changed",
+			_ability_lock_changed_callback
 		)
 
 
@@ -497,3 +588,65 @@ func _on_combatant_stamina_changed(
 	_current_value: int
 ) -> void:
 	_refresh_visual_state()
+
+
+func _on_combatant_ability_lock_changed(
+	_ability_id: StringName,
+	_previous_remaining_turns: int,
+	_current_remaining_turns: int
+) -> void:
+	_refresh_visual_state()
+
+
+func _build_button_text(
+	ability_index: int,
+	ability: AbilityDefinition
+) -> String:
+	if ability == null:
+		return ""
+
+	var details := (
+		"%d выносливости"
+		% ability.stamina_cost
+	)
+
+	if _combatant != null:
+		var remaining_turns := (
+			_combatant
+			.get_ability_lock_remaining_turns(
+				ability.ability_id
+			)
+		)
+
+		if remaining_turns > 0:
+			var lock_kind := (
+				_combatant.get_ability_lock_kind(
+					ability.ability_id
+				)
+			)
+
+			if (
+				lock_kind
+				== CombatantState
+				.AbilityLockKind
+				.INITIAL
+			):
+				details += (
+					" • Старт: %d"
+					% remaining_turns
+				)
+
+			else:
+				details += (
+					" • КД: %d"
+					% remaining_turns
+				)
+
+	return (
+		"%d. %s\n%s"
+		% [
+			ability_index + 1,
+			ability.display_name,
+			details,
+		]
+	)

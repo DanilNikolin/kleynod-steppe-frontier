@@ -164,6 +164,12 @@ func begin_enemy_turn() -> void:
 
 	refresh_grid_overlays()
 
+func begin_skipped_turn() -> void:
+	_interaction_in_progress = true
+	_selected_ability = null
+
+	ability_panel.clear_combatant()
+	grid_overlay_presenter.clear()
 
 func finish_battle() -> void:
 	_interaction_in_progress = false
@@ -219,7 +225,31 @@ func get_default_ability(
 	if combatant == null:
 		return null
 
-	return combatant.get_default_ability()
+	var default_ability := (
+		combatant.get_default_ability()
+	)
+
+	if (
+		default_ability != null
+		and not combatant
+		.is_ability_restricted(
+			default_ability.ability_id
+		)
+	):
+		return default_ability
+
+	for ability in combatant.get_abilities():
+		if ability == null:
+			continue
+
+		if combatant.is_ability_restricted(
+			ability.ability_id
+		):
+			continue
+
+		return ability
+
+	return null
 
 
 func get_active_combatant() -> CombatantState:
@@ -367,6 +397,20 @@ func on_ability_selected(
 	):
 		ability_panel.set_selected_ability(
 			_selected_ability
+		)
+
+		return
+
+	if active.is_ability_restricted(
+		ability.ability_id
+	):
+		ability_panel.set_selected_ability(
+			_selected_ability
+		)
+
+		debug_log_presenter.set_headline(
+			"«%s» сейчас запрещена активным статусом."
+			% ability.display_name
 		)
 
 		return
@@ -939,6 +983,12 @@ func _get_action_failure_message(
 				]
 			)
 
+		BattleActionService.FAILURE_ABILITY_RESTRICTED:
+			return (
+				"Боец не может использовать "
+				+"эту способность из-за статуса."
+			)
+
 		BattleActionService.FAILURE_ABILITY_NOT_IN_LOADOUT:
 			return (
 				"Выбранная способность отсутствует "
@@ -1000,6 +1050,12 @@ func _get_movement_failure_message(
 
 		BattleMovementService.FAILURE_TARGET_OUTSIDE_GRID:
 			return "Цель находится за пределами поля."
+
+		BattleMovementService.FAILURE_MOVEMENT_RESTRICTED:
+			return (
+				"Боец не может двигаться "
+				+"из-за активного статуса."
+			)
 
 		BattleMovementService.FAILURE_DEAD_COMBATANT:
 			return "Погибший боец не может двигаться."

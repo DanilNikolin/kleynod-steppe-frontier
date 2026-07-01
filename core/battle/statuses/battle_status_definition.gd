@@ -38,6 +38,11 @@ var reapply_rule: ReapplyRule = (
 )
 
 
+@export_group("Action Restrictions")
+
+@export
+var action_restriction: BattleActionRestriction
+
 @export_group("Periodic Effects")
 
 @export
@@ -127,6 +132,16 @@ func get_validation_errors() -> PackedStringArray:
 					trigger_index,
 					trigger_error,
 				]
+			)
+
+	if action_restriction != null:
+		for restriction_error in (
+			action_restriction
+			.get_validation_errors()
+		):
+			errors.append(
+				"Action restriction: %s"
+				% restriction_error
 			)
 
 	return errors

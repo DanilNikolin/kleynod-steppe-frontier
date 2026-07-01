@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=10 format=3 uid="uid://caxifmduofpsb"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
+[ext_resource type="Resource" uid="uid://b56wvs8w1o26c" path="res://content/statuses/debug/debug_stunned.tres" id="6_stunned"]
+
+[sub_resource type="Resource" id="Resource_stunning_damage"]
+script = ExtResource("4_damage")
+strength_scaling = 0.25
+effect_id = &"effect_stunning_blow_damage"
+
+[sub_resource type="Resource" id="Resource_stunning_status"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("6_stunned")
+effect_id = &"effect_stunning_blow_status"
+
+[sub_resource type="Resource" id="Resource_stunning_targeting"]
+script = ExtResource("2_targeting")
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_stunning_blow"
+display_name = "Оглушающий удар"
+description = "Наносит небольшой урон и заставляет цель пропустить следующий ход."
+stamina_cost = 5
+targeting = SubResource("Resource_stunning_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_stunning_damage"), SubResource("Resource_stunning_status")])

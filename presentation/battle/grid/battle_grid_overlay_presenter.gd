@@ -108,11 +108,25 @@ func refresh(
 	if not selected_combatant.is_alive:
 		return
 
-	_draw_reachable_coordinates(
-		grid,
-		selected_combatant,
-		stamina_cost_per_cell
+	var movement_restricted := (
+		selected_combatant
+		.is_movement_restricted()
 	)
+
+	var ability_restricted := (
+		selected_ability != null
+		and selected_combatant
+		.is_ability_restricted(
+			selected_ability.ability_id
+		)
+	)
+
+	if not movement_restricted:
+		_draw_reachable_coordinates(
+			grid,
+			selected_combatant,
+			stamina_cost_per_cell
+		)
 
 	_draw_obstacles(grid)
 
@@ -123,7 +137,10 @@ func refresh(
 		selected_ability
 	)
 
-	if show_targeting_debug:
+	if (
+		show_targeting_debug
+		and not ability_restricted
+	):
 		_draw_targeting_debug(
 			session,
 			selected_combatant,
@@ -131,13 +148,14 @@ func refresh(
 			hovered_coordinate
 		)
 
-	_draw_hovered_path(
-		grid,
-		selected_combatant,
-		target_candidates,
-		hovered_coordinate,
-		stamina_cost_per_cell
-	)
+	if not movement_restricted:
+		_draw_hovered_path(
+			grid,
+			selected_combatant,
+			target_candidates,
+			hovered_coordinate,
+			stamina_cost_per_cell
+		)
 
 	if grid.is_inside(
 		selected_combatant.grid_position

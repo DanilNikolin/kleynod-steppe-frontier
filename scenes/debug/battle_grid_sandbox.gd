@@ -337,6 +337,10 @@ func _connect_turn_signals() -> void:
 		_on_turn_started
 	)
 
+	turn_controller.turn_skipped.connect(
+		_on_turn_skipped
+	)
+
 	turn_controller.periodic_status_effects_resolved.connect(
 		_on_periodic_status_effects_resolved
 	)
@@ -469,6 +473,48 @@ func _on_periodic_status_effects_resolved(
 	if interaction_controller != null:
 		interaction_controller.refresh_grid_overlays()
 		
+func _on_turn_skipped(
+	combatant: CombatantState,
+	current_round: int,
+	_turn_index: int,
+	restriction_status_ids: Array[StringName]
+) -> void:
+	_set_active_combatant_selection(
+		combatant
+	)
+
+	interaction_controller.begin_skipped_turn()
+
+	var status_names := PackedStringArray()
+
+	for status_id in restriction_status_ids:
+		var status := combatant.get_status(
+			status_id
+		)
+
+		if (
+			status != null
+			and status.definition != null
+		):
+			status_names.append(
+				status.definition.display_name
+			)
+
+		else:
+			status_names.append(
+				String(status_id)
+			)
+
+	debug_log_presenter.push_battle_log(
+		"Раунд %d. %s пропускает ход. Причина: %s."
+		% [
+			current_round,
+			combatant.definition.display_name,
+			", ".join(status_names),
+		]
+	)
+
+
 func _on_turn_started(
 	combatant: CombatantState,
 	current_round: int,

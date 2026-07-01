@@ -5,6 +5,9 @@ extends RefCounted
 const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
 const FAILURE_INVALID_COMBATANT: StringName = &"invalid_combatant"
 const FAILURE_DEAD_COMBATANT: StringName = &"dead_combatant"
+const FAILURE_MOVEMENT_RESTRICTED: StringName = (
+	&"movement_restricted"
+)
 const FAILURE_INVALID_COST: StringName = &"invalid_cost"
 const FAILURE_INVALID_START: StringName = &"invalid_start"
 const FAILURE_TARGET_OUTSIDE_GRID: StringName = &"target_outside_grid"
@@ -55,6 +58,13 @@ func create_plan(
 
 	if not combatant.is_alive:
 		plan.failure_code = FAILURE_DEAD_COMBATANT
+		return plan
+
+	if combatant.is_movement_restricted():
+		plan.failure_code = (
+			FAILURE_MOVEMENT_RESTRICTED
+		)
+
 		return plan
 
 	if stamina_cost_per_step <= 0:
@@ -145,6 +155,9 @@ func commit_plan(
 		return false
 
 	if combatant.instance_id != plan.combatant_id:
+		return false
+
+	if combatant.is_movement_restricted():
 		return false
 
 	if combatant.grid_position != plan.start_coordinate:

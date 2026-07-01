@@ -25,20 +25,25 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Точные поля AbilityDefinition и targeting-конфига
-    "core/battle/abilities/ability_definition.gd",
-    "core/battle/targeting/ability_targeting_definition.gd",
+    # Неизвестные точки проверки действий
+    "core/battle/actions/battle_action_service.gd",
+    "core/battle/movement/battle_movement_service.gd",
 
-    # Примеры корректной сериализации обычной и AoE-способности
-    "content/abilities/debug/debug_sabre_slash.tres",
-    "content/abilities/debug/debug_sweeping_slash.tres",
+    # Был серьёзно изменён periodic-этапом
+    "core/battle/turns/battle_turn_controller.gd",
 
-    # Loadout игрока, куда добавим две новые способности
-    "content/loadouts/debug/debug_sechevik_loadout.tres",
+    # Нужно корректно скрывать недоступное движение и targeting
+    "presentation/battle/grid/battle_grid_overlay_presenter.gd",
 
-    # На всякий случай второй loadout игрока, чтобы понять,
-    # используется ли он отдельным debug encounter
-    "content/loadouts/debug/debug_sweeping_sechevik_loadout.tres",
+    # Текущая обработка кликов, выбора действий и завершения хода
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+
+    # Изменён periodic-интеграцией; понадобится сигнал пропуска хода
+    "scenes/debug/battle_grid_sandbox.gd",
+
+    # Чтобы ограничения не сломали вражеские ходы
+    "core/battle/ai/basic_melee_ai_controller.gd",
+    "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
 ]
 
 

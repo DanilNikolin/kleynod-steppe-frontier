@@ -265,6 +265,39 @@ func format_status_for_player(
 			"эффект в конце хода"
 		)
 
+	var action_restriction := (
+		status.definition.action_restriction
+	)
+
+	if action_restriction != null:
+		if action_restriction.skip_owner_turn:
+			effects.append(
+				"пропуск хода"
+			)
+
+		else:
+			if action_restriction.block_movement:
+				effects.append(
+					"запрет движения"
+				)
+
+			if action_restriction.block_all_abilities:
+				effects.append(
+					"запрет способностей"
+				)
+
+			elif not (
+				action_restriction
+				.blocked_ability_ids
+				.is_empty()
+			):
+				effects.append(
+					"запрещено способностей: %d"
+					% action_restriction
+					.blocked_ability_ids
+					.size()
+				)
+
 	if effects.is_empty():
 		effects.append(
 			"без активных модификаторов"

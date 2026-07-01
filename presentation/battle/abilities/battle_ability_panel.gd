@@ -98,6 +98,10 @@ func bind_combatant(
 		and _combatant.has_ability(
 			selected_ability.ability_id
 		)
+		and not _combatant
+		.is_ability_restricted(
+			selected_ability.ability_id
+		)
 	):
 		_selected_ability_id = (
 			selected_ability.ability_id
@@ -105,7 +109,7 @@ func bind_combatant(
 
 	else:
 		var default_ability := (
-			_combatant.get_default_ability()
+			_get_first_available_ability()
 		)
 
 		_selected_ability_id = (
@@ -150,6 +154,11 @@ func set_selected_ability(
 	):
 		return false
 
+	if _combatant.is_ability_restricted(
+		ability.ability_id
+	):
+		return false
+
 	_selected_ability_id = (
 		ability.ability_id
 	)
@@ -179,6 +188,11 @@ func select_ability_by_index(
 	]
 
 	if ability == null:
+		return false
+
+	if _combatant.is_ability_restricted(
+		ability.ability_id
+	):
 		return false
 
 	if not _combatant.can_spend_stamina(
@@ -295,6 +309,36 @@ func _clear_buttons() -> void:
 	_button_group = null
 
 
+func _get_first_available_ability() -> AbilityDefinition:
+	if _combatant == null:
+		return null
+
+	var default_ability := (
+		_combatant.get_default_ability()
+	)
+
+	if (
+		default_ability != null
+		and not _combatant
+		.is_ability_restricted(
+			default_ability.ability_id
+		)
+	):
+		return default_ability
+
+	for ability in _abilities:
+		if ability == null:
+			continue
+
+		if _combatant.is_ability_restricted(
+			ability.ability_id
+		):
+			continue
+
+		return ability
+
+	return null
+	
 func _refresh_visual_state() -> void:
 	if _combatant == null:
 		return
@@ -331,9 +375,16 @@ func _refresh_visual_state() -> void:
 			)
 		)
 
+		var restricted := (
+			_combatant.is_ability_restricted(
+				ability.ability_id
+			)
+		)
+
 		button.disabled = (
 			not _interactable
 			or not affordable
+			or restricted
 		)
 
 		button.set_pressed_no_signal(
@@ -360,16 +411,32 @@ func _refresh_card() -> void:
 
 		return
 
-	var affordability_text := (
-		"ДОСТУПНО"
-		if (
-			_combatant != null
-			and _combatant.can_spend_stamina(
-				selected_ability.stamina_cost
-			)
+	var ability_restricted := (
+		_combatant != null
+		and _combatant.is_ability_restricted(
+			selected_ability.ability_id
 		)
-		else "НЕ ХВАТАЕТ ВЫНОСЛИВОСТИ"
 	)
+
+	var affordability_text: String
+
+	if ability_restricted:
+		affordability_text = (
+			"ЗАПРЕЩЕНО СТАТУСОМ"
+		)
+
+	elif (
+		_combatant != null
+		and _combatant.can_spend_stamina(
+			selected_ability.stamina_cost
+		)
+	):
+		affordability_text = "ДОСТУПНО"
+
+	else:
+		affordability_text = (
+			"НЕ ХВАТАЕТ ВЫНОСЛИВОСТИ"
+		)
 
 	card_title_label.text = (
 		selected_ability.display_name

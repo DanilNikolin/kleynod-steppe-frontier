@@ -459,6 +459,144 @@ func advance_statuses_after_owner_turn() -> Array[StringName]:
 
 	return expired_status_ids
 
+func must_skip_turn() -> bool:
+	return not get_turn_skip_status_ids().is_empty()
+
+
+func is_movement_restricted() -> bool:
+	return not (
+		get_movement_restriction_status_ids()
+		.is_empty()
+	)
+
+
+func is_ability_restricted(
+	ability_id: StringName
+) -> bool:
+	return not (
+		get_ability_restriction_status_ids(
+			ability_id
+		).is_empty()
+	)
+
+
+func get_turn_skip_status_ids() -> Array[StringName]:
+	var result: Array[StringName] = []
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		var restriction := (
+			status.definition
+			.action_restriction
+		)
+
+		if (
+			restriction == null
+			or not restriction.skip_owner_turn
+		):
+			continue
+
+		result.append(
+			status.status_id
+		)
+
+	result.sort_custom(
+		Callable(
+			self,
+			"_is_status_id_before"
+		)
+	)
+
+	return result
+
+
+func get_movement_restriction_status_ids() -> Array[StringName]:
+	var result: Array[StringName] = []
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		var restriction := (
+			status.definition
+			.action_restriction
+		)
+
+		if (
+			restriction == null
+			or not restriction
+			.prevents_movement()
+		):
+			continue
+
+		result.append(
+			status.status_id
+		)
+
+	result.sort_custom(
+		Callable(
+			self,
+			"_is_status_id_before"
+		)
+	)
+
+	return result
+
+
+func get_ability_restriction_status_ids(
+	ability_id: StringName
+) -> Array[StringName]:
+	var result: Array[StringName] = []
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		var restriction := (
+			status.definition
+			.action_restriction
+		)
+
+		if (
+			restriction == null
+			or not restriction
+			.prevents_ability(
+				ability_id
+			)
+		):
+			continue
+
+		result.append(
+			status.status_id
+		)
+
+	result.sort_custom(
+		Callable(
+			self,
+			"_is_status_id_before"
+		)
+	)
+
+	return result
+
+
+func _is_status_id_before(
+	first: StringName,
+	second: StringName
+) -> bool:
+	return String(first) < String(second)
+	
 func get_status_modifier_total(
 	stat: int
 ) -> int:

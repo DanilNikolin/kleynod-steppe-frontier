@@ -17,6 +17,13 @@ signal turn_started(
 	turn_index: int
 )
 
+signal turn_skipped(
+	combatant: CombatantState,
+	round_number: int,
+	turn_index: int,
+	restriction_status_ids: Array[StringName]
+)
+
 signal turn_ending(
 	combatant: CombatantState,
 	round_number: int,
@@ -318,6 +325,21 @@ func _begin_turn(
 		return
 
 	combatant.restore_round_stamina()
+
+	var skip_status_ids := (
+		combatant.get_turn_skip_status_ids()
+	)
+
+	if not skip_status_ids.is_empty():
+		turn_skipped.emit(
+			combatant,
+			round_number,
+			_current_turn_index,
+			skip_status_ids
+		)
+
+		end_current_turn()
+		return
 
 	turn_started.emit(
 		combatant,

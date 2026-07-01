@@ -27,6 +27,9 @@ const FAILURE_NOT_ENOUGH_STAMINA_FOR_ATTACK: StringName = (
 	&"not_enough_stamina_for_attack"
 )
 
+const FAILURE_MOVEMENT_RESTRICTED: StringName = (
+	&"movement_restricted"
+)
 
 var movement_service: BattleMovementService
 var action_service: BattleActionService
@@ -41,19 +44,19 @@ func _init(
 	assert(
 		p_movement_service != null,
 		"BasicMeleeAIController requires "
-		+ "a movement service."
+		+"a movement service."
 	)
 
 	assert(
 		p_action_service != null,
 		"BasicMeleeAIController requires "
-		+ "an action service."
+		+"an action service."
 	)
 
 	assert(
 		p_targeting_service != null,
 		"BasicMeleeAIController requires "
-		+ "a targeting service."
+		+"a targeting service."
 	)
 
 	movement_service = p_movement_service
@@ -133,6 +136,13 @@ func create_turn_plan(
 
 		plan.failure_code = (
 			FAILURE_NOT_ENOUGH_STAMINA_FOR_ATTACK
+		)
+
+		return plan
+
+	if actor.is_movement_restricted():
+		plan.failure_code = (
+			FAILURE_MOVEMENT_RESTRICTED
 		)
 
 		return plan

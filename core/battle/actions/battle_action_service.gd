@@ -26,6 +26,10 @@ const FAILURE_ABILITY_NOT_IN_LOADOUT: StringName = (
 	&"ability_not_in_loadout"
 )
 
+const FAILURE_ABILITY_RESTRICTED: StringName = (
+	&"ability_restricted"
+)
+
 const FAILURE_NOT_ENOUGH_STAMINA: StringName = (
 	&"not_enough_stamina"
 )
@@ -217,6 +221,11 @@ func _get_validation_failure(
 		ability.ability_id
 	):
 		return FAILURE_ABILITY_NOT_IN_LOADOUT
+
+	if actor.is_ability_restricted(
+		ability.ability_id
+	):
+		return FAILURE_ABILITY_RESTRICTED
 
 	var targeting_failure := (
 		targeting_service.get_validation_failure(

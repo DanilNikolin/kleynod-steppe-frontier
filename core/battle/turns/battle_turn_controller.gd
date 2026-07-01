@@ -381,9 +381,27 @@ func _process_periodic_status_effects(
 
 
 func _rebuild_turn_order() -> void:
-	_turn_order = (
+	_turn_order.clear()
+
+	for combatant in (
 		session.get_living_combatants()
-	)
+	):
+		if (
+			combatant == null
+			or combatant.definition == null
+		):
+			continue
+
+		if not (
+			combatant
+			.definition
+			.participates_in_turn_order
+		):
+			continue
+
+		_turn_order.append(
+			combatant
+		)
 
 	_turn_order.sort_custom(
 		Callable(

@@ -20,6 +20,18 @@ var description: String = ""
 @export
 var default_loadout: CombatantLoadoutDefinition
 
+@export_group("Battlefield Role")
+
+## Участвует ли объект в обычной очереди ходов.
+## Стены и другие пассивные боевые объекты могут иметь HP,
+## занимать клетку и быть целью, но не получать собственный ход.
+@export
+var participates_in_turn_order: bool = true
+
+## Защищает ли объект союзные цели, находящиеся за ним
+## в том же горизонтальном ряду.
+@export
+var blocks_hostile_targeting_behind: bool = false
 
 @export_group("Primary Attributes")
 

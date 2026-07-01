@@ -62,6 +62,10 @@ const FAILURE_INVALID_AIM_RELATION: StringName = (
 	&"invalid_aim_relation"
 )
 
+const FAILURE_TARGET_PROTECTED_BY_BLOCKER: StringName = (
+	&"target_protected_by_blocker"
+)
+
 
 func create_result(
 	session: BattleSession,
@@ -73,22 +77,30 @@ func create_result(
 
 	if actor != null:
 		result.actor_id = actor.instance_id
-		result.origin_coordinate = actor.grid_position
+		result.origin_coordinate = (
+			actor.grid_position
+		)
 
 	if ability != null:
 		result.ability_id = ability.ability_id
 
 	result.aim_coordinate = aim_coordinate
 
-	var failure_code := _get_validation_failure(
-		session,
-		actor,
-		ability,
-		actor.grid_position if actor != null else (
-			BattleGrid.INVALID_COORDINATE
-		),
-		aim_coordinate,
-		true
+	var origin_coordinate := (
+		actor.grid_position
+		if actor != null
+		else BattleGrid.INVALID_COORDINATE
+	)
+
+	var failure_code := (
+		_get_validation_failure(
+			session,
+			actor,
+			ability,
+			origin_coordinate,
+			aim_coordinate,
+			true
+		)
 	)
 
 	if failure_code != &"":
@@ -96,6 +108,7 @@ func create_result(
 		return result
 
 	var targeting := ability.targeting
+
 	var forward_direction := (
 		session.get_team_forward_direction(
 			actor.team_id
@@ -105,7 +118,9 @@ func create_result(
 	var used_coordinates: Dictionary = {}
 	var used_combatants: Dictionary = {}
 
-	for impact_offset in targeting.impact_offsets:
+	for impact_offset in (
+		targeting.impact_offsets
+	):
 		var oriented_offset := Vector2i(
 			impact_offset.x * forward_direction,
 			impact_offset.y
@@ -115,7 +130,7 @@ func create_result(
 			aim_coordinate + oriented_offset
 		)
 
-		# Область у края поля просто обрезается.
+		# Область за краем поля просто обрезается.
 		if not session.grid.is_inside(
 			affected_coordinate
 		):
@@ -132,18 +147,36 @@ func create_result(
 				affected_coordinate
 			)
 
-		var target := _get_combatant_at_coordinate(
-			session,
-			affected_coordinate
+		var target := (
+			_get_combatant_at_coordinate(
+				session,
+				affected_coordinate
+			)
 		)
 
-		if target == null or not target.is_alive:
+		if (
+			target == null
+			or not target.is_alive
+		):
 			continue
 
 		if not _is_relation_allowed(
 			actor,
 			target,
 			targeting.affected_relation_mask
+		):
+			continue
+
+		# Враждебные эффекты не попадают по цели,
+		# если между атакующим и целью находится
+		# живой союзный target blocker.
+		if (
+			get_target_blocker_from(
+				session,
+				actor,
+				origin_coordinate,
+				target
+			) != null
 		):
 			continue
 
@@ -162,6 +195,7 @@ func create_result(
 
 	result.is_valid = true
 	return result
+
 
 func get_aim_coordinates(
 	session: BattleSession,
@@ -221,8 +255,13 @@ func get_aim_coordinates(
 		):
 			continue
 
-		used_coordinates[coordinate] = true
-		result.append(coordinate)
+		used_coordinates[
+			coordinate
+		] = true
+
+		result.append(
+			coordinate
+		)
 
 	return result
 
@@ -244,10 +283,12 @@ func get_impact_coordinates(
 	):
 		return result
 
-	var aim_coordinates := get_aim_coordinates(
-		session,
-		actor,
-		ability
+	var aim_coordinates := (
+		get_aim_coordinates(
+			session,
+			actor,
+			ability
+		)
 	)
 
 	if not aim_coordinates.has(
@@ -279,7 +320,6 @@ func get_impact_coordinates(
 			+ oriented_offset
 		)
 
-		# Область за краем поля обрезается.
 		if not session.grid.is_inside(
 			coordinate
 		):
@@ -290,10 +330,16 @@ func get_impact_coordinates(
 		):
 			continue
 
-		used_coordinates[coordinate] = true
-		result.append(coordinate)
+		used_coordinates[
+			coordinate
+		] = true
+
+		result.append(
+			coordinate
+		)
 
 	return result
+
 
 func can_target(
 	session: BattleSession,
@@ -304,14 +350,16 @@ func can_target(
 	if actor == null:
 		return false
 
-	return _get_validation_failure(
-		session,
-		actor,
-		ability,
-		actor.grid_position,
-		aim_coordinate,
-		true
-	) == &""
+	return (
+		_get_validation_failure(
+			session,
+			actor,
+			ability,
+			actor.grid_position,
+			aim_coordinate,
+			true
+		) == &""
+	)
 
 
 ## Используется ИИ для проверки гипотетической
@@ -323,14 +371,16 @@ func can_target_from(
 	origin_coordinate: Vector2i,
 	aim_coordinate: Vector2i
 ) -> bool:
-	return _get_validation_failure(
-		session,
-		actor,
-		ability,
-		origin_coordinate,
-		aim_coordinate,
-		false
-	) == &""
+	return (
+		_get_validation_failure(
+			session,
+			actor,
+			ability,
+			origin_coordinate,
+			aim_coordinate,
+			false
+		) == &""
+	)
 
 
 func get_validation_failure(
@@ -350,6 +400,154 @@ func get_validation_failure(
 		aim_coordinate,
 		true
 	)
+
+
+func get_target_blocker(
+	session: BattleSession,
+	actor: CombatantState,
+	target: CombatantState
+) -> CombatantState:
+	if actor == null:
+		return null
+
+	return get_target_blocker_from(
+		session,
+		actor,
+		actor.grid_position,
+		target
+	)
+
+
+func get_target_blocker_from(
+	session: BattleSession,
+	actor: CombatantState,
+	origin_coordinate: Vector2i,
+	target: CombatantState
+) -> CombatantState:
+	if (
+		session == null
+		or session.grid == null
+		or actor == null
+		or target == null
+	):
+		return null
+
+	# Союзные и собственные эффекты стеной не блокируются.
+	if actor.team_id == target.team_id:
+		return null
+
+	if not actor.is_alive or not target.is_alive:
+		return null
+
+	if not session.grid.is_inside(
+		origin_coordinate
+	):
+		return null
+
+	var target_coordinate := (
+		target.grid_position
+	)
+
+	if not session.grid.is_inside(
+		target_coordinate
+	):
+		return null
+
+	if (
+		origin_coordinate.x
+		== target_coordinate.x
+	):
+		return null
+
+	var minimum_x := mini(
+		origin_coordinate.x,
+		target_coordinate.x
+	)
+
+	var maximum_x := maxi(
+		origin_coordinate.x,
+		target_coordinate.x
+	)
+
+	var nearest_blocker: CombatantState = null
+	var nearest_distance: int = 1_000_000_000
+
+	for candidate in (
+		session.get_team_combatants(
+			target.team_id,
+			true
+		)
+	):
+		if (
+			candidate == null
+			or candidate == target
+			or candidate.definition == null
+		):
+			continue
+
+		if not (
+			candidate
+			.definition
+			.blocks_hostile_targeting_behind
+		):
+			continue
+
+		var candidate_coordinate := (
+			candidate.grid_position
+		)
+
+		# Стена защищает только свой горизонтальный ряд.
+		if (
+			candidate_coordinate.y
+			!= target_coordinate.y
+		):
+			continue
+
+		# Blocker обязан находиться строго между
+		# атакующим и защищаемой целью.
+		if (
+			candidate_coordinate.x <= minimum_x
+			or candidate_coordinate.x >= maximum_x
+		):
+			continue
+
+		if not session.grid.has_occupant(
+			candidate.instance_id
+		):
+			continue
+
+		if (
+			session.grid.get_occupant_position(
+				candidate.instance_id
+			) != candidate_coordinate
+		):
+			continue
+
+		var distance_from_origin := absi(
+			candidate_coordinate.x
+			- origin_coordinate.x
+		)
+
+		if (
+			nearest_blocker == null
+			or distance_from_origin
+			< nearest_distance
+			or (
+				distance_from_origin
+				== nearest_distance
+				and String(
+					candidate.instance_id
+				) < String(
+					nearest_blocker.instance_id
+				)
+			)
+		):
+			nearest_blocker = candidate
+			nearest_distance = (
+				distance_from_origin
+			)
+
+	return nearest_blocker
 
 
 func _get_validation_failure(
@@ -385,7 +583,9 @@ func _get_validation_failure(
 	):
 		return FAILURE_ACTOR_NOT_IN_SESSION
 
-	if not grid.is_inside(origin_coordinate):
+	if not grid.is_inside(
+		origin_coordinate
+	):
 		return FAILURE_INVALID_ORIGIN
 
 	if not session.is_coordinate_allowed_for_team(
@@ -409,8 +609,7 @@ func _get_validation_failure(
 		if (
 			grid.get_occupant_position(
 				actor.instance_id
-			)
-			!= origin_coordinate
+			) != origin_coordinate
 		):
 			return FAILURE_ACTOR_NOT_ON_GRID
 
@@ -423,7 +622,9 @@ func _get_validation_failure(
 	if forward_direction == 0:
 		return FAILURE_INVALID_FORWARD_DIRECTION
 
-	if not grid.is_inside(aim_coordinate):
+	if not grid.is_inside(
+		aim_coordinate
+	):
 		return FAILURE_AIM_OUTSIDE_GRID
 
 	if not _is_aim_coordinate_in_pattern(
@@ -473,6 +674,18 @@ func _get_validation_failure(
 	):
 		return FAILURE_INVALID_AIM_RELATION
 
+	# Нельзя напрямую выбрать защищённого врага.
+	if (
+		aimed_combatant != null
+		and get_target_blocker_from(
+			session,
+			actor,
+			origin_coordinate,
+			aimed_combatant
+		) != null
+	):
+		return FAILURE_TARGET_PROTECTED_BY_BLOCKER
+
 	return &""
 
 
@@ -501,14 +714,20 @@ func _get_combatant_at_coordinate(
 	session: BattleSession,
 	coordinate: Vector2i
 ) -> CombatantState:
-	if session == null or session.grid == null:
+	if (
+		session == null
+		or session.grid == null
+	):
 		return null
 
 	var cell := session.grid.get_cell(
 		coordinate
 	)
 
-	if cell == null or not cell.is_occupied():
+	if (
+		cell == null
+		or not cell.is_occupied()
+	):
 		return null
 
 	return session.get_combatant(
@@ -521,9 +740,11 @@ func _is_relation_allowed(
 	target: CombatantState,
 	relation_mask: int
 ) -> bool:
-	var relation_bit := _get_relation_bit(
-		actor,
-		target
+	var relation_bit := (
+		_get_relation_bit(
+			actor,
+			target
+		)
 	)
 
 	return (

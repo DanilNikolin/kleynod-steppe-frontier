@@ -967,6 +967,12 @@ func _get_action_failure_message(
 				+"применена к выбранному бойцу."
 			)
 
+		BattleTargetingService.FAILURE_TARGET_PROTECTED_BY_BLOCKER:
+			return (
+				"Цель защищена боевым объектом, "
+				+"стоящим перед ней."
+			)
+
 		BattleActionService.FAILURE_NOT_ENOUGH_STAMINA:
 			var cost := (
 				ability.stamina_cost

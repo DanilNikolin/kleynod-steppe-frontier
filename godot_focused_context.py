@@ -25,54 +25,37 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Файл изменился после добавления Guard.
-    # Здесь сделаем единые методы effective Strength / Agility / Spirit / Armor
-    # и оставим инициативу неизменяемой во время боя.
-    "core/battle/combatants/combatant_state.gd",
-
-    # Нужно увидеть точные базовые поля характеристик бойца
-    # и проверить разделение предбоевых значений от боевых runtime-значений.
-    "core/battle/combatants/combatant_definition.gd",
-
-    # Текущая модель модификатора:
-    # проверим enum, правила расчёта и уберём инициативу
-    # из доступных временных боевых модификаторов.
-    "core/battle/stats/battle_stat_modifier.gd",
-
-    # Проверим, как статусы хранят массив модификаторов
-    # и нужна ли дополнительная валидация запрещённых характеристик.
-    "core/battle/statuses/battle_status_definition.gd",
-    "core/battle/statuses/battle_status_instance.gd",
+    # После прошлого этапа здесь используется эффективная Сила.
+    # Разделим базовый сырой урон и применение критического множителя,
+    # чтобы один случайный бросок не пересчитывался несколько раз.
+    "core/battle/damage/damage_calculator.gd",
 
     # Файл изменился после Guard.
-    # Здесь урон и лечение сейчас могут читать сырые strength / spirit;
-    # переведём их на эффективные значения.
+    # Добавим данные критического броска, множителя
+    # и урона до/после критического усиления.
+    "core/battle/actions/battle_effect_result.gd",
+
+    # Файл изменился после Guard и эффективных характеристик.
+    # Здесь выполним отдельный бросок для каждого DamageEffect и цели.
     "core/battle/effects/effect_resolver.gd",
 
-    # Этот файл я полностью ещё не видел.
-    # Проверим текущие параметры лечения и масштабирование от Духа.
-    "core/battle/effects/heal_effect.gd",
+    # Файл изменился при добавлении обхода Guard.
+    # Зафиксируем, что периодические DamageEffect
+    # всегда разрешаются без возможности крита.
+    "core/battle/statuses/battle_status_periodic_processor.gd",
 
-    # Файл изменился после кулдаунов и Guard.
-    # Карточка способности должна показывать расчёты
-    # от эффективных характеристик, а не от сырых.
+    # Файл изменился после эффективных характеристик.
+    # Добавим актуальный шанс и множитель крита
+    # в карточку способности.
     "presentation/battle/abilities/battle_ability_presentation_builder.gd",
 
     # Файл изменился после Guard.
-    # Покажем итоговые характеристики и расшифровку:
-    # база 8, модификаторы +2, итог 10.
-    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
+    # Добавим подробный вывод фактического броска
+    # и результата крита в журнал.
+    "scenes/debug/presentation/battle_debug_log_presenter.gd",
 
-    # Проверим текущий формат Armor-дебаффа
-    # как уже работающий пример BattleStatModifier.
-    "content/statuses/debug/debug_cracked_defense.tres",
-
-    # Проверим способность, которая накладывает этот статус,
-    # чтобы на её основе сделать тесты Силы / Спритности / Духа.
-    "content/abilities/debug/debug_sabre_slash.tres",
-
-    # Нужен актуальный набор способностей после добавления Guard,
-    # если будем подключать новые тестовые навыки.
+    # Loadout изменился после тестовых бафов и лечения.
+    # Подключим отдельную способность с гарантированным критом.
     "content/loadouts/debug/debug_sechevik_loadout.tres",
 ]
 

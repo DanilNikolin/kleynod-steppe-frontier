@@ -143,7 +143,8 @@ func _process_trigger(
 				source,
 				owner,
 				session,
-				true
+				true,
+				false
 			)
 		)
 

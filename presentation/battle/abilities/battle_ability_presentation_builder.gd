@@ -185,8 +185,97 @@ static func _build_damage_effect_text(
 			% effect.minimum_damage
 		)
 
+	damage_text += (
+		"\n  %s"
+		% _build_critical_effect_text(
+			effect,
+			actor
+		)
+	)
+
 	return damage_text
 
+static func _build_critical_effect_text(
+	effect: DamageEffect,
+	actor: CombatantState
+) -> String:
+	match effect.crit_mode:
+		DamageEffect.CritMode.DISABLED:
+			return "Крит: нет"
+
+		DamageEffect.CritMode.GUARANTEED:
+			return (
+				"Крит: гарантирован"
+				+"  •  Множитель: ×%s"
+				% _format_multiplier(
+					effect.critical_multiplier
+				)
+			)
+
+		DamageEffect.CritMode.STANDARD:
+			if actor == null:
+				var text := (
+					"Крит: 5% + 1% за Ловкость"
+				)
+
+				if (
+					effect
+					.crit_chance_bonus_percent
+					!= 0
+				):
+					text += (
+						" %s%% от способности"
+						% _format_signed_integer(
+							effect
+							.crit_chance_bonus_percent
+						)
+					)
+
+				text += (
+					", максимум 35%"
+					+"  •  Множитель: ×%s"
+					% _format_multiplier(
+						effect
+						.critical_multiplier
+					)
+				)
+
+				return text
+
+			var calculator := (
+				DamageCalculator.new()
+			)
+
+			var chance := (
+				calculator
+				.calculate_critical_chance_percent(
+					actor,
+					effect
+				)
+			)
+
+			return (
+				"Крит: %d%%"
+				% chance
+				+"  •  Множитель: ×%s"
+				% _format_multiplier(
+					effect.critical_multiplier
+				)
+			)
+
+	return "Крит: нет"
+
+
+static func _format_multiplier(
+	value: float
+) -> String:
+	return str(
+		snappedf(
+			value,
+			0.01
+		)
+	)
+	
 static func _build_heal_effect_text(
 	effect: HealEffect,
 	actor: CombatantState

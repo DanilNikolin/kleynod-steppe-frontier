@@ -467,6 +467,48 @@ func _append_damage_result(
 			]
 		)
 
+	var critical_text: String
+
+	if not effect_result.critical_was_enabled:
+		critical_text = "крит — отключён"
+
+	elif effect_result.critical_was_guaranteed:
+		critical_text = (
+			"КРИТ — гарантирован"
+			+", множитель ×%s"
+			% format_decimal(
+				effect_result
+					.critical_multiplier
+			)
+		)
+
+	elif effect_result.was_critical:
+		critical_text = (
+			"КРИТ — ДА"
+			+", шанс %d%%"
+			% effect_result
+				.critical_chance_percent
+			+", бросок %d"
+			% effect_result
+				.critical_roll_percent
+			+", множитель ×%s"
+			% format_decimal(
+				effect_result
+					.critical_multiplier
+			)
+		)
+
+	else:
+		critical_text = (
+			"крит — нет"
+			+", шанс %d%%"
+			% effect_result
+				.critical_chance_percent
+			+", бросок %d"
+			% effect_result
+				.critical_roll_percent
+		)
+
 	var guard_text: String
 
 	if effect_result.guard_was_bypassed:
@@ -488,11 +530,16 @@ func _append_damage_result(
 		)
 
 	var message := (
-		"%s: сила удара — %d; "
+		"%s: сырой урон до крита — %d; "
 		% [
 			target_name,
-			effect_result.raw_amount,
+			effect_result
+				.raw_amount_before_critical,
 		]
+		+"%s; "
+		% critical_text
+		+"сырой урон после крита — %d; "
+		% effect_result.raw_amount
 		+"броня — %s; "
 		% armor_text
 		+"пробитие — %d; "
@@ -795,6 +842,16 @@ func get_status_stat_modifier_amount(
 
 	return total
 
+func format_decimal(
+	value: float
+) -> String:
+	return str(
+		snappedf(
+			value,
+			0.01
+		)
+	)
+	
 
 func format_signed_integer(
 	value: int

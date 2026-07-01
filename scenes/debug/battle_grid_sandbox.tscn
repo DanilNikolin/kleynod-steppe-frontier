@@ -16,7 +16,7 @@ encounter_definition = ExtResource("4_encounter_definition")
 debug_status_definition = ExtResource("6_debug_status")
 
 [node name="BattleGridView" parent="." unique_id=794142880 instance=ExtResource("2_grid")]
-position = Vector2(958.43, 498.68)
+position = Vector2(528, 784)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1193952375]
 
@@ -84,5 +84,11 @@ toggle_button_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/Hea
 collapsed_height = 52.0
 
 [node name="AbilityPanel" parent="CanvasLayer" unique_id=1194771784 instance=ExtResource("5_ability_panel")]
+visible = true
+offset_left = 104.0
+offset_top = -531.0
+offset_right = 938.0
+offset_bottom = -255.0
 
 [node name="CombatantHoverPanel" parent="CanvasLayer" unique_id=1452797014 instance=ExtResource("7_hover_panel")]
+visible = true

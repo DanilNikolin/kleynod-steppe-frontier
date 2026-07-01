@@ -11,6 +11,27 @@ var effect_kind: StringName = &""
 var source_id: StringName = &""
 var target_id: StringName = &""
 
+## Сырой урон до критического множителя.
+var raw_amount_before_critical: int = 0
+
+## Был ли крит вообще разрешён для данного разрешения эффекта.
+## Периодический урон устанавливает false.
+var critical_was_enabled: bool = false
+
+## Был ли крит гарантирован настройками DamageEffect.
+var critical_was_guaranteed: bool = false
+
+## Итоговый шанс крита от 0 до 100.
+var critical_chance_percent: int = 0
+
+## Выпавшее число от 1 до 100.
+## Для гарантированного крита остаётся 0, потому что бросок не нужен.
+var critical_roll_percent: int = 0
+
+var critical_multiplier: float = 1.0
+var was_critical: bool = false
+
+## Для урона это значение уже включает критический множитель.
 var raw_amount: int = 0
 var mitigated_amount: int = 0
 var resolved_amount: int = 0

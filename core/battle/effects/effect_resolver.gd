@@ -22,6 +22,24 @@ var forced_movement_service := (
 	BattleForcedMovementService.new()
 )
 
+var random_number_generator: RandomNumberGenerator
+
+
+func _init(
+	p_random_number_generator: RandomNumberGenerator = null
+) -> void:
+	if p_random_number_generator != null:
+		random_number_generator = (
+			p_random_number_generator
+		)
+
+		return
+
+	random_number_generator = (
+		RandomNumberGenerator.new()
+	)
+
+	random_number_generator.randomize()
 
 func can_resolve(
 	effect: BattleEffect
@@ -40,7 +58,8 @@ func resolve(
 	source: CombatantState,
 	target: CombatantState,
 	session: BattleSession = null,
-	bypass_guard: bool = false
+	bypass_guard: bool = false,
+	allow_critical: bool = true
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -71,7 +90,8 @@ func resolve(
 			effect as DamageEffect,
 			source,
 			target,
-			bypass_guard
+			bypass_guard,
+			allow_critical
 		)
 
 	if effect is HealEffect:
@@ -115,7 +135,8 @@ func _resolve_damage(
 	effect: DamageEffect,
 	source: CombatantState,
 	target: CombatantState,
-	bypass_guard: bool
+	bypass_guard: bool,
+	allow_critical: bool
 ) -> BattleEffectResult:
 	var result := BattleEffectResult.new()
 
@@ -150,24 +171,82 @@ func _resolve_damage(
 		)
 	)
 
-	result.raw_amount = (
+	result.raw_amount_before_critical = (
 		damage_calculator.calculate_raw_damage(
 			source,
 			effect
 		)
 	)
 
-	result.resolved_amount = (
-		damage_calculator.calculate_resolved_damage(
+	result.critical_was_enabled = (
+		allow_critical
+		and effect.crit_mode
+			!= DamageEffect.CritMode.DISABLED
+	)
+
+	result.critical_multiplier = (
+		effect.critical_multiplier
+	)
+
+	result.critical_chance_percent = (
+		damage_calculator
+		.calculate_critical_chance_percent(
 			source,
+			effect,
+			allow_critical
+		)
+	)
+
+	if result.critical_was_enabled:
+		match effect.crit_mode:
+			DamageEffect.CritMode.GUARANTEED:
+				result.critical_was_guaranteed = true
+				result.was_critical = true
+
+			DamageEffect.CritMode.STANDARD:
+				if result.critical_chance_percent > 0:
+					result.critical_roll_percent = (
+						random_number_generator
+						.randi_range(
+							1,
+							100
+						)
+					)
+
+					result.was_critical = (
+						result
+						.critical_roll_percent
+						<= result
+						.critical_chance_percent
+					)
+
+	result.raw_amount = (
+		result.raw_amount_before_critical
+	)
+
+	if result.was_critical:
+		result.raw_amount = (
+			damage_calculator
+			.apply_critical_multiplier(
+				result
+					.raw_amount_before_critical,
+				result.critical_multiplier
+			)
+		)
+
+	result.resolved_amount = (
+		damage_calculator
+		.calculate_resolved_damage_from_raw(
 			target,
-			effect
+			effect,
+			result.raw_amount
 		)
 	)
 
 	result.mitigated_amount = maxi(
 		0,
-		result.raw_amount - result.resolved_amount
+		result.raw_amount
+		- result.resolved_amount
 	)
 
 	result.previous_guard = (

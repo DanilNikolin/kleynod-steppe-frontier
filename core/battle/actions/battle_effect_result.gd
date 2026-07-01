@@ -60,3 +60,17 @@ var previous_value: int = 0
 var current_value: int = 0
 
 var target_died: bool = false
+
+var movement_origin: Vector2i = BattleGrid.INVALID_COORDINATE
+
+var movement_destination: Vector2i = BattleGrid.INVALID_COORDINATE
+
+var movement_direction: Vector2i = Vector2i.ZERO
+
+var movement_path: Array[Vector2i] = []
+
+var requested_movement_distance: int = 0
+var applied_movement_distance: int = 0
+
+var movement_was_blocked: bool = false
+var movement_block_reason: StringName = &""

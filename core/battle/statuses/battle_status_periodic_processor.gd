@@ -138,7 +138,8 @@ func _process_trigger(
 			effect_resolver.resolve(
 				effect,
 				source,
-				owner
+				owner,
+				session
 			)
 		)
 

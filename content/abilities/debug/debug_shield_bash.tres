@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=9 format=3 uid="uid://ctwbkmrr7q72"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://cl66n77lfd3k7" path="res://core/battle/effects/forced_movement_effect.gd" id="5_forced_movement"]
+
+[sub_resource type="Resource" id="Resource_shield_damage"]
+script = ExtResource("4_damage")
+strength_scaling = 0.25
+effect_id = &"effect_shield_bash_damage"
+
+[sub_resource type="Resource" id="Resource_shield_push"]
+script = ExtResource("5_forced_movement")
+distance = 2
+effect_id = &"effect_shield_bash_push"
+
+[sub_resource type="Resource" id="Resource_shield_targeting"]
+script = ExtResource("2_targeting")
+aim_offsets = Array[Vector2i]([Vector2i(1, 0), Vector2i(2, 0)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_shield_bash"
+display_name = "Удар щитом"
+description = "Наносит небольшой урон и отталкивает цель на две клетки. Толчок останавливается перед препятствием, границей поля или другим бойцом."
+stamina_cost = 4
+targeting = SubResource("Resource_shield_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_shield_damage"), SubResource("Resource_shield_push")])

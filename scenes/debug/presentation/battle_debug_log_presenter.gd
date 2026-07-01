@@ -346,6 +346,11 @@ func append_action_results(
 					effect_result
 				)
 
+			&"forced_movement":
+				_append_forced_movement_result(
+					effect_result
+				)
+
 
 func append_periodic_trigger_results(
 	combatant: CombatantState,
@@ -515,6 +520,53 @@ func _append_heal_result(
 			effect_result.current_value,
 		]
 	)
+
+	push_battle_log(
+		message
+	)
+
+
+func _append_forced_movement_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var message := (
+		"%s принудительно перемещается "
+		% target_name
+		+ "на %d/%d клеток: %s → %s."
+		% [
+			effect_result
+				.applied_movement_distance,
+			effect_result
+				.requested_movement_distance,
+			effect_result.movement_origin,
+			effect_result.movement_destination,
+		]
+	)
+
+	if effect_result.movement_was_blocked:
+		message += (
+			" Дальнейшее движение остановлено: %s."
+			% format_forced_movement_block_reason(
+				effect_result
+				.movement_block_reason
+			)
+		)
 
 	push_battle_log(
 		message
@@ -712,6 +764,20 @@ func format_periodic_timing(
 			return "в конце хода"
 
 	return "в неизвестный момент"
+
+
+func format_forced_movement_block_reason(
+	reason: StringName
+) -> String:
+	match reason:
+		BattleForcedMovementService.BLOCK_OUTSIDE_GRID:
+			return "граница поля"
+
+		BattleForcedMovementService.BLOCK_CELL_OCCUPIED_OR_OBSTRUCTED:
+			return "клетка занята или заблокирована"
+
+	return String(reason)
+
 
 
 func _refresh_status_label() -> void:

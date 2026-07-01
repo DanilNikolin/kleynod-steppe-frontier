@@ -12,6 +12,7 @@ var action_presented: bool = false
 
 var defeated_view_ids_removed: Array[StringName] = []
 
+var forced_movement_view_ids_presented: Array[StringName] = []
 
 func did_execute() -> bool:
 	return (
@@ -38,6 +39,15 @@ func get_affected_target_count() -> int:
 	return action_result.get_affected_target_count()
 
 
+func get_total_forced_movement_distance() -> int:
+	if action_result == null:
+		return 0
+
+	return (
+		action_result
+		.get_total_forced_movement_distance()
+	)
+	
 func get_defeated_target_ids() -> Array[StringName]:
 	if action_result == null:
 		return []

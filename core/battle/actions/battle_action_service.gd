@@ -141,7 +141,8 @@ func execute(
 				effect_resolver.resolve(
 					effect,
 					command.actor,
-					target
+					target,
+					session
 				)
 			)
 

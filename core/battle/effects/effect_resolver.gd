@@ -18,6 +18,10 @@ const FAILURE_STATUS_APPLICATION_FAILED: StringName = (
 
 var damage_calculator := DamageCalculator.new()
 
+var forced_movement_service := (
+	BattleForcedMovementService.new()
+)
+
 
 func can_resolve(
 	effect: BattleEffect
@@ -26,13 +30,15 @@ func can_resolve(
 		effect is DamageEffect
 		or effect is HealEffect
 		or effect is ApplyStatusEffect
+		or effect is ForcedMovementEffect
 	)
 
 
 func resolve(
 	effect: BattleEffect,
 	source: CombatantState,
-	target: CombatantState
+	target: CombatantState,
+	session: BattleSession = null
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -77,6 +83,14 @@ func resolve(
 			effect as ApplyStatusEffect,
 			source,
 			target
+		)
+
+	if effect is ForcedMovementEffect:
+		return _resolve_forced_movement(
+			effect as ForcedMovementEffect,
+			source,
+			target,
+			session
 		)
 
 	return _create_failure_result(
@@ -288,6 +302,99 @@ func _resolve_apply_status(
 
 	result.is_successful = true
 
+	return result
+	
+func _resolve_forced_movement(
+	effect: ForcedMovementEffect,
+	source: CombatantState,
+	target: CombatantState,
+	session: BattleSession
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"forced_movement"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.requested_movement_distance = (
+		effect.distance
+	)
+
+	result.movement_origin = (
+		target.grid_position
+	)
+
+	if session == null or session.grid == null:
+		result.failure_code = (
+			&"invalid_session"
+		)
+
+		return result
+
+	var resolution := (
+		forced_movement_service
+		.create_resolution(
+			session.grid,
+			source,
+			target,
+			effect
+		)
+	)
+
+	if not resolution.is_valid:
+		result.failure_code = (
+			resolution.failure_code
+		)
+
+		return result
+
+	result.movement_origin = (
+		resolution.origin
+	)
+
+	result.movement_destination = (
+		resolution.destination
+	)
+
+	result.movement_direction = (
+		resolution.direction
+	)
+
+	result.movement_path = (
+		resolution.path.duplicate()
+	)
+
+	result.applied_movement_distance = (
+		resolution.get_applied_distance()
+	)
+
+	result.movement_was_blocked = (
+		resolution.was_blocked
+	)
+
+	result.movement_block_reason = (
+		resolution.block_reason
+	)
+
+	var committed := (
+		forced_movement_service
+		.commit_resolution(
+			session.grid,
+			target,
+			resolution
+		)
+	)
+
+	if not committed:
+		result.failure_code = (
+			&"forced_movement_commit_failed"
+		)
+
+		return result
+
+	result.is_successful = true
 	return result
 	
 func _create_failure_result(

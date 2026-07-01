@@ -25,25 +25,24 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Неизвестные точки проверки действий
-    "core/battle/actions/battle_action_service.gd",
-    "core/battle/movement/battle_movement_service.gd",
+    # Неизвестное API прямого перемещения по сетке
+    "core/battle/grid/battle_grid.gd",
 
-    # Был серьёзно изменён periodic-этапом
-    "core/battle/turns/battle_turn_controller.gd",
+    # Изменён после periodic/heal
+    "core/battle/effects/effect_resolver.gd",
 
-    # Нужно корректно скрывать недоступное движение и targeting
-    "presentation/battle/grid/battle_grid_overlay_presenter.gd",
+    # Нужны поля результата нового эффекта
+    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/actions/battle_action_result.gd",
 
-    # Текущая обработка кликов, выбора действий и завершения хода
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    # Нужно понять текущую передачу результатов в presentation
+    "presentation/battle/actions/battle_action_outcome.gd",
+    "presentation/battle/actions/battle_action_runner.gd",
 
-    # Изменён periodic-интеграцией; понадобится сигнал пропуска хода
-    "scenes/debug/battle_grid_sandbox.gd",
-
-    # Чтобы ограничения не сломали вражеские ходы
-    "core/battle/ai/basic_melee_ai_controller.gd",
-    "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
+    # Анимация и фактическое перемещение view
+    "presentation/battle/movement/battle_movement_runner.gd",
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
+    "presentation/battle/combatants/combatant_view.gd",
 ]
 
 

@@ -18,6 +18,10 @@ const FAILURE_PRESENTATION_FAILED: StringName = (
 	&"presentation_failed"
 )
 
+const FAILURE_FORCED_MOVEMENT_PRESENTATION_FAILED: StringName = (
+	&"forced_movement_presentation_failed"
+)
+
 const FAILURE_DEFEATED_VIEW_REMOVAL_FAILED: StringName = (
 	&"defeated_view_removal_failed"
 )
@@ -142,6 +146,36 @@ func execute_action(
 		)
 
 		return outcome
+
+	for effect_result in (
+		outcome.action_result
+		.get_forced_movement_results()
+	):
+		if effect_result.movement_path.is_empty():
+			continue
+
+		if effect_result.target_died:
+			continue
+
+		var movement_presented := await (
+			combatant_presenter
+			.move_along_grid_path(
+				effect_result.target_id,
+				effect_result.movement_path,
+				animated
+			)
+		)
+
+		if not movement_presented:
+			outcome.failure_code = (
+				FAILURE_FORCED_MOVEMENT_PRESENTATION_FAILED
+			)
+
+			return outcome
+
+		outcome.forced_movement_view_ids_presented.append(
+			effect_result.target_id
+		)
 
 	if remove_defeated_views:
 		for target_id in (

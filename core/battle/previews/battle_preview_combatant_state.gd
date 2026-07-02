@@ -196,6 +196,70 @@ func is_immune_to_status(
 		)
 	)
 
+func get_status_ids_matching_removal(
+	effect: RemoveStatusEffect
+) -> Array[StringName]:
+	var result: Array[StringName] = []
+
+	if effect == null:
+		return result
+
+	for value in _statuses_by_id.keys():
+		var status_id: StringName = value
+
+		var snapshot := get_status_snapshot(
+			status_id
+		)
+
+		var status_definition := (
+			snapshot.get(
+				"definition"
+			) as BattleStatusDefinition
+		)
+
+		if status_definition == null:
+			continue
+
+		if not effect.matches_status_definition(
+			status_definition
+		):
+			continue
+
+		result.append(
+			status_id
+		)
+
+	result.sort_custom(
+		Callable(
+			self,
+			"_is_status_id_before"
+		)
+	)
+
+	return result
+
+
+func remove_status_snapshot(
+	status_id: StringName
+) -> bool:
+	if not _statuses_by_id.has(
+		status_id
+	):
+		return false
+
+	_statuses_by_id.erase(
+		status_id
+	)
+
+	return true
+
+
+func _is_status_id_before(
+	first: StringName,
+	second: StringName
+) -> bool:
+	return String(first) < String(second)
+    
 func apply_status_definition(
 	status_definition: BattleStatusDefinition
 ) -> bool:

@@ -351,6 +351,11 @@ func append_action_results(
 					effect_result
 				)
 
+			&"remove_status":
+				_append_remove_status_result(
+					effect_result
+				)
+
 			&"forced_movement":
 				_append_forced_movement_result(
 					effect_result
@@ -646,7 +651,80 @@ func _append_guard_result(
 	push_battle_log(
 		message
 	)
-    
+
+func _append_remove_status_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	if (
+		effect_result
+		.removed_status_display_names
+		.is_empty()
+	):
+		push_battle_log(
+			"%s: подходящих статусов для снятия нет."
+			% target_name
+		)
+
+		return
+
+	var status_parts := PackedStringArray()
+
+	for status_name in (
+		effect_result
+		.removed_status_display_names
+	):
+		status_parts.append(
+			"«%s»"
+			% status_name
+		)
+
+	var message := (
+		"%s: сняты статусы — %s."
+		% [
+			target_name,
+			", ".join(
+				status_parts
+			),
+		]
+	)
+
+	if (
+		effect_result
+			.previous_target_effective_armor
+		!= effect_result
+			.current_target_effective_armor
+	):
+		message += (
+			" Броня: %d → %d."
+			% [
+				effect_result
+					.previous_target_effective_armor,
+				effect_result
+					.current_target_effective_armor,
+			]
+		)
+
+	push_battle_log(
+		message
+	)
+	
+	    
 func _append_forced_movement_result(
 	effect_result: BattleEffectResult
 ) -> void:

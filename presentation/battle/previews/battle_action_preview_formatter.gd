@@ -31,6 +31,11 @@ static func build_target_text(
 		preview.normal_effect_results
 	)
 
+	_append_removed_status_lines(
+		lines,
+		preview.normal_effect_results
+	)
+
 	_append_movement_lines(
 		lines,
 		preview.normal_effect_results
@@ -254,6 +259,47 @@ static func _append_status_lines(
 			)
 
 
+static func _append_removed_status_lines(
+	lines: PackedStringArray,
+	effect_results: Array[BattleEffectResult]
+) -> void:
+	for effect_result in effect_results:
+		if (
+			effect_result == null
+			or effect_result.effect_kind
+				!= &"remove_status"
+		):
+			continue
+
+		if (
+			effect_result
+			.removed_status_display_names
+			.is_empty()
+		):
+			lines.append(
+				"Снятие: подходящих статусов нет"
+			)
+
+			continue
+
+		var status_parts := PackedStringArray()
+
+		for status_name in (
+			effect_result
+			.removed_status_display_names
+		):
+			status_parts.append(
+				"«%s»"
+				% status_name
+			)
+
+		lines.append(
+			"Снимет: %s"
+			% ", ".join(
+				status_parts
+			)
+		)
+        
 static func _append_movement_lines(
 	lines: PackedStringArray,
 	effect_results: Array[BattleEffectResult]

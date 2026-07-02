@@ -93,6 +93,11 @@ var status_immunity_kind: StringName = &""
 ## Конкретный status_id либо совпавший тег.
 var status_immunity_value: StringName = &""
 
+## Статусы, реально снятые RemoveStatusEffect.
+var removed_status_ids: Array[StringName] = []
+
+var removed_status_display_names: PackedStringArray = []
+
 var status_was_added: bool = false
 
 var previous_status_stack_count: int = 0

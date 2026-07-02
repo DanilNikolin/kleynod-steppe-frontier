@@ -703,7 +703,72 @@ func clear_statuses(
 			reason
 		)
 
+func get_status_ids_matching_removal(
+	effect: RemoveStatusEffect
+) -> Array[StringName]:
+	var result: Array[StringName] = []
 
+	if effect == null:
+		return result
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		if not effect.matches_status_definition(
+			status.definition
+		):
+			continue
+
+		result.append(
+			status.status_id
+		)
+
+	result.sort_custom(
+		Callable(
+			self,
+			"_is_status_id_before"
+		)
+	)
+
+	return result
+
+
+func remove_statuses_matching(
+	effect: RemoveStatusEffect,
+	reason: StringName = &"removed_by_effect"
+) -> Array[BattleStatusInstance]:
+	var removed_statuses: Array[BattleStatusInstance] = []
+
+	var matching_status_ids := (
+		get_status_ids_matching_removal(
+			effect
+		)
+	)
+
+	for status_id in matching_status_ids:
+		var status := get_status(
+			status_id
+		)
+
+		if status == null:
+			continue
+
+		if not remove_status(
+			status_id,
+			reason
+		):
+			continue
+
+		removed_statuses.append(
+			status
+		)
+
+	return removed_statuses
+	
 func advance_statuses_after_owner_turn() -> Array[StringName]:
 	var expired_status_ids: Array[StringName] = []
 

@@ -49,6 +49,7 @@ func can_resolve(
 		or effect is HealEffect
 		or effect is GrantGuardEffect
 		or effect is ApplyStatusEffect
+		or effect is RemoveStatusEffect
 		or effect is ForcedMovementEffect
 	)
 
@@ -115,6 +116,12 @@ func resolve(
 			target
 		)
 
+	if effect is RemoveStatusEffect:
+		return _resolve_remove_status(
+			effect as RemoveStatusEffect,
+			source,
+			target
+		)
 	if effect is ForcedMovementEffect:
 		return _resolve_forced_movement(
 			effect as ForcedMovementEffect,
@@ -502,6 +509,57 @@ func _resolve_apply_status(
 
 	result.is_successful = true
 
+	return result
+	
+
+func _resolve_remove_status(
+	effect: RemoveStatusEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"remove_status"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.previous_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	var removed_statuses := (
+		target.remove_statuses_matching(
+			effect,
+			&"removed_by_effect"
+		)
+	)
+
+	for removed_status in removed_statuses:
+		if (
+			removed_status == null
+			or removed_status.definition == null
+		):
+			continue
+
+		result.removed_status_ids.append(
+			removed_status.status_id
+		)
+
+		result.removed_status_display_names.append(
+			removed_status.definition.display_name
+		)
+
+	result.applied_amount = (
+		result.removed_status_ids.size()
+	)
+
+	result.current_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	result.is_successful = true
 	return result
 	
 func _resolve_forced_movement(

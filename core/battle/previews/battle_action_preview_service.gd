@@ -393,6 +393,13 @@ func _preview_effect(
 			target
 		)
 
+	if effect is RemoveStatusEffect:
+		return _preview_remove_status(
+			effect as RemoveStatusEffect,
+			source,
+			target
+		)
+
 	if effect is ForcedMovementEffect:
 		return _preview_forced_movement(
 			effect as ForcedMovementEffect,
@@ -814,6 +821,66 @@ func _preview_apply_status(
 	return result
 
 
+func _preview_remove_status(
+	effect: RemoveStatusEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"remove_status"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.previous_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	var matching_status_ids := (
+		target.get_status_ids_matching_removal(
+			effect
+		)
+	)
+
+	for status_id in matching_status_ids:
+		var snapshot := target.get_status_snapshot(
+			status_id
+		)
+
+		var status_definition := (
+			snapshot.get(
+				"definition"
+			) as BattleStatusDefinition
+		)
+
+		if status_definition == null:
+			continue
+
+		result.removed_status_ids.append(
+			status_id
+		)
+
+		result.removed_status_display_names.append(
+			status_definition.display_name
+		)
+
+		target.remove_status_snapshot(
+			status_id
+		)
+
+	result.applied_amount = (
+		result.removed_status_ids.size()
+	)
+
+	result.current_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	result.is_successful = true
+	return result
+    
 func _preview_forced_movement(
 	effect: ForcedMovementEffect,
 	source: BattlePreviewCombatantState,

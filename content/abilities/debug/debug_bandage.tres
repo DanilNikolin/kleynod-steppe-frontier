@@ -4,11 +4,19 @@
 [ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
 [ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
-[ext_resource type="Resource" uid="uid://cgmel2oj0ewfe" path="res://content/statuses/debug/debug_regeneration.tres" id="5_regeneration"]
+[ext_resource type="Script" uid="uid://dk3kmdoe3mr7r" path="res://core/battle/effects/remove_status_effect.gd" id="5_remove_status"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="6_status_type"]
+[ext_resource type="Resource" uid="uid://blpdtthp366w6" path="res://content/statuses/debug/debug_bleeding.tres" id="7_bleeding"]
+[ext_resource type="Resource" uid="uid://cgmel2oj0ewfe" path="res://content/statuses/debug/debug_regeneration.tres" id="8_regeneration"]
+
+[sub_resource type="Resource" id="Resource_bandage_remove_bleeding"]
+script = ExtResource("5_remove_status")
+specific_statuses = Array[ExtResource("6_status_type")]([ExtResource("7_bleeding")])
+effect_id = &"effect_bandage_remove_bleeding"
 
 [sub_resource type="Resource" id="Resource_bandage_regeneration"]
 script = ExtResource("4_apply_status")
-status_definition = ExtResource("5_regeneration")
+status_definition = ExtResource("8_regeneration")
 effect_id = &"effect_bandage_regeneration"
 
 [sub_resource type="Resource" id="Resource_bandage_targeting"]
@@ -21,7 +29,7 @@ affected_relation_mask = 1
 script = ExtResource("1_ability")
 ability_id = &"ability_bandage"
 display_name = "Перевязка"
-description = "Наложить на себя регенерацию. Требует явного выбора собственной клетки."
+description = "Снимает кровотечение и накладывает регенерацию."
 stamina_cost = 2
 targeting = SubResource("Resource_bandage_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_bandage_regeneration")])
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_bandage_remove_bleeding"), SubResource("Resource_bandage_regeneration")])

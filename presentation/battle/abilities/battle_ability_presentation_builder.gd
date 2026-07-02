@@ -107,6 +107,13 @@ static func build_effects_text(
 				)
 			)
 
+		elif effect is RemoveStatusEffect:
+			lines.append(
+				_build_remove_status_effect_text(
+					effect as RemoveStatusEffect
+				)
+			)
+
 		else:
 			lines.append(
 				"• Эффект: %s"
@@ -275,7 +282,7 @@ static func _format_multiplier(
 			0.01
 		)
 	)
-	
+
 static func _build_heal_effect_text(
 	effect: HealEffect,
 	actor: CombatantState
@@ -395,6 +402,51 @@ static func _build_status_effect_text(
 	return text
 
 
+static func _build_remove_status_effect_text(
+	effect: RemoveStatusEffect
+) -> String:
+	match effect.filter_mode:
+		RemoveStatusEffect.FilterMode.SPECIFIC_STATUSES:
+			var status_parts := PackedStringArray()
+
+			for status_definition in (
+				effect.specific_statuses
+			):
+				if status_definition == null:
+					continue
+
+				status_parts.append(
+					"«%s»"
+					% status_definition.display_name
+				)
+
+			if status_parts.is_empty():
+				return (
+					"• Снимает конкретные статусы"
+				)
+
+			return (
+				"• Снимает: %s"
+				% ", ".join(
+					status_parts
+				)
+			)
+
+		RemoveStatusEffect.FilterMode.STATUS_TAG:
+			return (
+				"• Снимает все статусы "
+				+"категории «%s»"
+				% effect.status_tag
+			)
+
+		RemoveStatusEffect.FilterMode.ALL_HARMFUL:
+			return "• Снимает все вредные статусы"
+
+		RemoveStatusEffect.FilterMode.ALL_BENEFICIAL:
+			return "• Снимает все полезные статусы"
+
+	return "• Снимает статусы"
+	
 static func _build_aim_target_text(
 	targeting: AbilityTargetingDefinition
 ) -> String:

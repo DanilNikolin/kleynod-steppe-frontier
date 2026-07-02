@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://cbid6i3pu34gm"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="3_bptql"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://dk3kmdoe3mr7r" path="res://core/battle/effects/remove_status_effect.gd" id="4_remove_status"]
+
+[sub_resource type="Resource" id="Resource_full_cleanse_effect"]
+script = ExtResource("4_remove_status")
+filter_mode = 2
+effect_id = &"effect_full_cleanse"
+
+[sub_resource type="Resource" id="Resource_full_cleanse_targeting"]
+script = ExtResource("2_targeting")
+aim_relation_mask = 1
+aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
+affected_relation_mask = 1
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_full_cleanse"
+display_name = "Полное очищение"
+description = "Снимает с бойца все вредные статусы."
+stamina_cost = 3
+targeting = SubResource("Resource_full_cleanse_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_full_cleanse_effect")])

@@ -362,6 +362,100 @@ func append_action_results(
 				)
 
 
+func append_surface_trigger_result(
+	trigger_result: BattleSurfaceTriggerResult
+) -> void:
+	if trigger_result == null:
+		return
+
+	var target := session.get_combatant(
+		trigger_result.target_id
+	)
+
+	var target_name := String(
+		trigger_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var surface_name := (
+		trigger_result.surface_display_name
+	)
+
+	if surface_name.strip_edges().is_empty():
+		surface_name = String(
+			trigger_result.surface_effect_id
+		)
+
+	push_battle_log(
+		"«%s» срабатывает на клетке %s для %s (%s)."
+		% [
+			surface_name,
+			trigger_result.coordinate,
+			target_name,
+			format_surface_timing(
+				trigger_result.timing
+			),
+		]
+	)
+
+	for effect_result in (
+		trigger_result.effect_results
+	):
+		if effect_result == null:
+			continue
+
+		if not effect_result.is_successful:
+			push_battle_log(
+				"Эффект поверхности не выполнен: %s."
+				% effect_result.failure_code
+			)
+
+			continue
+
+		match effect_result.effect_kind:
+			&"damage":
+				_append_damage_result(
+					effect_result
+				)
+
+			&"heal":
+				_append_heal_result(
+					effect_result
+				)
+
+			&"grant_guard":
+				_append_guard_result(
+					effect_result
+				)
+
+			&"apply_status":
+				## Изменение уже отображается
+				## через status-сигналы.
+				pass
+
+			&"remove_status":
+				_append_remove_status_result(
+					effect_result
+				)
+
+			&"forced_movement":
+				_append_forced_movement_result(
+					effect_result
+				)
+
+	if trigger_result.was_consumed:
+		push_battle_log(
+			"«%s» исчезает после срабатывания."
+			% surface_name
+		)
+
 func append_periodic_trigger_results(
 	combatant: CombatantState,
 	timing: int,
@@ -723,8 +817,8 @@ func _append_remove_status_result(
 	push_battle_log(
 		message
 	)
-	
-	    
+
+
 func _append_forced_movement_result(
 	effect_result: BattleEffectResult
 ) -> void:
@@ -1015,6 +1109,21 @@ func format_periodic_timing(
 	return "в неизвестный момент"
 
 
+func format_surface_timing(
+	timing: int
+) -> String:
+	match timing:
+		BattleSurfaceEffectDefinition.TriggerTiming.ON_ENTER:
+			return "при входе"
+
+		BattleSurfaceEffectDefinition.TriggerTiming.OWNER_TURN_START:
+			return "в начале хода"
+
+		BattleSurfaceEffectDefinition.TriggerTiming.OWNER_TURN_END:
+			return "в конце хода"
+
+	return "неизвестный момент"
+
 func format_forced_movement_block_reason(
 	reason: StringName
 ) -> String:
@@ -1024,6 +1133,9 @@ func format_forced_movement_block_reason(
 
 		BattleForcedMovementService.BLOCK_CELL_OCCUPIED_OR_OBSTRUCTED:
 			return "клетка занята или заблокирована"
+
+		BattleForcedMovementService.BLOCK_SURFACE_EFFECT:
+			return "сработал эффект клетки"
 
 	return String(reason)
 

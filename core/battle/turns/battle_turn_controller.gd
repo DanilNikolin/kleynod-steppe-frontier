@@ -74,6 +74,7 @@ var _started: bool = false
 var _finished: bool = false
 
 var _is_processing_periodic_statuses: bool = false
+var _is_processing_surface_effects: bool = false
 
 
 func _init(
@@ -139,6 +140,13 @@ func end_current_turn() -> bool:
 
 	if ended_combatant.is_alive:
 		ended_combatant.advance_statuses_after_owner_turn()
+
+	_process_surface_effects(
+		ended_combatant,
+		BattleSurfaceEffectDefinition
+			.TriggerTiming
+			.OWNER_TURN_END
+	)
 
 	ended_combatant.advance_ability_cooldowns_after_owner_turn()
 
@@ -236,6 +244,15 @@ func _start_round(
 	active_combatant = null
 	_current_turn_index = -1
 
+	if (
+		session != null
+		and session.surface_effect_controller != null
+	):
+		session.surface_effect_controller.advance_to_round(
+			session,
+			round_number
+		)
+
 	if reinforcement_controller != null:
 		reinforcement_controller.process_round(
 			round_number
@@ -317,6 +334,13 @@ func _begin_turn(
 		.OWNER_TURN_START
 	)
 
+	_process_surface_effects(
+		combatant,
+		BattleSurfaceEffectDefinition
+			.TriggerTiming
+			.OWNER_TURN_START
+	)
+
 	if not combatant.is_alive:
 		active_combatant = null
 
@@ -382,6 +406,36 @@ func _process_periodic_status_effects(
 	return results
 
 
+func _process_surface_effects(
+	combatant: CombatantState,
+	timing: int
+) -> Array[BattleSurfaceTriggerResult]:
+	var results: Array[BattleSurfaceTriggerResult] = []
+
+	if (
+		session == null
+		or session.surface_effect_controller == null
+		or combatant == null
+		or not combatant.is_alive
+	):
+		return results
+
+	_is_processing_surface_effects = true
+
+	results = (
+		session
+		.surface_effect_controller
+		.trigger_for_combatant(
+			session,
+			combatant,
+			timing
+		)
+	)
+
+	_is_processing_surface_effects = false
+
+	return results
+
 func _rebuild_turn_order() -> void:
 	_turn_order.clear()
 
@@ -445,7 +499,10 @@ func _connect_session_signals() -> void:
 func _on_combatant_defeated(
 	_combatant: CombatantState
 ) -> void:
-	if _is_processing_periodic_statuses:
+	if (
+		_is_processing_periodic_statuses
+		or _is_processing_surface_effects
+	):
 		return
 
 	evaluate_battle_state()

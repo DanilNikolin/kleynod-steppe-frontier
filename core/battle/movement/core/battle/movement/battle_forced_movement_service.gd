@@ -35,6 +35,10 @@ const BLOCK_CELL_OCCUPIED_OR_OBSTRUCTED: StringName = (
 	&"cell_occupied_or_obstructed"
 )
 
+const BLOCK_SURFACE_EFFECT: StringName = (
+	&"surface_effect"
+)
+
 
 func create_resolution(
 	grid: BattleGrid,
@@ -187,7 +191,8 @@ func create_resolution_from_coordinates(
 func commit_resolution(
 	grid: BattleGrid,
 	target: CombatantState,
-	resolution: BattleForcedMovementResolution
+	resolution: BattleForcedMovementResolution,
+	step_callback: Callable = Callable()
 ) -> bool:
 	if (
 		grid == null
@@ -210,7 +215,13 @@ func commit_resolution(
 		target.grid_position
 	)
 
-	for coordinate in resolution.path:
+	var requested_path := (
+		resolution.path.duplicate()
+	)
+
+	var applied_path: Array[Vector2i] = []
+
+	for coordinate in requested_path:
 		var moved := grid.try_move_occupant(
 			target.instance_id,
 			coordinate
@@ -228,6 +239,39 @@ func commit_resolution(
 		target.set_grid_position(
 			coordinate
 		)
+
+		applied_path.append(
+			coordinate
+		)
+
+		if step_callback.is_valid():
+			var should_continue := bool(
+				step_callback.call(
+					target,
+					coordinate
+				)
+			)
+
+			if not should_continue:
+				resolution.was_blocked = true
+				resolution.block_reason = (
+					BLOCK_SURFACE_EFFECT
+				)
+
+				break
+
+		if not target.is_alive:
+			resolution.was_blocked = true
+			resolution.block_reason = (
+				BLOCK_SURFACE_EFFECT
+			)
+
+			break
+
+	resolution.path = applied_path
+	resolution.destination = (
+		target.grid_position
+	)
 
 	return true
 
@@ -301,7 +345,7 @@ func _is_grid_coordinate_walkable(
 		cell != null
 		and cell.is_walkable()
 	)
-	
+
 func _rollback_movement(
 	grid: BattleGrid,
 	target: CombatantState,

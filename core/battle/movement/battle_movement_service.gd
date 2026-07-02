@@ -203,6 +203,94 @@ func commit_plan(
 	return true
 
 
+func commit_step(
+	grid: BattleGrid,
+	combatant: CombatantState,
+	target_coordinate: Vector2i,
+	stamina_cost: int
+) -> bool:
+	if (
+		grid == null
+		or combatant == null
+		or not combatant.is_alive
+		or combatant.is_movement_restricted()
+		or stamina_cost <= 0
+	):
+		return false
+
+	var source_coordinate := (
+		combatant.grid_position
+	)
+
+	if (
+		not grid.is_inside(
+			source_coordinate
+		)
+		or not grid.is_inside(
+			target_coordinate
+		)
+	):
+		return false
+
+	if not grid.are_orthogonally_adjacent(
+		source_coordinate,
+		target_coordinate
+	):
+		return false
+
+	if not _is_coordinate_allowed(
+		grid,
+		combatant.team_id,
+		target_coordinate
+	):
+		return false
+
+	if (
+		not grid.has_occupant(
+			combatant.instance_id
+		)
+		or grid.get_occupant_position(
+			combatant.instance_id
+		) != source_coordinate
+	):
+		return false
+
+	var target_cell := grid.get_cell(
+		target_coordinate
+	)
+
+	if (
+		target_cell == null
+		or not target_cell.is_walkable()
+	):
+		return false
+
+	if not combatant.can_spend_stamina(
+		stamina_cost
+	):
+		return false
+
+	if not combatant.spend_stamina(
+		stamina_cost
+	):
+		return false
+
+	if not grid.try_move_occupant(
+		combatant.instance_id,
+		target_coordinate
+	):
+		combatant.restore_stamina(
+			stamina_cost
+		)
+
+		return false
+
+	combatant.set_grid_position(
+		target_coordinate
+	)
+
+	return true
+	
 func find_shortest_path(
 	grid: BattleGrid,
 	start_coordinate: Vector2i,

@@ -9,6 +9,7 @@ signal combatant_defeated(combatant: CombatantState)
 
 var grid: BattleGrid
 var side_rules: BattleSideRules
+var surface_effect_controller: BattleSurfaceEffectController
 
 var _combatants: Dictionary = {}
 var _death_callbacks: Dictionary = {}
@@ -35,6 +36,10 @@ func _init(
 		side_errors.is_empty(),
 		"Invalid battle side rules: %s"
 		% side_errors
+	)
+
+	surface_effect_controller = (
+		BattleSurfaceEffectController.new()
 	)
 
 	grid = BattleGrid.new(
@@ -254,6 +259,11 @@ func remove_combatant(
 
 
 func clear() -> void:
+	if surface_effect_controller != null:
+		surface_effect_controller.clear(
+			self
+		)
+
 	var combatant_ids := _combatants.keys()
 
 	for value in combatant_ids:

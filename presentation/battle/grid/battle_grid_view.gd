@@ -194,6 +194,7 @@ var hovered_cell: Vector2i = INVALID_COORDINATE
 var selected_cell: Vector2i = INVALID_COORDINATE
 
 var _cell_overlays: Dictionary = {}
+var _surface_effect_colors: Dictionary = {}
 var _targeting_aim_coordinates: Array[Vector2i] = []
 var _targeting_impact_coordinates: Array[Vector2i] = []
 
@@ -214,7 +215,27 @@ func _draw() -> void:
 				else enemy_side_color
 			)
 
-			draw_rect(cell_rect, base_color, true)
+			draw_rect(
+				cell_rect,
+				base_color,
+				true
+			)
+
+			if _surface_effect_colors.has(
+				coordinate
+			):
+				var surface_color: Color = (
+					_surface_effect_colors[
+						coordinate
+					]
+				)
+
+				draw_rect(
+					cell_rect,
+					surface_color,
+					true
+				)
+
 			draw_rect(
 				cell_rect,
 				grid_line_color,
@@ -526,6 +547,36 @@ func clear_selected_cell() -> void:
 	queue_redraw()
 
 
+func set_surface_effect_color(
+	coordinate: Vector2i,
+	color: Color
+) -> void:
+	if not is_valid_coordinate(
+		coordinate
+	):
+		return
+
+	_surface_effect_colors[
+		coordinate
+	] = color
+
+	queue_redraw()
+
+
+func remove_surface_effect_color(
+	coordinate: Vector2i
+) -> void:
+	_surface_effect_colors.erase(
+		coordinate
+	)
+
+	queue_redraw()
+
+
+func clear_surface_effect_colors() -> void:
+	_surface_effect_colors.clear()
+	queue_redraw()
+	
 func set_cell_overlay(
 	coordinate: Vector2i,
 	color: Color

@@ -6,6 +6,12 @@ const ENEMY_TEAM_ID: StringName = &"team_enemy"
 
 const MAX_BATTLE_LOG_LINES: int = 6
 
+const DEBUG_FIRE_SURFACE = preload(
+	"res://content/surfaces/debug/debug_fire_surface.tres"
+)
+
+const DEFEATED_VIEW_CLEANUP_DELAY: float = 0.35
+
 
 @export_group("Combatants")
 
@@ -101,7 +107,10 @@ func _ready() -> void:
 	_create_battle_state()
 	_create_action_services()
 	_create_debug_log_presenter()
+	_connect_surface_effect_signals()
+	_create_debug_surface_effects()
 	_create_combatant_presenter()
+	_connect_defeated_view_cleanup()
 	_create_action_preview_system()
 	_create_movement_runner()
 	_create_action_runner()
@@ -203,6 +212,139 @@ func _create_debug_log_presenter() -> void:
 	)
 
 
+func _connect_defeated_view_cleanup() -> void:
+	assert(
+		session != null,
+		"Defeated view cleanup requires a battle session."
+	)
+
+	assert(
+		combatant_presenter != null,
+		"Defeated view cleanup requires "
+		+"a combatant presenter."
+	)
+
+	var callback := Callable(
+		self,
+		"_on_combatant_defeated_for_presentation"
+	)
+
+	if session.is_connected(
+		&"combatant_defeated",
+		callback
+	):
+		return
+
+	session.connect(
+		&"combatant_defeated",
+		callback
+	)
+
+
+func _on_combatant_defeated_for_presentation(
+	combatant: CombatantState
+) -> void:
+	if combatant == null:
+		return
+
+	var cleanup_callback := Callable(
+		self,
+		"_remove_defeated_view_if_still_present"
+	).bind(
+		combatant.instance_id
+	)
+
+	get_tree().create_timer(
+		DEFEATED_VIEW_CLEANUP_DELAY
+	).timeout.connect(
+		cleanup_callback
+	)
+
+
+func _remove_defeated_view_if_still_present(
+	instance_id: StringName
+) -> void:
+	if combatant_presenter == null:
+		return
+
+	var view := combatant_presenter.get_view(
+		instance_id
+	)
+
+	## Обычный BattleActionRunner уже мог удалить
+	## фигурку после завершения анимации удара.
+	if view == null:
+		return
+
+	## Дополнительная защита от ошибочного удаления
+	## живого или восстановленного бойца.
+	if (
+		view.state != null
+		and view.state.is_alive
+	):
+		return
+
+	combatant_presenter.remove_view(
+		instance_id
+	)
+
+
+func _connect_surface_effect_signals() -> void:
+	assert(
+		session.surface_effect_controller != null,
+		"Battle session requires a surface controller."
+	)
+
+	session.surface_effect_controller.surface_effect_added.connect(
+		_on_surface_effect_added
+	)
+
+	session.surface_effect_controller.surface_effect_updated.connect(
+		_on_surface_effect_updated
+	)
+
+	session.surface_effect_controller.surface_effect_removed.connect(
+		_on_surface_effect_removed
+	)
+
+	session.surface_effect_controller.surface_effect_triggered.connect(
+		_on_surface_effect_triggered
+	)
+
+
+func _create_debug_surface_effects() -> void:
+	var debug_coordinates: Array[Vector2i] = [
+		Vector2i(3, 1),
+		Vector2i(4, 1),
+		Vector2i(7, 1),
+	]
+
+	for coordinate in debug_coordinates:
+		if not grid.is_inside(
+			coordinate
+		):
+			continue
+
+		var cell := grid.get_cell(
+			coordinate
+		)
+
+		if (
+			cell == null
+			or cell.has_obstacle()
+			or cell.is_occupied()
+		):
+			continue
+
+		session.surface_effect_controller.place_effect(
+			session,
+			coordinate,
+			DEBUG_FIRE_SURFACE
+		)
+
+	_refresh_surface_effect_presentation()
+
+
 func _create_combatant_presenter() -> void:
 	combatant_presenter = BattleCombatantPresenter.new(
 		grid_view,
@@ -244,6 +386,7 @@ func _create_action_preview_system() -> void:
 
 func _create_movement_runner() -> void:
 	movement_runner = BattleMovementRunner.new(
+		session,
 		movement_service,
 		combatant_presenter
 	)
@@ -378,6 +521,91 @@ func _start_battle() -> void:
 		started,
 		"Failed to start battle turn controller."
 	)
+
+
+func _on_surface_effect_added(
+	_instance: BattleSurfaceEffectInstance
+) -> void:
+	_refresh_surface_effect_presentation()
+
+
+func _on_surface_effect_updated(
+	_instance: BattleSurfaceEffectInstance
+) -> void:
+	_refresh_surface_effect_presentation()
+
+
+func _on_surface_effect_removed(
+	_coordinate: Vector2i,
+	_surface_effect_id: StringName
+) -> void:
+	_refresh_surface_effect_presentation()
+
+
+func _on_surface_effect_triggered(
+	trigger_result: BattleSurfaceTriggerResult
+) -> void:
+	debug_log_presenter.append_surface_trigger_result(
+		trigger_result
+	)
+
+	if interaction_controller != null:
+		interaction_controller.refresh_grid_overlays()
+
+
+func _refresh_surface_effect_presentation() -> void:
+	grid_view.clear_surface_effect_colors()
+
+	var surface_controller := (
+		session.surface_effect_controller
+	)
+
+	for coordinate in (
+		surface_controller
+		.get_affected_coordinates()
+	):
+		var instances := (
+			surface_controller.get_effects_at(
+				coordinate
+			)
+		)
+
+		if instances.is_empty():
+			continue
+
+		var resolved_color := (
+			instances[0]
+			.definition
+			.presentation_color
+		)
+
+		## Если на клетке несколько поверхностей,
+		## временно смешиваем их debug-цвета.
+		for instance_index in range(
+			1,
+			instances.size()
+		):
+			var instance := instances[
+				instance_index
+			]
+
+			if (
+				instance == null
+				or instance.definition == null
+			):
+				continue
+
+			resolved_color = resolved_color.lerp(
+				instance
+					.definition
+					.presentation_color,
+				0.5
+			)
+
+		grid_view.set_surface_effect_color(
+			coordinate,
+			resolved_color
+		)
 
 
 func _on_reinforcement_combatant_spawned(

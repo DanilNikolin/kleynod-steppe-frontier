@@ -561,7 +561,7 @@ func _resolve_remove_status(
 
 	result.is_successful = true
 	return result
-	
+
 func _resolve_forced_movement(
 	effect: ForcedMovementEffect,
 	source: CombatantState,
@@ -608,6 +608,32 @@ func _resolve_forced_movement(
 
 		return result
 
+	var surface_step_callback := Callable(
+		self,
+		"_on_forced_movement_surface_step"
+	).bind(
+		session
+	)
+
+	var committed := (
+		forced_movement_service
+		.commit_resolution(
+			session.grid,
+			target,
+			resolution,
+			surface_step_callback
+		)
+	)
+
+	if not committed:
+		result.failure_code = (
+			&"forced_movement_commit_failed"
+		)
+
+		return result
+
+	## Копируем данные после commit, потому что опасная
+	## клетка могла обрезать исходный путь.
 	result.movement_origin = (
 		resolution.origin
 	)
@@ -636,25 +662,52 @@ func _resolve_forced_movement(
 		resolution.block_reason
 	)
 
-	var committed := (
-		forced_movement_service
-		.commit_resolution(
-			session.grid,
-			target,
-			resolution
-		)
+	result.target_died = (
+		not target.is_alive
 	)
-
-	if not committed:
-		result.failure_code = (
-			&"forced_movement_commit_failed"
-		)
-
-		return result
 
 	result.is_successful = true
 	return result
 
+func _on_forced_movement_surface_step(
+	target: CombatantState,
+	_coordinate: Vector2i,
+	session: BattleSession
+) -> bool:
+	if (
+		session == null
+		or target == null
+		or not target.is_alive
+	):
+		return false
+
+	if session.surface_effect_controller == null:
+		return true
+
+	var trigger_results := (
+		session
+		.surface_effect_controller
+		.trigger_for_combatant(
+			session,
+			target,
+			BattleSurfaceEffectDefinition
+				.TriggerTiming
+				.ON_ENTER
+		)
+	)
+
+	if not target.is_alive:
+		return false
+
+	for trigger_result in trigger_results:
+		if (
+			trigger_result != null
+			and trigger_result.stops_movement
+		):
+			return false
+
+	return true
+	
 func _create_failure_result(
 	failure_code: StringName,
 	effect: BattleEffect,

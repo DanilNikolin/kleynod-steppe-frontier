@@ -34,6 +34,14 @@ var side_rules: BattleSideRules = BattleSideRules.new()
 var combatant_spawns: Array[CombatantSpawnDefinition] = []
 
 
+@export_group("Initial Surfaces")
+
+@export
+var surface_spawns: Array[BattleSurfaceSpawnDefinition] = []
+
+
+@export_group("Reinforcements")
+
 @export
 var reinforcement_waves: Array[BattleReinforcementWaveDefinition] = []
 
@@ -87,7 +95,11 @@ func get_validation_errors() -> PackedStringArray:
 		)
 
 	var used_instance_ids: Dictionary = {}
+	var initial_teams_by_instance_id: Dictionary = {}
+
 	var used_initial_coordinates: Dictionary = {}
+	var used_surface_ids_by_coordinate: Dictionary = {}
+
 	var used_team_ids: Dictionary = {}
 	var used_wave_ids: Dictionary = {}
 
@@ -121,10 +133,15 @@ func get_validation_errors() -> PackedStringArray:
 					"Duplicate combatant instance ID: %s."
 					% spawn.instance_id
 				)
+
 			else:
 				used_instance_ids[
 					spawn.instance_id
 				] = true
+
+				initial_teams_by_instance_id[
+					spawn.instance_id
+				] = spawn.team_id
 
 		if not is_coordinate_inside(
 			spawn.coordinate
@@ -187,6 +204,141 @@ func get_validation_errors() -> PackedStringArray:
 					% spawn.coordinate
 				)
 
+	for surface_spawn_index in range(
+		surface_spawns.size()
+	):
+		var surface_spawn := surface_spawns[
+			surface_spawn_index
+		]
+
+		if surface_spawn == null:
+			errors.append(
+				"Initial surface spawn at index %d is null."
+				% surface_spawn_index
+			)
+
+			continue
+
+		for spawn_error in (
+			surface_spawn.get_validation_errors()
+		):
+			errors.append(
+				"Initial surface spawn %d: %s"
+				% [
+					surface_spawn_index,
+					spawn_error,
+				]
+			)
+
+		if not is_coordinate_inside(
+			surface_spawn.coordinate
+		):
+			errors.append(
+				"Initial surface spawn %d has an invalid "
+				% surface_spawn_index
+				+"coordinate: %s."
+				% surface_spawn.coordinate
+			)
+
+		var surface_definition := (
+			surface_spawn.surface_definition
+		)
+
+		if (
+			surface_definition != null
+			and surface_definition.surface_effect_id
+				!= &""
+			and is_coordinate_inside(
+				surface_spawn.coordinate
+			)
+		):
+			var used_surface_ids: Dictionary = (
+				used_surface_ids_by_coordinate.get(
+					surface_spawn.coordinate,
+					{}
+				)
+			)
+
+			if used_surface_ids.has(
+				surface_definition.surface_effect_id
+			):
+				errors.append(
+					"Duplicate initial surface '%s' "
+					% surface_definition.surface_effect_id
+					+"at coordinate %s."
+					% surface_spawn.coordinate
+				)
+
+			else:
+				used_surface_ids[
+					surface_definition.surface_effect_id
+				] = true
+
+				used_surface_ids_by_coordinate[
+					surface_spawn.coordinate
+				] = used_surface_ids
+
+		if (
+			surface_spawn.source_team_id != &""
+			and side_rules != null
+			and not side_rules.is_team_supported(
+				surface_spawn.source_team_id
+			)
+		):
+			errors.append(
+				"Initial surface spawn %d uses "
+				% surface_spawn_index
+				+"unsupported source team ID: %s."
+				% surface_spawn.source_team_id
+			)
+
+		if surface_spawn.source_instance_id != &"":
+			if not initial_teams_by_instance_id.has(
+				surface_spawn.source_instance_id
+			):
+				errors.append(
+					"Initial surface spawn %d references "
+					% surface_spawn_index
+					+"unknown initial source combatant: %s."
+					% surface_spawn.source_instance_id
+				)
+
+			else:
+				var combatant_team_id: StringName = (
+					initial_teams_by_instance_id.get(
+						surface_spawn.source_instance_id,
+						&""
+					)
+				)
+
+				if (
+					surface_spawn.source_team_id != &""
+					and surface_spawn.source_team_id
+						!= combatant_team_id
+				):
+					errors.append(
+						"Initial surface spawn %d source "
+						% surface_spawn_index
+						+"team does not match combatant '%s'."
+						% surface_spawn.source_instance_id
+					)
+
+		if (
+			surface_definition != null
+			and surface_definition.target_relation
+				!= BattleSurfaceEffectDefinition
+					.TargetRelation
+					.ALL
+			and surface_spawn.source_instance_id == &""
+			and surface_spawn.source_team_id == &""
+		):
+			errors.append(
+				"Initial surface spawn %d requires "
+				% surface_spawn_index
+				+"a source combatant or source team "
+				+"for its target relation."
+			)
+			
 	for wave_index in range(
 		reinforcement_waves.size()
 	):

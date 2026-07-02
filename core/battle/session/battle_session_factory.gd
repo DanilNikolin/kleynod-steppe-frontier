@@ -30,4 +30,21 @@ func create_from_encounter(
 			session.clear()
 			return null
 
+	for surface_spawn in encounter.surface_spawns:
+		var surface_instance := (
+			session
+				.surface_effect_controller
+				.place_effect(
+					session,
+					surface_spawn.coordinate,
+					surface_spawn.surface_definition,
+					surface_spawn.source_instance_id,
+					surface_spawn.source_team_id
+				)
+		)
+
+		if surface_instance == null:
+			session.clear()
+			return null
+
 	return session

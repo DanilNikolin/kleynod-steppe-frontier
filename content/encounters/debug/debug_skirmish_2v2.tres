@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
 [ext_resource type="Resource" uid="uid://cdyjatctxc7xo" path="res://content/combatants/debug/debug_wooden_wall.tres" id="7_wall"]
 [ext_resource type="Resource" uid="uid://c1o6ssw4iet61" path="res://content/combatants/debug/debug_protected_shaman.tres" id="8_shaman"]
+[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="9_surface_spawn"]
+[ext_resource type="Resource" uid="uid://xitja7w5iofn" path="res://content/surfaces/debug/debug_fire_surface.tres" id="10_fire_surface"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")
@@ -47,6 +49,21 @@ coordinate = Vector2i(8, 2)
 [sub_resource type="Resource" id="Resource_side_rules"]
 script = ExtResource("6_side_rules")
 
+[sub_resource type="Resource" id="Resource_start_fire_1"]
+script = ExtResource("9_surface_spawn")
+surface_definition = ExtResource("10_fire_surface")
+coordinate = Vector2i(3, 1)
+
+[sub_resource type="Resource" id="Resource_start_fire_2"]
+script = ExtResource("9_surface_spawn")
+surface_definition = ExtResource("10_fire_surface")
+coordinate = Vector2i(4, 1)
+
+[sub_resource type="Resource" id="Resource_start_fire_3"]
+script = ExtResource("9_surface_spawn")
+surface_definition = ExtResource("10_fire_surface")
+coordinate = Vector2i(7, 1)
+
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
@@ -54,3 +71,4 @@ display_name = "Отладочная стычка со стеной"
 description = "Проверка абсолютной защиты бойцов за пассивным target blocker."
 side_rules = SubResource("Resource_side_rules")
 combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_player_2"), SubResource("Resource_enemy_wall"), SubResource("Resource_protected_shaman"), SubResource("Resource_enemy_2")])
+surface_spawns = Array[ExtResource("9_surface_spawn")]([SubResource("Resource_start_fire_1"), SubResource("Resource_start_fire_2"), SubResource("Resource_start_fire_3")])

@@ -6,9 +6,6 @@ const ENEMY_TEAM_ID: StringName = &"team_enemy"
 
 const MAX_BATTLE_LOG_LINES: int = 6
 
-const DEBUG_FIRE_SURFACE = preload(
-	"res://content/surfaces/debug/debug_fire_surface.tres"
-)
 
 const DEFEATED_VIEW_CLEANUP_DELAY: float = 0.35
 
@@ -112,7 +109,7 @@ func _ready() -> void:
 	_create_action_services()
 	_create_debug_log_presenter()
 	_connect_surface_effect_signals()
-	_create_debug_surface_effects()
+	_refresh_surface_effect_presentation()
 	_create_combatant_presenter()
 	_connect_defeated_view_cleanup()
 	_create_action_preview_system()
@@ -314,39 +311,6 @@ func _connect_surface_effect_signals() -> void:
 	session.surface_effect_controller.surface_effect_triggered.connect(
 		_on_surface_effect_triggered
 	)
-
-
-func _create_debug_surface_effects() -> void:
-	var debug_coordinates: Array[Vector2i] = [
-		Vector2i(3, 1),
-		Vector2i(4, 1),
-		Vector2i(7, 1),
-	]
-
-	for coordinate in debug_coordinates:
-		if not grid.is_inside(
-			coordinate
-		):
-			continue
-
-		var cell := grid.get_cell(
-			coordinate
-		)
-
-		if (
-			cell == null
-			or cell.has_obstacle()
-			or cell.is_occupied()
-		):
-			continue
-
-		session.surface_effect_controller.place_effect(
-			session,
-			coordinate,
-			DEBUG_FIRE_SURFACE
-		)
-
-	_refresh_surface_effect_presentation()
 
 
 func _create_combatant_presenter() -> void:

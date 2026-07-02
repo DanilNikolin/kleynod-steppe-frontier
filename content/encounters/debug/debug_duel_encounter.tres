@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
 [ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="4_swcsh"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_yqgsl"]
+[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="7_k3jwx"]
 
 [sub_resource type="Resource" id="Resource_hero_spawn"]
 script = ExtResource("2_spawn")

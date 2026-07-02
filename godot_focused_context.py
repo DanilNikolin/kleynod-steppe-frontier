@@ -25,17 +25,17 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/previews/battle_action_preview_service.gd",
-    "core/battle/previews/battle_target_preview.gd",
-    "presentation/battle/actions/battle_action_outcome.gd",
-    "presentation/battle/actions/battle_action_runner.gd",
-    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
-    "scenes/debug/presentation/battle_debug_log_presenter.gd",
+    "core/battle/encounters/battle_encounter_definition.gd",
+    "core/battle/encounters/combatant_spawn_definition.gd",
+    "core/battle/session/battle_session_factory.gd",
+    "core/battle/session/battle_session.gd",
+    "core/battle/surfaces/battle_surface_effect_controller.gd",
     "scenes/debug/battle_grid_sandbox.gd",
-    "content/surfaces/debug/debug_fire_surface.tres",
-    "content/abilities/debug/debug_fire_line.tres",
-    "content/loadouts/debug/debug_sechevik_loadout.tres",
+    "scenes/debug/battle_grid_sandbox.tscn",
+    "content/encounters/debug/debug_duel_encounter.tres",
+    "content/encounters/debug/debug_area_attack_encounter.tres",
+    "content/encounters/debug/debug_reinforcement_encounter.tres",
+    "content/encounters/debug/debug_skirmish_2v2.tres",
 ]
 
 

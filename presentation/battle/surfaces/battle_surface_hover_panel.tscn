@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://cn2n7l74lw3r7"]
+
+[ext_resource type="Script" uid="uid://cxqd2xv6na6t8" path="res://presentation/battle/surfaces/battle_surface_hover_panel.gd" id="1_surface_hover"]
+
+[node name="BattleSurfaceHoverPanel" type="PanelContainer" unique_id=1065704886]
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -404.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 570.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("1_surface_hover")
+
+[node name="ContentMargin" type="MarginContainer" parent="." unique_id=781145319]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin" unique_id=1411698063]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="TitleLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=414416264]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Эффекты клетки"
+
+[node name="CoordinateLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=543575114]
+layout_mode = 2
+text = "Клетка"
+
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer" unique_id=876256146]
+layout_mode = 2
+
+[node name="EffectsLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=587929965]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Описание поверхности"
+vertical_alignment = 1
+autowrap_mode = 2

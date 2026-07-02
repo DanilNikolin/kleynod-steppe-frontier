@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 [ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
 [ext_resource type="Script" uid="uid://btdu08wkb7o5t" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="8_collapse"]
+[ext_resource type="PackedScene" uid="uid://cn2n7l74lw3r7" path="res://presentation/battle/surfaces/battle_surface_hover_panel.tscn" id="9_surface_hover_panel"]
 
 [node name="BattleGridSandbox" type="Node2D" unique_id=757643817]
 script = ExtResource("1_sandbox")
@@ -92,3 +93,5 @@ offset_bottom = -255.0
 
 [node name="CombatantHoverPanel" parent="CanvasLayer" unique_id=1452797014 instance=ExtResource("7_hover_panel")]
 visible = true
+
+[node name="SurfaceHoverPanel" parent="CanvasLayer" unique_id=928729667 instance=ExtResource("9_surface_hover_panel")]

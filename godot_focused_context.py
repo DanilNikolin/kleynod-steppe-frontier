@@ -25,41 +25,31 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Нужно понять текущее хранение препятствий,
-    # занятости и данных клетки.
-    "core/battle/grid/battle_grid_cell.gd",
-    "core/battle/grid/battle_grid.gd",
-
-    # Подключим runtime-контроллер клеточных эффектов
-    # к текущей боевой сессии.
-    "core/battle/session/battle_session.gd",
-
-    # Обычное движение должно срабатывать
-    # после каждого фактически пройденного шага.
-    "core/battle/movement/battle_movement_service.gd",
-    "presentation/battle/movement/battle_movement_runner.gd",
-
-    # Файл уже менялся для общей математики push/pull.
-    # Подключим реакцию клетки после каждого шага.
-    "core/battle/movement/core/battle/movement/battle_forced_movement_service.gd",
-
-    # Нужно увидеть точный порядок начала и конца хода,
-    # а также завершения раунда.
-    "core/battle/turns/battle_turn_controller.gd",
-
-    # Здесь периодические результаты уже передаются
-    # в журнал. Добавим результаты клеточных триггеров.
+    # Нужно поставить рядом вторую панель
+    # и понять текущую структуру UI песочницы.
+    "scenes/debug/battle_grid_sandbox.tscn",
     "scenes/debug/battle_grid_sandbox.gd",
-    "scenes/debug/presentation/battle_debug_log_presenter.gd",
 
-    # Для первой простой визуализации опасной клетки.
+    # Здесь уже хранится hovered coordinate
+    # и обновляется панель бойца.
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+
+    # Возьмём визуальный и архитектурный шаблон,
+    # но не будем смешивать данные бойца и поверхности.
+    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
+    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
+
+    # Источник данных для панели.
+    "core/battle/surfaces/battle_surface_effect_definition.gd",
+    "core/battle/surfaces/battle_surface_effect_instance.gd",
+    "core/battle/surfaces/battle_surface_effect_controller.gd",
+
+    # Нужно красиво описать вложенные BattleEffect
+    # без дублирования уже существующей логики карточек.
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+
+    # Координаты наведения и размещение относительно клетки.
     "presentation/battle/grid/battle_grid_view.gd",
-    "presentation/battle/grid/battle_grid_view.tscn",
-
-    # Посмотрим, где удобнее временно поставить
-    # тестовую огненную клетку.
-    "content/encounters/debug/debug_duel_encounter.tres",
-    "content/encounters/debug/debug_skirmish_2v2.tres",
 ]
 
 

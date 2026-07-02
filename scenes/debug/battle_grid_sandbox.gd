@@ -74,6 +74,10 @@ var combatant_hover_panel: BattleCombatantHoverPanel = (
 	$CanvasLayer/CombatantHoverPanel
 )
 
+@onready
+var surface_hover_panel: BattleSurfaceHoverPanel = (
+	$CanvasLayer/SurfaceHoverPanel
+)
 
 var session: BattleSession
 var grid: BattleGrid
@@ -457,6 +461,7 @@ func _create_interaction_controller() -> void:
 			turn_controller,
 			ability_panel,
 			combatant_hover_panel,
+			surface_hover_panel,
 			movement_service,
 			targeting_service,
 			action_preview_service,
@@ -527,12 +532,14 @@ func _on_surface_effect_added(
 	_instance: BattleSurfaceEffectInstance
 ) -> void:
 	_refresh_surface_effect_presentation()
+	_refresh_surface_hover_information()
 
 
 func _on_surface_effect_updated(
 	_instance: BattleSurfaceEffectInstance
 ) -> void:
 	_refresh_surface_effect_presentation()
+	_refresh_surface_hover_information()
 
 
 func _on_surface_effect_removed(
@@ -540,6 +547,7 @@ func _on_surface_effect_removed(
 	_surface_effect_id: StringName
 ) -> void:
 	_refresh_surface_effect_presentation()
+	_refresh_surface_hover_information()
 
 
 func _on_surface_effect_triggered(
@@ -553,6 +561,12 @@ func _on_surface_effect_triggered(
 		interaction_controller.refresh_grid_overlays()
 
 
+func _refresh_surface_hover_information() -> void:
+	if interaction_controller == null:
+		return
+
+	interaction_controller.refresh_hover_panels()
+	
 func _refresh_surface_effect_presentation() -> void:
 	grid_view.clear_surface_effect_colors()
 

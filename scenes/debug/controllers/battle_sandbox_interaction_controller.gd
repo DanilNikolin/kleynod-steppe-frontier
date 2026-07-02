@@ -11,6 +11,8 @@ var turn_controller: BattleTurnController
 var ability_panel: BattleAbilityPanel
 var combatant_hover_panel: BattleCombatantHoverPanel
 
+var surface_hover_panel: BattleSurfaceHoverPanel
+
 var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
 
@@ -43,6 +45,7 @@ func _init(
 	p_turn_controller: BattleTurnController,
 	p_ability_panel: BattleAbilityPanel,
 	p_combatant_hover_panel: BattleCombatantHoverPanel,
+	p_surface_hover_panel: BattleSurfaceHoverPanel,
 	p_movement_service: BattleMovementService,
 	p_targeting_service: BattleTargetingService,
 	p_action_preview_service: BattleActionPreviewService,
@@ -79,6 +82,12 @@ func _init(
 		p_combatant_hover_panel != null,
 		"Interaction controller requires "
 		+"a combatant hover panel."
+	)
+
+	assert(
+		p_surface_hover_panel != null,
+		"Interaction controller requires "
+		+"a surface hover panel."
 	)
 
 	assert(
@@ -132,6 +141,10 @@ func _init(
 	ability_panel = p_ability_panel
 	combatant_hover_panel = (
 		p_combatant_hover_panel
+	)
+
+	surface_hover_panel = (
+		p_surface_hover_panel
 	)
 
 	movement_service = p_movement_service
@@ -204,6 +217,7 @@ func finish_battle() -> void:
 
 	ability_panel.clear_combatant()
 	combatant_hover_panel.clear_combatant()
+	surface_hover_panel.clear_surfaces()
 	grid_overlay_presenter.clear()
 
 
@@ -506,7 +520,7 @@ func on_grid_cell_hovered(
 ) -> void:
 	_hovered_coordinate = coordinate
 
-	_refresh_hover_panel()
+	refresh_hover_panels()
 
 	if not _interaction_in_progress:
 		refresh_grid_overlays()
@@ -638,7 +652,7 @@ func refresh_grid_overlays() -> void:
 		stamina_cost_per_cell
 	)
 
-	_refresh_hover_panel()
+	refresh_hover_panels()
 	_refresh_action_preview()
 
 
@@ -688,15 +702,32 @@ func _refresh_action_preview() -> void:
 		preview_result
 	)
 
-func _refresh_hover_panel() -> void:
-	if combatant_hover_panel == null:
-		return
-
+func refresh_hover_panels() -> void:
 	var hovered_combatant := (
 		_get_combatant_at_coordinate(
 			_hovered_coordinate
 		)
 	)
+
+	var has_living_combatant := (
+		hovered_combatant != null
+		and hovered_combatant.is_alive
+	)
+
+	_refresh_combatant_hover_panel(
+		hovered_combatant
+	)
+
+	_refresh_surface_hover_panel(
+		has_living_combatant
+	)
+
+
+func _refresh_combatant_hover_panel(
+	hovered_combatant: CombatantState
+) -> void:
+	if combatant_hover_panel == null:
+		return
 
 	if (
 		hovered_combatant == null
@@ -708,6 +739,40 @@ func _refresh_hover_panel() -> void:
 	combatant_hover_panel.bind_combatant(
 		hovered_combatant,
 		player_team_id
+	)
+
+
+func _refresh_surface_hover_panel(
+	has_combatant_neighbor: bool
+) -> void:
+	if surface_hover_panel == null:
+		return
+
+	if (
+		session == null
+		or session.surface_effect_controller == null
+		or _hovered_coordinate
+			== BattleGridView.INVALID_COORDINATE
+	):
+		surface_hover_panel.clear_surfaces()
+		return
+
+	var surface_instances := (
+		session
+		.surface_effect_controller
+		.get_effects_at(
+			_hovered_coordinate
+		)
+	)
+
+	if surface_instances.is_empty():
+		surface_hover_panel.clear_surfaces()
+		return
+
+	surface_hover_panel.show_surfaces(
+		_hovered_coordinate,
+		surface_instances,
+		has_combatant_neighbor
 	)
 
 func _apply_debug_status_to_hovered_combatant() -> void:

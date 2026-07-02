@@ -68,12 +68,22 @@ static func build_effects_text(
 	if ability == null:
 		return "Нет данных о способности."
 
-	if ability.effects.is_empty():
+	return build_effect_list_text(
+		ability.effects,
+		actor
+	)
+
+
+static func build_effect_list_text(
+	effects: Array[BattleEffect],
+	actor: CombatantState = null
+) -> String:
+	if effects.is_empty():
 		return "Эффекты отсутствуют."
 
 	var lines := PackedStringArray()
 
-	for effect in ability.effects:
+	for effect in effects:
 		if effect == null:
 			continue
 
@@ -446,7 +456,7 @@ static func _build_remove_status_effect_text(
 			return "• Снимает все полезные статусы"
 
 	return "• Снимает статусы"
-	
+
 static func _build_aim_target_text(
 	targeting: AbilityTargetingDefinition
 ) -> String:

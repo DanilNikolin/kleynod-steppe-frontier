@@ -114,6 +114,19 @@ var current_value: int = 0
 
 var target_died: bool = false
 
+var effect_coordinate: Vector2i = BattleGrid.INVALID_COORDINATE
+
+var surface_effect_id: StringName = &""
+var surface_display_name: String = ""
+
+var surface_was_added: bool = false
+var surface_was_updated: bool = false
+
+var surface_is_permanent: bool = false
+
+var previous_surface_remaining_rounds: int = 0
+var current_surface_remaining_rounds: int = 0
+
 var movement_origin: Vector2i = BattleGrid.INVALID_COORDINATE
 
 var movement_destination: Vector2i = BattleGrid.INVALID_COORDINATE

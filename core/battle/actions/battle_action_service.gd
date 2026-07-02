@@ -50,6 +50,9 @@ const FAILURE_EFFECT_RESOLUTION_FAILED: StringName = (
 	&"effect_resolution_failed"
 )
 
+const FAILURE_NO_AFFECTED_COORDINATES: StringName = (
+	&"no_affected_coordinates"
+)
 
 var targeting_service: BattleTargetingService
 var effect_resolver := EffectResolver.new()
@@ -109,12 +112,15 @@ func execute(
 			coordinate
 		)
 
-	for target in (
-		targeting_result.affected_combatants
+	if _has_combatant_targeted_effect(
+		command.ability
 	):
-		result.affected_target_ids.append(
-			target.instance_id
-		)
+		for target in (
+			targeting_result.affected_combatants
+		):
+			result.affected_target_ids.append(
+				target.instance_id
+			)
 
 	if not command.actor.spend_stamina(
 		command.ability.stamina_cost
@@ -129,24 +135,45 @@ func execute(
 		command.ability.stamina_cost
 	)
 
-	# Стоимость списана один раз.
-	# Эффекты применяются ко всем найденным целям.
-	for target in (
-		targeting_result.affected_combatants
+	var targets_by_coordinate := (
+		_get_targets_by_coordinate(
+			targeting_result
+		)
+	)
+
+	# Эффекты разрешаются отдельно для каждой
+	# impact-клетки и строго в заданном порядке.
+	for coordinate in (
+		targeting_result.affected_coordinates
 	):
-		if target == null or not target.is_alive:
-			continue
+		var target := (
+			targets_by_coordinate.get(
+				coordinate
+			) as CombatantState
+		)
 
 		for effect in command.ability.effects:
-			if not target.is_alive:
-				break
+			if (
+				effect_resolver
+				.requires_combatant_target(
+					effect
+				)
+			):
+				if (
+					target == null
+					or not target.is_alive
+				):
+					continue
 
 			var effect_result := (
 				effect_resolver.resolve(
 					effect,
 					command.actor,
 					target,
-					session
+					session,
+					false,
+					true,
+					coordinate
 				)
 			)
 
@@ -249,8 +276,8 @@ func _get_validation_failure(
 	):
 		return FAILURE_ABILITY_RESTRICTED
 
-	var targeting_failure := (
-		targeting_service.get_validation_failure(
+	var targeting_result := (
+		targeting_service.create_result(
 			session,
 			actor,
 			ability,
@@ -258,13 +285,8 @@ func _get_validation_failure(
 		)
 	)
 
-	if targeting_failure != &"":
-		return targeting_failure
-
-	if not actor.can_spend_stamina(
-		ability.stamina_cost
-	):
-		return FAILURE_NOT_ENOUGH_STAMINA
+	if not targeting_result.is_valid:
+		return targeting_result.failure_code
 
 	for effect in ability.effects:
 		if not effect_resolver.can_resolve(
@@ -272,8 +294,105 @@ func _get_validation_failure(
 		):
 			return FAILURE_UNSUPPORTED_EFFECT
 
+	var surface_placement_failure := (
+		_get_surface_placement_validation_failure(
+			session,
+			ability,
+			targeting_result
+		)
+	)
+
+	if surface_placement_failure != &"":
+		return surface_placement_failure
+
+	if not actor.can_spend_stamina(
+		ability.stamina_cost
+	):
+		return FAILURE_NOT_ENOUGH_STAMINA
+
 	return &""
 
+func _get_surface_placement_validation_failure(
+	session: BattleSession,
+	ability: AbilityDefinition,
+	targeting_result: BattleTargetingResult
+) -> StringName:
+	var has_surface_effect := false
+
+	for effect in ability.effects:
+		if effect is PlaceSurfaceEffect:
+			has_surface_effect = true
+			break
+
+	if not has_surface_effect:
+		return &""
+
+	if targeting_result.affected_coordinates.is_empty():
+		return FAILURE_NO_AFFECTED_COORDINATES
+
+	if session.surface_effect_controller == null:
+		return (
+			BattleSurfaceEffectController
+				.FAILURE_INVALID_SESSION
+		)
+
+	for effect in ability.effects:
+		if not effect is PlaceSurfaceEffect:
+			continue
+
+		var place_effect := (
+			effect as PlaceSurfaceEffect
+		)
+
+		for coordinate in (
+			targeting_result.affected_coordinates
+		):
+			var placement_failure := (
+				session
+				.surface_effect_controller
+				.get_placement_failure(
+					session,
+					coordinate,
+					place_effect.surface_definition
+				)
+			)
+
+			if placement_failure != &"":
+				return placement_failure
+
+	return &""
+
+
+func _has_combatant_targeted_effect(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	for effect in ability.effects:
+		if effect_resolver.requires_combatant_target(
+			effect
+		):
+			return true
+
+	return false
+
+
+func _get_targets_by_coordinate(
+	targeting_result: BattleTargetingResult
+) -> Dictionary:
+	var result: Dictionary = {}
+
+	for target in (
+		targeting_result.affected_combatants
+	):
+		if target == null:
+			continue
+
+		result[target.grid_position] = target
+
+	return result
+	
 
 func _create_result(
 	command: BattleActionCommand

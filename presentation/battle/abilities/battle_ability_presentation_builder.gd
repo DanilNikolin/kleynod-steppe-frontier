@@ -124,6 +124,13 @@ static func build_effect_list_text(
 				)
 			)
 
+		elif effect is PlaceSurfaceEffect:
+			lines.append(
+				_build_place_surface_effect_text(
+					effect as PlaceSurfaceEffect
+				)
+			)
+
 		else:
 			lines.append(
 				"• Эффект: %s"
@@ -135,6 +142,32 @@ static func build_effect_list_text(
 
 	return "\n".join(lines)
 
+
+static func _build_place_surface_effect_text(
+	effect: PlaceSurfaceEffect
+) -> String:
+	if (
+		effect == null
+		or effect.surface_definition == null
+	):
+		return "• Создаёт неизвестную поверхность."
+
+	var definition := effect.surface_definition
+
+	var duration_text := (
+		"постоянно"
+		if definition.duration_rounds == 0
+		else format_round_count(
+			definition.duration_rounds
+		)
+	)
+
+	return (
+		"• Создаёт поверхность: «%s»"
+		% definition.display_name
+		+"\n  Длительность: %s"
+		% duration_text
+	)
 
 static func _build_damage_effect_text(
 	effect: DamageEffect,
@@ -592,6 +625,28 @@ static func _format_signed_integer(
 	return str(value)
 
 
+static func format_round_count(
+	value: int
+) -> String:
+	var absolute_value := absi(value)
+	var last_two_digits := absolute_value % 100
+	var last_digit := absolute_value % 10
+
+	if (
+		last_two_digits >= 11
+		and last_two_digits <= 14
+	):
+		return "%d раундов" % value
+
+	if last_digit == 1:
+		return "%d раунд" % value
+
+	if last_digit >= 2 and last_digit <= 4:
+		return "%d раунда" % value
+
+	return "%d раундов" % value
+
+	
 static func format_turn_count(
 	value: int
 ) -> String:

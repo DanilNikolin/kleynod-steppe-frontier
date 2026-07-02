@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://bkaoo3fajq27w"]
+
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://61mnbvx5x5m0" path="res://core/battle/effects/place_surface_effect.gd" id="4_place_surface"]
+[ext_resource type="Resource" uid="uid://xitja7w5iofn" path="res://content/surfaces/debug/debug_fire_surface.tres" id="5_fire_surface"]
+
+[sub_resource type="Resource" id="Resource_place_fire"]
+script = ExtResource("4_place_surface")
+surface_definition = ExtResource("5_fire_surface")
+effect_id = &"effect_debug_place_fire_surface"
+
+[sub_resource type="Resource" id="Resource_place_fire_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 0
+aim_relation_mask = 7
+aim_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)])
+affected_relation_mask = 7
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_debug_place_fire_surface"
+display_name = "Разлить пламя"
+description = "Создаёт или обновляет отладочное пламя на выбранной клетке."
+targeting = SubResource("Resource_place_fire_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_place_fire")])

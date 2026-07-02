@@ -130,22 +130,26 @@ func execute_action(
 		.get_defeated_target_ids()
 	)
 
-	outcome.action_presented = await (
-		combatant_presenter
-		.play_action_feedback(
-			command.actor.instance_id,
-			target_ids,
-			defeated_target_ids,
-			animated
-		)
-	)
+	if target_ids.is_empty():
+		outcome.action_presented = true
 
-	if not outcome.action_presented:
-		outcome.failure_code = (
-			FAILURE_PRESENTATION_FAILED
+	else:
+		outcome.action_presented = await (
+			combatant_presenter
+			.play_action_feedback(
+				command.actor.instance_id,
+				target_ids,
+				defeated_target_ids,
+				animated
+			)
 		)
 
-		return outcome
+		if not outcome.action_presented:
+			outcome.failure_code = (
+				FAILURE_PRESENTATION_FAILED
+			)
+
+			return outcome
 
 	for effect_result in (
 		outcome.action_result

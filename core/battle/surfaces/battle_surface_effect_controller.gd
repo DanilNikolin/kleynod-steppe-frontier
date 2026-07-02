@@ -24,6 +24,18 @@ const FAILURE_INVALID_SESSION: StringName = (
 	&"invalid_session"
 )
 
+const FAILURE_INVALID_SURFACE_DEFINITION: StringName = (
+	&"invalid_surface_definition"
+)
+
+const FAILURE_INVALID_SURFACE_COORDINATE: StringName = (
+	&"invalid_surface_coordinate"
+)
+
+const FAILURE_SURFACE_CELL_HAS_OBSTACLE: StringName = (
+	&"surface_cell_has_obstacle"
+)
+
 const FAILURE_NO_EFFECTS_RESOLVED: StringName = (
 	&"no_surface_effects_resolved"
 )
@@ -35,6 +47,78 @@ var _instances_by_coordinate: Dictionary = {}
 var _current_round_number: int = 0
 
 
+func get_placement_failure(
+	session: BattleSession,
+	coordinate: Vector2i,
+	definition: BattleSurfaceEffectDefinition
+) -> StringName:
+	if (
+		session == null
+		or session.grid == null
+	):
+		return FAILURE_INVALID_SESSION
+
+	if (
+		definition == null
+		or not definition.is_valid_definition()
+	):
+		return FAILURE_INVALID_SURFACE_DEFINITION
+
+	if not session.grid.is_inside(
+		coordinate
+	):
+		return FAILURE_INVALID_SURFACE_COORDINATE
+
+	var cell := session.grid.get_cell(
+		coordinate
+	)
+
+	if cell == null:
+		return FAILURE_INVALID_SURFACE_COORDINATE
+
+	if cell.has_obstacle():
+		return FAILURE_SURFACE_CELL_HAS_OBSTACLE
+
+	return &""
+
+
+func can_place_effect(
+	session: BattleSession,
+	coordinate: Vector2i,
+	definition: BattleSurfaceEffectDefinition
+) -> bool:
+	return get_placement_failure(
+		session,
+		coordinate,
+		definition
+	) == &""
+
+
+func get_effect_at(
+	coordinate: Vector2i,
+	surface_effect_id: StringName
+) -> BattleSurfaceEffectInstance:
+	if (
+		surface_effect_id == &""
+		or not _instances_by_coordinate.has(
+			coordinate
+		)
+	):
+		return null
+
+	var instances_at_coordinate: Dictionary = (
+		_instances_by_coordinate[
+			coordinate
+		]
+	)
+
+	return (
+		instances_at_coordinate.get(
+			surface_effect_id
+		)
+		as BattleSurfaceEffectInstance
+	)
+
 func place_effect(
 	session: BattleSession,
 	coordinate: Vector2i,
@@ -42,28 +126,16 @@ func place_effect(
 	source_instance_id: StringName = &"",
 	source_team_id: StringName = &""
 ) -> BattleSurfaceEffectInstance:
-	if (
-		session == null
-		or session.grid == null
-		or definition == null
-		or not definition.is_valid_definition()
-	):
-		return null
-
-	if not session.grid.is_inside(
-		coordinate
-	):
+	if get_placement_failure(
+		session,
+		coordinate,
+		definition
+	) != &"":
 		return null
 
 	var cell := session.grid.get_cell(
 		coordinate
 	)
-
-	if (
-		cell == null
-		or cell.has_obstacle()
-	):
-		return null
 
 	var resolved_source_team_id := (
 		source_team_id

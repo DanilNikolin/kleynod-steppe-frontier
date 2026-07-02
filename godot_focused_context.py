@@ -25,31 +25,17 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Нужно поставить рядом вторую панель
-    # и понять текущую структуру UI песочницы.
-    "scenes/debug/battle_grid_sandbox.tscn",
-    "scenes/debug/battle_grid_sandbox.gd",
-
-    # Здесь уже хранится hovered coordinate
-    # и обновляется панель бойца.
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
-
-    # Возьмём визуальный и архитектурный шаблон,
-    # но не будем смешивать данные бойца и поверхности.
-    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
-    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
-
-    # Источник данных для панели.
-    "core/battle/surfaces/battle_surface_effect_definition.gd",
-    "core/battle/surfaces/battle_surface_effect_instance.gd",
-    "core/battle/surfaces/battle_surface_effect_controller.gd",
-
-    # Нужно красиво описать вложенные BattleEffect
-    # без дублирования уже существующей логики карточек.
+    "core/battle/previews/battle_action_preview_service.gd",
+    "core/battle/previews/battle_target_preview.gd",
+    "presentation/battle/actions/battle_action_outcome.gd",
+    "presentation/battle/actions/battle_action_runner.gd",
     "presentation/battle/abilities/battle_ability_presentation_builder.gd",
-
-    # Координаты наведения и размещение относительно клетки.
-    "presentation/battle/grid/battle_grid_view.gd",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "scenes/debug/presentation/battle_debug_log_presenter.gd",
+    "scenes/debug/battle_grid_sandbox.gd",
+    "content/surfaces/debug/debug_fire_surface.tres",
+    "content/abilities/debug/debug_fire_line.tres",
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
 ]
 
 

@@ -6,6 +6,9 @@ const FAILURE_INVALID_EFFECT: StringName = &"invalid_effect"
 const FAILURE_INVALID_SOURCE: StringName = &"invalid_source"
 const FAILURE_INVALID_TARGET: StringName = &"invalid_target"
 const FAILURE_UNSUPPORTED_EFFECT: StringName = &"unsupported_effect"
+const FAILURE_SURFACE_PLACEMENT_FAILED: StringName = (
+	&"surface_placement_failed"
+)
 
 const FAILURE_INVALID_STATUS_DEFINITION: StringName = (
 	&"invalid_status_definition"
@@ -51,7 +54,13 @@ func can_resolve(
 		or effect is ApplyStatusEffect
 		or effect is RemoveStatusEffect
 		or effect is ForcedMovementEffect
+		or effect is PlaceSurfaceEffect
 	)
+
+func requires_combatant_target(
+	effect: BattleEffect
+) -> bool:
+	return not effect is PlaceSurfaceEffect
 
 
 func resolve(
@@ -60,7 +69,8 @@ func resolve(
 	target: CombatantState,
 	session: BattleSession = null,
 	bypass_guard: bool = false,
-	allow_critical: bool = true
+	allow_critical: bool = true,
+	target_coordinate: Vector2i = BattleGrid.INVALID_COORDINATE
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -76,6 +86,15 @@ func resolve(
 			effect,
 			source,
 			target
+		)
+
+	if effect is PlaceSurfaceEffect:
+		return _resolve_place_surface(
+			effect as PlaceSurfaceEffect,
+			source,
+			target,
+			session,
+			target_coordinate
 		)
 
 	if target == null:
@@ -138,6 +157,113 @@ func resolve(
 	)
 
 
+func _resolve_place_surface(
+	effect: PlaceSurfaceEffect,
+	source: CombatantState,
+	target: CombatantState,
+	session: BattleSession,
+	target_coordinate: Vector2i
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"place_surface"
+
+	result.source_id = source.instance_id
+	result.effect_coordinate = target_coordinate
+
+	if target != null:
+		result.target_id = target.instance_id
+
+	if (
+		session == null
+		or session.surface_effect_controller == null
+	):
+		result.failure_code = (
+			BattleSurfaceEffectController
+				.FAILURE_INVALID_SESSION
+		)
+
+		return result
+
+	var definition := effect.surface_definition
+
+	if definition != null:
+		result.surface_effect_id = (
+			definition.surface_effect_id
+		)
+
+		result.surface_display_name = (
+			definition.display_name
+		)
+
+	var surface_controller := (
+		session.surface_effect_controller
+	)
+
+	var placement_failure := (
+		surface_controller.get_placement_failure(
+			session,
+			target_coordinate,
+			definition
+		)
+	)
+
+	if placement_failure != &"":
+		result.failure_code = placement_failure
+		return result
+
+	var existing_instance := (
+		surface_controller.get_effect_at(
+			target_coordinate,
+			definition.surface_effect_id
+		)
+	)
+
+	if existing_instance != null:
+		result.previous_surface_remaining_rounds = (
+			existing_instance.remaining_rounds
+		)
+
+	var placed_instance := (
+		surface_controller.place_effect(
+			session,
+			target_coordinate,
+			definition,
+			source.instance_id,
+			source.team_id
+		)
+	)
+
+	if placed_instance == null:
+		result.failure_code = (
+			FAILURE_SURFACE_PLACEMENT_FAILED
+		)
+
+		return result
+
+	result.surface_was_added = (
+		existing_instance == null
+	)
+
+	result.surface_was_updated = (
+		existing_instance != null
+	)
+
+	result.surface_is_permanent = (
+		placed_instance.is_permanent
+	)
+
+	result.current_surface_remaining_rounds = (
+		placed_instance.remaining_rounds
+	)
+
+	result.applied_amount = 1
+	result.is_successful = true
+
+	return result
+
+	
 func _resolve_damage(
 	effect: DamageEffect,
 	source: CombatantState,
@@ -707,7 +833,7 @@ func _on_forced_movement_surface_step(
 			return false
 
 	return true
-	
+
 func _create_failure_result(
 	failure_code: StringName,
 	effect: BattleEffect,

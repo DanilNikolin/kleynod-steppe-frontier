@@ -1198,6 +1198,30 @@ func _get_action_failure_message(
 				+"использовать способности."
 			)
 
+		BattleSurfaceEffectController.FAILURE_SURFACE_CELL_HAS_OBSTACLE:
+			return (
+				"На клетке находится препятствие. "
+				+"Поверхность здесь создать нельзя."
+			)
+
+		BattleSurfaceEffectController.FAILURE_INVALID_SURFACE_COORDINATE:
+			return (
+				"Поверхность нельзя создать "
+				+"за пределами поля."
+			)
+
+		BattleSurfaceEffectController.FAILURE_INVALID_SURFACE_DEFINITION:
+			return (
+				"Способность содержит некорректную "
+				+"поверхность."
+			)
+
+		BattleActionService.FAILURE_NO_AFFECTED_COORDINATES:
+			return (
+				"Способность не затрагивает "
+				+"ни одной клетки поля."
+			)
+
 		_:
 			return (
 				"Действие невозможно: %s."

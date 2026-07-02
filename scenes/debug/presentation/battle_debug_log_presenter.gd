@@ -361,6 +361,10 @@ func append_action_results(
 					effect_result
 				)
 
+			&"place_surface":
+				_append_place_surface_result(
+					effect_result
+				)
 
 func append_surface_trigger_result(
 	trigger_result: BattleSurfaceTriggerResult
@@ -524,6 +528,46 @@ func append_periodic_trigger_results(
 				# об изменении через status-сигналы.
 				&"apply_status":
 					pass
+
+
+func _append_place_surface_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var surface_name := (
+		effect_result.surface_display_name
+	)
+
+	if surface_name.strip_edges().is_empty():
+		surface_name = String(
+			effect_result.surface_effect_id
+		)
+
+	var action_text := "размещена"
+
+	if effect_result.surface_was_added:
+		action_text = "создана"
+
+	elif effect_result.surface_was_updated:
+		action_text = "обновлена"
+
+	var duration_text := "постоянная"
+
+	if not effect_result.surface_is_permanent:
+		duration_text = format_round_count(
+			effect_result
+				.current_surface_remaining_rounds
+		)
+
+	push_battle_log(
+		"На клетке %s %s поверхность «%s». "
+		% [
+			effect_result.effect_coordinate,
+			action_text,
+			surface_name,
+		]
+		+"Длительность: %s."
+		% duration_text
+	)
 
 
 func _append_damage_result(
@@ -1074,6 +1118,27 @@ func format_signed_integer(
 	return str(value)
 
 
+func format_round_count(
+	value: int
+) -> String:
+	var absolute_value := absi(value)
+	var last_two_digits := absolute_value % 100
+	var last_digit := absolute_value % 10
+
+	if (
+		last_two_digits >= 11
+		and last_two_digits <= 14
+	):
+		return "%d раундов" % value
+
+	if last_digit == 1:
+		return "%d раунд" % value
+
+	if last_digit >= 2 and last_digit <= 4:
+		return "%d раунда" % value
+
+	return "%d раундов" % value
+	
 func format_turn_count(
 	value: int
 ) -> String:

@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://be72dx7xe6q72"]
+
+[ext_resource type="Script" uid="uid://yp2lsb5vb7pt" path="res://presentation/battle/previews/battle_action_preview_badge.gd" id="1_badge"]
+
+[node name="BattleActionPreviewBadge" type="PanelContainer" unique_id=878772882]
+visible = false
+z_index = 100
+offset_left = -95.0
+offset_top = -16.0
+offset_right = 95.0
+offset_bottom = 16.0
+mouse_filter = 2
+script = ExtResource("1_badge")
+
+[node name="ContentMargin" type="MarginContainer" parent="." unique_id=201985948]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="ValueLabel" type="Label" parent="ContentMargin" unique_id=1081161026]
+custom_minimum_size = Vector2(176, 0)
+layout_mode = 2
+text = "HP −5"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

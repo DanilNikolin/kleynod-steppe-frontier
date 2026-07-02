@@ -421,6 +421,10 @@ func _resolve_apply_status(
 		status_definition.status_id
 	)
 
+	result.status_display_name = (
+		status_definition.display_name
+	)
+	
 	var existing_status := target.get_status(
 		status_definition.status_id
 	)

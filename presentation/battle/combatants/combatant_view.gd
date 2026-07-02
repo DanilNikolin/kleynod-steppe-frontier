@@ -75,6 +75,11 @@ var status_strip: BattleStatusStrip = (
 )
 
 @onready
+var action_preview_badge: BattleActionPreviewBadge = (
+	$IntentAnchor/BattleActionPreviewBadge
+)
+
+@onready
 var name_label: Label = (
 	$InterfaceRoot/VBoxContainer/NameLabel
 )
@@ -335,6 +340,24 @@ func refresh_from_state() -> void:
 	]
 
 
+func show_action_preview(
+	text: String
+) -> void:
+	if action_preview_badge == null:
+		return
+
+	action_preview_badge.show_preview(
+		text
+	)
+
+
+func clear_action_preview() -> void:
+	if action_preview_badge == null:
+		return
+
+	action_preview_badge.clear_preview()
+
+
 func set_selected_state(value: bool) -> void:
 	selected = value
 
@@ -499,6 +522,8 @@ func _on_morale_changed(
 
 
 func _on_died() -> void:
+	clear_action_preview()
+
 	if visual != null:
 		visual.play_death()
 

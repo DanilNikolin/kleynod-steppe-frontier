@@ -81,6 +81,7 @@ var guard_absorbed_amount: int = 0
 var guard_was_bypassed: bool = false
 
 var status_id: StringName = &""
+var status_display_name: String = ""
 
 var status_was_added: bool = false
 

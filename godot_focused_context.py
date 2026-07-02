@@ -25,38 +25,51 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # После прошлого этапа здесь используется эффективная Сила.
-    # Разделим базовый сырой урон и применение критического множителя,
-    # чтобы один случайный бросок не пересчитывался несколько раз.
-    "core/battle/damage/damage_calculator.gd",
+    # Нужно повторить реальный порядок эффектов и получение
+    # всех затронутых целей, ничего не применяя.
+    "core/battle/actions/battle_action_service.gd",
 
-    # Файл изменился после Guard.
-    # Добавим данные критического броска, множителя
-    # и урона до/после критического усиления.
+    # Файл изменился после критов.
+    # Сопоставим данные настоящего результата
+    # с будущим результатом прогноза.
     "core/battle/actions/battle_effect_result.gd",
 
-    # Файл изменился после Guard и эффективных характеристик.
-    # Здесь выполним отдельный бросок для каждого DamageEffect и цели.
+    # Получение одиночных, линейных и AoE-целей.
+    "core/battle/targeting/battle_targeting_service.gd",
+    "core/battle/targeting/battle_targeting_result.gd",
+
+    # Доступ к бойцам, сетке и состоянию боя.
+    "core/battle/session/battle_session.gd",
+
+    # Файлы изменились после критов.
+    # Прогноз должен использовать ту же математику урона,
+    # но не выполнять случайный бросок.
+    "core/battle/damage/damage_calculator.gd",
+    "core/battle/effects/damage_effect.gd",
     "core/battle/effects/effect_resolver.gd",
 
-    # Файл изменился при добавлении обхода Guard.
-    # Зафиксируем, что периодические DamageEffect
-    # всегда разрешаются без возможности крита.
-    "core/battle/statuses/battle_status_periodic_processor.gd",
+    # Точные поля эффектов, которые должен описывать прогноз.
+    "core/battle/effects/apply_status_effect.gd",
+    "core/battle/effects/forced_movement_effect.gd",
 
-    # Файл изменился после эффективных характеристик.
-    # Добавим актуальный шанс и множитель крита
-    # в карточку способности.
-    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+    # Нужны для сухого расчёта конечной клетки
+    # без фактического перемещения бойца.
+    "core/battle/movement/battle_forced_movement_resolution.gd",
+    "core/battle/movement/core/battle/movement/battle_forced_movement_service.gd",
 
-    # Файл изменился после Guard.
-    # Добавим подробный вывод фактического броска
-    # и результата крита в журнал.
-    "scenes/debug/presentation/battle_debug_log_presenter.gd",
+    # Здесь живут выбор способности, наведение и подтверждение цели.
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
 
-    # Loadout изменился после тестовых бафов и лечения.
-    # Подключим отдельную способность с гарантированным критом.
-    "content/loadouts/debug/debug_sechevik_loadout.tres",
+    # Нужно получить CombatantView каждой затронутой цели.
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
+
+    # Здесь уже существует IntentAnchor —
+    # к нему аккуратно привяжем плашку прогноза.
+    "presentation/battle/combatants/combatant_view.gd",
+    "presentation/battle/combatants/combatant_view.tscn",
+
+    # Финальное подключение preview-сервиса и presenter-а.
+    "scenes/debug/battle_grid_sandbox.gd",
 ]
 
 

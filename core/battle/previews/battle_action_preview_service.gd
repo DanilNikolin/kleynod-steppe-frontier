@@ -1,0 +1,904 @@
+class_name BattleActionPreviewService
+extends RefCounted
+
+
+const FAILURE_PREVIEW_EFFECT_FAILED: StringName = (
+	&"preview_effect_failed"
+)
+
+const FAILURE_PREVIEW_MOVEMENT_COMMIT_FAILED: StringName = (
+	&"preview_movement_commit_failed"
+)
+
+
+var action_service: BattleActionService
+
+var damage_calculator := DamageCalculator.new()
+
+var forced_movement_service := (
+	BattleForcedMovementService.new()
+)
+
+
+func _init(
+	p_action_service: BattleActionService
+) -> void:
+	assert(
+		p_action_service != null,
+		"Action preview service requires "
+		+"a battle action service."
+	)
+
+	action_service = p_action_service
+
+
+func create_preview(
+	session: BattleSession,
+	command: BattleActionCommand
+) -> BattleActionPreviewResult:
+	var result := (
+		BattleActionPreviewResult.new()
+	)
+
+	if command != null:
+		result.aim_coordinate = (
+			command.aim_coordinate
+		)
+
+		if command.actor != null:
+			result.actor_id = (
+				command.actor.instance_id
+			)
+
+		if command.ability != null:
+			result.ability_id = (
+				command.ability.ability_id
+			)
+
+	var failure_code := (
+		action_service.get_validation_failure(
+			session,
+			command
+		)
+	)
+
+	if failure_code != &"":
+		result.failure_code = failure_code
+		return result
+
+	var targeting_result := (
+		action_service.get_targeting_result(
+			session,
+			command
+		)
+	)
+
+	if not targeting_result.is_valid:
+		result.failure_code = (
+			targeting_result.failure_code
+		)
+
+		return result
+
+	var normal_simulation := _simulate(
+		session,
+		command,
+		targeting_result,
+		false
+	)
+
+	if not bool(
+		normal_simulation.get(
+			"is_valid",
+			false
+		)
+	):
+		result.failure_code = (
+			normal_simulation.get(
+				"failure_code",
+				FAILURE_PREVIEW_EFFECT_FAILED
+			)
+		)
+
+		return result
+
+	var critical_simulation := _simulate(
+		session,
+		command,
+		targeting_result,
+		true
+	)
+
+	if not bool(
+		critical_simulation.get(
+			"is_valid",
+			false
+		)
+	):
+		result.failure_code = (
+			critical_simulation.get(
+				"failure_code",
+				FAILURE_PREVIEW_EFFECT_FAILED
+			)
+		)
+
+		return result
+
+	var normal_states: Dictionary = (
+		normal_simulation[
+			"states"
+		]
+	)
+
+	var critical_states: Dictionary = (
+		critical_simulation[
+			"states"
+		]
+	)
+
+	var normal_results: Dictionary = (
+		normal_simulation[
+			"results_by_target"
+		]
+	)
+
+	var critical_results: Dictionary = (
+		critical_simulation[
+			"results_by_target"
+		]
+	)
+
+	for original_target in (
+		targeting_result.affected_combatants
+	):
+		if original_target == null:
+			continue
+
+		var target_id := (
+			original_target.instance_id
+		)
+
+		var normal_state := (
+			normal_states.get(
+				target_id
+			) as BattlePreviewCombatantState
+		)
+
+		var critical_state := (
+			critical_states.get(
+				target_id
+			) as BattlePreviewCombatantState
+		)
+
+		if (
+			normal_state == null
+			or critical_state == null
+		):
+			continue
+
+		var target_preview := (
+			BattleTargetPreview.new()
+		)
+
+		target_preview.target_id = target_id
+
+		if original_target.definition != null:
+			target_preview.display_name = (
+				original_target
+				.definition
+				.display_name
+			)
+
+		target_preview.initial_health = (
+			original_target.current_health
+		)
+
+		target_preview.initial_guard = (
+			original_target.current_guard
+		)
+
+		target_preview.initial_position = (
+			original_target.grid_position
+		)
+
+		target_preview.normal_final_health = (
+			normal_state.current_health
+		)
+
+		target_preview.normal_final_guard = (
+			normal_state.current_guard
+		)
+
+		target_preview.normal_final_position = (
+			normal_state.grid_position
+		)
+
+		target_preview.critical_final_health = (
+			critical_state.current_health
+		)
+
+		target_preview.critical_final_guard = (
+			critical_state.current_guard
+		)
+
+		target_preview.critical_final_position = (
+			critical_state.grid_position
+		)
+
+		target_preview.normal_effect_results = (
+			_get_effect_results(
+				normal_results,
+				target_id
+			)
+		)
+
+		target_preview.critical_effect_results = (
+			_get_effect_results(
+				critical_results,
+				target_id
+			)
+		)
+
+		result.target_previews.append(
+			target_preview
+		)
+
+	result.is_valid = true
+	return result
+
+
+func _simulate(
+	session: BattleSession,
+	command: BattleActionCommand,
+	targeting_result: BattleTargetingResult,
+	force_standard_critical: bool
+) -> Dictionary:
+	var preview_states: Dictionary = {}
+
+	for combatant in session.get_all_combatants():
+		if combatant == null:
+			continue
+
+		preview_states[
+			combatant.instance_id
+		] = BattlePreviewCombatantState.new(
+			combatant
+		)
+
+	var preview_grid := (
+		BattlePreviewGridState.new(
+			session
+		)
+	)
+
+	var results_by_target: Dictionary = {}
+
+	var source := (
+		preview_states.get(
+			command.actor.instance_id
+		) as BattlePreviewCombatantState
+	)
+
+	if source == null:
+		return {
+			"is_valid": false,
+			"failure_code": (
+				BattleActionService
+				.FAILURE_INVALID_ACTOR
+			),
+		}
+
+	for original_target in (
+		targeting_result.affected_combatants
+	):
+		if original_target == null:
+			continue
+
+		var target := (
+			preview_states.get(
+				original_target.instance_id
+			) as BattlePreviewCombatantState
+		)
+
+		if target == null:
+			continue
+
+		var target_results: Array[BattleEffectResult] = []
+
+		results_by_target[
+			target.instance_id
+		] = target_results
+
+		for effect in command.ability.effects:
+			if not target.is_alive:
+				break
+
+			var effect_result := _preview_effect(
+				effect,
+				source,
+				target,
+				preview_grid,
+				force_standard_critical
+			)
+
+			target_results.append(
+				effect_result
+			)
+
+			results_by_target[
+				target.instance_id
+			] = target_results
+
+			if (
+				effect_result == null
+				or not effect_result.is_successful
+			):
+				return {
+					"is_valid": false,
+					"failure_code": (
+						effect_result.failure_code
+						if effect_result != null
+						else FAILURE_PREVIEW_EFFECT_FAILED
+					),
+				}
+
+			if effect_result.target_died:
+				preview_grid.remove_occupant(
+					target.instance_id
+				)
+
+	return {
+		"is_valid": true,
+		"failure_code": &"",
+		"states": preview_states,
+		"results_by_target": (
+			results_by_target
+		),
+	}
+
+
+func _preview_effect(
+	effect: BattleEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState,
+	preview_grid: BattlePreviewGridState,
+	force_standard_critical: bool
+) -> BattleEffectResult:
+	if effect is DamageEffect:
+		return _preview_damage(
+			effect as DamageEffect,
+			source,
+			target,
+			force_standard_critical
+		)
+
+	if effect is HealEffect:
+		return _preview_heal(
+			effect as HealEffect,
+			source,
+			target
+		)
+
+	if effect is GrantGuardEffect:
+		return _preview_grant_guard(
+			effect as GrantGuardEffect,
+			source,
+			target
+		)
+
+	if effect is ApplyStatusEffect:
+		return _preview_apply_status(
+			effect as ApplyStatusEffect,
+			source,
+			target
+		)
+
+	if effect is ForcedMovementEffect:
+		return _preview_forced_movement(
+			effect as ForcedMovementEffect,
+			source,
+			target,
+			preview_grid
+		)
+
+	var result := BattleEffectResult.new()
+	result.failure_code = (
+		BattleActionService
+			.FAILURE_UNSUPPORTED_EFFECT
+	)
+
+	return result
+
+
+func _preview_damage(
+	effect: DamageEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState,
+	force_standard_critical: bool
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"damage"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.target_base_armor = target.armor
+
+	result.target_status_armor_modifier = (
+		target.get_stat_modifier_total(
+			BattleStatModifier.Stat.ARMOR
+		)
+	)
+
+	result.target_modified_armor = (
+		target.get_effective_armor()
+	)
+
+	result.armor_piercing = (
+		effect.armor_piercing
+	)
+
+	result.effective_armor = (
+		damage_calculator
+		.calculate_effective_armor_from_value(
+			target.get_effective_armor(),
+			effect
+		)
+	)
+
+	result.raw_amount_before_critical = (
+		damage_calculator
+		.calculate_raw_damage_from_strength(
+			source.get_effective_strength(),
+			effect
+		)
+	)
+
+	result.critical_was_enabled = (
+		effect.crit_mode
+		!= DamageEffect.CritMode.DISABLED
+	)
+
+	result.critical_was_guaranteed = (
+		effect.crit_mode
+		== DamageEffect.CritMode.GUARANTEED
+	)
+
+	result.critical_chance_percent = (
+		damage_calculator
+		.calculate_critical_chance_percent_from_agility(
+			source.get_effective_agility(),
+			effect,
+			true
+		)
+	)
+
+	result.critical_multiplier = (
+		effect.critical_multiplier
+	)
+
+	result.was_critical = (
+		result.critical_was_guaranteed
+		or (
+			effect.crit_mode
+				== DamageEffect.CritMode.STANDARD
+			and force_standard_critical
+			and result.critical_chance_percent > 0
+		)
+	)
+
+	result.raw_amount = (
+		result.raw_amount_before_critical
+	)
+
+	if result.was_critical:
+		result.raw_amount = (
+			damage_calculator
+			.apply_critical_multiplier(
+				result
+					.raw_amount_before_critical,
+				result.critical_multiplier
+			)
+		)
+
+	result.resolved_amount = (
+		damage_calculator
+		.calculate_resolved_damage_from_values(
+			result.effective_armor,
+			effect,
+			result.raw_amount
+		)
+	)
+
+	result.mitigated_amount = maxi(
+		0,
+		result.raw_amount
+		- result.resolved_amount
+	)
+
+	result.previous_guard = (
+		target.current_guard
+	)
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	var remaining_damage := (
+		result.resolved_amount
+	)
+
+	var absorbed_amount := mini(
+		remaining_damage,
+		target.current_guard
+	)
+
+	target.current_guard -= absorbed_amount
+	remaining_damage -= absorbed_amount
+
+	result.guard_absorbed_amount = (
+		absorbed_amount
+	)
+
+	if remaining_damage > 0:
+		var previous_health := (
+			target.current_health
+		)
+
+		target.current_health = maxi(
+			0,
+			target.current_health
+			- remaining_damage
+		)
+
+		result.applied_amount = (
+			previous_health
+			- target.current_health
+		)
+
+	result.target_died = (
+		result.previous_value > 0
+		and target.current_health == 0
+	)
+
+	if result.target_died:
+		target.current_guard = 0
+
+	result.current_guard = (
+		target.current_guard
+	)
+
+	result.current_value = (
+		target.current_health
+	)
+
+	result.is_successful = true
+	return result
+
+
+func _preview_heal(
+	effect: HealEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"heal"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	var spirit_healing := floori(
+		float(
+			source.get_effective_spirit()
+		)
+		* effect.spirit_scaling
+	)
+
+	result.raw_amount = maxi(
+		0,
+		effect.base_healing
+		+ spirit_healing
+	)
+
+	result.resolved_amount = (
+		result.raw_amount
+	)
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	target.current_health = mini(
+		target.max_health,
+		target.current_health
+		+ result.resolved_amount
+	)
+
+	result.applied_amount = (
+		target.current_health
+		- result.previous_value
+	)
+
+	result.current_value = (
+		target.current_health
+	)
+
+	result.is_successful = true
+	return result
+
+
+func _preview_grant_guard(
+	effect: GrantGuardEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"grant_guard"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = maxi(
+		0,
+		effect.guard_amount
+	)
+
+	result.resolved_amount = (
+		result.raw_amount
+	)
+
+	result.previous_guard = (
+		target.current_guard
+	)
+
+	result.previous_value = (
+		target.current_guard
+	)
+
+	target.current_guard = mini(
+		target.max_health,
+		target.current_guard
+		+ result.resolved_amount
+	)
+
+	result.applied_amount = (
+		target.current_guard
+		- result.previous_guard
+	)
+
+	result.current_guard = (
+		target.current_guard
+	)
+
+	result.current_value = (
+		target.current_guard
+	)
+
+	result.is_successful = true
+	return result
+
+
+func _preview_apply_status(
+	effect: ApplyStatusEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"apply_status"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	var status_definition := (
+		effect.status_definition
+	)
+
+	if (
+		status_definition == null
+		or not status_definition
+			.is_valid_definition()
+	):
+		result.failure_code = (
+			&"invalid_status_definition"
+		)
+
+		return result
+
+	result.status_id = (
+		status_definition.status_id
+	)
+
+	result.status_display_name = (
+		status_definition.display_name
+	)
+
+	var previous_snapshot := (
+		target.get_status_snapshot(
+			status_definition.status_id
+		)
+	)
+
+	result.status_was_added = (
+		previous_snapshot.is_empty()
+	)
+
+	if not previous_snapshot.is_empty():
+		result.previous_status_stack_count = int(
+			previous_snapshot.get(
+				"stack_count",
+				0
+			)
+		)
+
+		result.previous_status_remaining_turns = int(
+			previous_snapshot.get(
+				"remaining_turns",
+				0
+			)
+		)
+
+	result.previous_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	if not target.apply_status_definition(
+		status_definition
+	):
+		result.failure_code = (
+			&"status_application_failed"
+		)
+
+		return result
+
+	var current_snapshot := (
+		target.get_status_snapshot(
+			status_definition.status_id
+		)
+	)
+
+	result.current_status_stack_count = int(
+		current_snapshot.get(
+			"stack_count",
+			0
+		)
+	)
+
+	result.current_status_remaining_turns = int(
+		current_snapshot.get(
+			"remaining_turns",
+			0
+		)
+	)
+
+	result.current_target_effective_armor = (
+		target.get_effective_armor()
+	)
+
+	result.is_successful = true
+	return result
+
+
+func _preview_forced_movement(
+	effect: ForcedMovementEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState,
+	preview_grid: BattlePreviewGridState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"forced_movement"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.requested_movement_distance = (
+		effect.distance
+	)
+
+	result.movement_origin = (
+		target.grid_position
+	)
+
+	var resolution := (
+		forced_movement_service
+		.create_resolution_from_coordinates(
+			source.grid_position,
+			target.grid_position,
+			target.is_alive,
+			effect,
+			Callable(
+				preview_grid,
+				"is_inside"
+			),
+			Callable(
+				preview_grid,
+				"is_walkable"
+			)
+		)
+	)
+
+	if not resolution.is_valid:
+		result.failure_code = (
+			resolution.failure_code
+		)
+
+		return result
+
+	result.movement_origin = (
+		resolution.origin
+	)
+
+	result.movement_destination = (
+		resolution.destination
+	)
+
+	result.movement_direction = (
+		resolution.direction
+	)
+
+	result.movement_path = (
+		resolution.path.duplicate()
+	)
+
+	result.applied_movement_distance = (
+		resolution.get_applied_distance()
+	)
+
+	result.movement_was_blocked = (
+		resolution.was_blocked
+	)
+
+	result.movement_block_reason = (
+		resolution.block_reason
+	)
+
+	for coordinate in resolution.path:
+		if not preview_grid.try_move_occupant(
+			target.instance_id,
+			coordinate
+		):
+			result.failure_code = (
+				FAILURE_PREVIEW_MOVEMENT_COMMIT_FAILED
+			)
+
+			return result
+
+		target.grid_position = coordinate
+
+	result.is_successful = true
+	return result
+
+
+func _get_effect_results(
+	results_by_target: Dictionary,
+	target_id: StringName
+) -> Array[BattleEffectResult]:
+	var result: Array[BattleEffectResult] = []
+
+	if not results_by_target.has(
+		target_id
+	):
+		return result
+
+	for value in results_by_target[
+		target_id
+	]:
+		var effect_result := (
+			value as BattleEffectResult
+		)
+
+		if effect_result != null:
+			result.append(
+				effect_result
+			)
+
+	return result

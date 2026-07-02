@@ -93,6 +93,8 @@ var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
 var action_service: BattleActionService
 
+var action_preview_service: BattleActionPreviewService
+var action_preview_presenter: BattleActionPreviewPresenter
 
 func _ready() -> void:
 	_validate_dependencies()
@@ -100,6 +102,7 @@ func _ready() -> void:
 	_create_action_services()
 	_create_debug_log_presenter()
 	_create_combatant_presenter()
+	_create_action_preview_system()
 	_create_movement_runner()
 	_create_action_runner()
 	_create_grid_overlay_presenter()
@@ -226,6 +229,19 @@ func _create_combatant_presenter() -> void:
 		)
 
 
+func _create_action_preview_system() -> void:
+	action_preview_service = (
+		BattleActionPreviewService.new(
+			action_service
+		)
+	)
+
+	action_preview_presenter = (
+		BattleActionPreviewPresenter.new(
+			combatant_presenter
+		)
+	)
+
 func _create_movement_runner() -> void:
 	movement_runner = BattleMovementRunner.new(
 		movement_service,
@@ -300,6 +316,8 @@ func _create_interaction_controller() -> void:
 			combatant_hover_panel,
 			movement_service,
 			targeting_service,
+			action_preview_service,
+			action_preview_presenter,
 			movement_runner,
 			action_runner,
 			grid_overlay_presenter,

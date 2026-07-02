@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c7bb0h5o5mji0" path="res://presentation/battle/combatants/combatant_view.gd" id="1_view"]
 [ext_resource type="PackedScene" uid="uid://cumyipr8kc74u" path="res://presentation/battle/combatants/statuses/battle_status_strip.tscn" id="2_status_strip"]
+[ext_resource type="PackedScene" uid="uid://be72dx7xe6q72" path="res://presentation/battle/previews/battle_action_preview_badge.tscn" id="3_preview_badge"]
 
 [node name="CombatantView" type="Node2D" unique_id=1779106929]
 script = ExtResource("1_view")
@@ -17,7 +18,9 @@ position = Vector2(0, -170)
 [node name="BattleStatusStrip" parent="StatusAnchor" unique_id=598865094 instance=ExtResource("2_status_strip")]
 
 [node name="IntentAnchor" type="Node2D" parent="." unique_id=1702609525]
-position = Vector2(0, -125)
+position = Vector2(0, -240)
+
+[node name="BattleActionPreviewBadge" parent="IntentAnchor" unique_id=394898645 instance=ExtResource("3_preview_badge")]
 
 [node name="InterfaceRoot" type="Control" parent="." unique_id=344892520]
 layout_mode = 3

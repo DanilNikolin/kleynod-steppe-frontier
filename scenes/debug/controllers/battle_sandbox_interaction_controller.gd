@@ -14,6 +14,9 @@ var combatant_hover_panel: BattleCombatantHoverPanel
 var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
 
+var action_preview_service: BattleActionPreviewService
+var action_preview_presenter: BattleActionPreviewPresenter
+
 var movement_runner: BattleMovementRunner
 var action_runner: BattleActionRunner
 
@@ -42,6 +45,8 @@ func _init(
 	p_combatant_hover_panel: BattleCombatantHoverPanel,
 	p_movement_service: BattleMovementService,
 	p_targeting_service: BattleTargetingService,
+	p_action_preview_service: BattleActionPreviewService,
+	p_action_preview_presenter: BattleActionPreviewPresenter,
 	p_movement_runner: BattleMovementRunner,
 	p_action_runner: BattleActionRunner,
 	p_grid_overlay_presenter: BattleGridOverlayPresenter,
@@ -87,6 +92,18 @@ func _init(
 	)
 
 	assert(
+		p_action_preview_service != null,
+		"Interaction controller requires "
+		+"an action preview service."
+	)
+
+	assert(
+		p_action_preview_presenter != null,
+		"Interaction controller requires "
+		+"an action preview presenter."
+	)
+
+	assert(
 		p_movement_runner != null,
 		"Interaction controller requires a movement runner."
 	)
@@ -119,6 +136,13 @@ func _init(
 
 	movement_service = p_movement_service
 	targeting_service = p_targeting_service
+	action_preview_service = (
+		p_action_preview_service
+	)
+
+	action_preview_presenter = (
+		p_action_preview_presenter
+	)
 
 	movement_runner = p_movement_runner
 	action_runner = p_action_runner
@@ -159,6 +183,7 @@ func begin_player_turn(
 func begin_enemy_turn() -> void:
 	_interaction_in_progress = true
 	_selected_ability = null
+	action_preview_presenter.clear()
 
 	ability_panel.clear_combatant()
 
@@ -167,6 +192,7 @@ func begin_enemy_turn() -> void:
 func begin_skipped_turn() -> void:
 	_interaction_in_progress = true
 	_selected_ability = null
+	action_preview_presenter.clear()
 
 	ability_panel.clear_combatant()
 	grid_overlay_presenter.clear()
@@ -174,6 +200,7 @@ func begin_skipped_turn() -> void:
 func finish_battle() -> void:
 	_interaction_in_progress = false
 	_selected_ability = null
+	action_preview_presenter.clear()
 
 	ability_panel.clear_combatant()
 	combatant_hover_panel.clear_combatant()
@@ -187,6 +214,7 @@ func set_interaction_in_progress(
 
 	if value:
 		grid_overlay_presenter.clear()
+		action_preview_presenter.clear()
 	else:
 		refresh_grid_overlays()
 
@@ -611,7 +639,54 @@ func refresh_grid_overlays() -> void:
 	)
 
 	_refresh_hover_panel()
+	_refresh_action_preview()
 
+
+func _refresh_action_preview() -> void:
+	if action_preview_presenter == null:
+		return
+
+	action_preview_presenter.clear()
+
+	if (
+		_interaction_in_progress
+		or not is_player_turn()
+		or _hovered_coordinate
+			== BattleGridView.INVALID_COORDINATE
+	):
+		return
+
+	var actor := get_active_combatant()
+
+	if actor == null:
+		return
+
+	var ability := get_selected_ability_for(
+		actor
+	)
+
+	if ability == null:
+		return
+
+	var command := BattleActionCommand.new(
+		actor,
+		ability,
+		_hovered_coordinate
+	)
+
+	var preview_result := (
+		action_preview_service.create_preview(
+			session,
+			command
+		)
+	)
+
+	if not preview_result.is_valid:
+		return
+
+	action_preview_presenter.show_preview(
+		preview_result
+	)
 
 func _refresh_hover_panel() -> void:
 	if combatant_hover_panel == null:
@@ -699,6 +774,7 @@ func _try_move_active_combatant(
 
 	_interaction_in_progress = true
 	grid_overlay_presenter.clear()
+	action_preview_presenter.clear()
 
 	debug_log_presenter.set_headline(
 		"%s движется к клетке %s..."
@@ -796,6 +872,7 @@ func _try_use_ability_at(
 
 	_interaction_in_progress = true
 	grid_overlay_presenter.clear()
+	action_preview_presenter.clear()
 
 	debug_log_presenter.suspend_status_signal_logging()
 

@@ -42,27 +42,65 @@ func create_resolution(
 	target: CombatantState,
 	effect: ForcedMovementEffect
 ) -> BattleForcedMovementResolution:
-	var resolution := (
+	var invalid_resolution := (
 		BattleForcedMovementResolution.new()
 	)
 
 	if grid == null:
-		resolution.failure_code = (
+		invalid_resolution.failure_code = (
 			FAILURE_INVALID_GRID
 		)
 
-		return resolution
+		return invalid_resolution
 
 	if source == null:
-		resolution.failure_code = (
+		invalid_resolution.failure_code = (
 			FAILURE_INVALID_SOURCE
 		)
 
-		return resolution
+		return invalid_resolution
 
 	if target == null:
-		resolution.failure_code = (
+		invalid_resolution.failure_code = (
 			FAILURE_INVALID_TARGET
+		)
+
+		return invalid_resolution
+
+	return create_resolution_from_coordinates(
+		source.grid_position,
+		target.grid_position,
+		target.is_alive,
+		effect,
+		Callable(
+			grid,
+			"is_inside"
+		),
+		Callable(
+			self,
+			"_is_grid_coordinate_walkable"
+		).bind(grid)
+	)
+
+
+func create_resolution_from_coordinates(
+	source_coordinate: Vector2i,
+	target_coordinate: Vector2i,
+	target_is_alive: bool,
+	effect: ForcedMovementEffect,
+	is_inside_callback: Callable,
+	is_walkable_callback: Callable
+) -> BattleForcedMovementResolution:
+	var resolution := (
+		BattleForcedMovementResolution.new()
+	)
+
+	if (
+		not is_inside_callback.is_valid()
+		or not is_walkable_callback.is_valid()
+	):
+		resolution.failure_code = (
+			FAILURE_INVALID_GRID
 		)
 
 		return resolution
@@ -74,20 +112,22 @@ func create_resolution(
 
 		return resolution
 
-	if not target.is_alive:
+	if not target_is_alive:
 		resolution.failure_code = (
 			FAILURE_TARGET_DEAD
 		)
 
 		return resolution
 
-	resolution.origin = target.grid_position
-	resolution.destination = target.grid_position
-	resolution.requested_distance = effect.distance
+	resolution.origin = target_coordinate
+	resolution.destination = target_coordinate
+	resolution.requested_distance = (
+		effect.distance
+	)
 
 	var direction := _get_direction(
-		source.grid_position,
-		target.grid_position,
+		source_coordinate,
+		target_coordinate,
 		effect.direction_mode
 	)
 
@@ -100,7 +140,7 @@ func create_resolution(
 
 	resolution.direction = direction
 
-	var cursor := target.grid_position
+	var cursor := target_coordinate
 
 	for _step_index in range(
 		effect.distance
@@ -109,8 +149,10 @@ func create_resolution(
 			cursor + direction
 		)
 
-		if not grid.is_inside(
-			next_coordinate
+		if not bool(
+			is_inside_callback.call(
+				next_coordinate
+			)
 		):
 			resolution.was_blocked = true
 			resolution.block_reason = (
@@ -119,13 +161,10 @@ func create_resolution(
 
 			break
 
-		var next_cell := grid.get_cell(
-			next_coordinate
-		)
-
-		if (
-			next_cell == null
-			or not next_cell.is_walkable()
+		if not bool(
+			is_walkable_callback.call(
+				next_coordinate
+			)
 		):
 			resolution.was_blocked = true
 			resolution.block_reason = (
@@ -144,7 +183,6 @@ func create_resolution(
 	resolution.is_valid = true
 
 	return resolution
-
 
 func commit_resolution(
 	grid: BattleGrid,
@@ -248,6 +286,22 @@ func _to_cardinal_direction(
 	return Vector2i.ZERO
 
 
+func _is_grid_coordinate_walkable(
+	coordinate: Vector2i,
+	grid: BattleGrid
+) -> bool:
+	if grid == null:
+		return false
+
+	var cell := grid.get_cell(
+		coordinate
+	)
+
+	return (
+		cell != null
+		and cell.is_walkable()
+	)
+	
 func _rollback_movement(
 	grid: BattleGrid,
 	target: CombatantState,

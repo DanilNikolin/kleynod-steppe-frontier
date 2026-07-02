@@ -222,6 +222,17 @@ static func _append_status_lines(
 				effect_result.status_id
 			)
 
+		if (
+			effect_result
+			.status_application_blocked_by_immunity
+		):
+			lines.append(
+				"ИММУНИТЕТ: «%s»"
+				% status_name
+			)
+
+			continue
+
 		if effect_result.status_was_added:
 			lines.append(
 				"+ «%s» (%d х.)"

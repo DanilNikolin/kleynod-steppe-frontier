@@ -83,6 +83,16 @@ var guard_was_bypassed: bool = false
 var status_id: StringName = &""
 var status_display_name: String = ""
 
+## Статус не был наложен из-за постоянного иммунитета цели.
+## Сам эффект считается успешно обработанным.
+var status_application_blocked_by_immunity: bool = false
+
+## status_id или tag.
+var status_immunity_kind: StringName = &""
+
+## Конкретный status_id либо совпавший тег.
+var status_immunity_value: StringName = &""
+
 var status_was_added: bool = false
 
 var previous_status_stack_count: int = 0

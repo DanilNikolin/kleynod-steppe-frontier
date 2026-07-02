@@ -23,5 +23,7 @@ script = ExtResource("1_status")
 status_id = &"debug_bleeding"
 display_name = "Кровотечение"
 description = "Наносит 2 единицы урона в конце хода носителя."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"damage_over_time", &"bleeding"])
 duration_turns = 2
 periodic_triggers = Array[ExtResource("2_trigger")]([SubResource("Resource_end_trigger")])

@@ -161,11 +161,50 @@ func get_effective_armor() -> int:
 		)
 	)
 
+func has_status_id_immunity(
+	status_id: StringName
+) -> bool:
+	return (
+		definition != null
+		and definition.has_status_id_immunity(
+			status_id
+		)
+	)
+
+
+func get_matching_status_immunity_tag(
+	status_definition: BattleStatusDefinition
+) -> StringName:
+	if definition == null:
+		return &""
+
+	return (
+		definition
+		.get_matching_status_immunity_tag(
+			status_definition
+		)
+	)
+
+
+func is_immune_to_status(
+	status_definition: BattleStatusDefinition
+) -> bool:
+	return (
+		definition != null
+		and definition.is_immune_to_status(
+			status_definition
+		)
+	)
 
 func apply_status_definition(
 	status_definition: BattleStatusDefinition
 ) -> bool:
 	if status_definition == null:
+		return false
+
+	if is_immune_to_status(
+		status_definition
+	):
 		return false
 
 	var existing_snapshot := get_status_snapshot(

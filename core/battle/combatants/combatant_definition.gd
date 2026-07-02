@@ -33,6 +33,16 @@ var participates_in_turn_order: bool = true
 @export
 var blocks_hostile_targeting_behind: bool = false
 
+@export_group("Status Immunities")
+
+## Полный иммунитет к конкретным status_id.
+@export
+var status_immunity_ids: Array[StringName] = []
+
+## Иммунитет ко всем статусам, содержащим указанный тег.
+@export
+var status_immunity_tags: Array[StringName] = []
+
 @export_group("Primary Attributes")
 
 @export_range(0, 999, 1)
@@ -77,6 +87,51 @@ var visual_tint: Color = Color.WHITE
 @export
 var portrait: Texture2D
 
+func has_status_id_immunity(
+	status_id: StringName
+) -> bool:
+	return (
+		status_id != &""
+		and status_immunity_ids.has(
+			status_id
+		)
+	)
+
+
+func get_matching_status_immunity_tag(
+	status_definition: BattleStatusDefinition
+) -> StringName:
+	if status_definition == null:
+		return &""
+
+	for tag in status_definition.tags:
+		if (
+			tag != &""
+			and status_immunity_tags.has(
+				tag
+			)
+		):
+			return tag
+
+	return &""
+
+
+func is_immune_to_status(
+	status_definition: BattleStatusDefinition
+) -> bool:
+	if status_definition == null:
+		return false
+
+	if has_status_id_immunity(
+		status_definition.status_id
+	):
+		return true
+
+	return (
+		get_matching_status_immunity_tag(
+			status_definition
+		) != &""
+	)
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -100,6 +155,72 @@ func get_validation_errors() -> PackedStringArray:
 	if stamina_regeneration < 0:
 		errors.append("Stamina regeneration cannot be negative.")
 
+	var used_immunity_ids: Dictionary = {}
+
+	for immunity_index in range(
+		status_immunity_ids.size()
+	):
+		var immunity_id := (
+			status_immunity_ids[
+				immunity_index
+			]
+		)
+
+		if immunity_id == &"":
+			errors.append(
+				"Status immunity ID at index %d is empty."
+				% immunity_index
+			)
+
+			continue
+
+		if used_immunity_ids.has(
+			immunity_id
+		):
+			errors.append(
+				"Status immunity ID '%s' is duplicated."
+				% immunity_id
+			)
+
+			continue
+
+		used_immunity_ids[
+			immunity_id
+		] = true
+
+	var used_immunity_tags: Dictionary = {}
+
+	for immunity_index in range(
+		status_immunity_tags.size()
+	):
+		var immunity_tag := (
+			status_immunity_tags[
+				immunity_index
+			]
+		)
+
+		if immunity_tag == &"":
+			errors.append(
+				"Status immunity tag at index %d is empty."
+				% immunity_index
+			)
+
+			continue
+
+		if used_immunity_tags.has(
+			immunity_tag
+		):
+			errors.append(
+				"Status immunity tag '%s' is duplicated."
+				% immunity_tag
+			)
+
+			continue
+
+		used_immunity_tags[
+			immunity_tag
+		] = true
+		
 	if default_loadout == null:
 		errors.append(
 			"Default combatant loadout is not assigned."

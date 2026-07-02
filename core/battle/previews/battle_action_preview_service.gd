@@ -720,6 +720,34 @@ func _preview_apply_status(
 		status_definition.display_name
 	)
 
+	if target.has_status_id_immunity(
+		status_definition.status_id
+	):
+		result.status_application_blocked_by_immunity = true
+		result.status_immunity_kind = &"status_id"
+		result.status_immunity_value = (
+			status_definition.status_id
+		)
+
+		result.is_successful = true
+		return result
+
+	var matching_immunity_tag := (
+		target.get_matching_status_immunity_tag(
+			status_definition
+		)
+	)
+
+	if matching_immunity_tag != &"":
+		result.status_application_blocked_by_immunity = true
+		result.status_immunity_kind = &"tag"
+		result.status_immunity_value = (
+			matching_immunity_tag
+		)
+
+		result.is_successful = true
+		return result
+
 	var previous_snapshot := (
 		target.get_status_snapshot(
 			status_definition.status_id

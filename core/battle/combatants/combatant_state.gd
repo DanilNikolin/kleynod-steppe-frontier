@@ -616,6 +616,14 @@ func add_status(
 	if not status_definition.is_valid_definition():
 		return null
 
+	if (
+		definition != null
+		and definition.is_immune_to_status(
+			status_definition
+		)
+	):
+		return null
+
 	var existing_status := get_status(
 		status_definition.status_id
 	)

@@ -713,9 +713,49 @@ func _append_status_result(
 			target.definition.display_name
 		)
 
-	var status_name := String(
-		effect_result.status_id
+	var status_name := (
+		effect_result.status_display_name
 	)
+
+	if status_name.strip_edges().is_empty():
+		status_name = String(
+			effect_result.status_id
+		)
+
+	if (
+		effect_result
+		.status_application_blocked_by_immunity
+	):
+		var immunity_reason := ""
+
+		match effect_result.status_immunity_kind:
+			&"status_id":
+				immunity_reason = (
+					"иммунитет к конкретному статусу"
+				)
+
+			&"tag":
+				immunity_reason = (
+					"иммунитет по тегу «%s»"
+					% effect_result
+						.status_immunity_value
+				)
+
+			_:
+				immunity_reason = (
+					"постоянный иммунитет"
+				)
+
+		push_battle_log(
+			"%s: «%s» не наложено — ИММУНИТЕТ (%s)."
+			% [
+				target_name,
+				status_name,
+				immunity_reason,
+			]
+		)
+
+		return
 
 	if target != null:
 		var status := target.get_status(
@@ -851,7 +891,7 @@ func format_decimal(
 			0.01
 		)
 	)
-	
+
 
 func format_signed_integer(
 	value: int

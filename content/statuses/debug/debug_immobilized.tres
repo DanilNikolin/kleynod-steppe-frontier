@@ -14,5 +14,7 @@ script = ExtResource("1_status")
 status_id = &"debug_immobilized"
 display_name = "Обездвиживание"
 description = "Боец не может двигаться, но сохраняет возможность атаковать."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"control", &"movement_control", &"immobilized"])
 duration_turns = 2
 action_restriction = SubResource("Resource_immobilized_restriction")

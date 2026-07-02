@@ -1,7 +1,11 @@
 @tool
 class_name BattleStatusDefinition
 extends Resource
-
+enum Polarity {
+	NEUTRAL,
+	BENEFICIAL,
+	HARMFUL,
+}
 
 enum ReapplyRule {
 	REFRESH_DURATION,
@@ -21,6 +25,17 @@ var display_name: String = "Unnamed Status"
 @export_multiline
 var description: String = ""
 
+@export_group("Classification")
+
+## Общий характер статуса.
+## Используется будущими cleanse/dispel-эффектами.
+@export
+var polarity: Polarity = Polarity.NEUTRAL
+
+## Стабильные системные категории:
+## bleeding, control, stun, regeneration и другие.
+@export
+var tags: Array[StringName] = []
 
 @export_group("Lifetime")
 
@@ -55,6 +70,14 @@ var periodic_triggers: Array[BattleStatusPeriodicTrigger] = []
 var stat_modifiers: Array[BattleStatModifier] = []
 
 
+func has_tag(
+	tag: StringName
+) -> bool:
+	return (
+		tag != &""
+		and tags.has(tag)
+	)
+
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -82,6 +105,31 @@ func get_validation_errors() -> PackedStringArray:
 			"Maximum status stacks must be greater than zero."
 		)
 
+	var used_tags: Dictionary = {}
+
+	for tag_index in range(
+		tags.size()
+	):
+		var tag := tags[tag_index]
+
+		if tag == &"":
+			errors.append(
+				"Status tag at index %d is empty."
+				% tag_index
+			)
+
+			continue
+
+		if used_tags.has(tag):
+			errors.append(
+				"Status tag '%s' is duplicated."
+				% tag
+			)
+
+			continue
+
+		used_tags[tag] = true
+		
 	for modifier_index in range(
 		stat_modifiers.size()
 	):

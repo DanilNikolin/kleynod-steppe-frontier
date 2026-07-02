@@ -21,5 +21,7 @@ script = ExtResource("1_status")
 status_id = &"debug_regeneration"
 display_name = "Регенерация"
 description = "Восстанавливает 3 HP в начале хода носителя."
+polarity = 1
+tags = Array[StringName]([&"buff", &"healing_over_time", &"regeneration"])
 duration_turns = 2
 periodic_triggers = Array[ExtResource("2_trigger")]([SubResource("Resource_start_trigger")])

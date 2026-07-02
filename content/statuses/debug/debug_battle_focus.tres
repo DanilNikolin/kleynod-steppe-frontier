@@ -24,5 +24,7 @@ script = ExtResource("1_status")
 status_id = &"status_debug_battle_focus"
 display_name = "Боевой настрой"
 description = "Повышает силу на 3, ловкость на 2 и дух на 4."
+polarity = 1
+tags = Array[StringName]([&"buff", &"attribute_buff"])
 duration_turns = 2
 stat_modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_strength_modifier"), SubResource("Resource_agility_modifier"), SubResource("Resource_spirit_modifier")])

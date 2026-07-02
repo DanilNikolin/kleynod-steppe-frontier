@@ -11,6 +11,7 @@ display_name = "Отладочный шаман"
 description = "Неподвижная цель для проверки защиты за стеной. Не является утверждённым архетипом врага."
 default_loadout = ExtResource("3_loadout")
 participates_in_turn_order = false
+status_immunity_ids = Array[StringName]([&"debug_stunned"])
 base_strength = 0
 base_agility = 0
 base_spirit = 3

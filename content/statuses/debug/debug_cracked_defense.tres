@@ -13,5 +13,7 @@ script = ExtResource("1_status")
 status_id = &"status_debug_cracked_defense"
 display_name = "Расколотая защита"
 description = "Броня снижена на 2. Повторное применение обновляет длительность."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"armor_debuff"])
 duration_turns = 2
 stat_modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_armor_modifier")])

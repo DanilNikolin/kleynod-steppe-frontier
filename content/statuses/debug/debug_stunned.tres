@@ -14,4 +14,6 @@ script = ExtResource("1_status")
 status_id = &"debug_stunned"
 display_name = "Оглушение"
 description = "Боец полностью пропускает следующий ход."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"control", &"hard_control", &"stun"])
 action_restriction = SubResource("Resource_stun_restriction")

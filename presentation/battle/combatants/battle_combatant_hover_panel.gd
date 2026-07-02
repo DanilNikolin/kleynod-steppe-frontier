@@ -186,11 +186,56 @@ func refresh() -> void:
 		% _combatant.initiative
 	)
 
-	statuses_label.text = (
+	var statuses_text := (
 		_build_statuses_text()
 	)
 
+	var immunities_text := (
+		_build_immunities_text()
+	)
 
+	if not immunities_text.is_empty():
+		statuses_text += (
+			"\n\n"
+			+ immunities_text
+		)
+
+	statuses_label.text = statuses_text
+
+func _build_immunities_text() -> String:
+	if (
+		_combatant == null
+		or _combatant.definition == null
+	):
+		return ""
+
+	var definition := _combatant.definition
+	var lines := PackedStringArray()
+
+	for status_id in (
+		definition.status_immunity_ids
+	):
+		lines.append(
+			"• статус: %s"
+			% status_id
+		)
+
+	for tag in (
+		definition.status_immunity_tags
+	):
+		lines.append(
+			"• категория: %s"
+			% tag
+		)
+
+	if lines.is_empty():
+		return ""
+
+	return (
+		"Иммунитеты:\n"
+		+"\n".join(lines)
+	)
+	
 func _build_statuses_text() -> String:
 	if _combatant == null:
 		return "Статусы: нет"

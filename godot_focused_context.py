@@ -25,51 +25,54 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    # Нужно повторить реальный порядок эффектов и получение
-    # всех затронутых целей, ничего не применяя.
-    "core/battle/actions/battle_action_service.gd",
+    # После прошлого этапа здесь появились polarity, tags
+    # и их валидация. Добавим removal_priority.
+    "core/battle/statuses/battle_status_definition.gd",
 
-    # Файл изменился после критов.
-    # Сопоставим данные настоящего результата
-    # с будущим результатом прогноза.
+    # После прошлого этапа здесь появилась защитная
+    # проверка иммунитетов. Добавим выбор и удаление
+    # подходящих активных статусов.
+    "core/battle/combatants/combatant_state.gd",
+
+    # После иммунитетов здесь появились данные
+    # заблокированного наложения. Добавим результаты снятия.
     "core/battle/actions/battle_effect_result.gd",
 
-    # Получение одиночных, линейных и AoE-целей.
-    "core/battle/targeting/battle_targeting_service.gd",
-    "core/battle/targeting/battle_targeting_result.gd",
-
-    # Доступ к бойцам, сетке и состоянию боя.
-    "core/battle/session/battle_session.gd",
-
-    # Файлы изменились после критов.
-    # Прогноз должен использовать ту же математику урона,
-    # но не выполнять случайный бросок.
-    "core/battle/damage/damage_calculator.gd",
-    "core/battle/effects/damage_effect.gd",
+    # После иммунитетов изменился ApplyStatus resolver.
+    # Подключим новый RemoveStatusEffect.
     "core/battle/effects/effect_resolver.gd",
 
-    # Точные поля эффектов, которые должен описывать прогноз.
-    "core/battle/effects/apply_status_effect.gd",
-    "core/battle/effects/forced_movement_effect.gd",
+    # Актуальная preview-копия статусов.
+    # Добавим выбор и удаление снимков статусов.
+    "core/battle/previews/battle_preview_combatant_state.gd",
 
-    # Нужны для сухого расчёта конечной клетки
-    # без фактического перемещения бойца.
-    "core/battle/movement/battle_forced_movement_resolution.gd",
-    "core/battle/movement/core/battle/movement/battle_forced_movement_service.gd",
+    # Добавим сухую обработку RemoveStatusEffect.
+    "core/battle/previews/battle_action_preview_service.gd",
 
-    # Здесь живут выбор способности, наведение и подтверждение цели.
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    # Плашка должна перечислять конкретные снимаемые статусы.
+    "presentation/battle/previews/battle_action_preview_formatter.gd",
 
-    # Нужно получить CombatantView каждой затронутой цели.
-    "presentation/battle/combatants/battle_combatant_presenter.gd",
+    # Карточка способности должна объяснять
+    # фильтр и максимальное число снимаемых статусов.
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
 
-    # Здесь уже существует IntentAnchor —
-    # к нему аккуратно привяжем плашку прогноза.
-    "presentation/battle/combatants/combatant_view.gd",
-    "presentation/battle/combatants/combatant_view.tscn",
+    # Журнал должен перечислить реально снятые статусы
+    # либо сообщить, что совпадений не найдено.
+    "scenes/debug/presentation/battle_debug_log_presenter.gd",
 
-    # Финальное подключение preview-сервиса и presenter-а.
-    "scenes/debug/battle_grid_sandbox.gd",
+    # Переделаем перевязку в лечение + снятие кровотечения.
+    "content/abilities/debug/debug_bandage.tres",
+
+    # Нужны текущие статусы для назначения removal_priority.
+    "content/statuses/debug/debug_battle_focus.tres",
+    "content/statuses/debug/debug_bleeding.tres",
+    "content/statuses/debug/debug_cracked_defense.tres",
+    "content/statuses/debug/debug_immobilized.tres",
+    "content/statuses/debug/debug_regeneration.tres",
+    "content/statuses/debug/debug_stunned.tres",
+
+    # Подключим отдельные debug Cleanse и Dispel.
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
 ]
 
 

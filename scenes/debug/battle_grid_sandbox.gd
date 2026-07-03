@@ -34,6 +34,12 @@ var show_targeting_debug: bool = true
 var ai_think_delay: float = 0.35
 
 
+@export_group("AI")
+
+@export
+var use_utility_ai_runner: bool = true
+
+
 @export_group("Movement")
 
 @export_range(1, 10, 1)
@@ -92,6 +98,7 @@ var ai_controller: BasicMeleeAIController
 var ai_turn_runner: BasicMeleeAITurnRunner
 
 var utility_plan_generator: BattleAIPlanGenerator
+var utility_turn_runner: BattleUtilityAITurnRunner
 
 var debug_log_presenter: BattleDebugLogPresenter
 var interaction_controller: BattleSandboxInteractionController
@@ -402,6 +409,13 @@ func _create_ai_system() -> void:
 		)
 	)
 
+	utility_turn_runner = (
+		BattleUtilityAITurnRunner.new(
+			utility_plan_generator,
+			movement_runner,
+			action_runner
+		)
+	)
 
 func _create_reinforcement_system() -> void:
 	reinforcement_controller = (
@@ -875,24 +889,15 @@ func _run_ai_turn(
 	):
 		return
 
-	if utility_plan_generator != null:
-		var utility_report := (
-			utility_plan_generator
-			.create_report(
-				session,
-				combatant,
-				stamina_cost_per_cell
+	if use_utility_ai_runner:
+		var utility_handled: bool = await (
+			_try_run_utility_ai_turn(
+				combatant
 			)
 		)
 
-		debug_log_presenter.push_battle_log(
-			BattleAIPlanningDebugFormatter
-			.build_report_text(
-				utility_report,
-				combatant,
-				6
-			)
-		)
+		if utility_handled:
+			return
 
 	var ability := combatant.get_default_ability()
 
@@ -1004,6 +1009,153 @@ func _run_ai_turn(
 	)
 
 
+func _try_run_utility_ai_turn(
+	combatant: CombatantState
+) -> bool:
+	if (
+		utility_turn_runner == null
+		or combatant == null
+	):
+		return false
+
+	grid_overlay_presenter.clear()
+
+	var outcome := await (
+		utility_turn_runner.execute(
+			session,
+			combatant,
+			stamina_cost_per_cell,
+			animate_movement,
+			animate_actions
+		)
+	)
+
+	for report in outcome.planning_reports:
+		debug_log_presenter.push_battle_log(
+			BattleAIPlanningDebugFormatter
+			.build_report_text(
+				report,
+				combatant,
+				6
+			)
+		)
+
+	if turn_controller.is_finished:
+		interaction_controller.set_interaction_in_progress(
+			false
+		)
+
+		return true
+
+	if not outcome.is_successful:
+		if outcome.did_anything():
+			debug_log_presenter.set_headline(
+				"Utility AI: %s выполнил часть хода, "
+				% combatant.definition.display_name
+				+"но остановился с ошибкой: %s."
+				% outcome.failure_code
+			)
+
+			interaction_controller.refresh_grid_overlays()
+
+			_finish_ai_turn(
+				combatant
+			)
+
+			return true
+
+		## Если новый runner даже не начал действие,
+		## отдаём ход старому BasicMeleeAI fallback.
+		debug_log_presenter.push_battle_log(
+			"Utility AI fallback: %s"
+			% outcome.failure_code
+		)
+
+		return false
+
+	_set_utility_ai_headline(
+		combatant,
+		outcome
+	)
+
+	interaction_controller.refresh_grid_overlays()
+
+	_finish_ai_turn(
+		combatant
+	)
+
+	return true
+
+
+func _set_utility_ai_headline(
+	combatant: CombatantState,
+	outcome: BattleUtilityAITurnOutcome
+) -> void:
+	if combatant == null or outcome == null:
+		return
+
+	if outcome.did_act():
+		var action_plan := (
+			outcome.get_last_action_plan()
+		)
+
+		var ability_name := "способность"
+
+		if (
+			action_plan != null
+			and action_plan.ability != null
+		):
+			ability_name = (
+				action_plan.ability.display_name
+			)
+
+		debug_log_presenter.set_headline(
+			"%s выбирает Utility AI: «%s». "
+			% [
+				combatant.definition.display_name,
+				ability_name,
+			]
+			+"Действий: %d. Урон: %d. "
+			% [
+				outcome.get_action_count(),
+				outcome.get_damage_dealt(),
+			]
+			+"Пройдено клеток: %d. "
+			% outcome.get_movement_step_count()
+			+"Выносливость: %d/%d."
+			% [
+				combatant.current_stamina,
+				combatant.max_stamina,
+			]
+		)
+
+		return
+
+	if outcome.did_move():
+		debug_log_presenter.set_headline(
+			"%s выбирает Utility AI: перемещение. "
+			% combatant.definition.display_name
+			+"Пройдено клеток: %d. "
+			% outcome.get_movement_step_count()
+			+"Выносливость: %d/%d. "
+			% [
+				combatant.current_stamina,
+				combatant.max_stamina,
+			]
+			+"Последний score: %.1f."
+			% outcome.get_last_score()
+		)
+
+		return
+
+	debug_log_presenter.set_headline(
+		"%s выбирает Utility AI: завершает ход (%s)."
+		% [
+			combatant.definition.display_name,
+			outcome.stop_reason,
+		]
+	)
+	
 func _is_combatant_still_active(
 	combatant: CombatantState
 ) -> bool:

@@ -26,14 +26,16 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/abilities/ability_definition.gd",
-    "core/battle/actions/battle_action_result.gd",
-    "presentation/battle/actions/battle_action_runner.gd",
-    "presentation/battle/combatants/battle_combatant_presenter.gd",
-    "presentation/battle/combatants/combatant_visual.gd",
-    "presentation/battle/combatants/placeholder_combatant_visual.tscn",
-    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
-    "scenes/debug/battle_grid_sandbox.gd",
+    "core/battle/ai/basic_melee_ai_controller.gd",
+    "core/battle/ai/basic_melee_ai_turn_plan.gd",
+    "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
+    "presentation/battle/ai/basic_melee_ai_turn_outcome.gd",
+    "core/battle/session/battle_session.gd",
+    "core/battle/combatants/combatant_state.gd",
+    "core/battle/loadouts/combatant_loadout_definition.gd",
+    "core/battle/turns/battle_turn_controller.gd",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "scenes/debug/presentation/battle_debug_log_presenter.gd",
 ]
 
 ALLOW_ADDONS = False

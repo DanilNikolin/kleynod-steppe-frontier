@@ -91,6 +91,8 @@ var reinforcement_controller: BattleReinforcementController
 var ai_controller: BasicMeleeAIController
 var ai_turn_runner: BasicMeleeAITurnRunner
 
+var utility_plan_generator: BattleAIPlanGenerator
+
 var debug_log_presenter: BattleDebugLogPresenter
 var interaction_controller: BattleSandboxInteractionController
 
@@ -390,6 +392,14 @@ func _create_ai_system() -> void:
 	ai_turn_runner = BasicMeleeAITurnRunner.new(
 		movement_runner,
 		action_runner
+	)
+
+	utility_plan_generator = (
+		BattleAIPlanGenerator.new(
+			movement_service,
+			action_service,
+			targeting_service
+		)
 	)
 
 
@@ -864,6 +874,25 @@ func _run_ai_turn(
 		combatant
 	):
 		return
+
+	if utility_plan_generator != null:
+		var utility_report := (
+			utility_plan_generator
+			.create_report(
+				session,
+				combatant,
+				stamina_cost_per_cell
+			)
+		)
+
+		debug_log_presenter.push_battle_log(
+			BattleAIPlanningDebugFormatter
+			.build_report_text(
+				utility_report,
+				combatant,
+				6
+			)
+		)
 
 	var ability := combatant.get_default_ability()
 

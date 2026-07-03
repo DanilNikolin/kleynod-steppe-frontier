@@ -142,16 +142,21 @@ func execute_action(
 	if not relocation_results.is_empty():
 		outcome.action_presented = true
 
-	elif target_ids.is_empty():
-		outcome.action_presented = true
-
 	else:
+		var presentation_profile := (
+			_get_ability_presentation_profile(
+				command.ability
+			)
+		)
+
 		outcome.action_presented = await (
 			combatant_presenter
-			.play_action_feedback(
+			.play_ability_feedback(
 				command.actor.instance_id,
 				target_ids,
 				defeated_target_ids,
+				outcome.action_result,
+				presentation_profile,
 				animated
 			)
 		)
@@ -198,7 +203,7 @@ func execute_action(
 			)
 
 			return outcome
-			
+
 	for effect_result in (
 		outcome.action_result
 		.get_forced_movement_results()
@@ -253,3 +258,18 @@ func execute_action(
 
 	outcome.is_successful = true
 	return outcome
+
+func _get_ability_presentation_profile(
+	ability: AbilityDefinition
+) -> BattleAbilityPresentationProfile:
+	if (
+		ability != null
+		and ability.presentation_profile
+			is BattleAbilityPresentationProfile
+	):
+		return (
+			ability.presentation_profile
+			as BattleAbilityPresentationProfile
+		)
+
+	return BattleAbilityPresentationProfile.new()

@@ -26,12 +26,14 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/actions/battle_action_service.gd",
-    "core/battle/effects/effect_resolver.gd",
-    "core/battle/previews/battle_action_preview_service.gd",
+    "core/battle/abilities/ability_definition.gd",
+    "core/battle/actions/battle_action_result.gd",
     "presentation/battle/actions/battle_action_runner.gd",
-    "presentation/battle/previews/battle_action_preview_formatter.gd",
-    "content/loadouts/debug/debug_sechevik_loadout.tres",
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
+    "presentation/battle/combatants/combatant_visual.gd",
+    "presentation/battle/combatants/placeholder_combatant_visual.tscn",
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+    "scenes/debug/battle_grid_sandbox.gd",
 ]
 
 ALLOW_ADDONS = False

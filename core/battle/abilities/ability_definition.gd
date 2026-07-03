@@ -40,6 +40,12 @@ var targeting: AbilityTargetingDefinition
 @export
 var effects: Array[BattleEffect] = []
 
+@export_group("Presentation")
+
+## Необязательный presentation-layer Resource.
+## Combat Core его не читает и не интерпретирует.
+@export
+var presentation_profile: Resource
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()

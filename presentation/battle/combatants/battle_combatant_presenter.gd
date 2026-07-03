@@ -1,6 +1,19 @@
 class_name BattleCombatantPresenter
 extends RefCounted
 
+signal vfx_requested(
+	vfx_id: StringName,
+	global_position: Vector2,
+	source_id: StringName,
+	target_id: StringName
+)
+
+signal sound_requested(
+	sound_id: StringName,
+	global_position: Vector2,
+	source_id: StringName
+)
+
 
 var grid_view: BattleGridView
 var combatant_layer: Node2D
@@ -319,7 +332,7 @@ func present_teleport(
 	view.modulate = original_modulate
 
 	return true
-	
+
 func face_toward(
 	actor_id: StringName,
 	target_id: StringName
@@ -342,10 +355,12 @@ func face_toward(
 	return true
 
 
-func play_action_feedback(
+func play_ability_feedback(
 	actor_id: StringName,
 	target_ids: Array[StringName],
-	defeated_target_ids: Array[StringName] = [],
+	defeated_target_ids: Array[StringName],
+	action_result: BattleActionResult,
+	profile: BattleAbilityPresentationProfile,
 	animated: bool = true
 ) -> bool:
 	var actor_view := get_view(
@@ -355,10 +370,26 @@ func play_action_feedback(
 	if actor_view == null:
 		return false
 
+	var resolved_profile := profile
+
+	if resolved_profile == null:
+		resolved_profile = (
+			BattleAbilityPresentationProfile.new()
+		)
+
+	var feedback_kind := (
+		resolved_profile.resolve_feedback_kind(
+			action_result
+		)
+	)
+
 	var target_views: Array[CombatantView] = []
-	var original_modulates: Array[Color] = []
+	var target_view_ids: Array[StringName] = []
 
 	for target_id in target_ids:
+		if target_id == &"":
+			continue
+
 		var target_view := get_view(
 			target_id
 		)
@@ -366,43 +397,155 @@ func play_action_feedback(
 		if target_view == null:
 			return false
 
+		if target_views.has(
+			target_view
+		):
+			continue
+
 		target_views.append(
 			target_view
 		)
 
-		original_modulates.append(
-			target_view.modulate
+		target_view_ids.append(
+			target_id
 		)
 
-	if not target_ids.is_empty():
+	for target_id in target_view_ids:
+		if target_id == actor_id:
+			continue
+
 		face_toward(
 			actor_id,
-			target_ids[0]
+			target_id
 		)
 
+		break
+
+	var actor_animation := (
+		resolved_profile
+		.get_actor_animation_key(
+			feedback_kind
+		)
+	)
+
 	actor_view.play_visual_animation(
-		&"attack",
+		actor_animation,
 		&"idle"
 	)
 
+	var target_animation := (
+		resolved_profile
+		.get_target_animation_key(
+			feedback_kind
+		)
+	)
+
 	for target_view in target_views:
+		## Не перебиваем анимацию самого применяющего,
+		## если способность направлена на себя.
+		if target_view == actor_view:
+			continue
+
 		target_view.play_visual_animation(
-			&"hit",
+			target_animation,
 			&"idle"
 		)
 
+	var feedback_views: Array[CombatantView] = []
+	var feedback_view_ids: Array[StringName] = []
+
+	for target_index in range(
+		target_views.size()
+	):
+		feedback_views.append(
+			target_views[target_index]
+		)
+
+		feedback_view_ids.append(
+			target_view_ids[target_index]
+		)
+
+	## Координатные способности вроде PlaceSurfaceEffect
+	## не имеют target_id, поэтому показываем импульс
+	## на самом применяющем.
+	if (
+		feedback_views.is_empty()
+		and feedback_kind
+			!= BattleAbilityPresentationProfile
+				.FeedbackKind
+				.NONE
+	):
+		feedback_views.append(
+			actor_view
+		)
+
+		feedback_view_ids.append(
+			actor_id
+		)
+
+	_emit_ability_presentation_hooks(
+		actor_view,
+		actor_id,
+		feedback_views,
+		feedback_view_ids,
+		resolved_profile
+	)
+
 	if not animated:
-		_finish_action_feedback(
+		_finish_ability_feedback(
 			actor_view,
+			actor_id,
 			target_views,
+			target_view_ids,
 			defeated_target_ids
 		)
 
 		return true
 
-	var tween := (
-		combatant_layer.create_tween()
+	var original_modulates: Array[Color] = []
+	var flash_modulates: Array[Color] = []
+
+	var base_flash_color := (
+		resolved_profile.get_flash_color(
+			feedback_kind
+		)
 	)
+
+	for feedback_view in feedback_views:
+		original_modulates.append(
+			feedback_view.modulate
+		)
+
+		var flash_color := base_flash_color
+
+		flash_color.a = (
+			feedback_view.modulate.a
+		)
+
+		flash_modulates.append(
+			flash_color
+		)
+
+	var primary_target_view: CombatantView
+
+	for target_view in target_views:
+		if target_view == actor_view:
+			continue
+
+		primary_target_view = target_view
+		break
+
+	var should_lunge := (
+		primary_target_view != null
+		and resolved_profile
+			.should_use_actor_lunge(
+				feedback_kind
+			)
+	)
+
+	var actor_start := actor_view.position
+
+	var tween := combatant_layer.create_tween()
 
 	tween.set_trans(
 		Tween.TRANS_QUAD
@@ -412,20 +555,7 @@ func play_action_feedback(
 		Tween.EASE_OUT
 	)
 
-	if target_views.is_empty():
-		tween.tween_interval(
-			0.08
-		)
-
-	else:
-		var actor_start := (
-			actor_view.position
-		)
-
-		var primary_target_view := (
-			target_views[0]
-		)
-
+	if should_lunge:
 		var direction := (
 			primary_target_view.position
 			- actor_view.position
@@ -434,23 +564,33 @@ func play_action_feedback(
 		tween.tween_property(
 			actor_view,
 			"position",
-			actor_start + direction * 22.0,
+			actor_start
+				+ direction
+				* resolved_profile
+					.lunge_distance,
 			0.08
 		)
 
-		for target_view in target_views:
-			tween.parallel().tween_property(
-				target_view,
-				"modulate",
-				Color(
-					1.0,
-					0.28,
-					0.22,
-					1.0
-				),
-				0.06
-			)
+	else:
+		tween.tween_interval(
+			0.05
+		)
 
+	for feedback_index in range(
+		feedback_views.size()
+	):
+		tween.parallel().tween_property(
+			feedback_views[
+				feedback_index
+			],
+			"modulate",
+			flash_modulates[
+				feedback_index
+			],
+			0.06
+		)
+
+	if should_lunge:
 		tween.tween_property(
 			actor_view,
 			"position",
@@ -458,33 +598,129 @@ func play_action_feedback(
 			0.11
 		)
 
-		for target_index in range(
-			target_views.size()
-		):
-			var target_view := (
-				target_views[
-					target_index
-				]
-			)
+	else:
+		tween.tween_interval(
+			0.08
+		)
 
-			tween.parallel().tween_property(
-				target_view,
-				"modulate",
-				original_modulates[
-					target_index
-				],
-				0.11
-			)
+	for feedback_index in range(
+		feedback_views.size()
+	):
+		tween.parallel().tween_property(
+			feedback_views[
+				feedback_index
+			],
+			"modulate",
+			original_modulates[
+				feedback_index
+			],
+			0.11
+		)
 
 	await tween.finished
 
-	_finish_action_feedback(
+	_finish_ability_feedback(
 		actor_view,
+		actor_id,
 		target_views,
+		target_view_ids,
 		defeated_target_ids
 	)
 
 	return true
+
+
+## Совместимый переходный метод для уже существующих вызовов.
+func play_action_feedback(
+	actor_id: StringName,
+	target_ids: Array[StringName],
+	defeated_target_ids: Array[StringName] = [],
+	animated: bool = true
+) -> bool:
+	var default_profile := (
+		BattleAbilityPresentationProfile.new()
+	)
+
+	default_profile.feedback_kind = (
+		BattleAbilityPresentationProfile
+			.FeedbackKind
+			.DAMAGE
+	)
+
+	return await play_ability_feedback(
+		actor_id,
+		target_ids,
+		defeated_target_ids,
+		null,
+		default_profile,
+		animated
+	)
+
+
+func _emit_ability_presentation_hooks(
+	actor_view: CombatantView,
+	actor_id: StringName,
+	feedback_views: Array[CombatantView],
+	feedback_view_ids: Array[StringName],
+	profile: BattleAbilityPresentationProfile
+) -> void:
+	if actor_view == null or profile == null:
+		return
+
+	if profile.sound_id != &"":
+		sound_requested.emit(
+			profile.sound_id,
+			_get_effects_anchor_position(
+				actor_view
+			),
+			actor_id
+		)
+
+	if profile.impact_vfx_id == &"":
+		return
+
+	if feedback_views.is_empty():
+		vfx_requested.emit(
+			profile.impact_vfx_id,
+			_get_effects_anchor_position(
+				actor_view
+			),
+			actor_id,
+			&""
+		)
+
+		return
+
+	for feedback_index in range(
+		feedback_views.size()
+	):
+		vfx_requested.emit(
+			profile.impact_vfx_id,
+			_get_effects_anchor_position(
+				feedback_views[
+					feedback_index
+				]
+			),
+			actor_id,
+			feedback_view_ids[
+				feedback_index
+			]
+		)
+
+
+func _get_effects_anchor_position(
+	view: CombatantView
+) -> Vector2:
+	if view == null:
+		return Vector2.ZERO
+
+	if view.visual != null:
+		return (
+			view.visual
+			.get_effects_anchor_global_position()
+		)
+
+	return view.global_position
 
 
 func remove_view(instance_id: StringName) -> bool:
@@ -504,36 +740,59 @@ func clear() -> void:
 		remove_view(instance_id)
 
 
-func _finish_action_feedback(
+func _finish_ability_feedback(
 	actor_view: CombatantView,
+	actor_id: StringName,
 	target_views: Array[CombatantView],
+	target_view_ids: Array[StringName],
 	defeated_target_ids: Array[StringName]
 ) -> void:
+	var defeated_lookup: Dictionary = {}
+
+	for defeated_id in defeated_target_ids:
+		defeated_lookup[
+			defeated_id
+		] = true
+
 	if is_instance_valid(
 		actor_view
 	):
-		actor_view.play_visual_animation(
-			&"idle",
-			&""
+		if defeated_lookup.has(
+			actor_id
+		):
+			actor_view.play_visual_animation(
+				&"death",
+				&""
+			)
+
+		else:
+			actor_view.play_visual_animation(
+				&"idle",
+				&""
+			)
+
+	for target_index in range(
+		target_views.size()
+	):
+		var target_view := (
+			target_views[
+				target_index
+			]
 		)
 
-	var defeated_lookup: Dictionary = {}
-
-	for target_id in defeated_target_ids:
-		defeated_lookup[target_id] = true
-
-	for target_view in target_views:
 		if not is_instance_valid(
 			target_view
 		):
 			continue
 
-		var target_id: StringName = &""
+		if target_view == actor_view:
+			continue
 
-		if target_view.state != null:
-			target_id = (
-				target_view.state.instance_id
-			)
+		var target_id := (
+			target_view_ids[
+				target_index
+			]
+		)
 
 		if defeated_lookup.has(
 			target_id

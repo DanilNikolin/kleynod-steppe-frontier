@@ -52,6 +52,26 @@ static func build_report_text(
 		% report.rejected_candidate_count
 	)
 
+	if report.selected_plan != null:
+		lines.append(
+			"Лучший: %s"
+			% _build_plan_text(
+				report.selected_plan
+			)
+		)
+
+		var score_text := (
+			_build_score_breakdown_text(
+				report.selected_plan
+			)
+		)
+
+		if not score_text.is_empty():
+			lines.append(
+				"Score: %s"
+				% score_text
+			)
+
 	var shown_count := mini(
 		maxi(
 			0,
@@ -183,9 +203,8 @@ static func _build_plan_text(
 	var parts := PackedStringArray()
 
 	if plan.is_wait():
-		return (
-			"ожидание · остаток %d"
-			% plan.remaining_stamina
+		parts.append(
+			"ожидание"
 		)
 
 	if plan.has_movement():
@@ -271,6 +290,11 @@ static func _build_plan_text(
 	)
 
 	_append_simulation_summary(
+		parts,
+		plan
+	)
+
+	_append_score_summary(
 		parts,
 		plan
 	)
@@ -366,6 +390,64 @@ static func _append_simulation_summary(
 
 	parts.append(
 		"sim ✓"
+	)
+
+static func _append_score_summary(
+	parts: PackedStringArray,
+	plan: BattleAIPlan
+) -> void:
+	if plan == null:
+		return
+
+	parts.append(
+		"score %.1f"
+		% plan.get_score()
+	)
+
+
+static func _build_score_breakdown_text(
+	plan: BattleAIPlan
+) -> String:
+	if (
+		plan == null
+		or plan.score_breakdown == null
+	):
+		return ""
+
+	var component_ids := (
+		plan.score_breakdown
+			.get_component_ids()
+	)
+
+	if component_ids.is_empty():
+		return "0"
+
+	var parts := PackedStringArray()
+
+	for component_id in component_ids:
+		var value := (
+			plan.score_breakdown
+				.get_score(
+					component_id
+				)
+		)
+
+		var sign := ""
+
+		if value > 0.0:
+			sign = "+"
+
+		parts.append(
+			"%s %s%.1f"
+			% [
+				String(component_id),
+				sign,
+				value,
+			]
+		)
+
+	return ", ".join(
+		parts
 	)
 	
 static func _format_coordinate(

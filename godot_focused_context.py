@@ -26,31 +26,12 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/actions/battle_action_result.gd",
-    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/ai/utility/battle_ai_score_breakdown.gd",
+    "core/battle/ai/utility/battle_ai_plan.gd",
+    "core/battle/ai/utility/battle_ai_plan_generator.gd",
+    "core/battle/ai/utility/battle_ai_planning_report.gd",
 
-    "core/battle/effects/battle_effect.gd",
-    "core/battle/effects/effect_resolver.gd",
-    "core/battle/effects/damage_effect.gd",
-    "core/battle/effects/heal_effect.gd",
-    "core/battle/effects/grant_guard_effect.gd",
-    "core/battle/effects/apply_status_effect.gd",
-    "core/battle/effects/remove_status_effect.gd",
-    "core/battle/effects/forced_movement_effect.gd",
-    "core/battle/effects/place_surface_effect.gd",
-    "core/battle/effects/swap_positions_effect.gd",
-    "core/battle/effects/teleport_effect.gd",
-
-    "core/battle/movement/battle_forced_movement_resolution.gd",
-    "core/battle/movement/core/battle/movement/battle_forced_movement_service.gd",
-    "core/battle/movement/battle_relocation_result.gd",
-
-    "core/battle/previews/battle_action_preview_service.gd",
-    "core/battle/previews/battle_target_preview.gd",
-    "core/battle/previews/battle_surface_placement_preview.gd",
-
-    "core/battle/surfaces/battle_surface_trigger_result.gd",
-    "core/battle/surfaces/battle_surface_effect_controller.gd",
+    "presentation/battle/ai/battle_ai_planning_debug_formatter.gd",
 ]
 
 ALLOW_ADDONS = False

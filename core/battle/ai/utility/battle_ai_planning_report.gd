@@ -60,6 +60,22 @@ func sort_plans() -> void:
 	)
 
 
+func select_best_plan() -> void:
+	selected_plan = null
+
+	for plan in plans:
+		if plan == null or not plan.is_valid:
+			continue
+
+		if (
+			selected_plan == null
+			or _is_plan_before(
+				plan,
+				selected_plan
+			)
+		):
+			selected_plan = plan
+
 func get_wait_plan_count() -> int:
 	var result := 0
 
@@ -159,6 +175,15 @@ func _is_plan_before(
 
 	if second == null:
 		return true
+
+	var first_score := first.get_score()
+	var second_score := second.get_score()
+
+	if not is_equal_approx(
+		first_score,
+		second_score
+	):
+		return first_score > second_score
 
 	return (
 		first.get_stable_sort_key()

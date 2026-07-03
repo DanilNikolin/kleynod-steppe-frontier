@@ -55,6 +55,7 @@ var movement_service: BattleMovementService
 var action_service: BattleActionService
 var targeting_service: BattleTargetingService
 var simulation_service: BattleActionSimulationService
+var plan_evaluator: BattleAIPlanEvaluator
 
 
 func _init(
@@ -89,7 +90,9 @@ func _init(
 			action_service
 		)
 	)
-
+	plan_evaluator = (
+		BattleAIPlanEvaluator.new()
+	)
 
 func create_report(
 	session: BattleSession,
@@ -152,7 +155,13 @@ func create_report(
 		session
 	)
 
+	_evaluate_plans(
+		report
+	)
+
 	report.sort_plans()
+	report.select_best_plan()
+
 	report.is_valid = true
 
 	return report
@@ -601,6 +610,23 @@ func _simulate_plans(
 			)
 		)
 
+func _evaluate_plans(
+	report: BattleAIPlanningReport
+) -> void:
+	if (
+		report == null
+		or plan_evaluator == null
+	):
+		return
+
+	for plan in report.plans:
+		if plan == null or not plan.is_valid:
+			continue
+
+		plan_evaluator.evaluate_plan(
+			plan
+		)
+		
 func _create_base_plan(
 	actor: CombatantState
 ) -> BattleAIPlan:

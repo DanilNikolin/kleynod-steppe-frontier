@@ -276,6 +276,53 @@ func clear() -> void:
 	grid.clear()
 
 
+func create_runtime_copy() -> BattleSession:
+	if grid == null:
+		return null
+
+	var result := BattleSession.new(
+		grid.rows,
+		grid.columns,
+		side_rules
+	)
+
+	result.grid = grid.create_runtime_copy()
+
+	if surface_effect_controller != null:
+		result.surface_effect_controller = (
+			surface_effect_controller
+				.create_runtime_copy()
+		)
+
+	for combatant in get_all_combatants():
+		if combatant == null:
+			continue
+
+		var combatant_copy := (
+			combatant.create_runtime_copy()
+		)
+
+		result._combatants[
+			combatant_copy.instance_id
+		] = combatant_copy
+
+		var death_callback := Callable(
+			result,
+			"_on_combatant_died"
+		).bind(
+			combatant_copy
+		)
+
+		result._death_callbacks[
+			combatant_copy.instance_id
+		] = death_callback
+
+		combatant_copy.died.connect(
+			death_callback
+		)
+
+	return result
+	
 func _on_combatant_died(
 	combatant: CombatantState
 ) -> void:

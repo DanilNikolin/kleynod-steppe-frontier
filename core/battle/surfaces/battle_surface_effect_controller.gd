@@ -512,6 +512,51 @@ func clear(
 	_current_round_number = 0
 
 
+func create_runtime_copy() -> BattleSurfaceEffectController:
+	var result := (
+		BattleSurfaceEffectController.new()
+	)
+
+	result._current_round_number = (
+		_current_round_number
+	)
+
+	for coordinate in get_affected_coordinates():
+		var copied_instances: Dictionary = {}
+
+		for instance in get_effects_at(
+			coordinate
+		):
+			if (
+				instance == null
+				or instance.definition == null
+			):
+				continue
+
+			var instance_copy := (
+				BattleSurfaceEffectInstance.new(
+					instance.definition,
+					instance.coordinate,
+					instance.source_instance_id,
+					instance.source_team_id
+				)
+			)
+
+			instance_copy.remaining_rounds = (
+				instance.remaining_rounds
+			)
+
+			copied_instances[
+				instance.definition.surface_effect_id
+			] = instance_copy
+
+		if not copied_instances.is_empty():
+			result._instances_by_coordinate[
+				coordinate
+			] = copied_instances
+
+	return result
+	
 func _resolve_instance(
 	session: BattleSession,
 	target: CombatantState,

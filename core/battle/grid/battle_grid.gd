@@ -258,7 +258,7 @@ func try_swap_occupants(
 	] = first_coordinate
 
 	return true
-	
+
 func remove_occupant(occupant_id: StringName) -> bool:
 	if not _occupant_positions.has(occupant_id):
 		return false
@@ -322,3 +322,53 @@ func clear() -> void:
 
 	_occupant_positions.clear()
 	_obstacle_positions.clear()
+
+func create_runtime_copy() -> BattleGrid:
+	var result := BattleGrid.new(
+		rows,
+		columns
+	)
+
+	for coordinate in get_all_coordinates():
+		var source_cell := get_cell(
+			coordinate
+		)
+
+		var target_cell := result.get_cell(
+			coordinate
+		)
+
+		if (
+			source_cell == null
+			or target_cell == null
+		):
+			continue
+
+		target_cell.occupant_id = (
+			source_cell.occupant_id
+		)
+
+		target_cell.obstacle_id = (
+			source_cell.obstacle_id
+		)
+
+		for surface_effect_id in (
+			source_cell.surface_effect_ids
+		):
+			target_cell.surface_effect_ids.append(
+				surface_effect_id
+			)
+
+	result._occupant_positions = (
+		_occupant_positions.duplicate(
+			true
+		)
+	)
+
+	result._obstacle_positions = (
+		_obstacle_positions.duplicate(
+			true
+		)
+	)
+
+	return result

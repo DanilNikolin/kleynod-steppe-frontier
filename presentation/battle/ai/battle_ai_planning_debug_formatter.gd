@@ -86,6 +86,27 @@ static func build_report_text(
 			)
 		)
 
+	var combined_plan := (
+		_get_first_combined_plan(
+			report
+		)
+	)
+
+	if (
+		combined_plan != null
+		and not _is_plan_in_first_lines(
+			report,
+			combined_plan,
+			shown_count
+		)
+	):
+		lines.append(
+			"Пример комбинации: %s"
+			% _build_plan_text(
+				combined_plan
+			)
+		)
+
 	var rejection_text := (
 		_build_rejection_text(
 			report
@@ -103,6 +124,56 @@ static func build_report_text(
 	)
 
 
+static func _get_first_combined_plan(
+	report: BattleAIPlanningReport
+) -> BattleAIPlan:
+	if report == null:
+		return null
+
+	for plan in report.plans:
+		if (
+			plan != null
+			and plan.has_action()
+			and (
+				plan.has_movement()
+				or plan.has_ally_swap()
+			)
+		):
+			return plan
+
+	return null
+
+
+static func _is_plan_in_first_lines(
+	report: BattleAIPlanningReport,
+	target_plan: BattleAIPlan,
+	shown_count: int
+) -> bool:
+	if (
+		report == null
+		or target_plan == null
+	):
+		return false
+
+	var checked_count := mini(
+		maxi(
+			0,
+			shown_count
+		),
+		report.plans.size()
+	)
+
+	for plan_index in range(
+		checked_count
+	):
+		if (
+			report.plans[plan_index]
+			== target_plan
+		):
+			return true
+
+	return false
+    
 static func _build_plan_text(
 	plan: BattleAIPlan
 ) -> String:
@@ -161,9 +232,37 @@ static func _build_plan_text(
 			]
 		)
 
+	var cost_parts := PackedStringArray()
+
+	if plan.movement_stamina_cost > 0:
+		cost_parts.append(
+			"движение %d"
+			% plan.movement_stamina_cost
+		)
+
+	if plan.ally_swap_stamina_cost > 0:
+		cost_parts.append(
+			"swap %d"
+			% plan.ally_swap_stamina_cost
+		)
+
+	if plan.action_stamina_cost > 0:
+		cost_parts.append(
+			"действие %d"
+			% plan.action_stamina_cost
+		)
+
+	if cost_parts.is_empty():
+		cost_parts.append(
+			"0"
+		)
+
 	parts.append(
-		"цена %d"
-		% plan.total_stamina_cost
+		"цена %s = %d"
+		% [
+			" + ".join(cost_parts),
+			plan.total_stamina_cost,
+		]
 	)
 
 	parts.append(

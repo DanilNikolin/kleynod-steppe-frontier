@@ -38,6 +38,18 @@ const FAILURE_NOT_ENOUGH_STAMINA_FOR_MOVEMENT: StringName = (
 	&"not_enough_stamina_for_movement"
 )
 
+const FAILURE_SNAPSHOT_CREATION_FAILED: StringName = (
+	&"snapshot_creation_failed"
+)
+
+const FAILURE_SNAPSHOT_ACTOR_MISSING: StringName = (
+	&"snapshot_actor_missing"
+)
+
+const FAILURE_SNAPSHOT_MOVEMENT_COMMIT_FAILED: StringName = (
+	&"snapshot_movement_commit_failed"
+)
+
 
 var movement_service: BattleMovementService
 var action_service: BattleActionService
@@ -105,11 +117,20 @@ func create_report(
 		actor
 	)
 
-	_append_movement_plans(
+	var movement_plans := (
+		_append_movement_plans(
+			report,
+			session,
+			actor,
+			stamina_cost_per_step
+		)
+	)
+
+	_append_movement_action_plans(
 		report,
 		session,
 		actor,
-		stamina_cost_per_step
+		movement_plans
 	)
 
 	_append_ally_swap_plans(
@@ -244,13 +265,15 @@ func _append_movement_plans(
 	session: BattleSession,
 	actor: CombatantState,
 	stamina_cost_per_step: int
-) -> void:
+) -> Array[BattleMovementPlan]:
+	var valid_movement_plans: Array[BattleMovementPlan] = []
+
 	if actor.is_movement_restricted():
 		report.add_rejection(
 			FAILURE_MOVEMENT_RESTRICTED
 		)
 
-		return
+		return valid_movement_plans
 
 	var maximum_steps := floori(
 		float(actor.current_stamina)
@@ -262,7 +285,7 @@ func _append_movement_plans(
 			FAILURE_NOT_ENOUGH_STAMINA_FOR_MOVEMENT
 		)
 
-		return
+		return valid_movement_plans
 
 	var reachable_coordinates := (
 		movement_service
@@ -298,6 +321,10 @@ func _append_movement_plans(
 
 			continue
 
+		valid_movement_plans.append(
+			movement_plan
+		)
+
 		var plan := _create_base_plan(
 			actor
 		)
@@ -319,7 +346,158 @@ func _append_movement_plans(
 			plan
 		)
 
+	return valid_movement_plans
 
+
+func _append_movement_action_plans(
+	report: BattleAIPlanningReport,
+	session: BattleSession,
+	actor: CombatantState,
+	movement_plans: Array[BattleMovementPlan]
+) -> void:
+	if movement_plans.is_empty():
+		return
+
+	var abilities := actor.get_abilities()
+
+	abilities.sort_custom(
+		Callable(
+			self,
+			"_is_ability_before"
+		)
+	)
+
+	for movement_plan in movement_plans:
+		if (
+			movement_plan == null
+			or not movement_plan.is_valid
+		):
+			continue
+
+		var snapshot_session := (
+			session.create_runtime_copy()
+		)
+
+		if snapshot_session == null:
+			report.add_rejection(
+				FAILURE_SNAPSHOT_CREATION_FAILED
+			)
+
+			continue
+
+		var snapshot_actor := (
+			snapshot_session.get_combatant(
+				actor.instance_id
+			)
+		)
+
+		if snapshot_actor == null:
+			report.add_rejection(
+				FAILURE_SNAPSHOT_ACTOR_MISSING
+			)
+
+			continue
+
+		if not movement_service.commit_plan(
+			snapshot_session.grid,
+			snapshot_actor,
+			movement_plan
+		):
+			report.add_rejection(
+				FAILURE_SNAPSHOT_MOVEMENT_COMMIT_FAILED
+			)
+
+			continue
+
+		for ability in abilities:
+			var ability_failure := (
+				_get_ability_precheck_failure(
+					snapshot_actor,
+					ability
+				)
+			)
+
+			if ability_failure != &"":
+				report.add_rejection(
+					ability_failure
+				)
+
+				continue
+
+			var aim_coordinates := (
+				targeting_service
+					.get_aim_coordinates(
+						snapshot_session,
+						snapshot_actor,
+						ability
+					)
+			)
+
+			_sort_coordinates(
+				aim_coordinates
+			)
+
+			if aim_coordinates.is_empty():
+				report.add_rejection(
+					FAILURE_NO_AIM_COORDINATES
+				)
+
+				continue
+
+			for aim_coordinate in aim_coordinates:
+				var command := BattleActionCommand.new(
+					snapshot_actor,
+					ability,
+					aim_coordinate
+				)
+
+				var failure_code := (
+					action_service
+						.get_validation_failure(
+							snapshot_session,
+							command
+						)
+				)
+
+				if failure_code != &"":
+					report.add_rejection(
+						failure_code
+					)
+
+					continue
+
+				var plan := _create_base_plan(
+					actor
+				)
+
+				plan.movement_plan = (
+					movement_plan
+				)
+
+				plan.ability = ability
+				plan.aim_coordinate = (
+					aim_coordinate
+				)
+
+				plan.movement_stamina_cost = (
+					movement_plan.stamina_cost
+				)
+
+				plan.action_stamina_cost = (
+					ability.stamina_cost
+				)
+
+				_finalize_plan_costs(
+					plan,
+					actor.current_stamina
+				)
+
+				plan.is_valid = true
+
+				report.add_plan(
+					plan
+				)
+                
 func _append_ally_swap_plans(
 	report: BattleAIPlanningReport,
 	session: BattleSession,

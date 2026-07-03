@@ -1035,3 +1035,79 @@ func get_effective_armor() -> int:
 	return get_effective_stat(
 		BattleStatModifier.Stat.ARMOR
 	)
+
+func create_runtime_copy() -> CombatantState:
+	var result := CombatantState.new(
+		instance_id,
+		definition,
+		team_id,
+		loadout,
+		grid_position
+	)
+
+	result.strength = strength
+	result.agility = agility
+	result.spirit = spirit
+
+	result.max_health = max_health
+	result.current_health = current_health
+	result.current_guard = current_guard
+
+	result.armor = armor
+
+	result.max_stamina = max_stamina
+	result.current_stamina = current_stamina
+	result.stamina_regeneration = (
+		stamina_regeneration
+	)
+
+	result.initiative = initiative
+
+	result.max_morale = max_morale
+	result.current_morale = current_morale
+
+	result._statuses_by_id.clear()
+
+	for status in get_active_statuses():
+		if (
+			status == null
+			or status.definition == null
+		):
+			continue
+
+		var status_copy := BattleStatusInstance.new(
+			status.definition,
+			status.source_instance_id
+		)
+
+		status_copy.stack_count = (
+			status.stack_count
+		)
+
+		status_copy.remaining_turns = (
+			status.remaining_turns
+		)
+
+		result._statuses_by_id[
+			status_copy.status_id
+		] = status_copy
+
+	result._ability_lock_turns_by_id = (
+		_ability_lock_turns_by_id.duplicate(
+			true
+		)
+	)
+
+	result._initially_locked_ability_ids = (
+		_initially_locked_ability_ids.duplicate(
+			true
+		)
+	)
+
+	result._cooldowns_started_this_turn = (
+		_cooldowns_started_this_turn.duplicate(
+			true
+		)
+	)
+
+	return result

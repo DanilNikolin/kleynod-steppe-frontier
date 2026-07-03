@@ -41,6 +41,8 @@ const SCORE_FRIENDLY_KILL: StringName = (
 	&"friendly_kill"
 )
 
+const SCORE_POSITION: StringName = &"position"
+
 const SCORE_STAMINA: StringName = &"stamina"
 const SCORE_MOVEMENT: StringName = &"movement"
 const SCORE_COOLDOWN: StringName = &"cooldown"
@@ -65,6 +67,9 @@ const FRIENDLY_KILL_PENALTY: float = -250.0
 const STAMINA_PENALTY_PER_POINT: float = -0.5
 const MOVEMENT_PENALTY_PER_POINT: float = -0.25
 const COOLDOWN_PENALTY_PER_TURN: float = -2.0
+const APPROACH_SCORE_PER_TILE: float = 4.0
+const RETREAT_PENALTY_PER_TILE: float = -3.0
+const FORWARD_SCORE_PER_TILE: float = 0.75
 
 
 func evaluate_plan(
@@ -125,6 +130,12 @@ func evaluate_plan(
 
 	_score_effect_results(
 		breakdown,
+		simulation
+	)
+
+	_score_positioning(
+		breakdown,
+		plan,
 		simulation
 	)
 
@@ -336,6 +347,184 @@ func _score_kill(
 		)
 
 
+func _score_positioning(
+	breakdown: BattleAIScoreBreakdown,
+	plan: BattleAIPlan,
+	simulation: BattleActionSimulationResult
+) -> void:
+	if (
+		plan == null
+		or simulation == null
+		or not simulation.is_valid
+	):
+		return
+
+	## Если план уже сделал действие, его ценность
+	## должна определяться эффектами действия.
+	## Positioning пока нужен только для "что делать,
+	## когда ударить нечем".
+	if plan.has_action():
+		return
+
+	if (
+		not plan.has_movement()
+		and not plan.has_ally_swap()
+	):
+		return
+
+	var actor := (
+		simulation.get_simulated_actor()
+	)
+
+	if (
+		actor == null
+		or simulation.simulated_session == null
+	):
+		return
+
+	var start_coordinate := (
+		simulation.initial_actor_coordinate
+	)
+
+	var final_coordinate := (
+		simulation.final_actor_coordinate
+	)
+
+	if (
+		start_coordinate
+			== BattleGrid.INVALID_COORDINATE
+		or final_coordinate
+			== BattleGrid.INVALID_COORDINATE
+	):
+		return
+
+	var initial_distance := (
+		_get_nearest_enemy_distance(
+			simulation.simulated_session,
+			actor,
+			start_coordinate
+		)
+	)
+
+	var final_distance := (
+		_get_nearest_enemy_distance(
+			simulation.simulated_session,
+			actor,
+			final_coordinate
+		)
+	)
+
+	if initial_distance < 0 or final_distance < 0:
+		return
+
+	var distance_delta := (
+		initial_distance - final_distance
+	)
+
+	if distance_delta > 0:
+		breakdown.add_score(
+			SCORE_POSITION,
+			float(distance_delta)
+			* APPROACH_SCORE_PER_TILE
+		)
+
+	elif distance_delta < 0:
+		breakdown.add_score(
+			SCORE_POSITION,
+			float(
+				- distance_delta
+			)
+			* RETREAT_PENALTY_PER_TILE
+		)
+
+	var forward_delta := (
+		_get_forward_delta(
+			simulation.simulated_session,
+			actor,
+			start_coordinate,
+			final_coordinate
+		)
+	)
+
+	if forward_delta > 0:
+		breakdown.add_score(
+			SCORE_POSITION,
+			float(forward_delta)
+			* FORWARD_SCORE_PER_TILE
+		)
+
+
+func _get_nearest_enemy_distance(
+	session: BattleSession,
+	actor: CombatantState,
+	from_coordinate: Vector2i
+) -> int:
+	if (
+		session == null
+		or session.grid == null
+		or actor == null
+	):
+		return -1
+
+	var best_distance := -1
+
+	for combatant in session.get_living_combatants():
+		if combatant == null:
+			continue
+
+		if combatant.team_id == actor.team_id:
+			continue
+
+		## Пассивные объекты вроде стены могут быть целями,
+		## но для базового сближения пока не считаем их
+		## "боевой угрозой".
+		if (
+			combatant.definition != null
+			and not combatant
+				.definition
+				.participates_in_turn_order
+		):
+			continue
+
+		var distance := (
+			session.grid.get_manhattan_distance(
+				from_coordinate,
+				combatant.grid_position
+			)
+		)
+
+		if (
+			best_distance < 0
+			or distance < best_distance
+		):
+			best_distance = distance
+
+	return best_distance
+
+
+func _get_forward_delta(
+	session: BattleSession,
+	actor: CombatantState,
+	start_coordinate: Vector2i,
+	final_coordinate: Vector2i
+) -> int:
+	if session == null or actor == null:
+		return 0
+
+	var forward_direction := (
+		session.get_team_forward_direction(
+			actor.team_id
+		)
+	)
+
+	if forward_direction == 0:
+		return 0
+
+	return (
+		final_coordinate.x
+		- start_coordinate.x
+	) * forward_direction
+    
 func _score_costs(
 	breakdown: BattleAIScoreBreakdown,
 	plan: BattleAIPlan,

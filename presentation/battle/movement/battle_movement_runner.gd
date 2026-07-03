@@ -185,6 +185,78 @@ func execute(
 	return outcome
 
 
+func execute_ally_swap(
+	active: CombatantState,
+	ally: CombatantState,
+	stamina_cost: int,
+	animated: bool = true
+) -> BattleMovementOutcome:
+	var outcome := BattleMovementOutcome.new()
+
+	if session == null:
+		outcome.failure_code = FAILURE_INVALID_SESSION
+		return outcome
+
+	if active == null or ally == null:
+		outcome.failure_code = FAILURE_INVALID_COMBATANT
+		return outcome
+
+	outcome.combatant_id = active.instance_id
+
+	var relocation_result := (
+		movement_service.commit_ally_swap(
+			session,
+			active,
+			ally,
+			stamina_cost
+		)
+	)
+
+	outcome.relocation_result = (
+		relocation_result
+	)
+
+	if (
+		relocation_result == null
+		or not relocation_result.is_successful
+	):
+		outcome.failure_code = (
+			relocation_result.failure_code
+			if relocation_result != null
+			else FAILURE_COMMIT_FAILED
+		)
+
+		return outcome
+
+	outcome.movement_committed = true
+
+	var presented := await (
+		combatant_presenter.present_swap(
+			relocation_result
+				.primary_combatant_id,
+			relocation_result
+				.secondary_combatant_id,
+			relocation_result
+				.primary_destination,
+			relocation_result
+				.secondary_destination,
+			animated
+		)
+	)
+
+	if not presented:
+		outcome.failure_code = (
+			FAILURE_PRESENTATION_FAILED
+		)
+
+		return outcome
+
+	outcome.movement_presented = true
+	outcome.is_successful = true
+
+	return outcome
+
+	
 func _surface_results_stop_movement(
 	results: Array[BattleSurfaceTriggerResult]
 ) -> bool:

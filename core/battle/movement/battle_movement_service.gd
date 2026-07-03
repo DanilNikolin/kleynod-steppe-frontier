@@ -21,6 +21,7 @@ const FAILURE_NOT_ENOUGH_STAMINA: StringName = &"not_enough_stamina"
 
 
 var side_rules: BattleSideRules
+var relocation_service := BattleRelocationService.new()
 
 
 func _init(
@@ -290,6 +291,52 @@ func commit_step(
 	)
 
 	return true
+	
+
+func get_ally_swap_failure(
+	session: BattleSession,
+	active: CombatantState,
+	ally: CombatantState,
+	stamina_cost: int
+) -> StringName:
+	return relocation_service.get_swap_failure(
+		session,
+		active,
+		ally,
+		true,
+		true,
+		stamina_cost
+	)
+
+
+func can_swap_with_ally(
+	session: BattleSession,
+	active: CombatantState,
+	ally: CombatantState,
+	stamina_cost: int
+) -> bool:
+	return get_ally_swap_failure(
+		session,
+		active,
+		ally,
+		stamina_cost
+	) == &""
+
+
+func commit_ally_swap(
+	session: BattleSession,
+	active: CombatantState,
+	ally: CombatantState,
+	stamina_cost: int
+) -> BattleRelocationResult:
+	return relocation_service.swap(
+		session,
+		active,
+		ally,
+		true,
+		true,
+		stamina_cost
+	)
 	
 func find_shortest_path(
 	grid: BattleGrid,

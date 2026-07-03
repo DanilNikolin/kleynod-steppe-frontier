@@ -591,12 +591,9 @@ func on_grid_cell_clicked(
 				target.team_id
 				== active_combatant.team_id
 			):
-				debug_log_presenter.set_headline(
-					"Клетка %s занята союзником %s."
-					% [
-						coordinate,
-						target.definition.display_name,
-					]
+				_try_swap_with_ally(
+					active_combatant,
+					target
 				)
 
 			else:
@@ -802,6 +799,97 @@ func _get_combatant_at_coordinate(
 	return session.get_combatant(
 		cell.occupant_id
 	)
+
+
+func _try_swap_with_ally(
+	active: CombatantState,
+	ally: CombatantState
+) -> void:
+	if active == null or ally == null:
+		return
+
+	if not turn_controller.is_combatant_active(
+		active
+	):
+		return
+
+	var failure_code := (
+		movement_service.get_ally_swap_failure(
+			session,
+			active,
+			ally,
+			stamina_cost_per_cell
+		)
+	)
+
+	if failure_code != &"":
+		debug_log_presenter.set_headline(
+			_get_ally_swap_failure_message(
+				failure_code,
+				active,
+				ally
+			)
+		)
+
+		refresh_grid_overlays()
+		return
+
+	var active_origin := active.grid_position
+	var ally_origin := ally.grid_position
+
+	_interaction_in_progress = true
+	grid_overlay_presenter.clear()
+	action_preview_presenter.clear()
+
+	debug_log_presenter.set_headline(
+		"%s меняется местами с %s..."
+		% [
+			active.definition.display_name,
+			ally.definition.display_name,
+		]
+	)
+
+	var movement_outcome := await (
+		movement_runner.execute_ally_swap(
+			active,
+			ally,
+			stamina_cost_per_cell,
+			animate_movement
+		)
+	)
+
+	if not movement_outcome.is_successful:
+		_interaction_in_progress = false
+
+		debug_log_presenter.set_headline(
+			"Обмен позициями не выполнен: %s."
+			% movement_outcome.failure_code
+		)
+
+		refresh_grid_overlays()
+		return
+
+	debug_log_presenter.set_headline(
+		"%s и %s меняются местами: %s ↔ %s. "
+		% [
+			active.definition.display_name,
+			ally.definition.display_name,
+			active_origin,
+			ally_origin,
+		]
+		+"Потрачено выносливости: %d. "
+		% movement_outcome
+			.relocation_result
+			.stamina_spent
+		+"Осталось: %d/%d."
+		% [
+			active.current_stamina,
+			active.max_stamina,
+		]
+	)
+
+	_interaction_in_progress = false
+	refresh_grid_overlays()
 
 
 func _try_move_active_combatant(
@@ -1272,6 +1360,54 @@ func _get_ability_lock_message(
 	)
 
 
+func _get_ally_swap_failure_message(
+	failure_code: StringName,
+	active: CombatantState,
+	ally: CombatantState
+) -> String:
+	match failure_code:
+		BattleRelocationService.FAILURE_NOT_ADJACENT:
+			return (
+				"С %s можно поменяться местами "
+				% ally.definition.display_name
+				+"только с соседней клетки."
+			)
+
+		BattleRelocationService.FAILURE_TEAM_MISMATCH:
+			return "Обычный обмен доступен только с союзником."
+
+		BattleRelocationService.FAILURE_POSITION_LOCKED:
+			return (
+				"%s является неподвижным объектом."
+				% ally.definition.display_name
+			)
+
+		BattleRelocationService.FAILURE_MOVEMENT_RESTRICTED:
+			return (
+				"Обмен невозможен: один из бойцов "
+				+"не может двигаться."
+			)
+
+		BattleRelocationService.FAILURE_NOT_ENOUGH_STAMINA:
+			return (
+				"Недостаточно выносливости для обмена. "
+				+"Нужно: %d, доступно: %d."
+				% [
+					stamina_cost_per_cell,
+					active.current_stamina,
+				]
+			)
+
+		BattleRelocationService.FAILURE_DEAD_COMBATANT:
+			return "Погибший боец не может менять позицию."
+
+		_:
+			return (
+				"Обмен позициями невозможен: %s."
+				% failure_code
+			)
+
+			
 func _get_movement_failure_message(
 	failure_code: StringName,
 	plan: BattleMovementPlan,

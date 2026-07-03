@@ -192,6 +192,73 @@ func try_move_occupant(
 	return true
 
 
+func try_swap_occupants(
+	first_occupant_id: StringName,
+	second_occupant_id: StringName
+) -> bool:
+	if (
+		first_occupant_id == EMPTY_ID
+		or second_occupant_id == EMPTY_ID
+		or first_occupant_id == second_occupant_id
+	):
+		return false
+
+	if (
+		not _occupant_positions.has(
+			first_occupant_id
+		)
+		or not _occupant_positions.has(
+			second_occupant_id
+		)
+	):
+		return false
+
+	var first_coordinate: Vector2i = (
+		_occupant_positions[
+			first_occupant_id
+		]
+	)
+
+	var second_coordinate: Vector2i = (
+		_occupant_positions[
+			second_occupant_id
+		]
+	)
+
+	if first_coordinate == second_coordinate:
+		return false
+
+	var first_cell := get_cell(
+		first_coordinate
+	)
+
+	var second_cell := get_cell(
+		second_coordinate
+	)
+
+	if (
+		first_cell == null
+		or second_cell == null
+		or first_cell.occupant_id
+			!= first_occupant_id
+		or second_cell.occupant_id
+			!= second_occupant_id
+	):
+		return false
+
+	first_cell.occupant_id = second_occupant_id
+	second_cell.occupant_id = first_occupant_id
+
+	_occupant_positions[
+		first_occupant_id
+	] = second_coordinate
+
+	_occupant_positions[
+		second_occupant_id
+	] = first_coordinate
+
+	return true
+	
 func remove_occupant(occupant_id: StringName) -> bool:
 	if not _occupant_positions.has(occupant_id):
 		return false

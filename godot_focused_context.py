@@ -26,19 +26,14 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/previews/battle_action_preview_result.gd",
-    "core/battle/previews/battle_action_preview_service.gd",
-    "core/battle/previews/battle_target_preview.gd",
-    "core/battle/previews/battle_preview_grid_state.gd",
-    "core/battle/actions/battle_effect_result.gd",
-    "core/battle/effects/place_surface_effect.gd",
-    "core/battle/surfaces/battle_surface_effect_controller.gd",
-    "core/battle/surfaces/battle_surface_effect_instance.gd",
-    "presentation/battle/previews/battle_action_preview_presenter.gd",
-    "presentation/battle/previews/battle_action_preview_formatter.gd",
-    "presentation/battle/grid/battle_grid_overlay_presenter.gd",
-    "presentation/battle/grid/battle_grid_view.gd",
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "core/battle/movement/battle_movement_plan.gd",
+    "core/battle/movement/battle_movement_service.gd",
+    "presentation/battle/movement/battle_movement_outcome.gd",
+    "presentation/battle/movement/battle_movement_runner.gd",
+    "core/battle/combatants/combatant_state.gd",
+    "core/battle/combatants/combatant_definition.gd",
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
+    "presentation/battle/combatants/combatant_view.gd",
 ]
 
 ALLOW_ADDONS = False

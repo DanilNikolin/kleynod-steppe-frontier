@@ -30,6 +30,13 @@ const ENEMY_OVERLAY_COLOR := Color(
 	0.30
 )
 
+const SWAPPABLE_ALLY_OVERLAY_COLOR := Color(
+	0.28,
+	0.92,
+	0.48,
+	0.58
+)
+
 const ATTACKABLE_OVERLAY_COLOR := Color(
 	1.0,
 	0.46,
@@ -129,6 +136,13 @@ func refresh(
 		)
 
 	_draw_obstacles(grid)
+
+	if not movement_restricted:
+		_draw_swappable_allies(
+			session,
+			selected_combatant,
+			stamina_cost_per_cell
+		)
 
 	_draw_target_candidates(
 		session,
@@ -263,6 +277,35 @@ func _draw_obstacles(
 		)
 
 
+func _draw_swappable_allies(
+	session: BattleSession,
+	active: CombatantState,
+	stamina_cost: int
+) -> void:
+	if session == null or active == null:
+		return
+
+	for ally in session.get_team_combatants(
+		active.team_id,
+		true
+	):
+		if ally == null or ally == active:
+			continue
+
+		if not movement_service.can_swap_with_ally(
+			session,
+			active,
+			ally,
+			stamina_cost
+		):
+			continue
+
+		grid_view.set_cell_overlay(
+			ally.grid_position,
+			SWAPPABLE_ALLY_OVERLAY_COLOR
+		)
+
+		
 func _draw_target_candidates(
 	session: BattleSession,
 	actor: CombatantState,

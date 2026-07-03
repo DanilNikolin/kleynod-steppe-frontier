@@ -100,6 +100,152 @@ func move_along_grid_path(
 	return true
 
 
+func present_swap(
+	first_id: StringName,
+	second_id: StringName,
+	first_destination: Vector2i,
+	second_destination: Vector2i,
+	animated: bool = true
+) -> bool:
+	var first_view := get_view(
+		first_id
+	)
+
+	var second_view := get_view(
+		second_id
+	)
+
+	if first_view == null or second_view == null:
+		return false
+
+	if (
+		not grid_view.is_valid_coordinate(
+			first_destination
+		)
+		or not grid_view.is_valid_coordinate(
+			second_destination
+		)
+	):
+		return false
+
+	var first_target_position := (
+		grid_view.get_cell_center(
+			first_destination
+		)
+	)
+
+	var second_target_position := (
+		grid_view.get_cell_center(
+			second_destination
+		)
+	)
+
+	if not animated:
+		first_view.snap_to_local_position(
+			first_target_position
+		)
+
+		second_view.snap_to_local_position(
+			second_target_position
+		)
+
+		return true
+
+	var first_horizontal_distance := (
+		first_target_position.x
+		- first_view.position.x
+	)
+
+	if not is_zero_approx(
+		first_horizontal_distance
+	):
+		first_view.set_facing_direction(
+			1
+			if first_horizontal_distance > 0.0
+			else -1
+		)
+
+	var second_horizontal_distance := (
+		second_target_position.x
+		- second_view.position.x
+	)
+
+	if not is_zero_approx(
+		second_horizontal_distance
+	):
+		second_view.set_facing_direction(
+			1
+			if second_horizontal_distance > 0.0
+			else -1
+		)
+
+	first_view.play_visual_animation(
+		&"move",
+		&"idle"
+	)
+
+	second_view.play_visual_animation(
+		&"move",
+		&"idle"
+	)
+
+	var movement_duration := maxf(
+		first_view.movement_duration,
+		second_view.movement_duration
+	)
+
+	var tween := combatant_layer.create_tween()
+
+	tween.set_parallel(
+		true
+	)
+
+	tween.set_trans(
+		Tween.TRANS_QUAD
+	)
+
+	tween.set_ease(
+		Tween.EASE_IN_OUT
+	)
+
+	tween.tween_property(
+		first_view,
+		"position",
+		first_target_position,
+		movement_duration
+	)
+
+	tween.tween_property(
+		second_view,
+		"position",
+		second_target_position,
+		movement_duration
+	)
+
+	await tween.finished
+
+	if (
+		is_instance_valid(first_view)
+		and first_view.state != null
+		and first_view.state.is_alive
+	):
+		first_view.play_visual_animation(
+			&"idle",
+			&""
+		)
+
+	if (
+		is_instance_valid(second_view)
+		and second_view.state != null
+		and second_view.state.is_alive
+	):
+		second_view.play_visual_animation(
+			&"idle",
+			&""
+		)
+
+	return true
+	
 func face_toward(
 	actor_id: StringName,
 	target_id: StringName

@@ -22,6 +22,10 @@ const FAILURE_FORCED_MOVEMENT_PRESENTATION_FAILED: StringName = (
 	&"forced_movement_presentation_failed"
 )
 
+const FAILURE_RELOCATION_PRESENTATION_FAILED: StringName = (
+	&"relocation_presentation_failed"
+)
+
 const FAILURE_DEFEATED_VIEW_REMOVAL_FAILED: StringName = (
 	&"defeated_view_removal_failed"
 )
@@ -130,7 +134,15 @@ func execute_action(
 		.get_defeated_target_ids()
 	)
 
-	if target_ids.is_empty():
+	var relocation_results := (
+		outcome.action_result
+		.get_relocation_results()
+	)
+
+	if not relocation_results.is_empty():
+		outcome.action_presented = true
+
+	elif target_ids.is_empty():
 		outcome.action_presented = true
 
 	else:
@@ -151,6 +163,42 @@ func execute_action(
 
 			return outcome
 
+	for effect_result in relocation_results:
+		var relocation_presented := false
+
+		match effect_result.effect_kind:
+			&"swap_positions":
+				relocation_presented = await (
+					combatant_presenter
+					.present_swap(
+						effect_result.source_id,
+						effect_result.target_id,
+						effect_result
+							.movement_destination,
+						effect_result
+							.secondary_movement_destination,
+						animated
+					)
+				)
+
+			&"teleport":
+				relocation_presented = await (
+					combatant_presenter
+					.present_teleport(
+						effect_result.source_id,
+						effect_result
+							.movement_destination,
+						animated
+					)
+				)
+
+		if not relocation_presented:
+			outcome.failure_code = (
+				FAILURE_RELOCATION_PRESENTATION_FAILED
+			)
+
+			return outcome
+			
 	for effect_result in (
 		outcome.action_result
 		.get_forced_movement_results()

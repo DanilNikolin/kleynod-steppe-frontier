@@ -34,6 +34,10 @@ const FAILURE_DESTINATION_OUTSIDE_GRID: StringName = (
 	&"destination_outside_grid"
 )
 
+const FAILURE_DESTINATION_OUTSIDE_TEAM_SIDE: StringName = (
+	&"destination_outside_team_side"
+)
+
 const FAILURE_DESTINATION_IS_ORIGIN: StringName = (
 	&"destination_is_origin"
 )
@@ -252,6 +256,12 @@ func get_teleport_failure(
 		destination
 	):
 		return FAILURE_DESTINATION_OUTSIDE_GRID
+
+	if not session.is_coordinate_allowed_for_team(
+		combatant.team_id,
+		destination
+	):
+		return FAILURE_DESTINATION_OUTSIDE_TEAM_SIDE
 
 	if destination == combatant.grid_position:
 		return FAILURE_DESTINATION_IS_ORIGIN

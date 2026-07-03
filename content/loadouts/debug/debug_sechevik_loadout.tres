@@ -17,10 +17,12 @@
 [ext_resource type="Resource" uid="uid://cbid6i3pu34gm" path="res://content/abilities/debug/debug_full_cleanse.tres" id="15_cleanse"]
 [ext_resource type="Resource" uid="uid://3yi4sm4yeoom" path="res://content/abilities/debug/debug_full_dispel.tres" id="16_dispel"]
 [ext_resource type="Resource" uid="uid://bkaoo3fajq27w" path="res://content/abilities/debug/debug_place_fire_surface.tres" id="17_place_fire"]
+[ext_resource type="Resource" uid="uid://c7m67rrtv315q" path="res://content/abilities/debug/debug_swap_positions.tres" id="18_swap"]
+[ext_resource type="Resource" uid="uid://d0xjjcpkrpg3w" path="res://content/abilities/debug/debug_teleport.tres" id="19_teleport"]
 
 [resource]
 script = ExtResource("1_loadout")
 loadout_id = &"loadout_debug_sechevik"
 display_name = "Сечевик с боевым набором"
 default_ability_id = &"ability_sabre_slash"
-abilities = Array[ExtResource("2_ability")]([ExtResource("3_sabre"), ExtResource("4_sweeping"), ExtResource("5_rending"), ExtResource("6_bandage"), ExtResource("7_stunning"), ExtResource("8_hamstring"), ExtResource("9_shield"), ExtResource("10_fire_line"), ExtResource("11_guard"), ExtResource("12_focus"), ExtResource("13_mend"), ExtResource("14_critical"), ExtResource("15_cleanse"), ExtResource("16_dispel"), ExtResource("17_place_fire")])
+abilities = Array[ExtResource("2_ability")]([ExtResource("3_sabre"), ExtResource("4_sweeping"), ExtResource("5_rending"), ExtResource("6_bandage"), ExtResource("7_stunning"), ExtResource("8_hamstring"), ExtResource("9_shield"), ExtResource("10_fire_line"), ExtResource("11_guard"), ExtResource("12_focus"), ExtResource("13_mend"), ExtResource("14_critical"), ExtResource("15_cleanse"), ExtResource("16_dispel"), ExtResource("17_place_fire"), ExtResource("18_swap"), ExtResource("19_teleport")])

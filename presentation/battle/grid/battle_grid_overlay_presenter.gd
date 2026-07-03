@@ -208,6 +208,18 @@ func _draw_targeting_debug(
 		)
 	)
 
+	if _has_teleport_effect(
+		ability
+	):
+		aim_coordinates = (
+			_filter_executable_teleport_coordinates(
+				session,
+				actor,
+				ability,
+				aim_coordinates
+			)
+		)
+
 	var impact_coordinates: Array[Vector2i] = []
 
 	if (
@@ -232,6 +244,53 @@ func _draw_targeting_debug(
 		impact_coordinates
 	)
 
+
+func _filter_executable_teleport_coordinates(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	coordinates: Array[Vector2i]
+) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+
+	if (
+		session == null
+		or actor == null
+		or ability == null
+	):
+		return result
+
+	for coordinate in coordinates:
+		var command := BattleActionCommand.new(
+			actor,
+			ability,
+			coordinate
+		)
+
+		if not action_service.can_execute(
+			session,
+			command
+		):
+			continue
+
+		result.append(
+			coordinate
+		)
+
+	return result
+
+
+func _has_teleport_effect(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	for effect in ability.effects:
+		if effect is TeleportEffect:
+			return true
+
+	return false
 
 func _draw_reachable_coordinates(
 	grid: BattleGrid,
@@ -305,7 +364,7 @@ func _draw_swappable_allies(
 			SWAPPABLE_ALLY_OVERLAY_COLOR
 		)
 
-		
+
 func _draw_target_candidates(
 	session: BattleSession,
 	actor: CombatantState,

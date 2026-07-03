@@ -124,6 +124,18 @@ static func build_effect_list_text(
 				)
 			)
 
+		elif effect is SwapPositionsEffect:
+			lines.append(
+				"• Обмен позициями с бойцом "
+				+"той же команды"
+			)
+
+		elif effect is TeleportEffect:
+			lines.append(
+				"• Телепорт в выбранную "
+				+"свободную клетку"
+			)
+			
 		elif effect is PlaceSurfaceEffect:
 			lines.append(
 				_build_place_surface_effect_text(

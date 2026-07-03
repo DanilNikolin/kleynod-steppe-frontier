@@ -245,6 +245,80 @@ func present_swap(
 		)
 
 	return true
+
+func present_teleport(
+	combatant_id: StringName,
+	destination: Vector2i,
+	animated: bool = true
+) -> bool:
+	var view := get_view(
+		combatant_id
+	)
+
+	if (
+		view == null
+		or not grid_view.is_valid_coordinate(
+			destination
+		)
+	):
+		return false
+
+	var target_position := (
+		grid_view.get_cell_center(
+			destination
+		)
+	)
+
+	if not animated:
+		view.snap_to_local_position(
+			target_position
+		)
+
+		return true
+
+	var original_modulate := view.modulate
+	var hidden_modulate := original_modulate
+
+	hidden_modulate.a = 0.0
+
+	var tween := view.create_tween()
+
+	tween.set_trans(
+		Tween.TRANS_SINE
+	)
+
+	tween.set_ease(
+		Tween.EASE_IN_OUT
+	)
+
+	tween.tween_property(
+		view,
+		"modulate",
+		hidden_modulate,
+		0.08
+	)
+
+	tween.tween_callback(
+		Callable(
+			view,
+			"snap_to_local_position"
+		).bind(
+			target_position
+		)
+	)
+
+	tween.tween_property(
+		view,
+		"modulate",
+		original_modulate,
+		0.10
+	)
+
+	await tween.finished
+
+	view.modulate = original_modulate
+
+	return true
 	
 func face_toward(
 	actor_id: StringName,

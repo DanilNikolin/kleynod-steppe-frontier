@@ -79,7 +79,7 @@ static func _format_surface_failure_short(
 
 	return "нельзя"
 
-	
+
 static func build_target_text(
 	preview: BattleTargetPreview
 ) -> String:
@@ -117,6 +117,11 @@ static func build_target_text(
 	_append_movement_lines(
 		lines,
 		preview.normal_effect_results
+	)
+
+	_append_relocation_lines(
+		lines,
+		preview
 	)
 
 	if preview.normal_final_health <= 0:
@@ -377,7 +382,45 @@ static func _append_removed_status_lines(
 				status_parts
 			)
 		)
-        
+
+static func _append_relocation_lines(
+	lines: PackedStringArray,
+	preview: BattleTargetPreview
+) -> void:
+	for effect_result in (
+		preview.normal_effect_results
+	):
+		if effect_result == null:
+			continue
+
+		if (
+			effect_result.effect_kind
+			== &"teleport"
+		):
+			lines.append(
+				"Телепорт: %s → %s"
+				% [
+					preview.initial_position,
+					preview.normal_final_position,
+				]
+			)
+
+			return
+
+		if (
+			effect_result.effect_kind
+			== &"swap_positions"
+		):
+			lines.append(
+				"Обмен: %s → %s"
+				% [
+					preview.initial_position,
+					preview.normal_final_position,
+				]
+			)
+
+			return
+			        
 static func _append_movement_lines(
 	lines: PackedStringArray,
 	effect_results: Array[BattleEffectResult]

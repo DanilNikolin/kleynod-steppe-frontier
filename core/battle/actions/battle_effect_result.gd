@@ -140,3 +140,21 @@ var applied_movement_distance: int = 0
 
 var movement_was_blocked: bool = false
 var movement_block_reason: StringName = &""
+
+## Дополнительные данные для мгновенного перемещения.
+var relocation_kind: StringName = &""
+
+## Второй участник обмена позициями.
+var secondary_target_id: StringName = &""
+
+var secondary_movement_origin: Vector2i = (
+	BattleGrid.INVALID_COORDINATE
+)
+
+var secondary_movement_destination: Vector2i = (
+	BattleGrid.INVALID_COORDINATE
+)
+
+## Участники relocation, погибшие от поверхностей
+## после появления на новых клетках.
+var relocation_defeated_ids: Array[StringName] = []

@@ -25,6 +25,10 @@ var forced_movement_service := (
 	BattleForcedMovementService.new()
 )
 
+var relocation_service := (
+	BattleRelocationService.new()
+)
+
 var random_number_generator: RandomNumberGenerator
 
 
@@ -55,12 +59,17 @@ func can_resolve(
 		or effect is RemoveStatusEffect
 		or effect is ForcedMovementEffect
 		or effect is PlaceSurfaceEffect
+		or effect is SwapPositionsEffect
+		or effect is TeleportEffect
 	)
 
 func requires_combatant_target(
 	effect: BattleEffect
 ) -> bool:
-	return not effect is PlaceSurfaceEffect
+	return (
+		not effect is PlaceSurfaceEffect
+		and not effect is TeleportEffect
+	)
 
 
 func resolve(
@@ -97,12 +106,28 @@ func resolve(
 			target_coordinate
 		)
 
+	if effect is TeleportEffect:
+		return _resolve_teleport(
+			effect as TeleportEffect,
+			source,
+			session,
+			target_coordinate
+		)
+
 	if target == null:
 		return _create_failure_result(
 			FAILURE_INVALID_TARGET,
 			effect,
 			source,
 			target
+		)
+
+	if effect is SwapPositionsEffect:
+		return _resolve_swap_positions(
+			effect as SwapPositionsEffect,
+			source,
+			target,
+			session
 		)
 
 	if effect is DamageEffect:
@@ -157,6 +182,119 @@ func resolve(
 	)
 
 
+func _resolve_swap_positions(
+	effect: SwapPositionsEffect,
+	source: CombatantState,
+	target: CombatantState,
+	session: BattleSession
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"swap_positions"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+	result.secondary_target_id = target.instance_id
+	result.relocation_kind = &"swap"
+
+	var relocation_result := relocation_service.swap(
+		session,
+		source,
+		target,
+		true,
+		false,
+		0
+	)
+
+	if not relocation_result.is_successful:
+		result.failure_code = (
+			relocation_result.failure_code
+		)
+
+		return result
+
+	result.movement_origin = (
+		relocation_result.primary_origin
+	)
+
+	result.movement_destination = (
+		relocation_result.primary_destination
+	)
+
+	result.secondary_movement_origin = (
+		relocation_result.secondary_origin
+	)
+
+	result.secondary_movement_destination = (
+		relocation_result.secondary_destination
+	)
+
+	if not source.is_alive:
+		result.relocation_defeated_ids.append(
+			source.instance_id
+		)
+
+	if not target.is_alive:
+		result.relocation_defeated_ids.append(
+			target.instance_id
+		)
+
+	result.target_died = not target.is_alive
+	result.applied_amount = 1
+	result.is_successful = true
+
+	return result
+
+
+func _resolve_teleport(
+	effect: TeleportEffect,
+	source: CombatantState,
+	session: BattleSession,
+	target_coordinate: Vector2i
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"teleport"
+
+	result.source_id = source.instance_id
+	result.target_id = source.instance_id
+	result.relocation_kind = &"teleport"
+
+	var relocation_result := relocation_service.teleport(
+		session,
+		source,
+		target_coordinate,
+		0
+	)
+
+	if not relocation_result.is_successful:
+		result.failure_code = (
+			relocation_result.failure_code
+		)
+
+		return result
+
+	result.movement_origin = (
+		relocation_result.primary_origin
+	)
+
+	result.movement_destination = (
+		relocation_result.primary_destination
+	)
+
+	if not source.is_alive:
+		result.relocation_defeated_ids.append(
+			source.instance_id
+		)
+
+	result.target_died = not source.is_alive
+	result.applied_amount = 1
+	result.is_successful = true
+
+	return result
+	
 func _resolve_place_surface(
 	effect: PlaceSurfaceEffect,
 	source: CombatantState,

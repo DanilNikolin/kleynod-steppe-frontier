@@ -66,6 +66,31 @@ func get_forced_movement_results() -> Array[BattleEffectResult]:
 	return result
 
 
+func get_relocation_results() -> Array[BattleEffectResult]:
+	var result: Array[BattleEffectResult] = []
+
+	for effect_result in effect_results:
+		if (
+			effect_result == null
+			or not effect_result.is_successful
+		):
+			continue
+
+		if (
+			effect_result.effect_kind
+			!= &"swap_positions"
+			and effect_result.effect_kind
+			!= &"teleport"
+		):
+			continue
+
+		result.append(
+			effect_result
+		)
+
+	return result
+
+
 func get_total_forced_movement_distance() -> int:
 	var total: int = 0
 
@@ -82,27 +107,71 @@ func did_target_die(
 		if effect_result == null:
 			continue
 
-		if (
-			target_id != &""
-			and effect_result.target_id
-			!= target_id
-		):
+		if target_id == &"":
+			if (
+				effect_result.target_died
+				or not effect_result
+					.relocation_defeated_ids
+					.is_empty()
+			):
+				return true
+
 			continue
 
-		if effect_result.target_died:
+		if (
+			effect_result.target_id == target_id
+			and effect_result.target_died
+		):
+			return true
+
+		if effect_result.relocation_defeated_ids.has(
+			target_id
+		):
 			return true
 
 	return false
 
 func get_defeated_target_ids() -> Array[StringName]:
-	var result: Array[StringName] = []
+	var candidate_ids: Array[StringName] = []
 
 	for target_id in affected_target_ids:
-		if target_id == &"":
+		if (
+			target_id != &""
+			and not candidate_ids.has(
+				target_id
+			)
+		):
+			candidate_ids.append(
+				target_id
+			)
+
+	for effect_result in effect_results:
+		if effect_result == null:
 			continue
 
-		if did_target_die(target_id):
-			result.append(target_id)
+		for defeated_id in (
+			effect_result
+			.relocation_defeated_ids
+		):
+			if (
+				defeated_id != &""
+				and not candidate_ids.has(
+					defeated_id
+				)
+			):
+				candidate_ids.append(
+					defeated_id
+				)
+
+	var result: Array[StringName] = []
+
+	for candidate_id in candidate_ids:
+		if did_target_die(
+			candidate_id
+		):
+			result.append(
+				candidate_id
+			)
 
 	return result
 

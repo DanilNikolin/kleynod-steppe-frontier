@@ -175,7 +175,11 @@ func create_preview(
 	)
 
 	for original_target in (
-		targeting_result.affected_combatants
+		_get_preview_targets(
+			command,
+			targeting_result,
+			normal_states
+		)
 	):
 		if original_target == null:
 			continue
@@ -439,6 +443,245 @@ func _create_surface_placement_previews(
 
 	return result
 
+func _get_preview_targets(
+	command: BattleActionCommand,
+	targeting_result: BattleTargetingResult,
+	normal_states: Dictionary
+) -> Array[CombatantState]:
+	var result: Array[CombatantState] = []
+	var used_ids: Dictionary = {}
+
+	for target in (
+		targeting_result.affected_combatants
+	):
+		if target == null:
+			continue
+
+		if used_ids.has(
+			target.instance_id
+		):
+			continue
+
+		used_ids[target.instance_id] = true
+		result.append(target)
+
+	if (
+		command == null
+		or command.actor == null
+	):
+		return result
+
+	var actor_preview_state := (
+		normal_states.get(
+			command.actor.instance_id
+		) as BattlePreviewCombatantState
+	)
+
+	if (
+		actor_preview_state != null
+		and actor_preview_state.grid_position
+			!= command.actor.grid_position
+		and not used_ids.has(
+			command.actor.instance_id
+		)
+	):
+		result.append(
+			command.actor
+		)
+
+	return result
+
+
+func _get_relocation_effect(
+	ability: AbilityDefinition
+) -> BattleEffect:
+	if ability == null:
+		return null
+
+	for effect in ability.effects:
+		if (
+			effect is SwapPositionsEffect
+			or effect is TeleportEffect
+		):
+			return effect
+
+	return null
+
+
+func _simulate_relocation(
+	effect: BattleEffect,
+	source: BattlePreviewCombatantState,
+	preview_states: Dictionary,
+	preview_grid: BattlePreviewGridState,
+	targeting_result: BattleTargetingResult
+) -> Dictionary:
+	var results_by_target: Dictionary = {}
+	var effect_result := BattleEffectResult.new()
+
+	effect_result.effect_id = effect.effect_id
+	effect_result.source_id = source.instance_id
+	effect_result.applied_amount = 1
+
+	if effect is SwapPositionsEffect:
+		if (
+			targeting_result
+			.affected_combatants
+			.size() != 1
+		):
+			return {
+				"is_valid": false,
+				"failure_code": (
+					BattleActionService
+					.FAILURE_INVALID_RELOCATION_TARGET
+				),
+			}
+
+		var original_target := (
+			targeting_result
+			.affected_combatants[0]
+		)
+
+		var target := (
+			preview_states.get(
+				original_target.instance_id
+			) as BattlePreviewCombatantState
+		)
+
+		if target == null:
+			return {
+				"is_valid": false,
+				"failure_code": (
+					BattleActionService
+					.FAILURE_INVALID_RELOCATION_TARGET
+				),
+			}
+
+		var source_origin := source.grid_position
+		var target_origin := target.grid_position
+
+		if not preview_grid.try_swap_occupants(
+			source.instance_id,
+			target.instance_id
+		):
+			return {
+				"is_valid": false,
+				"failure_code": (
+					FAILURE_PREVIEW_MOVEMENT_COMMIT_FAILED
+				),
+			}
+
+		source.grid_position = target_origin
+		target.grid_position = source_origin
+
+		effect_result.effect_kind = (
+			&"swap_positions"
+		)
+
+		effect_result.relocation_kind = &"swap"
+
+		effect_result.target_id = (
+			target.instance_id
+		)
+
+		effect_result.secondary_target_id = (
+			target.instance_id
+		)
+
+		effect_result.movement_origin = (
+			source_origin
+		)
+
+		effect_result.movement_destination = (
+			target_origin
+		)
+
+		effect_result.secondary_movement_origin = (
+			target_origin
+		)
+
+		effect_result.secondary_movement_destination = (
+			source_origin
+		)
+
+		effect_result.is_successful = true
+
+		results_by_target[
+			source.instance_id
+		] = [effect_result]
+
+		results_by_target[
+			target.instance_id
+		] = [effect_result]
+
+	elif effect is TeleportEffect:
+		if (
+			targeting_result
+			.affected_coordinates
+			.size() != 1
+		):
+			return {
+				"is_valid": false,
+				"failure_code": (
+					BattleActionService
+					.FAILURE_NO_AFFECTED_COORDINATES
+				),
+			}
+
+		var origin := source.grid_position
+		var destination := (
+			targeting_result
+			.affected_coordinates[0]
+		)
+
+		if not preview_grid.try_move_occupant(
+			source.instance_id,
+			destination
+		):
+			return {
+				"is_valid": false,
+				"failure_code": (
+					FAILURE_PREVIEW_MOVEMENT_COMMIT_FAILED
+				),
+			}
+
+		source.grid_position = destination
+
+		effect_result.effect_kind = &"teleport"
+		effect_result.relocation_kind = &"teleport"
+
+		effect_result.target_id = (
+			source.instance_id
+		)
+
+		effect_result.movement_origin = origin
+
+		effect_result.movement_destination = (
+			destination
+		)
+
+		effect_result.is_successful = true
+
+		results_by_target[
+			source.instance_id
+		] = [effect_result]
+
+	else:
+		return {
+			"is_valid": false,
+			"failure_code": (
+				BattleActionService
+					.FAILURE_INVALID_RELOCATION_ABILITY
+			),
+		}
+
+	return {
+		"is_valid": true,
+		"failure_code": &"",
+		"states": preview_states,
+		"results_by_target": results_by_target,
+	}
+
+
 func _simulate(
 	session: BattleSession,
 	command: BattleActionCommand,
@@ -480,6 +723,21 @@ func _simulate(
 			),
 		}
 
+	var relocation_effect := (
+		_get_relocation_effect(
+			command.ability
+		)
+	)
+
+	if relocation_effect != null:
+		return _simulate_relocation(
+			relocation_effect,
+			source,
+			preview_states,
+			preview_grid,
+			targeting_result
+		)
+
 	for original_target in (
 		targeting_result.affected_combatants
 	):
@@ -504,7 +762,11 @@ func _simulate(
 		for effect in command.ability.effects:
 			## Координатный эффект рассчитывается
 			## отдельно от состояния бойца.
-			if effect is PlaceSurfaceEffect:
+			if (
+				effect is PlaceSurfaceEffect
+				or effect is SwapPositionsEffect
+				or effect is TeleportEffect
+			):
 				continue
 
 			if not target.is_alive:

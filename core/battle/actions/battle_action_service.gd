@@ -54,9 +54,18 @@ const FAILURE_NO_AFFECTED_COORDINATES: StringName = (
 	&"no_affected_coordinates"
 )
 
+const FAILURE_INVALID_RELOCATION_ABILITY: StringName = (
+	&"invalid_relocation_ability"
+)
+
+const FAILURE_INVALID_RELOCATION_TARGET: StringName = (
+	&"invalid_relocation_target"
+)
+
 var targeting_service: BattleTargetingService
 var effect_resolver := EffectResolver.new()
 
+var relocation_service := BattleRelocationService.new()
 
 func _init(
 	p_targeting_service: BattleTargetingService
@@ -121,6 +130,13 @@ func execute(
 			result.affected_target_ids.append(
 				target.instance_id
 			)
+
+	elif _has_teleport_effect(
+		command.ability
+	):
+		result.affected_target_ids.append(
+			command.actor.instance_id
+		)
 
 	if not command.actor.spend_stamina(
 		command.ability.stamina_cost
@@ -305,6 +321,18 @@ func _get_validation_failure(
 	if surface_placement_failure != &"":
 		return surface_placement_failure
 
+	var relocation_failure := (
+		_get_relocation_validation_failure(
+			session,
+			actor,
+			ability,
+			targeting_result
+		)
+	)
+
+	if relocation_failure != &"":
+		return relocation_failure
+
 	if not actor.can_spend_stamina(
 		ability.stamina_cost
 	):
@@ -312,6 +340,86 @@ func _get_validation_failure(
 
 	return &""
 
+func _get_relocation_validation_failure(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	targeting_result: BattleTargetingResult
+) -> StringName:
+	var relocation_effect: BattleEffect
+	var relocation_effect_count := 0
+
+	for effect in ability.effects:
+		if (
+			effect is SwapPositionsEffect
+			or effect is TeleportEffect
+		):
+			relocation_effect = effect
+			relocation_effect_count += 1
+
+	if relocation_effect_count == 0:
+		return &""
+
+	## Relocation v1 намеренно не смешивается
+	## с уроном, статусами и другими эффектами.
+	if (
+		relocation_effect_count != 1
+		or ability.effects.size() != 1
+	):
+		return FAILURE_INVALID_RELOCATION_ABILITY
+
+	if (
+		targeting_result
+		.affected_coordinates
+		.size() != 1
+	):
+		return FAILURE_NO_AFFECTED_COORDINATES
+
+	if relocation_effect is SwapPositionsEffect:
+		if (
+			targeting_result
+			.affected_combatants
+			.size() != 1
+		):
+			return FAILURE_INVALID_RELOCATION_TARGET
+
+		var target := (
+			targeting_result
+			.affected_combatants[0]
+		)
+
+		return relocation_service.get_swap_failure(
+			session,
+			actor,
+			target,
+			true,
+			false,
+			0
+		)
+
+	if relocation_effect is TeleportEffect:
+		return relocation_service.get_teleport_failure(
+			session,
+			actor,
+			targeting_result.affected_coordinates[0],
+			0
+		)
+
+	return FAILURE_INVALID_RELOCATION_ABILITY
+
+
+func _has_teleport_effect(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	for effect in ability.effects:
+		if effect is TeleportEffect:
+			return true
+
+	return false
+	
 func _get_surface_placement_validation_failure(
 	session: BattleSession,
 	ability: AbilityDefinition,

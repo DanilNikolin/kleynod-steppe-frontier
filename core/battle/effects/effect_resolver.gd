@@ -715,6 +715,10 @@ func _resolve_apply_status(
 		status_definition.display_name
 	)
 
+	result.status_polarity = (
+		status_definition.polarity
+	)
+
 	if target.definition != null:
 		if target.definition.has_status_id_immunity(
 			status_definition.status_id
@@ -834,6 +838,9 @@ func _resolve_remove_status(
 			removed_status.definition.display_name
 		)
 
+		result.removed_status_polarities.append(
+			removed_status.definition.polarity
+		)
 	result.applied_amount = (
 		result.removed_status_ids.size()
 	)

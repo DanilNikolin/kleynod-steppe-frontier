@@ -82,6 +82,7 @@ var guard_was_bypassed: bool = false
 
 var status_id: StringName = &""
 var status_display_name: String = ""
+var status_polarity: int = -1
 
 ## Статус не был наложен из-за постоянного иммунитета цели.
 ## Сам эффект считается успешно обработанным.
@@ -97,6 +98,7 @@ var status_immunity_value: StringName = &""
 var removed_status_ids: Array[StringName] = []
 
 var removed_status_display_names: PackedStringArray = []
+var removed_status_polarities: PackedInt32Array = []
 
 var status_was_added: bool = false
 

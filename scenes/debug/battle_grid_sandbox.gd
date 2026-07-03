@@ -1040,6 +1040,11 @@ func _try_run_utility_ai_turn(
 			)
 		)
 
+	_push_utility_ai_outcome_log(
+		combatant,
+		outcome
+	)
+
 	if turn_controller.is_finished:
 		interaction_controller.set_interaction_in_progress(
 			false
@@ -1087,6 +1092,58 @@ func _try_run_utility_ai_turn(
 	return true
 
 
+func _push_utility_ai_outcome_log(
+	combatant: CombatantState,
+	outcome: BattleUtilityAITurnOutcome
+) -> void:
+	if (
+		debug_log_presenter == null
+		or combatant == null
+		or outcome == null
+	):
+		return
+
+	var actor_name := String(
+		outcome.actor_id
+	)
+
+	if combatant.definition != null:
+		actor_name = (
+			combatant.definition.display_name
+		)
+
+	if not outcome.is_successful:
+		debug_log_presenter.push_battle_log(
+			"Utility AI outcome · %s · ошибка %s · "
+			% [
+				actor_name,
+				outcome.failure_code,
+			]
+			+"выполнено планов %d."
+			% outcome.executed_plans.size()
+		)
+
+		return
+
+	debug_log_presenter.push_battle_log(
+		"Utility AI stop · %s · %s · "
+		% [
+			actor_name,
+			outcome.stop_reason,
+		]
+		+"планов %d · действий %d · шагов %d · "
+		% [
+			outcome.executed_plans.size(),
+			outcome.get_action_count(),
+			outcome.get_movement_step_count(),
+		]
+		+"урон %d · последний score %.1f."
+		% [
+			outcome.get_damage_dealt(),
+			outcome.get_last_score(),
+		]
+	)
+	
 func _set_utility_ai_headline(
 	combatant: CombatantState,
 	outcome: BattleUtilityAITurnOutcome
@@ -1155,7 +1212,7 @@ func _set_utility_ai_headline(
 			outcome.stop_reason,
 		]
 	)
-	
+
 func _is_combatant_still_active(
 	combatant: CombatantState
 ) -> bool:

@@ -53,9 +53,14 @@ const STOP_NO_USEFUL_PLAN: StringName = &"no_useful_plan"
 const STOP_ACTOR_DEFEATED: StringName = &"actor_defeated"
 const STOP_NO_PROGRESS: StringName = &"no_progress"
 
+const STOP_LOW_VALUE_AFTER_ACTION: StringName = (
+	&"low_value_after_action"
+)
+
 
 const MAX_ATOMIC_PLANS_PER_TURN: int = 64
 const MIN_USEFUL_SCORE: float = 0.0
+const MIN_USEFUL_SCORE_AFTER_ACTION: float = 8.0
 
 
 var plan_generator: BattleAIPlanGenerator
@@ -167,6 +172,19 @@ func execute(
 			outcome.is_successful = true
 			return outcome
 
+		if (
+			outcome.did_act()
+			and not selected_plan.has_action()
+			and selected_plan.get_score()
+				< MIN_USEFUL_SCORE_AFTER_ACTION
+		):
+			outcome.stop_reason = (
+				STOP_LOW_VALUE_AFTER_ACTION
+			)
+
+			outcome.is_successful = true
+			return outcome
+            
 		outcome.add_executed_plan(
 			selected_plan
 		)

@@ -29,6 +29,27 @@ const SCORE_GUARD_DAMAGE: StringName = &"guard_damage"
 const SCORE_KILL: StringName = &"kill"
 const SCORE_OVERKILL: StringName = &"overkill"
 
+const SCORE_HEAL: StringName = &"heal"
+const SCORE_OVERHEAL: StringName = &"overheal"
+const SCORE_ENEMY_HEAL: StringName = &"enemy_heal"
+
+const SCORE_GUARD: StringName = &"guard"
+const SCORE_OVERGUARD: StringName = &"overguard"
+const SCORE_ENEMY_GUARD: StringName = &"enemy_guard"
+
+const SCORE_STATUS: StringName = &"status"
+const SCORE_BAD_STATUS: StringName = &"bad_status"
+const SCORE_CLEANSE: StringName = &"cleanse"
+const SCORE_BAD_CLEANSE: StringName = &"bad_cleanse"
+const SCORE_ARMOR_SHIFT: StringName = &"armor_shift"
+const SCORE_SURFACE_CELL: StringName = (
+	&"surface_cell"
+)
+
+const SCORE_PLACE_SURFACE: StringName = (
+	&"place_surface"
+)
+
 const SCORE_FRIENDLY_DAMAGE: StringName = (
 	&"friendly_damage"
 )
@@ -59,6 +80,31 @@ const DAMAGE_SCORE_PER_HP: float = 10.0
 const GUARD_DAMAGE_SCORE_PER_POINT: float = 4.0
 const KILL_SCORE: float = 80.0
 const OVERKILL_PENALTY_PER_HP: float = -3.0
+const HEAL_SCORE_PER_HP: float = 7.0
+const OVERHEAL_PENALTY_PER_HP: float = -1.0
+const ENEMY_HEAL_PENALTY_PER_HP: float = -14.0
+
+const GUARD_SCORE_PER_POINT: float = 5.0
+const OVERGUARD_PENALTY_PER_POINT: float = -1.0
+const ENEMY_GUARD_PENALTY_PER_POINT: float = -10.0
+
+const HARMFUL_STATUS_SCORE: float = 18.0
+const BENEFICIAL_STATUS_SCORE: float = 14.0
+const BAD_STATUS_PENALTY: float = -22.0
+
+const CLEANSE_SCORE: float = 16.0
+const BAD_CLEANSE_PENALTY: float = -20.0
+
+const ARMOR_SHIFT_SCORE_PER_POINT: float = 10.0
+
+const HARMFUL_SURFACE_ON_SELF_PENALTY: float = -10.0
+const BENEFICIAL_SURFACE_ON_SELF_SCORE: float = 6.0
+
+const HARMFUL_SURFACE_ON_ENEMY_SCORE: float = 14.0
+const HARMFUL_SURFACE_ON_ALLY_PENALTY: float = -18.0
+
+const BENEFICIAL_SURFACE_ON_ALLY_SCORE: float = 12.0
+const BENEFICIAL_SURFACE_ON_ENEMY_PENALTY: float = -16.0
 
 const FRIENDLY_DAMAGE_PENALTY_PER_HP: float = -20.0
 const FRIENDLY_GUARD_DAMAGE_PENALTY_PER_POINT: float = -8.0
@@ -139,6 +185,12 @@ func evaluate_plan(
 		simulation
 	)
 
+	_score_surface_awareness(
+		breakdown,
+		plan,
+		simulation
+	)
+
 	_score_costs(
 		breakdown,
 		plan,
@@ -213,14 +265,62 @@ func _score_effect_result(
 	effect_result: BattleEffectResult,
 	scored_kill_ids: Dictionary
 ) -> void:
-	if effect_result.effect_kind == &"damage":
-		_score_damage_result(
-			breakdown,
-			simulation,
-			actor,
-			effect_result,
-			scored_kill_ids
-		)
+	match effect_result.effect_kind:
+		&"damage":
+			_score_damage_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result,
+				scored_kill_ids
+			)
+
+		&"heal":
+			_score_heal_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"grant_guard":
+			_score_guard_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"apply_status":
+			_score_apply_status_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"remove_status":
+			_score_remove_status_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"place_surface":
+			_score_place_surface_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+	_score_armor_shift(
+		breakdown,
+		simulation,
+		actor,
+		effect_result
+	)
 
 	for defeated_id in (
 		effect_result.relocation_defeated_ids
@@ -232,7 +332,6 @@ func _score_effect_result(
 			defeated_id,
 			scored_kill_ids
 		)
-
 
 func _score_damage_result(
 	breakdown: BattleAIScoreBreakdown,
@@ -306,6 +405,258 @@ func _score_damage_result(
 		)
 
 
+func _score_heal_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	if target.team_id == actor.team_id:
+		breakdown.add_score(
+			SCORE_HEAL,
+			float(
+				effect_result.applied_amount
+			)
+			* HEAL_SCORE_PER_HP
+		)
+
+		breakdown.add_score(
+			SCORE_OVERHEAL,
+			float(
+				effect_result.overheal_amount
+			)
+			* OVERHEAL_PENALTY_PER_HP
+		)
+
+	else:
+		breakdown.add_score(
+			SCORE_ENEMY_HEAL,
+			float(
+				effect_result.applied_amount
+			)
+			* ENEMY_HEAL_PENALTY_PER_HP
+		)
+
+
+func _score_guard_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	if target.team_id == actor.team_id:
+		breakdown.add_score(
+			SCORE_GUARD,
+			float(
+				effect_result.applied_amount
+			)
+			* GUARD_SCORE_PER_POINT
+		)
+
+		breakdown.add_score(
+			SCORE_OVERGUARD,
+			float(
+				effect_result.overguard_amount
+			)
+			* OVERGUARD_PENALTY_PER_POINT
+		)
+
+	else:
+		breakdown.add_score(
+			SCORE_ENEMY_GUARD,
+			float(
+				effect_result.applied_amount
+			)
+			* ENEMY_GUARD_PENALTY_PER_POINT
+		)
+
+
+func _score_apply_status_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	if (
+		not effect_result.is_successful
+		or effect_result
+			.status_application_blocked_by_immunity
+	):
+		return
+
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	var changed_status := (
+		effect_result.status_was_added
+		or effect_result.current_status_stack_count
+			!= effect_result
+				.previous_status_stack_count
+		or effect_result.current_status_remaining_turns
+			!= effect_result
+				.previous_status_remaining_turns
+	)
+
+	if not changed_status:
+		return
+
+	var is_ally := (
+		target.team_id == actor.team_id
+	)
+
+	match effect_result.status_polarity:
+		BattleStatusDefinition.Polarity.HARMFUL:
+			if is_ally:
+				breakdown.add_score(
+					SCORE_BAD_STATUS,
+					BAD_STATUS_PENALTY
+				)
+
+			else:
+				breakdown.add_score(
+					SCORE_STATUS,
+					HARMFUL_STATUS_SCORE
+				)
+
+		BattleStatusDefinition.Polarity.BENEFICIAL:
+			if is_ally:
+				breakdown.add_score(
+					SCORE_STATUS,
+					BENEFICIAL_STATUS_SCORE
+				)
+
+			else:
+				breakdown.add_score(
+					SCORE_BAD_STATUS,
+					BAD_STATUS_PENALTY
+				)
+
+
+func _score_remove_status_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	if not effect_result.is_successful:
+		return
+
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	var is_ally := (
+		target.team_id == actor.team_id
+	)
+
+	for polarity in (
+		effect_result.removed_status_polarities
+	):
+		match polarity:
+			BattleStatusDefinition.Polarity.HARMFUL:
+				if is_ally:
+					breakdown.add_score(
+						SCORE_CLEANSE,
+						CLEANSE_SCORE
+					)
+
+				else:
+					breakdown.add_score(
+						SCORE_BAD_CLEANSE,
+						BAD_CLEANSE_PENALTY
+					)
+
+			BattleStatusDefinition.Polarity.BENEFICIAL:
+				if is_ally:
+					breakdown.add_score(
+						SCORE_BAD_CLEANSE,
+						BAD_CLEANSE_PENALTY
+					)
+
+				else:
+					breakdown.add_score(
+						SCORE_CLEANSE,
+						CLEANSE_SCORE
+					)
+
+
+func _score_armor_shift(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var previous_armor := (
+		effect_result.previous_target_effective_armor
+	)
+
+	var current_armor := (
+		effect_result.current_target_effective_armor
+	)
+
+	if previous_armor == current_armor:
+		return
+
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	var armor_delta := (
+		current_armor - previous_armor
+	)
+
+	var is_ally := (
+		target.team_id == actor.team_id
+	)
+
+	var useful_delta := 0
+
+	if is_ally:
+		useful_delta = armor_delta
+
+	else:
+		useful_delta = - armor_delta
+
+	breakdown.add_score(
+		SCORE_ARMOR_SHIFT,
+		float(useful_delta)
+		* ARMOR_SHIFT_SCORE_PER_POINT
+	)
+    
 func _score_kill(
 	breakdown: BattleAIScoreBreakdown,
 	simulation: BattleActionSimulationResult,
@@ -347,6 +698,261 @@ func _score_kill(
 		)
 
 
+func _score_surface_awareness(
+	breakdown: BattleAIScoreBreakdown,
+	plan: BattleAIPlan,
+	simulation: BattleActionSimulationResult
+) -> void:
+	if (
+		breakdown == null
+		or plan == null
+		or simulation == null
+		or not simulation.is_valid
+		or simulation.simulated_session == null
+	):
+		return
+
+	if (
+		not plan.has_movement()
+		and not plan.has_ally_swap()
+	):
+		return
+
+	var actor := (
+		simulation.get_simulated_actor()
+	)
+
+	if actor == null:
+		return
+
+	var score := _get_surface_score_for_combatant_at(
+		simulation.simulated_session,
+		actor,
+		simulation.final_actor_coordinate
+	)
+
+	breakdown.add_score(
+		SCORE_SURFACE_CELL,
+		score
+	)
+
+
+func _score_place_surface_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	if (
+		breakdown == null
+		or simulation == null
+		or actor == null
+		or effect_result == null
+		or not effect_result.is_successful
+		or simulation.simulated_session == null
+		or simulation
+			.simulated_session
+			.surface_effect_controller == null
+	):
+		return
+
+	if (
+		effect_result.effect_coordinate
+		== BattleGrid.INVALID_COORDINATE
+		or effect_result.surface_effect_id == &""
+	):
+		return
+
+	var placed_instance := (
+		simulation
+			.simulated_session
+			.surface_effect_controller
+			.get_effect_at(
+				effect_result.effect_coordinate,
+				effect_result.surface_effect_id
+			)
+	)
+
+	if (
+		placed_instance == null
+		or placed_instance.definition == null
+	):
+		return
+
+	var target := _get_combatant_at_coordinate(
+		simulation.simulated_session,
+		effect_result.effect_coordinate
+	)
+
+	if target == null:
+		return
+
+	var surface_value := _get_surface_definition_value_for_team(
+		placed_instance.definition,
+		placed_instance.source_team_id,
+		target.team_id
+	)
+
+	if is_zero_approx(surface_value):
+		return
+
+	var is_ally := (
+		target.team_id == actor.team_id
+	)
+
+	var score := 0.0
+
+	if surface_value < 0.0:
+		if is_ally:
+			score = HARMFUL_SURFACE_ON_ALLY_PENALTY
+
+		else:
+			score = HARMFUL_SURFACE_ON_ENEMY_SCORE
+
+	else:
+		if is_ally:
+			score = BENEFICIAL_SURFACE_ON_ALLY_SCORE
+
+		else:
+			score = BENEFICIAL_SURFACE_ON_ENEMY_PENALTY
+
+	breakdown.add_score(
+		SCORE_PLACE_SURFACE,
+		score
+	)
+
+
+func _get_surface_score_for_combatant_at(
+	session: BattleSession,
+	combatant: CombatantState,
+	coordinate: Vector2i
+) -> float:
+	if (
+		session == null
+		or session.surface_effect_controller == null
+		or combatant == null
+		or coordinate == BattleGrid.INVALID_COORDINATE
+	):
+		return 0.0
+
+	var score := 0.0
+
+	for surface_instance in (
+		session
+			.surface_effect_controller
+			.get_effects_at(
+				coordinate
+			)
+	):
+		if (
+			surface_instance == null
+			or surface_instance.definition == null
+		):
+			continue
+
+		var surface_value := _get_surface_definition_value_for_team(
+			surface_instance.definition,
+			surface_instance.source_team_id,
+			combatant.team_id
+		)
+
+		if surface_value < 0.0:
+			score += HARMFUL_SURFACE_ON_SELF_PENALTY
+
+		elif surface_value > 0.0:
+			score += BENEFICIAL_SURFACE_ON_SELF_SCORE
+
+	return score
+
+
+func _get_surface_definition_value_for_team(
+	definition: BattleSurfaceEffectDefinition,
+	source_team_id: StringName,
+	target_team_id: StringName
+) -> float:
+	if definition == null:
+		return 0.0
+
+	if not definition.can_affect_team(
+		source_team_id,
+		target_team_id
+	):
+		return 0.0
+
+	var result := 0.0
+
+	for effect in definition.effects:
+		result += _get_surface_effect_value(
+			effect
+		)
+
+	return result
+
+
+func _get_surface_effect_value(
+	effect: BattleEffect
+) -> float:
+	if effect == null:
+		return 0.0
+
+	if effect is DamageEffect:
+		return -1.0
+
+	if effect is HealEffect:
+		return 1.0
+
+	if effect is GrantGuardEffect:
+		return 1.0
+
+	if effect is ApplyStatusEffect:
+		var status_effect := (
+			effect as ApplyStatusEffect
+		)
+
+		if status_effect.status_definition == null:
+			return 0.0
+
+		match status_effect.status_definition.polarity:
+			BattleStatusDefinition.Polarity.HARMFUL:
+				return -1.0
+
+			BattleStatusDefinition.Polarity.BENEFICIAL:
+				return 1.0
+
+	if effect is RemoveStatusEffect:
+		return 0.0
+
+	if effect is ForcedMovementEffect:
+		return -0.25
+
+	return 0.0
+
+
+func _get_combatant_at_coordinate(
+	session: BattleSession,
+	coordinate: Vector2i
+) -> CombatantState:
+	if (
+		session == null
+		or session.grid == null
+		or coordinate == BattleGrid.INVALID_COORDINATE
+	):
+		return null
+
+	var cell := session.grid.get_cell(
+		coordinate
+	)
+
+	if (
+		cell == null
+		or not cell.is_occupied()
+	):
+		return null
+
+	return session.get_combatant(
+		cell.occupant_id
+	)
+    
 func _score_positioning(
 	breakdown: BattleAIScoreBreakdown,
 	plan: BattleAIPlan,

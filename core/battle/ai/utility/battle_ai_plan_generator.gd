@@ -54,6 +54,7 @@ const FAILURE_SNAPSHOT_MOVEMENT_COMMIT_FAILED: StringName = (
 var movement_service: BattleMovementService
 var action_service: BattleActionService
 var targeting_service: BattleTargetingService
+var simulation_service: BattleActionSimulationService
 
 
 func _init(
@@ -82,6 +83,12 @@ func _init(
 	movement_service = p_movement_service
 	action_service = p_action_service
 	targeting_service = p_targeting_service
+	simulation_service = (
+		BattleActionSimulationService.new(
+			movement_service,
+			action_service
+		)
+	)
 
 
 func create_report(
@@ -138,6 +145,11 @@ func create_report(
 		session,
 		actor,
 		stamina_cost_per_step
+	)
+
+	_simulate_plans(
+		report,
+		session
 	)
 
 	report.sort_plans()
@@ -567,6 +579,27 @@ func _append_ally_swap_plans(
 			plan
 		)
 
+func _simulate_plans(
+	report: BattleAIPlanningReport,
+	session: BattleSession
+) -> void:
+	if (
+		report == null
+		or session == null
+		or simulation_service == null
+	):
+		return
+
+	for plan in report.plans:
+		if plan == null or not plan.is_valid:
+			continue
+
+		plan.simulation_result = (
+			simulation_service.simulate(
+				session,
+				plan.create_simulation_request()
+			)
+		)
 
 func _create_base_plan(
 	actor: CombatantState

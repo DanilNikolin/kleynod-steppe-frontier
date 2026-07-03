@@ -81,7 +81,12 @@ func _init(
 
 func execute(
 	session: BattleSession,
-	command: BattleActionCommand
+	command: BattleActionCommand,
+	standard_critical_mode: int = (
+		EffectResolver
+			.StandardCriticalMode
+			.RANDOM
+	)
 ) -> BattleActionResult:
 	var result := _create_result(
 		command
@@ -189,7 +194,8 @@ func execute(
 					session,
 					false,
 					true,
-					coordinate
+					coordinate,
+					standard_critical_mode
 				)
 			)
 
@@ -419,7 +425,7 @@ func _has_teleport_effect(
 			return true
 
 	return false
-	
+
 func _get_surface_placement_validation_failure(
 	session: BattleSession,
 	ability: AbilityDefinition,

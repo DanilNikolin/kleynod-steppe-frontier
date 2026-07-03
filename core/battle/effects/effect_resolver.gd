@@ -1,6 +1,10 @@
 class_name EffectResolver
 extends RefCounted
-
+enum StandardCriticalMode {
+	RANDOM,
+	NEVER,
+	ALWAYS,
+}
 
 const FAILURE_INVALID_EFFECT: StringName = &"invalid_effect"
 const FAILURE_INVALID_SOURCE: StringName = &"invalid_source"
@@ -79,7 +83,8 @@ func resolve(
 	session: BattleSession = null,
 	bypass_guard: bool = false,
 	allow_critical: bool = true,
-	target_coordinate: Vector2i = BattleGrid.INVALID_COORDINATE
+	target_coordinate: Vector2i = BattleGrid.INVALID_COORDINATE,
+	standard_critical_mode: int = StandardCriticalMode.RANDOM
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -136,7 +141,8 @@ func resolve(
 			source,
 			target,
 			bypass_guard,
-			allow_critical
+			allow_critical,
+			standard_critical_mode
 		)
 
 	if effect is HealEffect:
@@ -294,7 +300,7 @@ func _resolve_teleport(
 	result.is_successful = true
 
 	return result
-	
+
 func _resolve_place_surface(
 	effect: PlaceSurfaceEffect,
 	source: CombatantState,
@@ -407,7 +413,8 @@ func _resolve_damage(
 	source: CombatantState,
 	target: CombatantState,
 	bypass_guard: bool,
-	allow_critical: bool
+	allow_critical: bool,
+	standard_critical_mode: int
 ) -> BattleEffectResult:
 	var result := BattleEffectResult.new()
 
@@ -475,21 +482,33 @@ func _resolve_damage(
 				result.was_critical = true
 
 			DamageEffect.CritMode.STANDARD:
-				if result.critical_chance_percent > 0:
-					result.critical_roll_percent = (
-						random_number_generator
-						.randi_range(
-							1,
-							100
-						)
-					)
-
-					result.was_critical = (
-						result
-						.critical_roll_percent
-						<= result
+				if (
+					result
 						.critical_chance_percent
-					)
+					> 0
+				):
+					match standard_critical_mode:
+						StandardCriticalMode.NEVER:
+							pass
+
+						StandardCriticalMode.ALWAYS:
+							result.was_critical = true
+
+						_:
+							result.critical_roll_percent = (
+								random_number_generator
+									.randi_range(
+										1,
+										100
+									)
+							)
+
+							result.was_critical = (
+								result
+									.critical_roll_percent
+								<= result
+									.critical_chance_percent
+							)
 
 	result.raw_amount = (
 		result.raw_amount_before_critical

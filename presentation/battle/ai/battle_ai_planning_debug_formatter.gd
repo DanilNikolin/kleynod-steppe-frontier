@@ -270,6 +270,11 @@ static func _build_plan_text(
 		% plan.remaining_stamina
 	)
 
+	_append_simulation_summary(
+		parts,
+		plan
+	)
+
 	return " · ".join(
 		parts
 	)
@@ -298,6 +303,71 @@ static func _build_rejection_text(
 	)
 
 
+static func _append_simulation_summary(
+	parts: PackedStringArray,
+	plan: BattleAIPlan
+) -> void:
+	if plan == null:
+		return
+
+	var simulation := (
+		plan.simulation_result
+	)
+
+	if simulation == null:
+		parts.append(
+			"sim отсутствует"
+		)
+
+		return
+
+	if not simulation.is_valid:
+		parts.append(
+			"sim отказ %s"
+			% simulation.failure_code
+		)
+
+		return
+
+	if simulation.movement_interrupted:
+		parts.append(
+			"движение прервано %s"
+			% simulation
+				.movement_interruption_reason
+		)
+
+		return
+
+	if simulation.action_was_skipped:
+		parts.append(
+			"действие пропущено %s"
+			% simulation.action_skip_reason
+		)
+
+		return
+
+	if simulation.action_was_attempted:
+		if simulation.action_result == null:
+			parts.append(
+				"действие без результата"
+			)
+
+			return
+
+		if not simulation.action_result.is_successful:
+			parts.append(
+				"действие отказ %s"
+				% simulation
+					.action_result
+					.failure_code
+			)
+
+			return
+
+	parts.append(
+		"sim ✓"
+	)
+	
 static func _format_coordinate(
 	coordinate: Vector2i
 ) -> String:

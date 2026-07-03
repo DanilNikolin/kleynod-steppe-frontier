@@ -40,7 +40,7 @@ var remaining_stamina: int = 0
 var score_breakdown := (
 	BattleAIScoreBreakdown.new()
 )
-
+var simulation_result: BattleActionSimulationResult
 
 func has_movement() -> bool:
 	return (
@@ -101,6 +101,39 @@ func create_action_command(
 	)
 
 
+func create_simulation_request() -> BattleActionSimulationRequest:
+	var request := (
+		BattleActionSimulationRequest.new()
+	)
+
+	request.actor_id = actor_id
+
+	request.movement_plan = (
+		movement_plan
+	)
+
+	request.ally_swap_target_id = (
+		ally_swap_target_id
+	)
+
+	request.ally_swap_stamina_cost = (
+		ally_swap_stamina_cost
+	)
+
+	request.ability = ability
+
+	request.aim_coordinate = (
+		aim_coordinate
+	)
+
+	request.standard_critical_mode = (
+		EffectResolver
+			.StandardCriticalMode
+			.NEVER
+	)
+
+	return request
+	
 func get_stable_sort_key() -> String:
 	var kind_rank := _get_kind_rank()
 

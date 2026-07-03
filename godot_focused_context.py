@@ -26,24 +26,31 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/session/battle_session.gd",
+    "core/battle/actions/battle_action_result.gd",
+    "core/battle/actions/battle_effect_result.gd",
 
-    "core/battle/combatants/combatant_state.gd",
-    "core/battle/combatants/combatant_definition.gd",
-    "core/battle/loadouts/combatant_loadout_definition.gd",
-    "core/battle/abilities/ability_definition.gd",
+    "core/battle/effects/battle_effect.gd",
+    "core/battle/effects/effect_resolver.gd",
+    "core/battle/effects/damage_effect.gd",
+    "core/battle/effects/heal_effect.gd",
+    "core/battle/effects/grant_guard_effect.gd",
+    "core/battle/effects/apply_status_effect.gd",
+    "core/battle/effects/remove_status_effect.gd",
+    "core/battle/effects/forced_movement_effect.gd",
+    "core/battle/effects/place_surface_effect.gd",
+    "core/battle/effects/swap_positions_effect.gd",
+    "core/battle/effects/teleport_effect.gd",
 
-    "core/battle/grid/battle_grid.gd",
-    "core/battle/grid/battle_grid_cell.gd",
-    "core/battle/sides/battle_side_rules.gd",
+    "core/battle/movement/battle_forced_movement_resolution.gd",
+    "core/battle/movement/core/battle/movement/battle_forced_movement_service.gd",
+    "core/battle/movement/battle_relocation_result.gd",
 
-    "core/battle/statuses/battle_status_instance.gd",
-    "core/battle/restrictions/battle_action_restriction.gd",
+    "core/battle/previews/battle_action_preview_service.gd",
+    "core/battle/previews/battle_target_preview.gd",
+    "core/battle/previews/battle_surface_placement_preview.gd",
 
+    "core/battle/surfaces/battle_surface_trigger_result.gd",
     "core/battle/surfaces/battle_surface_effect_controller.gd",
-    "core/battle/surfaces/battle_surface_effect_instance.gd",
-
-    "core/battle/movement/battle_relocation_service.gd",
 ]
 
 ALLOW_ADDONS = False

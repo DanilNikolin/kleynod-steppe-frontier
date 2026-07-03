@@ -348,7 +348,8 @@ func _create_action_preview_system() -> void:
 
 	action_preview_presenter = (
 		BattleActionPreviewPresenter.new(
-			combatant_presenter
+			combatant_presenter,
+			grid_view
 		)
 	)
 

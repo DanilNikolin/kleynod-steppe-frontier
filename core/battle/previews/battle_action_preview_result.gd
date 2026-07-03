@@ -13,6 +13,7 @@ var aim_coordinate: Vector2i = (
 )
 
 var target_previews: Array[BattleTargetPreview] = []
+var surface_placement_previews: Array[BattleSurfacePlacementPreview] = []
 
 
 func get_target_preview(
@@ -27,3 +28,21 @@ func get_target_preview(
 			return target_preview
 
 	return null
+
+
+func get_surface_placement_previews_at(
+	coordinate: Vector2i
+) -> Array[BattleSurfacePlacementPreview]:
+	var result: Array[BattleSurfacePlacementPreview] = []
+
+	for placement_preview in surface_placement_previews:
+		if (
+			placement_preview != null
+			and placement_preview.coordinate
+				== coordinate
+		):
+			result.append(
+				placement_preview
+			)
+
+	return result

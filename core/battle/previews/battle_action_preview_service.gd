@@ -62,7 +62,12 @@ func create_preview(
 		)
 	)
 
-	if failure_code != &"":
+	if (
+		failure_code != &""
+		and not _is_previewable_surface_failure(
+			failure_code
+		)
+	):
 		result.failure_code = failure_code
 		return result
 
@@ -76,6 +81,27 @@ func create_preview(
 	if not targeting_result.is_valid:
 		result.failure_code = (
 			targeting_result.failure_code
+		)
+
+		return result
+
+	result.surface_placement_previews = (
+		_create_surface_placement_previews(
+			session,
+			command,
+			targeting_result
+		)
+	)
+
+	## Невозможное размещение всё равно считается
+	## успешно построенным preview.
+	## Само действие выполнить по-прежнему нельзя.
+	if failure_code != &"":
+		result.failure_code = failure_code
+		result.is_valid = (
+			not result
+				.surface_placement_previews
+				.is_empty()
 		)
 
 		return result
@@ -247,6 +273,172 @@ func create_preview(
 	return result
 
 
+func _is_previewable_surface_failure(
+	failure_code: StringName
+) -> bool:
+	return (
+		failure_code
+			== BattleSurfaceEffectController
+				.FAILURE_SURFACE_CELL_HAS_OBSTACLE
+		or failure_code
+			== BattleSurfaceEffectController
+				.FAILURE_INVALID_SURFACE_COORDINATE
+	)
+
+
+func _create_surface_placement_previews(
+	session: BattleSession,
+	command: BattleActionCommand,
+	targeting_result: BattleTargetingResult
+) -> Array[BattleSurfacePlacementPreview]:
+	var result: Array[BattleSurfacePlacementPreview] = []
+
+	if (
+		session == null
+		or session.surface_effect_controller == null
+		or command == null
+		or command.ability == null
+		or targeting_result == null
+	):
+		return result
+
+	var previews_by_key: Dictionary = {}
+	var ordered_keys: PackedStringArray = []
+
+	var surface_controller := (
+		session.surface_effect_controller
+	)
+
+	for coordinate in (
+		targeting_result.affected_coordinates
+	):
+		for effect in command.ability.effects:
+			if not effect is PlaceSurfaceEffect:
+				continue
+
+			var place_effect := (
+				effect as PlaceSurfaceEffect
+			)
+
+			var definition := (
+				place_effect.surface_definition
+			)
+
+			if definition == null:
+				continue
+
+			var preview_key := (
+				"%d:%d:%s"
+				% [
+					coordinate.x,
+					coordinate.y,
+					definition.surface_effect_id,
+				]
+			)
+
+			var placement_preview := (
+				previews_by_key.get(
+					preview_key
+				) as BattleSurfacePlacementPreview
+			)
+
+			if placement_preview == null:
+				placement_preview = (
+					BattleSurfacePlacementPreview.new()
+				)
+
+				placement_preview.coordinate = (
+					coordinate
+				)
+
+				placement_preview.surface_effect_id = (
+					definition.surface_effect_id
+				)
+
+				var existing_instance := (
+					surface_controller.get_effect_at(
+						coordinate,
+						definition.surface_effect_id
+					)
+				)
+
+				placement_preview.will_add = (
+					existing_instance == null
+				)
+
+				placement_preview.will_update = (
+					existing_instance != null
+				)
+
+				if existing_instance != null:
+					placement_preview.previous_is_permanent = (
+						existing_instance.is_permanent
+					)
+
+					placement_preview.previous_remaining_rounds = (
+						existing_instance.remaining_rounds
+					)
+
+				previews_by_key[
+					preview_key
+				] = placement_preview
+
+				ordered_keys.append(
+					preview_key
+				)
+
+			## Если в одной способности несколько
+			## PlaceSurfaceEffect с одинаковым ID,
+			## итоговые данные берём от последнего.
+			placement_preview.surface_display_name = (
+				definition.display_name
+			)
+
+			placement_preview.final_is_permanent = (
+				definition.duration_rounds == 0
+			)
+
+			placement_preview.final_remaining_rounds = (
+				maxi(
+					0,
+					definition.duration_rounds
+				)
+			)
+
+			placement_preview.presentation_color = (
+				definition.presentation_color
+			)
+
+			placement_preview.failure_code = (
+				surface_controller.get_placement_failure(
+					session,
+					coordinate,
+					definition
+				)
+			)
+
+			placement_preview.can_place = (
+				placement_preview.failure_code == &""
+			)
+
+			if not placement_preview.can_place:
+				placement_preview.will_add = false
+				placement_preview.will_update = false
+
+	for preview_key in ordered_keys:
+		var placement_preview := (
+			previews_by_key.get(
+				preview_key
+			) as BattleSurfacePlacementPreview
+		)
+
+		if placement_preview != null:
+			result.append(
+				placement_preview
+			)
+
+	return result
+
 func _simulate(
 	session: BattleSession,
 	command: BattleActionCommand,
@@ -310,6 +502,11 @@ func _simulate(
 		] = target_results
 
 		for effect in command.ability.effects:
+			## Координатный эффект рассчитывается
+			## отдельно от состояния бойца.
+			if effect is PlaceSurfaceEffect:
+				continue
+
 			if not target.is_alive:
 				break
 

@@ -198,6 +198,8 @@ var _surface_effect_colors: Dictionary = {}
 var _targeting_aim_coordinates: Array[Vector2i] = []
 var _targeting_impact_coordinates: Array[Vector2i] = []
 
+var _action_preview_cells: Dictionary = {}
+
 
 func _ready() -> void:
 	queue_redraw()
@@ -245,8 +247,30 @@ func _draw() -> void:
 			)
 
 			if _cell_overlays.has(coordinate):
-				var overlay_color: Color = _cell_overlays[coordinate]
-				draw_rect(cell_rect, overlay_color, true)
+				var overlay_color: Color = (
+					_cell_overlays[coordinate]
+				)
+
+				draw_rect(
+					cell_rect,
+					overlay_color,
+					true
+				)
+
+			if _action_preview_cells.has(
+				coordinate
+			):
+				var preview_data: Dictionary = (
+					_action_preview_cells.get(
+						coordinate,
+						{}
+					)
+				)
+
+				_draw_action_preview_cell(
+					cell_rect,
+					preview_data
+				)
 
 			if coordinate == hovered_cell:
 				draw_rect(cell_rect, hover_color, true)
@@ -373,6 +397,108 @@ func _draw_targeting_debug_markers() -> void:
 		)
 
 
+func _draw_action_preview_cell(
+	cell_rect: Rect2,
+	preview_data: Dictionary
+) -> void:
+	if preview_data.is_empty():
+		return
+
+	var preview_color: Color = (
+		preview_data.get(
+			"color",
+			Color.WHITE
+		)
+	)
+
+	var preview_text := String(
+		preview_data.get(
+			"text",
+			""
+		)
+	)
+
+	var outline_color := preview_color
+	outline_color.a = 0.95
+
+	draw_rect(
+		cell_rect.grow(-4.0),
+		outline_color,
+		false,
+		4.0,
+		true
+	)
+
+	if preview_text.strip_edges().is_empty():
+		return
+
+	var lines := preview_text.split(
+		"\n",
+		false
+	)
+
+	if lines.is_empty():
+		return
+
+	var font: Font = ThemeDB.fallback_font
+	var font_size: int = 11
+	var line_height: float = 14.0
+
+	var panel_height: float = (
+		float(lines.size()) * line_height + 6.0
+	)
+
+	var text_panel := Rect2(
+		Vector2(
+			cell_rect.position.x + 4.0,
+			cell_rect.end.y - panel_height - 4.0
+		),
+		Vector2(
+			cell_rect.size.x - 8.0,
+			panel_height
+		)
+	)
+
+	draw_rect(
+		text_panel,
+		Color(
+			0.02,
+			0.025,
+			0.03,
+			0.86
+		),
+		true
+	)
+
+	for line_index in range(
+		lines.size()
+	):
+		var line := String(
+			lines[line_index]
+		)
+
+		var baseline_y: float = (
+			text_panel.position.y
+			+ 3.0
+			+ font.get_ascent(
+				font_size
+			)
+			+ float(line_index) * line_height
+		)
+
+		draw_string(
+			font,
+			Vector2(
+				text_panel.position.x + 4.0,
+				baseline_y
+			),
+			line,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			text_panel.size.x - 8.0,
+			font_size,
+			Color.WHITE
+		)
+		
 func set_targeting_debug_markers(
 	aim_coordinates: Array[Vector2i],
 	impact_coordinates: Array[Vector2i]
@@ -547,6 +673,34 @@ func clear_selected_cell() -> void:
 	queue_redraw()
 
 
+func set_action_preview_cell(
+	coordinate: Vector2i,
+	text: String,
+	color: Color
+) -> void:
+	if not is_valid_coordinate(
+		coordinate
+	):
+		return
+
+	_action_preview_cells[
+		coordinate
+	] = {
+		"text": text,
+		"color": color,
+	}
+
+	queue_redraw()
+
+
+func clear_action_preview_cells() -> void:
+	if _action_preview_cells.is_empty():
+		return
+
+	_action_preview_cells.clear()
+	queue_redraw()
+
+
 func set_surface_effect_color(
 	coordinate: Vector2i,
 	color: Color
@@ -576,7 +730,8 @@ func remove_surface_effect_color(
 func clear_surface_effect_colors() -> void:
 	_surface_effect_colors.clear()
 	queue_redraw()
-	
+
+
 func set_cell_overlay(
 	coordinate: Vector2i,
 	color: Color

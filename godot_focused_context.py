@@ -24,21 +24,22 @@ PROJECT_ROOT = Path(".").resolve()
 # Paste patterns from the LLM here.
 
 
+
 FOCUS_PATTERNS = [
-    "core/battle/encounters/battle_encounter_definition.gd",
-    "core/battle/encounters/combatant_spawn_definition.gd",
-    "core/battle/session/battle_session_factory.gd",
-    "core/battle/session/battle_session.gd",
+    "core/battle/previews/battle_action_preview_result.gd",
+    "core/battle/previews/battle_action_preview_service.gd",
+    "core/battle/previews/battle_target_preview.gd",
+    "core/battle/previews/battle_preview_grid_state.gd",
+    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/effects/place_surface_effect.gd",
     "core/battle/surfaces/battle_surface_effect_controller.gd",
-    "scenes/debug/battle_grid_sandbox.gd",
-    "scenes/debug/battle_grid_sandbox.tscn",
-    "content/encounters/debug/debug_duel_encounter.tres",
-    "content/encounters/debug/debug_area_attack_encounter.tres",
-    "content/encounters/debug/debug_reinforcement_encounter.tres",
-    "content/encounters/debug/debug_skirmish_2v2.tres",
+    "core/battle/surfaces/battle_surface_effect_instance.gd",
+    "presentation/battle/previews/battle_action_preview_presenter.gd",
+    "presentation/battle/previews/battle_action_preview_formatter.gd",
+    "presentation/battle/grid/battle_grid_overlay_presenter.gd",
+    "presentation/battle/grid/battle_grid_view.gd",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
 ]
-
-
 
 ALLOW_ADDONS = False
 

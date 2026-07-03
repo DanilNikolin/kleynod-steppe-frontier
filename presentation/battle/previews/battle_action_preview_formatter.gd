@@ -2,6 +2,84 @@ class_name BattleActionPreviewFormatter
 extends RefCounted
 
 
+static func build_surface_placement_text(
+	preview: BattleSurfacePlacementPreview
+) -> String:
+	if preview == null:
+		return ""
+
+	if not preview.can_place:
+		return (
+			"НЕЛЬЗЯ · %s"
+			% _format_surface_failure_short(
+				preview.failure_code
+			)
+		)
+
+	var final_duration := (
+		_format_surface_duration_short(
+			preview.final_is_permanent,
+			preview.final_remaining_rounds
+		)
+	)
+
+	if preview.will_add:
+		return (
+			"СОЗДАТЬ · %s"
+			% final_duration
+		)
+
+	if preview.will_update:
+		var previous_duration := (
+			_format_surface_duration_short(
+				preview.previous_is_permanent,
+				preview.previous_remaining_rounds
+			)
+		)
+
+		if previous_duration == final_duration:
+			return (
+				"ОБНОВИТЬ · %s"
+				% final_duration
+			)
+
+		return (
+			"ОБНОВИТЬ · %s→%s"
+			% [
+				previous_duration,
+				final_duration,
+			]
+		)
+
+	return final_duration
+
+
+static func _format_surface_duration_short(
+	is_permanent: bool,
+	remaining_rounds: int
+) -> String:
+	if is_permanent:
+		return "∞"
+
+	return "%dр" % remaining_rounds
+
+
+static func _format_surface_failure_short(
+	failure_code: StringName
+) -> String:
+	match failure_code:
+		BattleSurfaceEffectController.FAILURE_SURFACE_CELL_HAS_OBSTACLE:
+			return "блок"
+
+		BattleSurfaceEffectController.FAILURE_INVALID_SURFACE_COORDINATE:
+			return "вне поля"
+
+		BattleSurfaceEffectController.FAILURE_INVALID_SURFACE_DEFINITION:
+			return "ошибка"
+
+	return "нельзя"
+
+	
 static func build_target_text(
 	preview: BattleTargetPreview
 ) -> String:

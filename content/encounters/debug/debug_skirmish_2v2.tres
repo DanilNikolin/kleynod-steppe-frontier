@@ -3,22 +3,31 @@
 [ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
 [ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_pyromancer.tres" id="4_pyromancer"]
+[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_basher.tres" id="4_basher"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="5_side_rules"]
+[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="6_surface_spawn"]
+[ext_resource type="Resource" uid="uid://xitja7w5iofn" path="res://content/surfaces/debug/debug_fire_surface.tres" id="7_fire_surface"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")
 instance_id = &"player_1"
 combatant_definition = ExtResource("3_player")
 team_id = &"team_player"
-coordinate = Vector2i(3, 2)
+coordinate = Vector2i(4, 2)
 
-[sub_resource type="Resource" id="Resource_enemy_pyromancer"]
+[sub_resource type="Resource" id="Resource_enemy_basher"]
 script = ExtResource("2_spawn")
-instance_id = &"enemy_pyromancer"
-combatant_definition = ExtResource("4_pyromancer")
+instance_id = &"enemy_basher"
+combatant_definition = ExtResource("4_basher")
 team_id = &"team_enemy"
-coordinate = Vector2i(6, 2)
+coordinate = Vector2i(5, 2)
+
+[sub_resource type="Resource" id="Resource_fire_left_of_player"]
+script = ExtResource("6_surface_spawn")
+surface_definition = ExtResource("7_fire_surface")
+coordinate = Vector2i(2, 2)
+source_instance_id = &"enemy_basher"
+source_team_id = &"team_enemy"
 
 [sub_resource type="Resource" id="Resource_side_rules"]
 script = ExtResource("5_side_rules")
@@ -26,7 +35,8 @@ script = ExtResource("5_side_rules")
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
-display_name = "Отладка Utility AI place surface"
-description = "Проверка place surface scoring: огневик должен поставить пламя под игрока."
+display_name = "Отладка Utility AI forced movement"
+description = "Smoke test: толкач должен ударить щитом и вытолкнуть игрока в стартовое пламя."
 side_rules = SubResource("Resource_side_rules")
-combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_pyromancer")])
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_basher")])
+surface_spawns = Array[ExtResource("6_surface_spawn")]([SubResource("Resource_fire_left_of_player")])

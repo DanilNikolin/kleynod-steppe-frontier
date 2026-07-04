@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CombatantDefinition" format=3]
+[gd_resource type="Resource" script_class="CombatantDefinition" format=3 uid="uid://bjmdt3qa7grha"]
 
 [ext_resource type="Script" uid="uid://djbs8im0vo51" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
 [ext_resource type="PackedScene" uid="uid://frc3c1tiqsau" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]
@@ -11,10 +11,7 @@ display_name = "Отладочный знахарь"
 description = "Временный саппорт для проверки Utility AI heal scoring."
 default_loadout = ExtResource("3_loadout")
 base_strength = 0
-base_agility = 1
 base_spirit = 4
-max_health = 10
-base_armor = 0
 max_stamina = 6
 stamina_regeneration = 3
 base_initiative = 2

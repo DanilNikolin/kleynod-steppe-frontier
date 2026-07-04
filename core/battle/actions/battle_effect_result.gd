@@ -160,3 +160,8 @@ var secondary_movement_destination: Vector2i = (
 ## Участники relocation, погибшие от поверхностей
 ## после появления на новых клетках.
 var relocation_defeated_ids: Array[StringName] = []
+
+## Surface triggers, которые произошли внутри эффекта.
+## Например, ForcedMovementEffect толкнул цель в огонь,
+## и поверхность сработала при входе.
+var surface_trigger_results: Array[BattleSurfaceTriggerResult] = []

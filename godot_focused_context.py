@@ -26,18 +26,8 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/ai/utility/battle_ai_plan_evaluator.gd",
-
-    "core/battle/simulation/battle_action_simulation_result.gd",
-    "core/battle/simulation/battle_action_simulation_service.gd",
-
-    "core/battle/actions/battle_effect_result.gd",
-    "core/battle/effects/effect_resolver.gd",
-
-    "core/battle/surfaces/battle_surface_effect_controller.gd",
-
-    "content/abilities/debug/debug_place_fire_surface.tres",
-    "content/surfaces/debug/debug_fire_surface.tres"
+    "core/battle/encounters/battle_encounter_definition.gd",
+    "core/battle/session/battle_session_factory.gd"
 ]
 
 ALLOW_ADDONS = False

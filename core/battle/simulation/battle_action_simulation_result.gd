@@ -134,9 +134,25 @@ func get_all_effect_results() -> Array[BattleEffectResult]:
 		for effect_result in (
 			action_result.effect_results
 		):
-			if effect_result != null:
-				result.append(
-					effect_result
-				)
+			if effect_result == null:
+				continue
+
+			result.append(
+				effect_result
+			)
+
+			for trigger_result in (
+				effect_result.surface_trigger_results
+			):
+				if trigger_result == null:
+					continue
+
+				for trigger_effect_result in (
+					trigger_result.effect_results
+				):
+					if trigger_effect_result != null:
+						result.append(
+							trigger_effect_result
+						)
 
 	return result

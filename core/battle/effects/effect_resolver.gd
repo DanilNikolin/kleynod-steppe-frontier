@@ -898,11 +898,14 @@ func _resolve_forced_movement(
 
 		return result
 
+	var surface_trigger_results: Array[BattleSurfaceTriggerResult] = []
+
 	var surface_step_callback := Callable(
 		self,
 		"_on_forced_movement_surface_step"
 	).bind(
-		session
+		session,
+		surface_trigger_results
 	)
 
 	var committed := (
@@ -956,13 +959,18 @@ func _resolve_forced_movement(
 		not target.is_alive
 	)
 
+	result.surface_trigger_results = (
+		surface_trigger_results.duplicate()
+	)
+
 	result.is_successful = true
 	return result
 
 func _on_forced_movement_surface_step(
 	target: CombatantState,
 	_coordinate: Vector2i,
-	session: BattleSession
+	session: BattleSession,
+	surface_trigger_results: Array[BattleSurfaceTriggerResult]
 ) -> bool:
 	if (
 		session == null
@@ -985,6 +993,12 @@ func _on_forced_movement_surface_step(
 				.ON_ENTER
 		)
 	)
+
+	for trigger_result in trigger_results:
+		if trigger_result != null:
+			surface_trigger_results.append(
+				trigger_result
+			)
 
 	if not target.is_alive:
 		return false

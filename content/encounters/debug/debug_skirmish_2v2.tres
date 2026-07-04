@@ -3,72 +3,37 @@
 [ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
 [ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
-[ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="4_wave"]
-[ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="5_enemy"]
-[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
-[ext_resource type="Resource" uid="uid://cdyjatctxc7xo" path="res://content/combatants/debug/debug_wooden_wall.tres" id="7_wall"]
-[ext_resource type="Resource" uid="uid://c1o6ssw4iet61" path="res://content/combatants/debug/debug_protected_shaman.tres" id="8_shaman"]
-[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="9_surface_spawn"]
-[ext_resource type="Resource" uid="uid://xitja7w5iofn" path="res://content/surfaces/debug/debug_fire_surface.tres" id="10_fire_surface"]
+[ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
+[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="5_side_rules"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")
 instance_id = &"player_1"
 combatant_definition = ExtResource("3_player")
 team_id = &"team_player"
-coordinate = Vector2i(2, 0)
+coordinate = Vector2i(3, 2)
 
-[sub_resource type="Resource" id="Resource_player_2"]
+[sub_resource type="Resource" id="Resource_enemy_front"]
 script = ExtResource("2_spawn")
-instance_id = &"player_2"
-combatant_definition = ExtResource("3_player")
-team_id = &"team_player"
-coordinate = Vector2i(1, 2)
-
-[sub_resource type="Resource" id="Resource_enemy_wall"]
-script = ExtResource("2_spawn")
-instance_id = &"enemy_wall"
-combatant_definition = ExtResource("7_wall")
+instance_id = &"enemy_front_blocker"
+combatant_definition = ExtResource("4_enemy")
 team_id = &"team_enemy"
-coordinate = Vector2i(5, 0)
+coordinate = Vector2i(6, 2)
 
-[sub_resource type="Resource" id="Resource_protected_shaman"]
+[sub_resource type="Resource" id="Resource_enemy_back"]
 script = ExtResource("2_spawn")
-instance_id = &"protected_shaman"
-combatant_definition = ExtResource("8_shaman")
+instance_id = &"enemy_back_swapper"
+combatant_definition = ExtResource("4_enemy")
 team_id = &"team_enemy"
-coordinate = Vector2i(7, 0)
-
-[sub_resource type="Resource" id="Resource_enemy_2"]
-script = ExtResource("2_spawn")
-instance_id = &"enemy_2"
-combatant_definition = ExtResource("5_enemy")
-team_id = &"team_enemy"
-coordinate = Vector2i(8, 2)
+coordinate = Vector2i(7, 2)
 
 [sub_resource type="Resource" id="Resource_side_rules"]
-script = ExtResource("6_side_rules")
-
-[sub_resource type="Resource" id="Resource_start_fire_1"]
-script = ExtResource("9_surface_spawn")
-surface_definition = ExtResource("10_fire_surface")
-coordinate = Vector2i(3, 1)
-
-[sub_resource type="Resource" id="Resource_start_fire_2"]
-script = ExtResource("9_surface_spawn")
-surface_definition = ExtResource("10_fire_surface")
-coordinate = Vector2i(4, 1)
-
-[sub_resource type="Resource" id="Resource_start_fire_3"]
-script = ExtResource("9_surface_spawn")
-surface_definition = ExtResource("10_fire_surface")
-coordinate = Vector2i(7, 1)
+script = ExtResource("5_side_rules")
 
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
-display_name = "Отладочная стычка со стеной"
-description = "Проверка абсолютной защиты бойцов за пассивным target blocker."
+display_name = "Отладка Utility AI swap"
+description = "Чистая проверка ordinary ally swap: задний враг должен протиснуться через союзника впереди."
 side_rules = SubResource("Resource_side_rules")
-combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_player_2"), SubResource("Resource_enemy_wall"), SubResource("Resource_protected_shaman"), SubResource("Resource_enemy_2")])
-surface_spawns = Array[ExtResource("9_surface_spawn")]([SubResource("Resource_start_fire_1"), SubResource("Resource_start_fire_2"), SubResource("Resource_start_fire_3")])
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_front"), SubResource("Resource_enemy_back")])

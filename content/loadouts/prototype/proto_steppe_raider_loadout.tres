@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatantLoadoutDefinition" format=3 uid="uid://dsebu43qiuvca"]
+
+[ext_resource type="Script" uid="uid://bis4duqvyinf4" path="res://core/battle/loadouts/combatant_loadout_definition.gd" id="1_loadout"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
+[ext_resource type="Resource" uid="uid://bfgvpavod3dxb" path="res://content/abilities/debug/debug_raider_chop.tres" id="3_chop"]
+[ext_resource type="Resource" uid="uid://dikrlb4gdl06f" path="res://content/abilities/debug/debug_rending_cut.tres" id="4_rending"]
+
+[resource]
+script = ExtResource("1_loadout")
+loadout_id = &"loadout_proto_steppe_raider"
+display_name = "Степной рубака"
+default_ability_id = &"ability_raider_chop"
+abilities = Array[ExtResource("2_ability")]([ExtResource("3_chop"), ExtResource("4_rending")])

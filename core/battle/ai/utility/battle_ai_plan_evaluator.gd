@@ -45,7 +45,9 @@ const SCORE_ARMOR_SHIFT: StringName = &"armor_shift"
 const SCORE_SURFACE_CELL: StringName = (
 	&"surface_cell"
 )
-
+const SCORE_SURFACE_ESCAPE: StringName = (
+	&"surface_escape"
+)
 const SCORE_PLACE_SURFACE: StringName = (
 	&"place_surface"
 )
@@ -99,6 +101,7 @@ const ARMOR_SHIFT_SCORE_PER_POINT: float = 10.0
 
 const HARMFUL_SURFACE_ON_SELF_PENALTY: float = -10.0
 const BENEFICIAL_SURFACE_ON_SELF_SCORE: float = 6.0
+const SURFACE_ESCAPE_SCORE_MULTIPLIER: float = 1.0
 
 const HARMFUL_SURFACE_ON_ENEMY_SCORE: float = 14.0
 const HARMFUL_SURFACE_ON_ALLY_PENALTY: float = -18.0
@@ -712,12 +715,6 @@ func _score_surface_awareness(
 	):
 		return
 
-	if (
-		not plan.has_movement()
-		and not plan.has_ally_swap()
-	):
-		return
-
 	var actor := (
 		simulation.get_simulated_actor()
 	)
@@ -725,17 +722,63 @@ func _score_surface_awareness(
 	if actor == null:
 		return
 
-	var score := _get_surface_score_for_combatant_at(
-		simulation.simulated_session,
-		actor,
+	var initial_coordinate := (
+		simulation.initial_actor_coordinate
+	)
+
+	if initial_coordinate == BattleGrid.INVALID_COORDINATE:
+		initial_coordinate = actor.grid_position
+
+	var final_coordinate := (
 		simulation.final_actor_coordinate
+	)
+
+	if final_coordinate == BattleGrid.INVALID_COORDINATE:
+		final_coordinate = actor.grid_position
+
+	if final_coordinate == BattleGrid.INVALID_COORDINATE:
+		final_coordinate = initial_coordinate
+
+	if final_coordinate == BattleGrid.INVALID_COORDINATE:
+		return
+
+	var final_surface_score := (
+		_get_surface_score_for_combatant_at(
+			simulation.simulated_session,
+			actor,
+			final_coordinate
+		)
 	)
 
 	breakdown.add_score(
 		SCORE_SURFACE_CELL,
-		score
+		final_surface_score
 	)
 
+	if initial_coordinate == BattleGrid.INVALID_COORDINATE:
+		return
+
+	var initial_surface_score := (
+		_get_surface_score_for_combatant_at(
+			simulation.simulated_session,
+			actor,
+			initial_coordinate
+		)
+	)
+
+	var surface_improvement := (
+		final_surface_score
+		- initial_surface_score
+	)
+
+	if surface_improvement <= 0.0:
+		return
+
+	breakdown.add_score(
+		SCORE_SURFACE_ESCAPE,
+		surface_improvement
+		* SURFACE_ESCAPE_SCORE_MULTIPLIER
+	)
 
 func _score_place_surface_result(
 	breakdown: BattleAIScoreBreakdown,
@@ -952,7 +995,7 @@ func _get_combatant_at_coordinate(
 	return session.get_combatant(
 		cell.occupant_id
 	)
-    
+
 func _score_positioning(
 	breakdown: BattleAIScoreBreakdown,
 	plan: BattleAIPlan,

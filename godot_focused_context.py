@@ -26,19 +26,17 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/effects/apply_status_effect.gd",
-    "core/battle/statuses/battle_status_definition.gd",
+    "core/battle/effects/remove_status_effect.gd",
 
-    "content/abilities/debug/debug_hamstring.tres",
-    "content/abilities/debug/debug_stunning_blow.tres",
-    "content/abilities/debug/debug_rending_cut.tres",
+    "content/abilities/debug/debug_full_cleanse.tres",
+    "content/abilities/debug/debug_bandage.tres",
 
     "content/statuses/debug/debug_bleeding.tres",
     "content/statuses/debug/debug_immobilized.tres",
-    "content/statuses/debug/debug_stunned.tres",
+    "content/statuses/debug/debug_regeneration.tres",
 
-    "content/loadouts/debug/debug_steppe_guarder_loadout.tres",
-    "content/combatants/debug/debug_steppe_guarder.tres",
+    "content/loadouts/debug/debug_steppe_healer_loadout.tres",
+    "content/combatants/debug/debug_steppe_healer.tres",
     "content/encounters/debug/debug_skirmish_2v2.tres"
 ]
 

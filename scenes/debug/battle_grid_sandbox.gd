@@ -36,9 +36,6 @@ var ai_think_delay: float = 0.35
 
 @export_group("AI")
 
-@export
-var use_utility_ai_runner: bool = true
-
 
 @export_group("Movement")
 
@@ -94,8 +91,6 @@ var action_runner: BattleActionRunner
 var turn_controller: BattleTurnController
 var reinforcement_controller: BattleReinforcementController
 
-var ai_controller: BasicMeleeAIController
-var ai_turn_runner: BasicMeleeAITurnRunner
 
 var utility_plan_generator: BattleAIPlanGenerator
 var utility_turn_runner: BattleUtilityAITurnRunner
@@ -390,17 +385,6 @@ func _create_grid_overlay_presenter() -> void:
 
 
 func _create_ai_system() -> void:
-	ai_controller = BasicMeleeAIController.new(
-		movement_service,
-		action_service,
-		targeting_service
-	)
-
-	ai_turn_runner = BasicMeleeAITurnRunner.new(
-		movement_runner,
-		action_runner
-	)
-
 	utility_plan_generator = (
 		BattleAIPlanGenerator.new(
 			movement_service,
@@ -889,120 +873,20 @@ func _run_ai_turn(
 	):
 		return
 
-	if use_utility_ai_runner:
-		var utility_handled: bool = await (
-			_try_run_utility_ai_turn(
-				combatant
-			)
-		)
-
-		if utility_handled:
-			return
-
-	var ability := combatant.get_default_ability()
-
-	if ability == null:
-		debug_log_presenter.set_headline(
-			"%s не имеет доступных способностей."
-			% combatant.definition.display_name
-		)
-
-		_finish_ai_turn(
+	var utility_handled: bool = await (
+		_try_run_utility_ai_turn(
 			combatant
 		)
-		return
-
-	var plan := ai_controller.create_turn_plan(
-		grid,
-		session,
-		combatant,
-		ability,
-		stamina_cost_per_cell
 	)
 
-	if not plan.is_valid:
-		debug_log_presenter.set_headline(
-			"%s завершает ход: %s."
-			% [
-				combatant.definition.display_name,
-				plan.failure_code,
-			]
-		)
-
-		_finish_ai_turn(
-			combatant
-		)
+	if utility_handled:
 		return
 
-	grid_overlay_presenter.clear()
-
-	var outcome := await ai_turn_runner.execute(
-		session,
-		plan,
-		animate_movement,
-		animate_actions
+	debug_log_presenter.set_headline(
+		"%s завершает ход: Utility AI не смог "
+		% combatant.definition.display_name
+		+"обработать ход."
 	)
-
-	if turn_controller.is_finished:
-		interaction_controller.set_interaction_in_progress(
-			false
-		)
-		return
-
-	if not outcome.is_successful:
-		debug_log_presenter.set_headline(
-			"Ход ИИ выполнен не полностью: %s."
-			% outcome.failure_code
-		)
-
-	elif outcome.did_attack():
-		debug_log_presenter.set_headline(
-			"%s использует «%s» против %s. "
-			% [
-				combatant.definition.display_name,
-				ability.display_name,
-				plan.target.definition.display_name,
-			]
-			+"Ударов: %d. Общий урон: %d. "
-			% [
-				outcome.get_attack_count(),
-				outcome.get_damage_dealt(),
-			]
-			+"Здоровье цели: %d/%d. "
-			% [
-				plan.target.current_health,
-				plan.target.max_health,
-			]
-			+"Выносливость врага: %d/%d."
-			% [
-				combatant.current_stamina,
-				combatant.max_stamina,
-			]
-		)
-
-	elif outcome.did_move():
-		debug_log_presenter.set_headline(
-			"%s приближается к %s. "
-			% [
-				combatant.definition.display_name,
-				plan.target.definition.display_name,
-			]
-			+"Пройдено клеток: %d. "
-			% outcome.get_movement_step_count()
-			+"Осталось выносливости: %d/%d."
-			% [
-				combatant.current_stamina,
-				combatant.max_stamina,
-			]
-		)
-
-	else:
-		debug_log_presenter.set_headline(
-			"%s не может действовать."
-			% combatant.definition.display_name
-		)
-
-	interaction_controller.refresh_grid_overlays()
 
 	_finish_ai_turn(
 		combatant
@@ -1070,13 +954,17 @@ func _try_run_utility_ai_turn(
 			return true
 
 		## Если новый runner даже не начал действие,
-		## отдаём ход старому BasicMeleeAI fallback.
-		debug_log_presenter.push_battle_log(
-			"Utility AI fallback: %s"
+		## просто завершаем ход (fallback отключен)
+		debug_log_presenter.set_headline(
+			"Utility AI не смог выполнить ход: %s."
 			% outcome.failure_code
 		)
 
-		return false
+		_finish_ai_turn(
+			combatant
+		)
+
+		return true
 
 	_set_utility_ai_headline(
 		combatant,
@@ -1143,7 +1031,7 @@ func _push_utility_ai_outcome_log(
 			outcome.get_last_score(),
 		]
 	)
-	
+
 func _set_utility_ai_headline(
 	combatant: CombatantState,
 	outcome: BattleUtilityAITurnOutcome

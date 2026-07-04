@@ -4,10 +4,8 @@
 [ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
 [ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
-[ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="4_wave"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_healer.tres" id="5_healer"]
+[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_guarder.tres" id="5_guarder"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
-[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="9_surface_spawn"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")
@@ -16,17 +14,17 @@ combatant_definition = ExtResource("3_player")
 team_id = &"team_player"
 coordinate = Vector2i(3, 2)
 
-[sub_resource type="Resource" id="Resource_enemy_wounded_candidate"]
+[sub_resource type="Resource" id="Resource_enemy_guard_target"]
 script = ExtResource("2_spawn")
-instance_id = &"enemy_wounded_candidate"
+instance_id = &"enemy_guard_target"
 combatant_definition = ExtResource("4_enemy")
 team_id = &"team_enemy"
 coordinate = Vector2i(5, 2)
 
-[sub_resource type="Resource" id="Resource_enemy_healer"]
+[sub_resource type="Resource" id="Resource_enemy_guarder"]
 script = ExtResource("2_spawn")
-instance_id = &"enemy_healer"
-combatant_definition = ExtResource("5_healer")
+instance_id = &"enemy_guarder"
+combatant_definition = ExtResource("5_guarder")
 team_id = &"team_enemy"
 coordinate = Vector2i(7, 2)
 
@@ -36,7 +34,7 @@ script = ExtResource("6_side_rules")
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
-display_name = "Отладка Utility AI heal"
-description = "Проверка heal scoring: игрок ранит рубаку, знахарь должен выбрать лечение союзника."
+display_name = "Отладка Utility AI guard"
+description = "Проверка guard scoring: щитоносец должен дать оборону союзнику или себе."
 side_rules = SubResource("Resource_side_rules")
-combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_wounded_candidate"), SubResource("Resource_enemy_healer")])
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_guard_target"), SubResource("Resource_enemy_guarder")])

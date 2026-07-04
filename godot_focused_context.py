@@ -26,21 +26,11 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/encounters/combatant_spawn_definition.gd",
-    "core/battle/combatants/combatant_definition.gd",
-    "core/battle/loadouts/combatant_loadout_definition.gd",
-    "core/battle/abilities/ability_definition.gd",
-    "core/battle/effects/heal_effect.gd",
-
+    "core/battle/effects/grant_guard_effect.gd",
+    "content/abilities/debug/debug_guard_stance.tres",
     "content/abilities/debug/debug_spirit_mend.tres",
-    "content/abilities/debug/debug_bandage.tres",
-    "content/abilities/debug/debug_raider_chop.tres",
-
-    "content/loadouts/debug/debug_steppe_raider_loadout.tres",
-
-    "content/combatants/debug/debug_steppe_raider.tres",
-    "content/combatants/debug/debug_protected_shaman.tres",
-
+    "content/loadouts/debug/debug_steppe_healer_loadout.tres",
+    "content/combatants/debug/debug_steppe_healer.tres",
     "content/encounters/debug/debug_skirmish_2v2.tres"
 ]
 

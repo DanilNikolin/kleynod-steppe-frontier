@@ -759,10 +759,10 @@ func _score_surface_awareness(
 		return
 
 	var initial_surface_score := (
-		_get_surface_score_for_combatant_at(
-			simulation.simulated_session,
+		_get_surface_score_from_snapshot(
 			actor,
-			initial_coordinate
+			simulation.initial_actor_surface_definitions,
+			simulation.initial_actor_surface_source_team_ids
 		)
 	)
 
@@ -804,6 +804,12 @@ func _score_place_surface_result(
 		== BattleGrid.INVALID_COORDINATE
 		or effect_result.surface_effect_id == &""
 	):
+		return
+
+	## Повторное размещение той же поверхности на той же клетке
+	## пока не считается новым полезным действием.
+	## Иначе AI спамит обновление огня под уже горящей целью.
+	if not effect_result.surface_was_added:
 		return
 
 	var placed_instance := (
@@ -865,6 +871,51 @@ func _score_place_surface_result(
 	)
 
 
+func _get_surface_score_from_snapshot(
+	combatant: CombatantState,
+	surface_definitions: Array[BattleSurfaceEffectDefinition],
+	surface_source_team_ids: Array[StringName]
+) -> float:
+	if combatant == null:
+		return 0.0
+
+	var score := 0.0
+
+	for surface_index in range(
+		surface_definitions.size()
+	):
+		var definition := (
+			surface_definitions[
+				surface_index
+			]
+		)
+
+		if definition == null:
+			continue
+
+		var source_team_id := &""
+
+		if surface_index < surface_source_team_ids.size():
+			source_team_id = (
+				surface_source_team_ids[
+					surface_index
+				]
+			)
+
+		var surface_value := _get_surface_definition_value_for_team(
+			definition,
+			source_team_id,
+			combatant.team_id
+		)
+
+		if surface_value < 0.0:
+			score += HARMFUL_SURFACE_ON_SELF_PENALTY
+
+		elif surface_value > 0.0:
+			score += BENEFICIAL_SURFACE_ON_SELF_SCORE
+
+	return score
+    
 func _get_surface_score_for_combatant_at(
 	session: BattleSession,
 	combatant: CombatantState,

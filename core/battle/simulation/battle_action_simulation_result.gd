@@ -18,6 +18,14 @@ var final_actor_coordinate: Vector2i = (
 	BattleGrid.INVALID_COORDINATE
 )
 
+## Snapshot поверхностей на начальной клетке актёра
+## ДО dry movement/action.
+## Нужен AI evaluator-у, чтобы surface_escape не считал
+## поверхность, созданную самим же действием в simulation.
+var initial_actor_surface_definitions: Array[BattleSurfaceEffectDefinition] = []
+
+var initial_actor_surface_source_team_ids: Array[StringName] = []
+
 var initial_stamina: int = 0
 var final_stamina: int = 0
 var total_stamina_spent: int = 0

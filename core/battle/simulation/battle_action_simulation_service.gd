@@ -163,6 +163,11 @@ func simulate(
 		simulated_actor.current_stamina
 	)
 
+	_capture_initial_actor_surfaces(
+		simulated_session,
+		result
+	)
+
 	if request.has_movement():
 		var movement_failure := (
 			_simulate_movement(
@@ -280,6 +285,40 @@ func simulate(
 	return result
 
 
+func _capture_initial_actor_surfaces(
+	session: BattleSession,
+	result: BattleActionSimulationResult
+) -> void:
+	if (
+		session == null
+		or result == null
+		or session.surface_effect_controller == null
+		or result.initial_actor_coordinate
+			== BattleGrid.INVALID_COORDINATE
+	):
+		return
+
+	for surface_instance in (
+		session
+			.surface_effect_controller
+			.get_effects_at(
+				result.initial_actor_coordinate
+			)
+	):
+		if (
+			surface_instance == null
+			or surface_instance.definition == null
+		):
+			continue
+
+		result.initial_actor_surface_definitions.append(
+			surface_instance.definition
+		)
+
+		result.initial_actor_surface_source_team_ids.append(
+			surface_instance.source_team_id
+		)
+		
 func _simulate_movement(
 	session: BattleSession,
 	actor: CombatantState,

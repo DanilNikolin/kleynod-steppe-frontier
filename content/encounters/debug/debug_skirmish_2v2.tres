@@ -3,9 +3,8 @@
 [ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
 [ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
-[ext_resource type="Resource" uid="uid://b4a26r5s863rx" path="res://content/combatants/debug/debug_steppe_raider.tres" id="4_enemy"]
-[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_cleanser.tres" id="5_cleanser"]
-[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
+[ext_resource type="Resource" path="res://content/combatants/debug/debug_steppe_pyromancer.tres" id="4_pyromancer"]
+[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="5_side_rules"]
 
 [sub_resource type="Resource" id="Resource_player_1"]
 script = ExtResource("2_spawn")
@@ -14,27 +13,20 @@ combatant_definition = ExtResource("3_player")
 team_id = &"team_player"
 coordinate = Vector2i(3, 2)
 
-[sub_resource type="Resource" id="Resource_enemy_cleanse_target"]
+[sub_resource type="Resource" id="Resource_enemy_pyromancer"]
 script = ExtResource("2_spawn")
-instance_id = &"enemy_cleanse_target"
-combatant_definition = ExtResource("4_enemy")
+instance_id = &"enemy_pyromancer"
+combatant_definition = ExtResource("4_pyromancer")
 team_id = &"team_enemy"
-coordinate = Vector2i(5, 2)
-
-[sub_resource type="Resource" id="Resource_enemy_cleanser"]
-script = ExtResource("2_spawn")
-instance_id = &"enemy_cleanser"
-combatant_definition = ExtResource("5_cleanser")
-team_id = &"team_enemy"
-coordinate = Vector2i(7, 2)
+coordinate = Vector2i(6, 2)
 
 [sub_resource type="Resource" id="Resource_side_rules"]
-script = ExtResource("6_side_rules")
+script = ExtResource("5_side_rules")
 
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
-display_name = "Отладка Utility AI cleanse"
-description = "Проверка cleanse scoring: игрок вешает вредный статус на рубаку, очищатель должен снять его."
+display_name = "Отладка Utility AI place surface"
+description = "Проверка place surface scoring: огневик должен поставить пламя под игрока."
 side_rules = SubResource("Resource_side_rules")
-combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_cleanse_target"), SubResource("Resource_enemy_cleanser")])
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_enemy_pyromancer")])

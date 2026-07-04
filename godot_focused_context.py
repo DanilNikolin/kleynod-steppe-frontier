@@ -26,18 +26,18 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/effects/remove_status_effect.gd",
+    "core/battle/ai/utility/battle_ai_plan_evaluator.gd",
 
-    "content/abilities/debug/debug_full_cleanse.tres",
-    "content/abilities/debug/debug_bandage.tres",
+    "core/battle/simulation/battle_action_simulation_result.gd",
+    "core/battle/simulation/battle_action_simulation_service.gd",
 
-    "content/statuses/debug/debug_bleeding.tres",
-    "content/statuses/debug/debug_immobilized.tres",
-    "content/statuses/debug/debug_regeneration.tres",
+    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/effects/effect_resolver.gd",
 
-    "content/loadouts/debug/debug_steppe_healer_loadout.tres",
-    "content/combatants/debug/debug_steppe_healer.tres",
-    "content/encounters/debug/debug_skirmish_2v2.tres"
+    "core/battle/surfaces/battle_surface_effect_controller.gd",
+
+    "content/abilities/debug/debug_place_fire_surface.tres",
+    "content/surfaces/debug/debug_fire_surface.tres"
 ]
 
 ALLOW_ADDONS = False

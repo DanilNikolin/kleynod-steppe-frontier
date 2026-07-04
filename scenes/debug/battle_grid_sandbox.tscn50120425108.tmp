@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://bvvj4s6x1f4km"]
+
+[ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
+[ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
+[ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
+[ext_resource type="Resource" uid="uid://chb4s4bwjxvlj" path="res://content/encounters/debug/debug_skirmish_2v2.tres" id="4_encounter_definition"]
+[ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_ability_panel"]
+[ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
+[ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
+[ext_resource type="Script" uid="uid://btdu08wkb7o5t" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="8_collapse"]
+[ext_resource type="PackedScene" uid="uid://cn2n7l74lw3r7" path="res://presentation/battle/surfaces/battle_surface_hover_panel.tscn" id="9_surface_hover_panel"]
+
+[node name="BattleGridSandbox" type="Node2D" unique_id=757643817]
+script = ExtResource("1_sandbox")
+combatant_view_scene = ExtResource("3_combatant_view")
+encounter_definition = ExtResource("4_encounter_definition")
+debug_status_definition = ExtResource("6_debug_status")
+
+[node name="BattleGridView" parent="." unique_id=794142880 instance=ExtResource("2_grid")]
+position = Vector2(528, 784)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1193952375]
+
+[node name="InterfaceMargin" type="MarginContainer" parent="CanvasLayer" unique_id=259231103]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 720.0
+offset_bottom = 210.0
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/InterfaceMargin" unique_id=85098545]
+layout_mode = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer" unique_id=2007679335]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin" unique_id=1707743087]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer" unique_id=1344638852]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/HeaderRow" unique_id=832848873]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Combat Action Sandbox"
+vertical_alignment = 1
+
+[node name="CollapseButton" type="Button" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/HeaderRow" unique_id=489665393]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+tooltip_text = "Свернуть"
+mouse_default_cursor_shape = 2
+text = "−"
+
+[node name="CollapsibleContent" type="VBoxContainer" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer" unique_id=262606257]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="InstructionsLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent" unique_id=291631544]
+layout_mode = 2
+text = "ЛКМ по пустой клетке: движение
+ЛКМ по допустимой цели: применить выбранную способность
+1–9: выбрать способность
+ПКМ: поставить или удалить препятствие
+T: наложить debug-статус на бойца под курсором
+Space: завершить ход игрока"
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/InterfaceMargin/PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent" unique_id=797775014]
+layout_mode = 2
+text = "Ожидание..."
+autowrap_mode = 2
+
+[node name="CollapsibleController" type="Node" parent="CanvasLayer/InterfaceMargin" unique_id=733543831]
+script = ExtResource("8_collapse")
+target_control_path = NodePath("..")
+content_control_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent")
+toggle_button_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/HeaderRow/CollapseButton")
+collapsed_height = 52.0
+
+[node name="AbilityPanel" parent="CanvasLayer" unique_id=1194771784 instance=ExtResource("5_ability_panel")]
+visible = true
+offset_left = 104.0
+offset_top = -531.0
+offset_right = 938.0
+offset_bottom = -255.0
+
+[node name="CombatantHoverPanel" parent="CanvasLayer" unique_id=1452797014 instance=ExtResource("7_hover_panel")]
+visible = true
+
+[node name="SurfaceHoverPanel" parent="CanvasLayer" unique_id=928729667 instance=ExtResource("9_surface_hover_panel")]

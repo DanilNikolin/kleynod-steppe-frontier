@@ -26,24 +26,22 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "presentation/battle/ai/basic_melee_ai_turn_runner.gd",
-    "presentation/battle/ai/basic_melee_ai_turn_outcome.gd",
+    "core/battle/encounters/combatant_spawn_definition.gd",
+    "core/battle/combatants/combatant_definition.gd",
+    "core/battle/loadouts/combatant_loadout_definition.gd",
+    "core/battle/abilities/ability_definition.gd",
+    "core/battle/effects/heal_effect.gd",
 
-    "presentation/battle/actions/battle_action_runner.gd",
-    "presentation/battle/actions/battle_action_outcome.gd",
+    "content/abilities/debug/debug_spirit_mend.tres",
+    "content/abilities/debug/debug_bandage.tres",
+    "content/abilities/debug/debug_raider_chop.tres",
 
-    "presentation/battle/movement/battle_movement_runner.gd",
-    "presentation/battle/movement/battle_movement_outcome.gd",
+    "content/loadouts/debug/debug_steppe_raider_loadout.tres",
 
-    "scenes/debug/battle_grid_sandbox.gd",
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "content/combatants/debug/debug_steppe_raider.tres",
+    "content/combatants/debug/debug_protected_shaman.tres",
 
-    "core/battle/ai/basic_melee_ai_controller.gd",
-    "core/battle/ai/basic_melee_ai_turn_plan.gd",
-
-    "core/battle/ai/utility/battle_ai_plan.gd",
-    "core/battle/ai/utility/battle_ai_plan_generator.gd",
-    "core/battle/ai/utility/battle_ai_planning_report.gd"
+    "content/encounters/debug/debug_skirmish_2v2.tres"
 ]
 
 ALLOW_ADDONS = False

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CombatantLoadoutDefinition" format=3]
+
+[ext_resource type="Script" uid="uid://bis4duqvyinf4" path="res://core/battle/loadouts/combatant_loadout_definition.gd" id="1_loadout"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
+[ext_resource type="Resource" uid="uid://bnk0vuvlj8iqp" path="res://content/abilities/debug/debug_spirit_mend.tres" id="3_heal"]
+
+[resource]
+script = ExtResource("1_loadout")
+loadout_id = &"loadout_debug_steppe_healer"
+display_name = "Отладочный знахарь"
+default_ability_id = &"ability_spirit_mend"
+abilities = Array[ExtResource("2_ability")]([ExtResource("3_heal")])

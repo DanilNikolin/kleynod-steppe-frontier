@@ -16,36 +16,40 @@ var actor_label: Label = (
 @onready
 var ability_grid: GridContainer = (
 	$ContentMargin/VBoxContainer /
-	CollapsibleContent / AbilityGrid
+	CollapsibleContent / AbilityScroll /
+	AbilityGrid
 )
 
 @onready
 var card_title_label: Label = (
 	$ContentMargin/VBoxContainer /
 	CollapsibleContent / CardPanel /
-	CardMargin / CardVBox / CardTitleLabel
+	CardScroll / CardMargin /
+	CardVBox / CardTitleLabel
 )
 
 @onready
 var card_meta_label: Label = (
 	$ContentMargin/VBoxContainer /
 	CollapsibleContent / CardPanel /
-	CardMargin / CardVBox / CardMetaLabel
+	CardScroll / CardMargin /
+	CardVBox / CardMetaLabel
 )
 
 @onready
 var card_description_label: Label = (
 	$ContentMargin/VBoxContainer /
 	CollapsibleContent / CardPanel /
-	CardMargin / CardVBox /
-	CardDescriptionLabel
+	CardScroll / CardMargin /
+	CardVBox / CardDescriptionLabel
 )
 
 @onready
 var card_effects_label: Label = (
 	$ContentMargin/VBoxContainer /
 	CollapsibleContent / CardPanel /
-	CardMargin / CardVBox / CardEffectsLabel
+	CardScroll / CardMargin /
+	CardVBox / CardEffectsLabel
 )
 
 
@@ -285,8 +289,8 @@ func _rebuild_buttons() -> void:
 		var button := Button.new()
 
 		button.custom_minimum_size = Vector2(
-			230.0,
-			68.0
+			200.0,
+			56.0
 		)
 
 		button.toggle_mode = true

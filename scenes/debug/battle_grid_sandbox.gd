@@ -58,6 +58,11 @@ var combatant_layer: Node2D = (
 )
 
 @onready
+var debug_panel: Control = (
+	$CanvasLayer/InterfaceMargin
+)
+
+@onready
 var status_label: Label = (
 	$CanvasLayer/InterfaceMargin/PanelContainer /
 	ContentMargin / VBoxContainer /
@@ -133,6 +138,12 @@ func _ready() -> void:
 func _input(
 	event: InputEvent
 ) -> void:
+	if _handle_debug_panel_toggle(
+		event
+	):
+		get_viewport().set_input_as_handled()
+		return
+
 	if interaction_controller == null:
 		return
 
@@ -154,6 +165,34 @@ func _unhandled_input(
 		get_viewport().set_input_as_handled()
 
 
+func _handle_debug_panel_toggle(
+	event: InputEvent
+) -> bool:
+	var key_event := (
+		event as InputEventKey
+	)
+
+	if key_event == null:
+		return false
+
+	if (
+		not key_event.pressed
+		or key_event.echo
+	):
+		return false
+
+	if key_event.keycode != KEY_F1:
+		return false
+
+	if debug_panel == null:
+		return false
+
+	debug_panel.visible = (
+		not debug_panel.visible
+	)
+
+	return true
+	
 func _validate_dependencies() -> void:
 	assert(
 		combatant_view_scene != null,

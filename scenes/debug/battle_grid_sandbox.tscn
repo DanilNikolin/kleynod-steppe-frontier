@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
-[ext_resource type="Resource" uid="uid://chb4s4bwjxvlj" path="res://content/encounters/debug/debug_skirmish_2v2.tres" id="4_encounter_definition"]
+[ext_resource type="Resource" uid="uid://c48wssa8p4wp1" path="res://content/encounters/debug/debug_skirmish_2v2.tres" id="4_encounter_definition"]
 [ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_ability_panel"]
 [ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 [ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
@@ -17,7 +17,7 @@ encounter_definition = ExtResource("4_encounter_definition")
 debug_status_definition = ExtResource("6_debug_status")
 
 [node name="BattleGridView" parent="." unique_id=794142880 instance=ExtResource("2_grid")]
-position = Vector2(528, 784)
+position = Vector2(533, 378)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1193952375]
 
@@ -83,13 +83,10 @@ target_control_path = NodePath("..")
 content_control_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/CollapsibleContent")
 toggle_button_path = NodePath("../PanelContainer/ContentMargin/VBoxContainer/HeaderRow/CollapseButton")
 collapsed_height = 52.0
+starts_collapsed = true
 
 [node name="AbilityPanel" parent="CanvasLayer" unique_id=1194771784 instance=ExtResource("5_ability_panel")]
 visible = true
-offset_left = 104.0
-offset_top = -531.0
-offset_right = 938.0
-offset_bottom = -255.0
 
 [node name="CombatantHoverPanel" parent="CanvasLayer" unique_id=1452797014 instance=ExtResource("7_hover_panel")]
 visible = true

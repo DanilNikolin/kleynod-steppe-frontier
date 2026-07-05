@@ -26,8 +26,21 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/encounters/battle_encounter_definition.gd",
-    "core/battle/session/battle_session_factory.gd"
+    "presentation/battle/abilities/battle_ability_panel.tscn",
+    "presentation/battle/abilities/battle_ability_panel.gd",
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+
+    "presentation/common/controls/collapsible_panel_controller.gd",
+
+    "scenes/debug/battle_grid_sandbox.tscn",
+    "scenes/debug/battle_grid_sandbox.gd",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "scenes/debug/presentation/battle_debug_log_presenter.gd",
+
+    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
+    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
+    "presentation/battle/surfaces/battle_surface_hover_panel.tscn",
+    "presentation/battle/surfaces/battle_surface_hover_panel.gd"
 ]
 
 ALLOW_ADDONS = False

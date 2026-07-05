@@ -5,14 +5,15 @@
 
 [node name="BattleAbilityPanel" type="PanelContainer" unique_id=445475881]
 visible = false
+custom_minimum_size = Vector2(780, 300)
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -550.0
-offset_top = -300.0
-offset_right = 550.0
+offset_left = -390.0
+offset_top = -460.0
+offset_right = 390.0
 offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -53,47 +54,63 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent" unique_id=1128130161]
+[node name="AbilityScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent"]
+custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/AbilityScroll" unique_id=1128130161]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 4
+columns = 3
 
 [node name="CardPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent" unique_id=252160814]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel" unique_id=1637362543]
+[node name="CardScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll" unique_id=1637362543]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
-[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin" unique_id=1106340744]
+[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin" unique_id=1106340744]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox" unique_id=414100367]
+[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=414100367]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Название способности"
 
-[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox" unique_id=1860455927]
+[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1860455927]
 layout_mode = 2
 text = "Цена • Цель • Дальность"
 autowrap_mode = 2
 
-[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox" unique_id=1303173939]
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1303173939]
 layout_mode = 2
 
-[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox" unique_id=604811073]
+[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=604811073]
 layout_mode = 2
 text = "Описание способности."
 autowrap_mode = 2
 
-[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardMargin/CardVBox" unique_id=1425989010]
+[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1425989010]
 layout_mode = 2
 size_flags_vertical = 3
 text = "Эффекты способности."

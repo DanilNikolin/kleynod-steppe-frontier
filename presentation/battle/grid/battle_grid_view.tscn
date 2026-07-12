@@ -4,6 +4,8 @@
 
 [node name="BattleGridView" type="Node2D" unique_id=1267809917]
 script = ExtResource("1_grid_view")
+rows = 3
+columns = 6
 
 [node name="SurfaceLayer" type="Node2D" parent="." unique_id=618361589]
 z_index = 10

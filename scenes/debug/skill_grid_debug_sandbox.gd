@@ -19,6 +19,9 @@ var build_resolver := (
 	HeroBattleBuildResolver.new()
 )
 
+var loadout_service := (
+	HeroPersonalLoadoutService.new()
+)
 
 func _ready() -> void:
 	if (
@@ -121,14 +124,43 @@ func _rebuild_interface() -> void:
 		nodes_panel
 	)
 
+	var right_column := VBoxContainer.new()
+
+	right_column.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	right_column.add_theme_constant_override(
+		"separation",
+		16
+	)
+
+	main_row.add_child(
+		right_column
+	)
+
 	var summary_panel := _create_summary_panel()
 
 	summary_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	main_row.add_child(
+	summary_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	right_column.add_child(
 		summary_panel
+	)
+
+	var loadout_panel := _create_loadout_panel()
+
+	loadout_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	right_column.add_child(
+		loadout_panel
 	)
 
 
@@ -388,6 +420,279 @@ func _create_summary_panel() -> Control:
 	return panel
 
 
+func _create_loadout_panel() -> Control:
+	var panel := PanelContainer.new()
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	panel.add_child(
+		content
+	)
+
+	var known_ability_ids := (
+		loadout_service.get_known_ability_ids(
+			hero_definition,
+			progression
+		)
+	)
+
+	var selected_ability_ids := (
+		loadout_service
+			.get_effective_selected_ability_ids(
+				hero_definition,
+				progression
+			)
+	)
+
+	var active_slot_count := (
+		loadout_service.get_active_slot_count(
+			hero_definition,
+			progression
+		)
+	)
+
+	var title := Label.new()
+
+	title.text = (
+		"ЛИЧНЫЙ LOADOUT · %d/%d"
+		% [
+			selected_ability_ids.size(),
+			active_slot_count,
+		]
+	)
+
+	title.add_theme_font_size_override(
+		"font_size",
+		20
+	)
+
+	content.add_child(
+		title
+	)
+
+	for ability in (
+		hero_definition.personal_abilities
+	):
+		if ability == null:
+			continue
+
+		content.add_child(
+			_create_loadout_ability_row(
+				ability,
+				known_ability_ids,
+				selected_ability_ids
+			)
+		)
+
+	return panel
+
+
+func _create_loadout_ability_row(
+	ability: AbilityDefinition,
+	known_ability_ids: Array[StringName],
+	selected_ability_ids: Array[StringName]
+) -> Control:
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		12
+	)
+
+	var text_column := VBoxContainer.new()
+
+	text_column.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	row.add_child(
+		text_column
+	)
+
+	var ability_name := Label.new()
+
+	ability_name.text = ability.display_name
+
+	text_column.add_child(
+		ability_name
+	)
+
+	var is_known := known_ability_ids.has(
+		ability.ability_id
+	)
+
+	var is_selected := selected_ability_ids.has(
+		ability.ability_id
+	)
+
+	var state_label := Label.new()
+
+	state_label.text = _get_loadout_state_text(
+		ability,
+		is_known,
+		is_selected
+	)
+
+	text_column.add_child(
+		state_label
+	)
+
+	var action_button := Button.new()
+
+	action_button.custom_minimum_size = Vector2(
+		130,
+		38
+	)
+
+	if not is_known:
+		action_button.text = "Не изучено"
+		action_button.disabled = true
+
+	elif is_selected:
+		if (
+			ability.ability_id
+			== hero_definition.default_ability_id
+		):
+			action_button.text = "Обязательный"
+			action_button.disabled = true
+
+		else:
+			var remove_result := (
+				loadout_service.get_remove_result(
+					hero_definition,
+					progression,
+					ability.ability_id
+				)
+			)
+
+			action_button.text = "Убрать"
+			action_button.disabled = (
+				not remove_result.is_successful
+			)
+
+			action_button.pressed.connect(
+				_on_remove_ability_pressed.bind(
+					ability.ability_id
+				)
+			)
+
+	else:
+		var add_result := (
+			loadout_service.get_add_result(
+				hero_definition,
+				progression,
+				ability.ability_id
+			)
+		)
+
+		action_button.text = (
+			_get_add_button_text(
+				add_result
+			)
+		)
+
+		action_button.disabled = (
+			not add_result.is_successful
+		)
+
+		action_button.pressed.connect(
+			_on_add_ability_pressed.bind(
+				ability.ability_id
+			)
+		)
+
+	row.add_child(
+		action_button
+	)
+
+	return row
+
+
+func _get_loadout_state_text(
+	ability: AbilityDefinition,
+	is_known: bool,
+	is_selected: bool
+) -> String:
+	if not is_known:
+		return "Состояние: не изучено"
+
+	if (
+		is_selected
+		and ability.ability_id
+			== hero_definition.default_ability_id
+	):
+		return (
+			"Состояние: выбран базовым приёмом"
+		)
+
+	if is_selected:
+		return "Состояние: выбран"
+
+	return "Состояние: изучен, но не выбран"
+
+
+func _get_add_button_text(
+	result: HeroPersonalLoadoutChangeResult
+) -> String:
+	if result.is_successful:
+		return "Добавить"
+
+	match result.failure_code:
+		HeroPersonalLoadoutService.FAILURE_NO_ACTIVE_SLOT:
+			return "Нет слота"
+
+		HeroPersonalLoadoutService.FAILURE_ABILITY_NOT_KNOWN:
+			return "Не изучено"
+
+		HeroPersonalLoadoutService.FAILURE_ALREADY_SELECTED:
+			return "Выбрано"
+
+	return "Недоступно"
+
+
+func _on_add_ability_pressed(
+	ability_id: StringName
+) -> void:
+	var result := loadout_service.add_ability(
+		hero_definition,
+		progression,
+		ability_id
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Personal ability add failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	_rebuild_interface()
+
+
+func _on_remove_ability_pressed(
+	ability_id: StringName
+) -> void:
+	var result := loadout_service.remove_ability(
+		hero_definition,
+		progression,
+		ability_id
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Personal ability remove failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	_rebuild_interface()
+	
 func _build_summary_text(
 	build: HeroBattleBuild
 ) -> String:

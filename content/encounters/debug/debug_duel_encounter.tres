@@ -7,20 +7,24 @@
 [ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="4_swcsh"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_yqgsl"]
 [ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="7_k3jwx"]
+[ext_resource type="Resource" uid="uid://t0hlrh42rfly" path="res://content/heroes/debug/debug_sechevik_hero.tres" id="8_hero_definition"]
+[ext_resource type="Resource" uid="uid://d16sn5rkmqblu" path="res://content/heroes/debug/debug_sechevik_progression.tres" id="9_hero_progression"]
 
 [sub_resource type="Resource" id="Resource_hero_spawn"]
 script = ExtResource("2_spawn")
 instance_id = &"debug_hero"
 combatant_definition = ExtResource("3_hero")
 team_id = &"team_player"
-coordinate = Vector2i(2, 1)
+hero_definition = ExtResource("8_hero_definition")
+hero_progression_state = ExtResource("9_hero_progression")
+coordinate = Vector2i(1, 1)
 
 [sub_resource type="Resource" id="Resource_enemy_spawn"]
 script = ExtResource("2_spawn")
 instance_id = &"debug_enemy"
 combatant_definition = ExtResource("4_enemy")
 team_id = &"team_enemy"
-coordinate = Vector2i(6, 1)
+coordinate = Vector2i(4, 1)
 
 [sub_resource type="Resource" id="Resource_k3jwx"]
 script = ExtResource("6_yqgsl")

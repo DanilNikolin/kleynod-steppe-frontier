@@ -13,8 +13,11 @@ enum CritMode {
 @export_range(0, 9999, 1)
 var base_damage: int = 1
 
+## Устаревшее поле для совместимости со старым debug-контентом.
+## Новые способности масштабируются только через
+## Skill Growth Table.
 @export_range(0.0, 20.0, 0.05)
-var strength_scaling: float = 1.0
+var strength_scaling: float = 0.0
 
 @export_range(0, 999, 1)
 var armor_piercing: int = 0

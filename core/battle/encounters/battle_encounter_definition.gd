@@ -18,10 +18,10 @@ var description: String = ""
 @export_group("Grid")
 
 @export_range(1, 100, 1)
-var rows: int = 5
+var rows: int = 3
 
 @export_range(1, 100, 1)
-var columns: int = 10
+var columns: int = 6
 
 @export_group("Sides")
 

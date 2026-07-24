@@ -1,0 +1,25 @@
+class_name HeroBattleBuild
+extends RefCounted
+
+
+var combatant_definition: CombatantDefinition
+var loadout: CombatantLoadoutDefinition
+
+var strength_rank: int = 0
+var agility_rank: int = 0
+var spirit_rank: int = 0
+
+var active_slot_count: int = 0
+
+var known_personal_ability_ids: Array[StringName] = []
+var selected_personal_ability_ids: Array[StringName] = []
+var unlocked_feature_ids: Array[StringName] = []
+
+
+func is_valid() -> bool:
+	return (
+		combatant_definition != null
+		and combatant_definition.is_valid_definition()
+		and loadout != null
+		and loadout.is_valid_definition()
+	)

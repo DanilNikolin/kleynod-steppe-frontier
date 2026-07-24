@@ -66,6 +66,16 @@ var base_armor: int = 0
 @export_range(1, 999, 1)
 var max_stamina: int = 10
 
+## Стартовая выносливость бойца.
+##
+## Значение -1 сохраняет старое поведение:
+## боец начинает бой с полной Max Stamina.
+##
+## Это нужно для обратной совместимости со старыми
+## CombatantDefinition, где поле ещё не задано.
+@export_range(-1, 999, 1)
+var start_stamina: int = -1
+
 @export_range(0, 999, 1)
 var stamina_regeneration: int = 4
 
@@ -86,6 +96,7 @@ var visual_tint: Color = Color.WHITE
 
 @export
 var portrait: Texture2D
+
 
 func has_status_id_immunity(
 	status_id: StringName
@@ -150,10 +161,28 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append("Maximum health must be greater than zero.")
 
 	if max_stamina <= 0:
-		errors.append("Maximum stamina must be greater than zero.")
+		errors.append(
+			"Maximum stamina must be greater than zero."
+		)
+
+	if start_stamina < -1:
+		errors.append(
+			"Start stamina cannot be lower than -1."
+		)
+
+	if (
+		start_stamina >= 0
+		and start_stamina > max_stamina
+	):
+		errors.append(
+			"Start stamina cannot be greater "
+			+"than maximum stamina."
+		)
 
 	if stamina_regeneration < 0:
-		errors.append("Stamina regeneration cannot be negative.")
+		errors.append(
+			"Stamina regeneration cannot be negative."
+		)
 
 	var used_immunity_ids: Dictionary = {}
 

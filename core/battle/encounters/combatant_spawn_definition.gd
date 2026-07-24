@@ -15,6 +15,20 @@ var combatant_definition: CombatantDefinition
 var team_id: StringName = &""
 
 
+@export_group("Hero Build")
+
+## Если HeroDefinition задан, боец собирается
+## через HeroBattleBuildResolver.
+##
+## Обычные враги продолжают использовать
+## combatant_definition и loadout_override.
+@export
+var hero_definition: HeroDefinition
+
+@export
+var hero_progression_state: HeroProgressionState
+
+
 @export_group("Loadout")
 
 @export
@@ -42,33 +56,48 @@ func get_validation_errors() -> PackedStringArray:
 			"Combatant instance ID is empty."
 		)
 
-	if combatant_definition == null:
-		errors.append(
-			"Combatant definition is not assigned."
-		)
-
-	elif not combatant_definition.is_valid_definition():
-		errors.append(
-			"Combatant definition is invalid."
-		)
-
 	if team_id == &"":
 		errors.append(
 			"Team ID is empty."
 		)
 
-	var effective_loadout := (
-		get_effective_loadout()
-	)
+	if hero_definition != null:
+		if not hero_definition.is_valid_definition():
+			errors.append(
+				"Hero definition is invalid."
+			)
 
-	if effective_loadout == null:
+		if hero_progression_state == null:
+			errors.append(
+				"Hero progression state is not assigned."
+			)
+
+		elif not hero_progression_state.is_valid_state():
+			errors.append(
+				"Hero progression state is invalid."
+			)
+
+	else:
+		if combatant_definition == null:
+			errors.append(
+				"Combatant definition is not assigned."
+			)
+
+		elif not combatant_definition.is_valid_definition():
+			errors.append(
+				"Combatant definition is invalid."
+			)
+
+	var battle_build := create_battle_build()
+
+	if battle_build == null:
 		errors.append(
-			"Combatant loadout is not assigned."
+			"Combatant battle build could not be created."
 		)
 
-	elif not effective_loadout.is_valid_definition():
+	elif not battle_build.is_valid():
 		errors.append(
-			"Combatant loadout is invalid."
+			"Combatant battle build is invalid."
 		)
 
 	var used_coordinates: Dictionary = {
@@ -91,15 +120,102 @@ func get_validation_errors() -> PackedStringArray:
 		] = true
 
 	return errors
-func get_effective_loadout() -> CombatantLoadoutDefinition:
-	if loadout_override != null:
-		return loadout_override
+
+
+func create_battle_build() -> HeroBattleBuild:
+	if hero_definition != null:
+		if hero_progression_state == null:
+			return null
+
+		var hero_resolver := (
+			HeroBattleBuildResolver.new()
+		)
+
+		return hero_resolver.resolve(
+			hero_definition,
+			hero_progression_state
+		)
 
 	if combatant_definition == null:
 		return null
 
-	return combatant_definition.default_loadout
+	var source_loadout := (
+		loadout_override
+		if loadout_override != null
+		else combatant_definition.default_loadout
+	)
 
+	if source_loadout == null:
+		return null
+
+	var loadout_resolver := (
+		CombatantLoadoutRuntimeResolver.new()
+	)
+
+	var resolved_loadout := (
+		loadout_resolver.resolve(
+			source_loadout,
+			combatant_definition.base_strength,
+			combatant_definition.base_agility,
+			combatant_definition.base_spirit
+		)
+	)
+
+	if resolved_loadout == null:
+		return null
+
+	var result := HeroBattleBuild.new()
+
+	result.combatant_definition = (
+		combatant_definition
+	)
+
+	result.loadout = resolved_loadout
+
+	result.strength_rank = (
+		combatant_definition.base_strength
+	)
+
+	result.agility_rank = (
+		combatant_definition.base_agility
+	)
+
+	result.spirit_rank = (
+		combatant_definition.base_spirit
+	)
+
+	result.active_slot_count = (
+		resolved_loadout.abilities.size()
+	)
+
+	for ability in resolved_loadout.get_abilities():
+		result.known_personal_ability_ids.append(
+			ability.ability_id
+		)
+
+		result.selected_personal_ability_ids.append(
+			ability.ability_id
+		)
+
+	return result
+
+
+func get_effective_combatant_definition() -> CombatantDefinition:
+	var battle_build := create_battle_build()
+
+	if battle_build == null:
+		return null
+
+	return battle_build.combatant_definition
+
+
+func get_effective_loadout() -> CombatantLoadoutDefinition:
+	var battle_build := create_battle_build()
+
+	if battle_build == null:
+		return null
+
+	return battle_build.loadout
 
 
 func get_candidate_coordinates() -> Array[Vector2i]:

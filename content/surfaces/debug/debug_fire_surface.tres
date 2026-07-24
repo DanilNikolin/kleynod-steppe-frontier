@@ -7,7 +7,6 @@
 [sub_resource type="Resource" id="Resource_fire_damage"]
 script = ExtResource("3_damage")
 base_damage = 3
-strength_scaling = 0.0
 crit_mode = 0
 effect_id = &"effect_debug_fire_damage"
 

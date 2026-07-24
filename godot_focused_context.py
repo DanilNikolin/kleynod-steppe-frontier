@@ -26,21 +26,34 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "presentation/battle/abilities/battle_ability_panel.tscn",
+    "core/battle/combatants/combatant_definition.gd",
+    "core/battle/combatants/combatant_state.gd",
+
+    "core/battle/abilities/ability_definition.gd",
+    "core/battle/abilities/growth/ability_growth_table_definition.gd",
+    "core/battle/abilities/growth/ability_runtime_resolver.gd",
+
+    "core/battle/loadouts/combatant_loadout_definition.gd",
+    "core/battle/loadouts/combatant_loadout_runtime_resolver.gd",
+
+    "core/battle/encounters/combatant_spawn_definition.gd",
+    "core/battle/encounters/battle_encounter_definition.gd",
+
+    "core/battle/session/battle_session.gd",
+    "core/battle/session/battle_session_factory.gd",
+
     "presentation/battle/abilities/battle_ability_panel.gd",
-    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
 
-    "presentation/common/controls/collapsible_panel_controller.gd",
-
-    "scenes/debug/battle_grid_sandbox.tscn",
     "scenes/debug/battle_grid_sandbox.gd",
     "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
-    "scenes/debug/presentation/battle_debug_log_presenter.gd",
 
-    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
-    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
-    "presentation/battle/surfaces/battle_surface_hover_panel.tscn",
-    "presentation/battle/surfaces/battle_surface_hover_panel.gd"
+    "scenes/debug_sechevik.tres",
+    "content/loadouts/debug/debug_sechevik_loadout.tres",
+    "content/abilities/debug/debug_sabre_slash.tres",
+    "content/abilities/debug/debug_spirit_mend.tres",
+
+    "content/encounters/debug/debug_duel_encounter.tres",
 ]
 
 ALLOW_ADDONS = False

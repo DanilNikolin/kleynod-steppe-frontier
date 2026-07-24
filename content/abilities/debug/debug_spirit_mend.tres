@@ -4,23 +4,108 @@
 [ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
 [ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" uid="uid://btflpqsqiti3q" path="res://core/battle/effects/heal_effect.gd" id="4_heal"]
+[ext_resource type="Script" uid="uid://b6x7ygv2drd3f" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="5_growth_rank"]
+[ext_resource type="Script" uid="uid://cwdmavmpj41mr" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="6_growth_table"]
 
 [sub_resource type="Resource" id="Resource_spirit_mend_heal"]
 script = ExtResource("4_heal")
-spirit_scaling = 1.0
+base_healing = 3
 effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_1_heal"]
+script = ExtResource("4_heal")
+base_healing = 4
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_1"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_1_heal")])
+
+[sub_resource type="Resource" id="Resource_rank_2"]
+script = ExtResource("5_growth_rank")
+cooldown_turns_override = 3
+
+[sub_resource type="Resource" id="Resource_rank_3_heal"]
+script = ExtResource("4_heal")
+base_healing = 5
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_3"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_3_heal")])
+
+[sub_resource type="Resource" id="Resource_rank_4_targeting"]
+script = ExtResource("2_targeting")
+aim_relation_mask = 3
+aim_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(-1, 0), Vector2i(-2, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, -1), Vector2i(0, -2), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(2, 1), Vector2i(2, -1), Vector2i(-2, 1), Vector2i(-2, -1)])
+affected_relation_mask = 3
+
+[sub_resource type="Resource" id="Resource_rank_4"]
+script = ExtResource("5_growth_rank")
+targeting_override = SubResource("Resource_rank_4_targeting")
+
+[sub_resource type="Resource" id="Resource_rank_5_heal"]
+script = ExtResource("4_heal")
+base_healing = 6
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_5"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_5_heal")])
+
+[sub_resource type="Resource" id="Resource_rank_6"]
+script = ExtResource("5_growth_rank")
+cooldown_turns_override = 2
+
+[sub_resource type="Resource" id="Resource_rank_7_heal"]
+script = ExtResource("4_heal")
+base_healing = 7
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_7"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_7_heal")])
+
+[sub_resource type="Resource" id="Resource_rank_8"]
+script = ExtResource("5_growth_rank")
+cooldown_turns_override = 1
+
+[sub_resource type="Resource" id="Resource_rank_9_heal"]
+script = ExtResource("4_heal")
+base_healing = 8
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_9"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_9_heal")])
+
+[sub_resource type="Resource" id="Resource_rank_10_heal"]
+script = ExtResource("4_heal")
+base_healing = 9
+effect_id = &"effect_spirit_mend_heal"
+
+[sub_resource type="Resource" id="Resource_rank_10"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank_10_heal")])
+
+[sub_resource type="Resource" id="Resource_spirit_mend_growth_table"]
+script = ExtResource("6_growth_table")
+rank_steps = Array[ExtResource("5_growth_rank")]([SubResource("Resource_rank_1"), SubResource("Resource_rank_2"), SubResource("Resource_rank_3"), SubResource("Resource_rank_4"), SubResource("Resource_rank_5"), SubResource("Resource_rank_6"), SubResource("Resource_rank_7"), SubResource("Resource_rank_8"), SubResource("Resource_rank_9"), SubResource("Resource_rank_10")])
 
 [sub_resource type="Resource" id="Resource_spirit_mend_targeting"]
 script = ExtResource("2_targeting")
 aim_relation_mask = 3
-aim_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(-1, 0), Vector2i(-2, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, -1), Vector2i(0, -2), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(2, 1), Vector2i(2, -1), Vector2i(-2, 1), Vector2i(-2, -1)])
+aim_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)])
 affected_relation_mask = 3
 
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_spirit_mend"
 display_name = "Духовное восстановление"
-description = "Восстанавливает здоровье в зависимости от текущего Духа."
+description = "Восстанавливает здоровье. Усиливается веткой Воли."
+branch = 3
+growth_table = SubResource("Resource_spirit_mend_growth_table")
 stamina_cost = 2
+cooldown_turns = 4
 targeting = SubResource("Resource_spirit_mend_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_spirit_mend_heal")])

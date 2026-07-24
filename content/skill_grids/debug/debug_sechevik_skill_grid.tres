@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SkillGridDefinition" format=3 uid="uid://cvv0xgjjefuwd"]
+
+[ext_resource type="Script" uid="uid://xxfuh74w2dgj" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
+[ext_resource type="Script" uid="uid://n28i4614estl" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
+[ext_resource type="Resource" uid="uid://bnk0vuvlj8iqp" path="res://content/abilities/debug/debug_spirit_mend.tres" id="3_mend"]
+
+[sub_resource type="Resource" id="Node_strength_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_strength_1"
+display_name = "Сила +1"
+description = "Повышает ветку Силы на 1."
+branch = 1
+
+[sub_resource type="Resource" id="Node_spirit_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_spirit_1"
+display_name = "Воля +1"
+description = "Повышает ветку Воли на 1."
+branch = 3
+
+[sub_resource type="Resource" id="Node_learn_mend"]
+script = ExtResource("2_node")
+node_id = &"node_debug_learn_spirit_mend"
+display_name = "Духовное восстановление"
+description = "Открывает личный приём."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("3_mend")
+
+[sub_resource type="Resource" id="Node_active_slot"]
+script = ExtResource("2_node")
+node_id = &"node_debug_active_slot_1"
+display_name = "Активный слот"
+description = "Добавляет один личный активный слот."
+node_type = 2
+prerequisite_node_ids = Array[StringName]([&"node_debug_strength_1"])
+
+[sub_resource type="Resource" id="Node_health"]
+script = ExtResource("2_node")
+node_id = &"node_debug_health_1"
+display_name = "Здоровье +2"
+description = "Повышает максимальное здоровье на 2."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+rare_stat = 1
+rare_stat_amount = 2
+
+[resource]
+script = ExtResource("1_grid")
+grid_id = &"skill_grid_debug_sechevik"
+display_name = "Отладочная сетка Сечевика"
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health")])

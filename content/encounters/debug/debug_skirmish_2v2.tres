@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
 [ext_resource type="Resource" uid="uid://cvjqcjyhusucr" path="res://content/combatants/prototype/proto_steppe_raider.tres" id="4_raider"]
 [ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="5_rxsgo"]
-[ext_resource type="Resource" path="res://content/combatants/prototype/proto_steppe_shieldbearer.tres" id="5_shieldbearer"]
+[ext_resource type="Resource" uid="uid://co8lwfk1guhba" path="res://content/combatants/prototype/proto_steppe_shieldbearer.tres" id="5_shieldbearer"]
 [ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
 [ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="8_tps1g"]
 
@@ -39,14 +39,11 @@ coordinate = Vector2i(4, 2)
 
 [sub_resource type="Resource" id="Resource_side_rules"]
 script = ExtResource("6_side_rules")
-divider_column = 3
 
 [resource]
 script = ExtResource("1_encounter")
 encounter_id = &"debug_skirmish_2v2"
 display_name = "Прототип боя 2v2"
 description = "Первый нормальный мини-бой: два Сечевика против степного рубаки и щитоносца."
-rows = 3
-columns = 6
 side_rules = SubResource("Resource_side_rules")
 combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_player_1"), SubResource("Resource_player_2"), SubResource("Resource_enemy_raider"), SubResource("Resource_enemy_shieldbearer")])

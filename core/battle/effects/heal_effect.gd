@@ -8,6 +8,9 @@ extends BattleEffect
 @export_range(0, 9999, 1)
 var base_healing: int = 1
 
+## Устаревшее поле для совместимости со старым debug-контентом.
+## Новые способности масштабируются только через
+## Skill Growth Table.
 @export_range(0.0, 20.0, 0.05)
 var spirit_scaling: float = 0.0
 

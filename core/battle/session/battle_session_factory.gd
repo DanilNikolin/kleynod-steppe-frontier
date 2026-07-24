@@ -18,12 +18,23 @@ func create_from_encounter(
 	)
 
 	for spawn in encounter.combatant_spawns:
+		var battle_build := (
+			spawn.create_battle_build()
+		)
+
+		if (
+			battle_build == null
+			or not battle_build.is_valid()
+		):
+			session.clear()
+			return null
+
 		var combatant := session.add_combatant(
 			spawn.instance_id,
-			spawn.combatant_definition,
+			battle_build.combatant_definition,
 			spawn.team_id,
 			spawn.coordinate,
-			spawn.get_effective_loadout()
+			battle_build.loadout
 		)
 
 		if combatant == null:

@@ -9,7 +9,6 @@
 [sub_resource type="Resource" id="Resource_bleeding_damage"]
 script = ExtResource("3_damage")
 base_damage = 2
-strength_scaling = 0.0
 armor_piercing = 999
 minimum_damage = 2
 effect_id = &"bleeding_tick"

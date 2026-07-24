@@ -235,7 +235,11 @@ func _create_battle_state() -> void:
 	grid_view.rows = grid.rows
 	grid_view.columns = grid.columns
 	grid_view.divider_column = (
-		session.side_rules.divider_column
+		session
+			.side_rules
+			.get_effective_divider_column(
+				grid.columns
+			)
 	)
 
 

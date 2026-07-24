@@ -3,6 +3,14 @@ class_name AbilityDefinition
 extends Resource
 
 
+enum Branch {
+	NONE,
+	STRENGTH,
+	AGILITY,
+	SPIRIT,
+}
+
+
 @export_group("Identity")
 
 @export
@@ -15,10 +23,27 @@ var display_name: String = "Unnamed Ability"
 var description: String = ""
 
 
+@export_group("Progression")
+
+## Ветка определяет, какое значение героя
+## выбирает Rank этой способности.
+##
+## NONE используется для старых debug-способностей
+## и способностей без таблицы роста.
+@export
+var branch: Branch = Branch.NONE
+
+## Исходная способность является Rank 0.
+## Таблица содержит изменения Rank 1–10.
+@export
+var growth_table: AbilityGrowthTableDefinition
+
+
 @export_group("Cost")
 
 @export_range(0, 999, 1)
 var stamina_cost: int = 1
+
 
 @export_group("Cooldown")
 
@@ -40,12 +65,41 @@ var targeting: AbilityTargetingDefinition
 @export
 var effects: Array[BattleEffect] = []
 
+
 @export_group("Presentation")
 
 ## Необязательный presentation-layer Resource.
 ## Combat Core его не читает и не интерпретирует.
 @export
 var presentation_profile: Resource
+
+
+func get_growth_rank(
+	strength_rank: int,
+	agility_rank: int,
+	spirit_rank: int
+) -> int:
+	var result := 0
+
+	match branch:
+		Branch.STRENGTH:
+			result = strength_rank
+
+		Branch.AGILITY:
+			result = agility_rank
+
+		Branch.SPIRIT:
+			result = spirit_rank
+
+		Branch.NONE:
+			result = 0
+
+	return clampi(
+		result,
+		0,
+		AbilityGrowthTableDefinition.MAX_RANK
+	)
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -78,7 +132,7 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Cooldown turns cannot be negative."
 		)
-		
+
 	if targeting == null:
 		errors.append(
 			"Ability targeting definition is not assigned."
@@ -97,6 +151,8 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Ability must contain at least one effect."
 		)
+
+	var base_effect_ids: Dictionary = {}
 
 	for effect_index in range(
 		effects.size()
@@ -123,5 +179,68 @@ func get_validation_errors() -> PackedStringArray:
 					effect_error,
 				]
 			)
+
+		if effect.effect_id == &"":
+			continue
+
+		if base_effect_ids.has(
+			effect.effect_id
+		):
+			errors.append(
+				"Duplicate base effect ID: %s."
+				% effect.effect_id
+			)
+
+			continue
+
+		base_effect_ids[
+			effect.effect_id
+		] = true
+
+	if growth_table != null:
+		if branch == Branch.NONE:
+			errors.append(
+				"Ability with a growth table "
+				+"must belong to a branch."
+			)
+
+		for growth_error in (
+			growth_table.get_validation_errors()
+		):
+			errors.append(
+				"Growth table: %s"
+				% growth_error
+			)
+
+		for step_index in range(
+			growth_table.rank_steps.size()
+		):
+			var rank_step := (
+				growth_table.rank_steps[
+					step_index
+				]
+			)
+
+			if rank_step == null:
+				continue
+
+			for effect_override in (
+				rank_step.effect_overrides
+			):
+				if (
+					effect_override == null
+					or effect_override.effect_id == &""
+				):
+					continue
+
+				if not base_effect_ids.has(
+					effect_override.effect_id
+				):
+					errors.append(
+						"Growth rank %d replaces "
+						% (step_index + 1)
+						+"unknown base effect '%s'."
+						% effect_override.effect_id
+					)
 
 	return errors

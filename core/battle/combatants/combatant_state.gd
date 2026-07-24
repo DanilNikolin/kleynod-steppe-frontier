@@ -120,8 +120,18 @@ func _initialize_runtime_attributes() -> void:
 	armor = definition.base_armor
 
 	max_stamina = definition.max_stamina
-	current_stamina = max_stamina
-	stamina_regeneration = definition.stamina_regeneration
+
+	if definition.start_stamina < 0:
+		current_stamina = max_stamina
+	else:
+		current_stamina = mini(
+			definition.start_stamina,
+			max_stamina
+		)
+
+	stamina_regeneration = (
+		definition.stamina_regeneration
+	)
 
 	initiative = definition.base_initiative
 

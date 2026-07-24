@@ -14,11 +14,34 @@ var right_team_id: StringName = &"team_enemy"
 
 @export_group("Divider")
 
-## Первый столбец правой стороны.
-## При значении 5 левая сторона занимает 0–4,
-## правая сторона занимает 5–9.
+## При включённом автоматическом режиме поле
+## всегда делится на две равные стороны.
+##
+## 6 колонок:
+## левая сторона 0–2;
+## правая сторона 3–5.
+##
+## 10 колонок:
+## левая сторона 0–4;
+## правая сторона 5–9.
+@export
+var use_automatic_divider: bool = true
+
+## Используется только при выключенном
+## автоматическом разделении.
 @export_range(1, 99, 1)
-var divider_column: int = 5
+var divider_column: int = 3
+
+
+func get_effective_divider_column(
+	columns: int
+) -> int:
+	if use_automatic_divider:
+		return floori(
+			float(columns) / 2.0
+		)
+
+	return divider_column
 
 
 func is_valid_for_grid(
@@ -57,9 +80,28 @@ func get_validation_errors(
 			"Side-based grid requires at least two columns."
 		)
 
-	elif (
-		divider_column <= 0
-		or divider_column >= columns
+		return errors
+
+	if (
+		use_automatic_divider
+		and columns % 2 != 0
+	):
+		errors.append(
+			"Automatic side division requires "
+			+"an even number of columns."
+		)
+
+		return errors
+
+	var effective_divider := (
+		get_effective_divider_column(
+			columns
+		)
+	)
+
+	if (
+		effective_divider <= 0
+		or effective_divider >= columns
 	):
 		errors.append(
 			"Divider column must be inside the grid."
@@ -91,11 +133,17 @@ func is_coordinate_allowed(
 	):
 		return false
 
+	var effective_divider := (
+		get_effective_divider_column(
+			columns
+		)
+	)
+
 	if team_id == left_team_id:
-		return coordinate.x < divider_column
+		return coordinate.x < effective_divider
 
 	if team_id == right_team_id:
-		return coordinate.x >= divider_column
+		return coordinate.x >= effective_divider
 
 	return false
 

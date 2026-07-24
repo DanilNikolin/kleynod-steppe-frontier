@@ -3,7 +3,6 @@ extends RefCounted
 
 
 const BASE_CRIT_CHANCE_PERCENT: int = 5
-const AGILITY_CRIT_CHANCE_PER_POINT: int = 1
 const MAX_STANDARD_CRIT_CHANCE_PERCENT: int = 35
 
 
@@ -14,30 +13,31 @@ func calculate_raw_damage(
 	if attacker == null:
 		return 0
 
-	return calculate_raw_damage_from_strength(
-		attacker.get_effective_strength(),
+	return calculate_raw_damage_from_effect(
 		effect
 	)
 
 
-func calculate_raw_damage_from_strength(
-	effective_strength: int,
+func calculate_raw_damage_from_effect(
 	effect: DamageEffect
 ) -> int:
 	if effect == null:
 		return 0
 
-	var attribute_damage := floori(
-		float(
-			maxi(0, effective_strength)
-		)
-		* effect.strength_scaling
-	)
-
 	return maxi(
 		0,
 		effect.base_damage
-		+ attribute_damage
+	)
+
+
+## Временный совместимый метод.
+## Сила больше не влияет на урон напрямую.
+func calculate_raw_damage_from_strength(
+	_effective_strength: int,
+	effect: DamageEffect
+) -> int:
+	return calculate_raw_damage_from_effect(
+		effect
 	)
 
 
@@ -50,16 +50,14 @@ func calculate_critical_chance_percent(
 		return 0
 
 	return (
-		calculate_critical_chance_percent_from_agility(
-			attacker.get_effective_agility(),
+		calculate_critical_chance_percent_from_effect(
 			effect,
 			allow_critical
 		)
 	)
 
 
-func calculate_critical_chance_percent_from_agility(
-	effective_agility: int,
+func calculate_critical_chance_percent_from_effect(
 	effect: DamageEffect,
 	allow_critical: bool = true
 ) -> int:
@@ -77,14 +75,8 @@ func calculate_critical_chance_percent_from_agility(
 			return 100
 
 		DamageEffect.CritMode.STANDARD:
-			var agility_bonus := (
-				maxi(0, effective_agility)
-				* AGILITY_CRIT_CHANCE_PER_POINT
-			)
-
 			return clampi(
 				BASE_CRIT_CHANCE_PERCENT
-				+ agility_bonus
 				+ effect
 					.crit_chance_bonus_percent,
 				0,
@@ -92,6 +84,21 @@ func calculate_critical_chance_percent_from_agility(
 			)
 
 	return 0
+
+
+## Временный совместимый метод.
+## Ловкость больше не влияет на крит напрямую.
+func calculate_critical_chance_percent_from_agility(
+	_effective_agility: int,
+	effect: DamageEffect,
+	allow_critical: bool = true
+) -> int:
+	return (
+		calculate_critical_chance_percent_from_effect(
+			effect,
+			allow_critical
+		)
+	)
 
 
 func apply_critical_multiplier(
@@ -173,7 +180,10 @@ func calculate_resolved_damage_from_values(
 	var damage_after_armor := maxi(
 		0,
 		raw_damage
-		- maxi(0, effective_armor)
+		- maxi(
+			0,
+			effective_armor
+		)
 	)
 
 	var allowed_minimum := mini(
@@ -185,7 +195,8 @@ func calculate_resolved_damage_from_values(
 		allowed_minimum,
 		damage_after_armor
 	)
-	
+
+
 func calculate_resolved_damage(
 	attacker: CombatantState,
 	target: CombatantState,

@@ -183,57 +183,12 @@ static func _build_place_surface_effect_text(
 
 static func _build_damage_effect_text(
 	effect: DamageEffect,
-	actor: CombatantState
+	_actor: CombatantState
 ) -> String:
-	var scaling_percent := roundi(
-		effect.strength_scaling * 100.0
+	var damage_text := (
+		"• Урон: %d"
+		% effect.base_damage
 	)
-
-	var damage_text: String
-
-	if actor != null:
-		var strength_damage := floori(
-			float(
-				actor.get_effective_strength()
-			)
-			* effect.strength_scaling
-		)
-
-		var predicted_raw_damage := maxi(
-			0,
-			effect.base_damage
-			+ strength_damage
-		)
-
-		damage_text = (
-			"• Урон: %d "
-			% predicted_raw_damage
-			+"(%d базового"
-			% effect.base_damage
-		)
-
-		if effect.strength_scaling > 0.0:
-			damage_text += (
-				" + %d%% силы = %d"
-				% [
-					scaling_percent,
-					strength_damage,
-				]
-			)
-
-		damage_text += ")"
-
-	else:
-		damage_text = (
-			"• Урон: %d базового"
-			% effect.base_damage
-		)
-
-		if effect.strength_scaling > 0.0:
-			damage_text += (
-				" + %d%% силы"
-				% scaling_percent
-			)
 
 	if effect.armor_piercing > 0:
 		damage_text += (
@@ -251,7 +206,7 @@ static func _build_damage_effect_text(
 		"\n  %s"
 		% _build_critical_effect_text(
 			effect,
-			actor
+			_actor
 		)
 	)
 
@@ -259,7 +214,7 @@ static func _build_damage_effect_text(
 
 static func _build_critical_effect_text(
 	effect: DamageEffect,
-	actor: CombatantState
+	_actor: CombatantState
 ) -> String:
 	match effect.crit_mode:
 		DamageEffect.CritMode.DISABLED:
@@ -275,44 +230,15 @@ static func _build_critical_effect_text(
 			)
 
 		DamageEffect.CritMode.STANDARD:
-			if actor == null:
-				var text := (
-					"Крит: 5% + 1% за Ловкость"
-				)
-
-				if (
-					effect
-					.crit_chance_bonus_percent
-					!= 0
-				):
-					text += (
-						" %s%% от способности"
-						% _format_signed_integer(
-							effect
-							.crit_chance_bonus_percent
-						)
-					)
-
-				text += (
-					", максимум 35%"
-					+"  •  Множитель: ×%s"
-					% _format_multiplier(
-						effect
-						.critical_multiplier
-					)
-				)
-
-				return text
-
 			var calculator := (
 				DamageCalculator.new()
 			)
 
 			var chance := (
 				calculator
-				.calculate_critical_chance_percent(
-					actor,
-					effect
+				.calculate_critical_chance_percent_from_effect(
+					effect,
+					true
 				)
 			)
 
@@ -340,58 +266,12 @@ static func _format_multiplier(
 
 static func _build_heal_effect_text(
 	effect: HealEffect,
-	actor: CombatantState
+	_actor: CombatantState
 ) -> String:
-	var scaling_percent := roundi(
-		effect.spirit_scaling * 100.0
-	)
-
-	if actor == null:
-		var text := (
-			"• Лечение: %d базового"
-			% effect.base_healing
-		)
-
-		if effect.spirit_scaling > 0.0:
-			text += (
-				" + %d%% духа"
-				% scaling_percent
-			)
-
-		return text
-
-	var spirit_healing := floori(
-		float(
-			actor.get_effective_spirit()
-		)
-		* effect.spirit_scaling
-	)
-
-	var predicted_healing := maxi(
-		0,
-		effect.base_healing
-		+ spirit_healing
-	)
-
-	var text := (
-		"• Лечение: %d "
-		% predicted_healing
-		+"(%d базового"
+	return (
+		"• Лечение: %d"
 		% effect.base_healing
 	)
-
-	if effect.spirit_scaling > 0.0:
-		text += (
-			" + %d%% духа = %d"
-			% [
-				scaling_percent,
-				spirit_healing,
-			]
-		)
-
-	text += ")"
-
-	return text
 
 static func _build_guard_effect_text(
 	effect: GrantGuardEffect

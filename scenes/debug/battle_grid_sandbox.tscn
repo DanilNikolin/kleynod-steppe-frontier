@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dwtnlj74gi01o" path="res://scenes/debug/battle_grid_sandbox.gd" id="1_sandbox"]
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
-[ext_resource type="Resource" uid="uid://c48wssa8p4wp1" path="res://content/encounters/debug/debug_skirmish_2v2.tres" id="4_encounter_definition"]
+[ext_resource type="Resource" uid="uid://dgp7p6h0tjn5n" path="res://content/encounters/debug/debug_duel_encounter.tres" id="3_wc5i2"]
 [ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_ability_panel"]
 [ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 [ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
@@ -13,7 +13,7 @@
 [node name="BattleGridSandbox" type="Node2D" unique_id=757643817]
 script = ExtResource("1_sandbox")
 combatant_view_scene = ExtResource("3_combatant_view")
-encounter_definition = ExtResource("4_encounter_definition")
+encounter_definition = ExtResource("3_wc5i2")
 debug_status_definition = ExtResource("6_debug_status")
 
 [node name="BattleGridView" parent="." unique_id=794142880 instance=ExtResource("2_grid")]

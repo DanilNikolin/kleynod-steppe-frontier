@@ -599,17 +599,9 @@ func _resolve_heal(
 	result.source_id = source.instance_id
 	result.target_id = target.instance_id
 
-	var spirit_healing := floori(
-		float(
-			source.get_effective_spirit()
-		)
-		* effect.spirit_scaling
-	)
-
 	result.raw_amount = maxi(
 		0,
 		effect.base_healing
-		+ spirit_healing
 	)
 
 	result.resolved_amount = (
@@ -631,7 +623,7 @@ func _resolve_heal(
 	result.is_successful = true
 
 	return result
-
+	
 func _resolve_grant_guard(
 	effect: GrantGuardEffect,
 	source: CombatantState,

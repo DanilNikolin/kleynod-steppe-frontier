@@ -916,8 +916,7 @@ func _preview_damage(
 
 	result.raw_amount_before_critical = (
 		damage_calculator
-		.calculate_raw_damage_from_strength(
-			source.get_effective_strength(),
+		.calculate_raw_damage_from_effect(
 			effect
 		)
 	)
@@ -934,8 +933,7 @@ func _preview_damage(
 
 	result.critical_chance_percent = (
 		damage_calculator
-		.calculate_critical_chance_percent_from_agility(
-			source.get_effective_agility(),
+		.calculate_critical_chance_percent_from_effect(
 			effect,
 			true
 		)
@@ -1057,17 +1055,9 @@ func _preview_heal(
 	result.source_id = source.instance_id
 	result.target_id = target.instance_id
 
-	var spirit_healing := floori(
-		float(
-			source.get_effective_spirit()
-		)
-		* effect.spirit_scaling
-	)
-
 	result.raw_amount = maxi(
 		0,
 		effect.base_healing
-		+ spirit_healing
 	)
 
 	result.resolved_amount = (

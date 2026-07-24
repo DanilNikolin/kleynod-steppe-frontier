@@ -76,6 +76,11 @@ var _finished: bool = false
 var _is_processing_periodic_statuses: bool = false
 var _is_processing_surface_effects: bool = false
 
+## Бойцы начинают свой первый ход с Start Stamina.
+## Восстановление за раунд начинается только
+## со второго собственного хода бойца.
+var _combatant_ids_with_started_turn: Dictionary = {}
+
 
 func _init(
 	p_periodic_status_processor: BattleStatusPeriodicProcessor = null
@@ -107,6 +112,8 @@ func start(
 
 	round_number = 0
 	winning_team_id = &""
+
+	_combatant_ids_with_started_turn.clear()
 
 	_connect_session_signals()
 
@@ -350,7 +357,14 @@ func _begin_turn(
 		_advance_to_next_turn()
 		return
 
-	combatant.restore_round_stamina()
+	if _combatant_ids_with_started_turn.has(
+		combatant.instance_id
+	):
+		combatant.restore_round_stamina()
+	else:
+		_combatant_ids_with_started_turn[
+			combatant.instance_id
+		] = true
 
 	var skip_status_ids := (
 		combatant.get_turn_skip_status_ids()

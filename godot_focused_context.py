@@ -26,7 +26,11 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/stats/battle_stat_modifier.gd",
+    "core/heroes/builds/hero_battle_build.gd",
+    "core/heroes/builds/hero_battle_build_resolver.gd",
+    "core/heroes/hero_definition.gd",
+    "core/battle/loadouts/combatant_loadout_definition.gd",
+    "core/battle/abilities/ability_definition.gd",
     "scenes/debug/skill_grid_debug_sandbox.gd",
 ]
 

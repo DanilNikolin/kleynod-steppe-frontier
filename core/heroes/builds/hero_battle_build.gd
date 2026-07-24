@@ -13,6 +13,10 @@ var active_slot_count: int = 0
 
 var known_personal_ability_ids: Array[StringName] = []
 var selected_personal_ability_ids: Array[StringName] = []
+
+var equipment_ability_ids: Array[StringName] = []
+var equipped_items: Array[HeroEquipmentItemInstance] = []
+
 var unlocked_feature_ids: Array[StringName] = []
 
 

@@ -8,6 +8,10 @@ var hero_definition: HeroDefinition
 @export
 var progression_source: HeroProgressionState
 
+@export_group("Debug Equipment")
+
+@export
+var available_equipment_instances: Array[HeroEquipmentItemInstance] = []
 
 var progression: HeroProgressionState
 
@@ -22,7 +26,9 @@ var build_resolver := (
 var loadout_service := (
 	HeroPersonalLoadoutService.new()
 )
-
+var equipment_service := (
+	HeroEquipmentService.new()
+)
 func _ready() -> void:
 	if (
 		hero_definition == null
@@ -43,6 +49,11 @@ func _reset_progression() -> void:
 	if progression == null:
 		_show_initialization_error()
 		return
+
+	if progression.equipment_state == null:
+		progression.equipment_state = (
+			HeroEquipmentState.new()
+		)
 
 	_rebuild_interface()
 
@@ -163,6 +174,18 @@ func _rebuild_interface() -> void:
 		loadout_panel
 	)
 
+	var equipment_panel := (
+		_create_equipment_panel()
+	)
+
+	equipment_panel.custom_minimum_size = Vector2(
+		430,
+		0
+	)
+
+	main_row.add_child(
+		equipment_panel
+	)
 
 func _create_nodes_panel() -> Control:
 	var panel := PanelContainer.new()
@@ -708,7 +731,320 @@ func _on_remove_ability_pressed(
 		return
 
 	_rebuild_interface()
-	
+
+
+func _create_equipment_panel() -> Control:
+	var panel := PanelContainer.new()
+	var outer := VBoxContainer.new()
+
+	outer.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	panel.add_child(
+		outer
+	)
+
+	var title := Label.new()
+
+	title.text = "DEBUG EQUIPMENT"
+
+	title.add_theme_font_size_override(
+		"font_size",
+		22
+	)
+
+	outer.add_child(
+		title
+	)
+
+	outer.add_child(
+		Label.new()
+	)
+
+	var slots_title := Label.new()
+
+	slots_title.text = "ЭКИПИРОВАННЫЕ СЛОТЫ"
+
+	outer.add_child(
+		slots_title
+	)
+
+	for slot in HeroEquipmentState.get_all_slots():
+		outer.add_child(
+			_create_equipped_slot_row(
+				slot
+			)
+		)
+
+	outer.add_child(
+		HSeparator.new()
+	)
+
+	var inventory_title := Label.new()
+
+	inventory_title.text = "ДОСТУПНЫЕ DEBUG-ПРЕДМЕТЫ"
+
+	outer.add_child(
+		inventory_title
+	)
+
+	var scroll := ScrollContainer.new()
+
+	scroll.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	scroll.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	outer.add_child(
+		scroll
+	)
+
+	var inventory_content := VBoxContainer.new()
+
+	inventory_content.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	inventory_content.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	scroll.add_child(
+		inventory_content
+	)
+
+	for item in available_equipment_instances:
+		if item == null:
+			continue
+
+		inventory_content.add_child(
+			_create_available_item_row(
+				item
+			)
+		)
+
+	return panel
+
+
+func _create_equipped_slot_row(
+	slot: int
+) -> Control:
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	var slot_label := Label.new()
+
+	slot_label.custom_minimum_size = Vector2(
+		100,
+		0
+	)
+
+	slot_label.text = (
+		HeroEquipmentState.get_slot_display_name(
+			slot
+		)
+	)
+
+	row.add_child(
+		slot_label
+	)
+
+	var item := progression.equipment_state.get_item(
+		slot
+	)
+
+	var item_label := Label.new()
+
+	item_label.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	if (
+		item == null
+		or item.definition == null
+	):
+		item_label.text = "—"
+
+	else:
+		item_label.text = (
+			item.definition.display_name
+		)
+
+	row.add_child(
+		item_label
+	)
+
+	var remove_button := Button.new()
+
+	remove_button.text = "Снять"
+	remove_button.disabled = item == null
+
+	remove_button.pressed.connect(
+		_on_unequip_pressed.bind(
+			slot
+		)
+	)
+
+	row.add_child(
+		remove_button
+	)
+
+	return row
+
+
+func _create_available_item_row(
+	item: HeroEquipmentItemInstance
+) -> Control:
+	var panel := PanelContainer.new()
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		6
+	)
+
+	panel.add_child(
+		content
+	)
+
+	var name_label := Label.new()
+
+	name_label.text = (
+		item.definition.display_name
+	)
+
+	content.add_child(
+		name_label
+	)
+
+	var description := Label.new()
+
+	description.text = item.definition.description
+	description.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	content.add_child(
+		description
+	)
+
+	var button_row := HBoxContainer.new()
+
+	button_row.add_theme_constant_override(
+		"separation",
+		6
+	)
+
+	content.add_child(
+		button_row
+	)
+
+	for slot in (
+		equipment_service.get_compatible_slots(
+			item
+		)
+	):
+		var equip_button := Button.new()
+
+		equip_button.text = (
+			_get_equip_button_text(
+				item,
+				slot
+			)
+		)
+
+		equip_button.pressed.connect(
+			_on_equip_pressed.bind(
+				item,
+				slot
+			)
+		)
+
+		button_row.add_child(
+			equip_button
+		)
+
+	return panel
+
+
+func _get_equip_button_text(
+	item: HeroEquipmentItemInstance,
+	slot: int
+) -> String:
+	if (
+		item.definition.category
+			== HeroEquipmentItemDefinition
+				.Category
+				.WEAPON
+		and item.definition.is_two_handed
+	):
+		return "В обе руки"
+
+	match slot:
+		HeroEquipmentState.Slot.WEAPON_1:
+			return "Weapon 1"
+
+		HeroEquipmentState.Slot.WEAPON_2:
+			return "Weapon 2"
+
+		HeroEquipmentState.Slot.RING_1:
+			return "Ring 1"
+
+		HeroEquipmentState.Slot.RING_2:
+			return "Ring 2"
+
+	return "Экипировать"
+
+
+func _on_equip_pressed(
+	item: HeroEquipmentItemInstance,
+	slot: int
+) -> void:
+	var result := equipment_service.equip(
+		progression.equipment_state,
+		item,
+		slot
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Equipment failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	_rebuild_interface()
+
+
+func _on_unequip_pressed(
+	slot: int
+) -> void:
+	var result := equipment_service.unequip(
+		progression.equipment_state,
+		slot
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Unequip failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	_rebuild_interface()
+
 func _build_summary_text(
 	build: HeroBattleBuild
 ) -> String:
@@ -721,6 +1057,18 @@ func _build_summary_text(
 	var selected_ability_names := (
 		_get_ability_names(
 			build.selected_personal_ability_ids
+		)
+	)
+
+	var runtime_ability_names := (
+		_get_runtime_ability_names(
+			build
+		)
+	)
+
+	var equipped_item_names := (
+		_get_equipped_item_names(
+			build
 		)
 	)
 
@@ -870,6 +1218,18 @@ func _build_summary_text(
 
 	lines.append("")
 	lines.append(
+		"Итоговые боевые способности:\n%s"
+		% runtime_ability_names
+	)
+
+	lines.append("")
+	lines.append(
+		"Экипированные предметы:\n%s"
+		% equipped_item_names
+	)
+
+	lines.append("")
+	lines.append(
 		"Купленные ноды:\n%s"
 		% _get_purchased_node_names()
 	)
@@ -926,6 +1286,62 @@ func _get_base_start_stamina() -> int:
 		base.start_stamina,
 		base.max_stamina
 	)
+
+func _get_runtime_ability_names(
+	build: HeroBattleBuild
+) -> String:
+	if (
+		build == null
+		or build.loadout == null
+	):
+		return "—"
+
+	var names := PackedStringArray()
+
+	for ability in build.loadout.get_abilities():
+		names.append(
+			"• %s"
+			% ability.display_name
+		)
+
+	if names.is_empty():
+		return "—"
+
+	return "\n".join(
+		names
+	)
+
+
+func _get_equipped_item_names(
+	build: HeroBattleBuild
+) -> String:
+	if (
+		build == null
+		or build.equipped_items.is_empty()
+	):
+		return "—"
+
+	var names := PackedStringArray()
+
+	for item in build.equipped_items:
+		if (
+			item == null
+			or item.definition == null
+		):
+			continue
+
+		names.append(
+			"• %s"
+			% item.definition.display_name
+		)
+
+	if names.is_empty():
+		return "—"
+
+	return "\n".join(
+		names
+	)
+	
 func _get_ability_names(
 	ability_ids: Array[StringName]
 ) -> String:

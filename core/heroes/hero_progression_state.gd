@@ -23,6 +23,11 @@ var purchased_node_ids: Array[StringName] = []
 @export
 var selected_personal_ability_ids: Array[StringName] = []
 
+@export_group("Equipment")
+
+@export
+var equipment_state: HeroEquipmentState
+
 
 func is_valid_state() -> bool:
 	return get_validation_errors().is_empty()
@@ -52,6 +57,15 @@ func get_validation_errors() -> PackedStringArray:
 		"Selected personal ability",
 		errors
 	)
+
+	if equipment_state != null:
+		for equipment_error in (
+			equipment_state.get_validation_errors()
+		):
+			errors.append(
+				"Equipment: %s"
+				% equipment_error
+			)
 
 	return errors
 

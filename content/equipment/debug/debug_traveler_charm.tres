@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemDefinition" format=3 uid="uid://bi323urmthrcs"]
+
+[ext_resource type="Script" uid="uid://b12lvmi2lhigp" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="1_item"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_vljrf"]
+[ext_resource type="Script" uid="uid://bcau4u236iqo" path="res://core/heroes/builds/hero_build_stat_bonuses.gd" id="2_bonuses"]
+
+[sub_resource type="Resource" id="Bonuses_charm"]
+script = ExtResource("2_bonuses")
+start_stamina_bonus = 1
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"debug_traveler_charm"
+display_name = "Оберег путника"
+description = "Небольшой оберег: +1 Start Stamina."
+category = 5
+stat_bonuses = SubResource("Bonuses_charm")

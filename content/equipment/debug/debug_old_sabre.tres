@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemDefinition" format=3 uid="uid://bm7r61e0d2jla"]
+
+[ext_resource type="Script" uid="uid://b12lvmi2lhigp" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="1_item"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability_script"]
+[ext_resource type="Resource" uid="uid://dikrlb4gdl06f" path="res://content/abilities/debug/debug_rending_cut.tres" id="3_ability"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"debug_old_sabre"
+display_name = "Старая сабля"
+description = "Одноручная сабля, открывающая дополнительный рубящий приём."
+granted_abilities = Array[ExtResource("2_ability_script")]([ExtResource("3_ability")])

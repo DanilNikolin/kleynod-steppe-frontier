@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemInstance" format=3 uid="uid://i3gpoobv8ldh"]
+
+[ext_resource type="Script" uid="uid://dunmh05cf1m3b" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="1_instance"]
+[ext_resource type="Resource" uid="uid://bi323urmthrcs" path="res://content/equipment/debug/debug_traveler_charm.tres" id="2_definition"]
+
+[resource]
+script = ExtResource("1_instance")
+instance_id = &"debug_traveler_charm_instance"
+definition = ExtResource("2_definition")

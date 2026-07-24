@@ -1,10 +1,15 @@
-[gd_scene format=3 uid="uid://d3pxiaumr2r6p"]
+[gd_scene format=3 uid="uid://cc63ro88qih3i"]
 
 [ext_resource type="Script" uid="uid://d2ytprypf8no3" path="res://scenes/debug/skill_grid_debug_sandbox.gd" id="1_script"]
 [ext_resource type="Resource" uid="uid://t0hlrh42rfly" path="res://content/heroes/debug/debug_sechevik_hero.tres" id="2_hero"]
 [ext_resource type="Resource" uid="uid://5mlrljx6pow5" path="res://content/heroes/debug/debug_sechevik_progression_purchase_test.tres" id="3_progression"]
+[ext_resource type="Script" uid="uid://dunmh05cf1m3b" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="4_instance_script"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_old_sabre_instance.tres" id="5_sabre"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_steppe_armor_instance.tres" id="6_armor"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_traveler_charm_instance.tres" id="7_charm"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_heavy_berdysh_instance.tres" id="8_berdysh"]
 
-[node name="SkillGridDebugSandbox" type="Control" unique_id=1732868969]
+[node name="SkillGridDebugSandbox" type="Control" unique_id=252782804]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,3 +19,4 @@ grow_vertical = 2
 script = ExtResource("1_script")
 hero_definition = ExtResource("2_hero")
 progression_source = ExtResource("3_progression")
+available_equipment_instances = Array[ExtResource("4_instance_script")]([ExtResource("5_sabre"), ExtResource("6_armor"), ExtResource("7_charm"), ExtResource("8_berdysh")])

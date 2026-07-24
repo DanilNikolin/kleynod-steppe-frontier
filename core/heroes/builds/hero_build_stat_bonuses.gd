@@ -1,19 +1,38 @@
+@tool
 class_name HeroBuildStatBonuses
-extends RefCounted
+extends Resource
 
 
-## Ветки роста способностей.
+@export_group("Ability Branches")
+
+@export_range(-99, 99, 1)
 var strength_rank_bonus: int = 0
+
+@export_range(-99, 99, 1)
 var agility_rank_bonus: int = 0
+
+@export_range(-99, 99, 1)
 var spirit_rank_bonus: int = 0
 
-## Постоянные боевые параметры сборки.
+
+@export_group("Battle Stats")
+
+@export_range(-999, 999, 1)
 var max_health_bonus: int = 0
+
+@export_range(-99, 99, 1)
 var armor_bonus: int = 0
+
+@export_range(-99, 99, 1)
 var max_stamina_bonus: int = 0
+
+@export_range(-99, 99, 1)
 var start_stamina_bonus: int = 0
 
-## Параметры личной сборки героя.
+
+@export_group("Hero Build")
+
+@export_range(-6, 6, 1)
 var active_slot_bonus: int = 0
 
 

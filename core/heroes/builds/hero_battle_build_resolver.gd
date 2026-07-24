@@ -4,6 +4,10 @@ extends RefCounted
 
 var skill_grid_resolver := SkillGridResolver.new()
 
+var equipment_resolver := (
+	HeroEquipmentResolver.new()
+)
+
 var loadout_resolver := (
 	CombatantLoadoutRuntimeResolver.new()
 )
@@ -32,16 +36,25 @@ func resolve(
 	if not grid_resolution.is_valid:
 		return null
 
+	var equipment_resolution := (
+		equipment_resolver.resolve(
+			progression.equipment_state
+		)
+	)
+
+	if not equipment_resolution.is_valid:
+		return null
+
 	var skill_grid_bonuses := (
 		grid_resolution
 			.stat_bonuses
 			.create_copy()
 	)
 
-	## Следующим модулем сюда будет подаваться
-	## результат Equipment Resolver.
 	var equipment_bonuses := (
-		HeroBuildStatBonuses.new()
+		equipment_resolution
+			.stat_bonuses
+			.create_copy()
 	)
 
 	var total_bonuses := (
@@ -185,6 +198,8 @@ func resolve(
 		hero.default_ability_id
 	)
 
+	var added_ability_ids: Dictionary = {}
+
 	for ability_id in selected_ability_ids:
 		if not known_ability_ids.has(
 			ability_id
@@ -197,6 +212,34 @@ func resolve(
 
 		if ability == null:
 			return null
+
+		if added_ability_ids.has(
+			ability.ability_id
+		):
+			continue
+
+		added_ability_ids[
+			ability.ability_id
+		] = true
+
+		unresolved_loadout.abilities.append(
+			ability
+		)
+
+	for ability in (
+		equipment_resolution.granted_abilities
+	):
+		if (
+			ability == null
+			or added_ability_ids.has(
+				ability.ability_id
+			)
+		):
+			continue
+
+		added_ability_ids[
+			ability.ability_id
+		] = true
 
 		unresolved_loadout.abilities.append(
 			ability
@@ -259,7 +302,7 @@ func resolve(
 	result.total_bonuses = (
 		total_bonuses
 	)
-    
+
 	for ability_id in known_ability_ids:
 		result.known_personal_ability_ids.append(
 			ability_id
@@ -268,6 +311,26 @@ func resolve(
 	for ability_id in selected_ability_ids:
 		result.selected_personal_ability_ids.append(
 			ability_id
+		)
+
+	for ability in (
+		equipment_resolution.granted_abilities
+	):
+		if ability == null:
+			continue
+
+		result.equipment_ability_ids.append(
+			ability.ability_id
+		)
+
+	for item in (
+		equipment_resolution.equipped_items
+	):
+		if item == null:
+			continue
+
+		result.equipped_items.append(
+			item
 		)
 
 	for feature_id in (

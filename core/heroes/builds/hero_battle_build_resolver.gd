@@ -32,6 +32,26 @@ func resolve(
 	if not grid_resolution.is_valid:
 		return null
 
+	var skill_grid_bonuses := (
+		grid_resolution
+			.stat_bonuses
+			.create_copy()
+	)
+
+	## Следующим модулем сюда будет подаваться
+	## результат Equipment Resolver.
+	var equipment_bonuses := (
+		HeroBuildStatBonuses.new()
+	)
+
+	var total_bonuses := (
+		skill_grid_bonuses.create_copy()
+	)
+
+	total_bonuses.add_from(
+		equipment_bonuses
+	)
+
 	var combatant_definition := (
 		hero
 			.base_combatant_definition
@@ -42,36 +62,23 @@ func resolve(
 	if combatant_definition == null:
 		return null
 
-	var base_start_stamina := (
-		hero
-			.base_combatant_definition
-			.start_stamina
-	)
-
-	if base_start_stamina < 0:
-		base_start_stamina = (
-			hero
-				.base_combatant_definition
-				.max_stamina
-		)
-
 	combatant_definition.base_strength = clampi(
 		combatant_definition.base_strength
-			+ grid_resolution.strength_bonus,
+			+ total_bonuses.strength_rank_bonus,
 		0,
 		AbilityGrowthTableDefinition.MAX_RANK
 	)
 
 	combatant_definition.base_agility = clampi(
 		combatant_definition.base_agility
-			+ grid_resolution.agility_bonus,
+			+ total_bonuses.agility_rank_bonus,
 		0,
 		AbilityGrowthTableDefinition.MAX_RANK
 	)
 
 	combatant_definition.base_spirit = clampi(
 		combatant_definition.base_spirit
-			+ grid_resolution.spirit_bonus,
+			+ total_bonuses.spirit_rank_bonus,
 		0,
 		AbilityGrowthTableDefinition.MAX_RANK
 	)
@@ -79,18 +86,29 @@ func resolve(
 	combatant_definition.max_health = maxi(
 		1,
 		combatant_definition.max_health
-			+ grid_resolution.max_health_bonus
+			+ total_bonuses.max_health_bonus
 	)
 
 	combatant_definition.max_stamina = maxi(
 		1,
 		combatant_definition.max_stamina
-			+ grid_resolution.max_stamina_bonus
+			+ total_bonuses.max_stamina_bonus
 	)
 
+	var resolved_base_start_stamina := (
+		hero
+			.base_combatant_definition
+			.start_stamina
+	)
+
+	if resolved_base_start_stamina < 0:
+		resolved_base_start_stamina = (
+			combatant_definition.max_stamina
+		)
+
 	combatant_definition.start_stamina = clampi(
-		base_start_stamina
-			+ grid_resolution.start_stamina_bonus,
+		resolved_base_start_stamina
+			+ total_bonuses.start_stamina_bonus,
 		0,
 		combatant_definition.max_stamina
 	)
@@ -98,13 +116,7 @@ func resolve(
 	combatant_definition.base_armor = maxi(
 		0,
 		combatant_definition.base_armor
-			+ grid_resolution.armor_bonus
-	)
-
-	combatant_definition.base_initiative = maxi(
-		0,
-		combatant_definition.base_initiative
-			+ grid_resolution.initiative_bonus
+			+ total_bonuses.armor_bonus
 	)
 
 	var known_ability_ids: Array[StringName] = []
@@ -131,7 +143,7 @@ func resolve(
 
 	var active_slot_count := clampi(
 		hero.starting_active_slot_count
-			+ grid_resolution.active_slot_bonus,
+			+ total_bonuses.active_slot_bonus,
 		1,
 		hero.maximum_active_slot_count
 	)
@@ -236,6 +248,18 @@ func resolve(
 		active_slot_count
 	)
 
+	result.skill_grid_bonuses = (
+		skill_grid_bonuses
+	)
+
+	result.equipment_bonuses = (
+		equipment_bonuses
+	)
+
+	result.total_bonuses = (
+		total_bonuses
+	)
+    
 	for ability_id in known_ability_ids:
 		result.known_personal_ability_ids.append(
 			ability_id

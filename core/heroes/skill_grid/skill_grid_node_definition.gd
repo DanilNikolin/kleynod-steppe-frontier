@@ -28,7 +28,6 @@ enum RareStat {
 	MAX_STAMINA,
 	START_STAMINA,
 	ARMOR,
-	INITIATIVE,
 }
 
 

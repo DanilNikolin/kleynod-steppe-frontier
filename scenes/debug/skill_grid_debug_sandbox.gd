@@ -166,15 +166,15 @@ func _rebuild_interface() -> void:
 
 func _create_nodes_panel() -> Control:
 	var panel := PanelContainer.new()
-	var content := VBoxContainer.new()
+	var outer := VBoxContainer.new()
 
-	content.add_theme_constant_override(
+	outer.add_theme_constant_override(
 		"separation",
 		10
 	)
 
 	panel.add_child(
-		content
+		outer
 	)
 
 	var title := Label.new()
@@ -189,7 +189,7 @@ func _create_nodes_panel() -> Control:
 		22
 	)
 
-	content.add_child(
+	outer.add_child(
 		title
 	)
 
@@ -205,35 +205,52 @@ func _create_nodes_panel() -> Control:
 		18
 	)
 
-	content.add_child(
+	outer.add_child(
 		points_label
 	)
 
-	var separator := HSeparator.new()
+	outer.add_child(
+		HSeparator.new()
+	)
 
-	content.add_child(
-		separator
+	var scroll := ScrollContainer.new()
+
+	scroll.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	scroll.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	outer.add_child(
+		scroll
+	)
+
+	var nodes_content := VBoxContainer.new()
+
+	nodes_content.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	nodes_content.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	scroll.add_child(
+		nodes_content
 	)
 
 	for node in hero_definition.skill_grid.nodes:
 		if node == null:
 			continue
 
-		content.add_child(
+		nodes_content.add_child(
 			_create_node_row(
 				node
 			)
 		)
-
-	var spacer := Control.new()
-
-	spacer.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	content.add_child(
-		spacer
-	)
 
 	var reset_button := Button.new()
 
@@ -245,12 +262,11 @@ func _create_nodes_panel() -> Control:
 		_reset_progression
 	)
 
-	content.add_child(
+	outer.add_child(
 		reset_button
 	)
 
 	return panel
-
 
 func _create_node_row(
 	node: SkillGridNodeDefinition
@@ -708,40 +724,208 @@ func _build_summary_text(
 		)
 	)
 
-	return (
-		"Уровень: %d\n"
+	var base := (
+		hero_definition.base_combatant_definition
+	)
+
+	var grid := build.skill_grid_bonuses
+	var equipment := build.equipment_bonuses
+	var final_definition := build.combatant_definition
+
+	var base_start_stamina := (
+		_get_base_start_stamina()
+	)
+
+	var lines := PackedStringArray()
+
+	lines.append(
+		"Уровень: %d"
 		% progression.level
-		+"\n"
-		+"Сила: %d\n"
-		% build.strength_rank
-		+"Спритность: %d\n"
-		% build.agility_rank
-		+"Воля: %d\n"
-		% build.spirit_rank
-		+"\n"
-		+"HP: %d\n"
-		% build.combatant_definition.max_health
-		+"Max Stamina: %d\n"
-		% build.combatant_definition.max_stamina
-		+"Start Stamina: %d\n"
-		% build.combatant_definition.start_stamina
-		+"Armor: %d\n"
-		% build.combatant_definition.base_armor
-		+"\n"
-		+"Активные личные слоты: %d\n"
-		% build.active_slot_count
-		+"\n"
-		+"Известные личные приёмы:\n%s\n"
+	)
+
+	lines.append("")
+	lines.append("ВЕТКИ РОСТА")
+
+	lines.append(
+		_build_breakdown_line(
+			"Сила",
+			base.base_strength,
+			grid.strength_rank_bonus,
+			equipment.strength_rank_bonus,
+			build.strength_rank
+		)
+	)
+
+	lines.append(
+		_build_breakdown_line(
+			"Спритность",
+			base.base_agility,
+			grid.agility_rank_bonus,
+			equipment.agility_rank_bonus,
+			build.agility_rank
+		)
+	)
+
+	lines.append(
+		_build_breakdown_line(
+			"Воля",
+			base.base_spirit,
+			grid.spirit_rank_bonus,
+			equipment.spirit_rank_bonus,
+			build.spirit_rank
+		)
+	)
+
+	lines.append("")
+	lines.append("БОЕВЫЕ ПАРАМЕТРЫ")
+
+	lines.append(
+		_build_breakdown_line(
+			"Max Health",
+			base.max_health,
+			grid.max_health_bonus,
+			equipment.max_health_bonus,
+			final_definition.max_health
+		)
+	)
+
+	lines.append(
+		_build_breakdown_line(
+			"Armor",
+			base.base_armor,
+			grid.armor_bonus,
+			equipment.armor_bonus,
+			final_definition.base_armor
+		)
+	)
+
+	lines.append(
+		_build_breakdown_line(
+			"Max Stamina",
+			base.max_stamina,
+			grid.max_stamina_bonus,
+			equipment.max_stamina_bonus,
+			final_definition.max_stamina
+		)
+	)
+
+	lines.append(
+		_build_breakdown_line(
+			"Start Stamina",
+			base_start_stamina,
+			grid.start_stamina_bonus,
+			equipment.start_stamina_bonus,
+			final_definition.start_stamina
+		)
+	)
+
+	lines.append(
+		"Stamina Regen: база %d | итог %d"
+		% [
+			base.stamina_regeneration,
+			final_definition.stamina_regeneration,
+		]
+	)
+
+	lines.append(
+		"Initiative: база %d | итог %d"
+		% [
+			base.base_initiative,
+			final_definition.base_initiative,
+		]
+	)
+
+	lines.append(
+		"Morale: база %d | итог %d"
+		% [
+			base.base_morale,
+			final_definition.base_morale,
+		]
+	)
+
+	lines.append("")
+	lines.append("СБОРКА")
+
+	lines.append(
+		_build_breakdown_line(
+			"Активные личные слоты",
+			hero_definition.starting_active_slot_count,
+			grid.active_slot_bonus,
+			equipment.active_slot_bonus,
+			build.active_slot_count
+		)
+	)
+
+	lines.append("")
+	lines.append(
+		"Известные личные приёмы:\n%s"
 		% known_ability_names
-		+"\n"
-		+"Выбранные личные приёмы:\n%s\n"
+	)
+
+	lines.append("")
+	lines.append(
+		"Выбранные личные приёмы:\n%s"
 		% selected_ability_names
-		+"\n"
-		+"Купленные ноды:\n%s"
+	)
+
+	lines.append("")
+	lines.append(
+		"Купленные ноды:\n%s"
 		% _get_purchased_node_names()
 	)
 
+	return "\n".join(
+		lines
+	)
 
+
+func _build_breakdown_line(
+	label: String,
+	base_value: int,
+	skill_grid_bonus: int,
+	equipment_bonus: int,
+	final_value: int
+) -> String:
+	return (
+		"%s: база %d | Skill Grid %s | "
+		% [
+			label,
+			base_value,
+			_format_build_bonus(
+				skill_grid_bonus
+			),
+		]
+		+"Equipment %s | итог %d"
+		% [
+			_format_build_bonus(
+				equipment_bonus
+			),
+			final_value,
+		]
+	)
+
+
+func _format_build_bonus(
+	value: int
+) -> String:
+	if value >= 0:
+		return "+%d" % value
+
+	return str(value)
+
+
+func _get_base_start_stamina() -> int:
+	var base := (
+		hero_definition.base_combatant_definition
+	)
+
+	if base.start_stamina < 0:
+		return base.max_stamina
+
+	return mini(
+		base.start_stamina,
+		base.max_stamina
+	)
 func _get_ability_names(
 	ability_ids: Array[StringName]
 ) -> String:

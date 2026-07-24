@@ -115,17 +115,17 @@ func _apply_node(
 		SkillGridNodeDefinition.NodeType.BRANCH_RANK:
 			match node.branch:
 				SkillGridNodeDefinition.Branch.STRENGTH:
-					result.strength_bonus += (
+					result.stat_bonuses.strength_rank_bonus += (
 						node.branch_rank_amount
 					)
 
 				SkillGridNodeDefinition.Branch.AGILITY:
-					result.agility_bonus += (
+					result.stat_bonuses.agility_rank_bonus += (
 						node.branch_rank_amount
 					)
 
 				SkillGridNodeDefinition.Branch.SPIRIT:
-					result.spirit_bonus += (
+					result.stat_bonuses.spirit_rank_bonus += (
 						node.branch_rank_amount
 					)
 
@@ -136,7 +136,7 @@ func _apply_node(
 				)
 
 		SkillGridNodeDefinition.NodeType.ACTIVE_SLOT:
-			result.active_slot_bonus += (
+			result.stat_bonuses.active_slot_bonus += (
 				node.active_slot_amount
 			)
 
@@ -160,26 +160,21 @@ func _apply_rare_stat_node(
 ) -> void:
 	match node.rare_stat:
 		SkillGridNodeDefinition.RareStat.MAX_HEALTH:
-			result.max_health_bonus += (
+			result.stat_bonuses.max_health_bonus += (
 				node.rare_stat_amount
 			)
 
 		SkillGridNodeDefinition.RareStat.MAX_STAMINA:
-			result.max_stamina_bonus += (
+			result.stat_bonuses.max_stamina_bonus += (
 				node.rare_stat_amount
 			)
 
 		SkillGridNodeDefinition.RareStat.START_STAMINA:
-			result.start_stamina_bonus += (
+			result.stat_bonuses.start_stamina_bonus += (
 				node.rare_stat_amount
 			)
 
 		SkillGridNodeDefinition.RareStat.ARMOR:
-			result.armor_bonus += (
-				node.rare_stat_amount
-			)
-
-		SkillGridNodeDefinition.RareStat.INITIATIVE:
-			result.initiative_bonus += (
+			result.stat_bonuses.armor_bonus += (
 				node.rare_stat_amount
 			)

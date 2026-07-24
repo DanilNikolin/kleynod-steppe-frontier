@@ -16,6 +16,15 @@ var selected_personal_ability_ids: Array[StringName] = []
 var unlocked_feature_ids: Array[StringName] = []
 
 
+## Источники постоянных бонусов сборки.
+##
+## Equipment пока нулевой, но интерфейс и resolver
+## уже готовы принять его без переделки архитектуры.
+var skill_grid_bonuses := HeroBuildStatBonuses.new()
+var equipment_bonuses := HeroBuildStatBonuses.new()
+var total_bonuses := HeroBuildStatBonuses.new()
+
+
 func is_valid() -> bool:
 	return (
 		combatant_definition != null

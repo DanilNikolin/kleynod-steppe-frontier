@@ -26,8 +26,8 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/reinforcements/battle_reinforcement_controller.gd",
-    "core/battle/encounters/battle_reinforcement_wave_definition.gd",
+    "core/battle/stats/battle_stat_modifier.gd",
+    "scenes/debug/skill_grid_debug_sandbox.gd",
 ]
 
 ALLOW_ADDONS = False

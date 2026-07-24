@@ -107,7 +107,9 @@ func get_active_slot_count(
 
 	return clampi(
 		hero.starting_active_slot_count
-			+ grid_resolution.active_slot_bonus,
+			+ grid_resolution
+				.stat_bonuses
+				.active_slot_bonus,
 		1,
 		hero.maximum_active_slot_count
 	)

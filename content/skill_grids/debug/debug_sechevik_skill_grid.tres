@@ -11,6 +11,13 @@ display_name = "Сила +1"
 description = "Повышает ветку Силы на 1."
 branch = 1
 
+[sub_resource type="Resource" id="Node_agility_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_agility_1"
+display_name = "Спритность +1"
+description = "Повышает ветку Спритности на 1."
+branch = 2
+
 [sub_resource type="Resource" id="Node_spirit_1"]
 script = ExtResource("2_node")
 node_id = &"node_debug_spirit_1"
@@ -45,8 +52,35 @@ prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
 rare_stat = 1
 rare_stat_amount = 2
 
+[sub_resource type="Resource" id="Node_max_stamina"]
+script = ExtResource("2_node")
+node_id = &"node_debug_max_stamina_1"
+display_name = "Max Stamina +1"
+description = "Повышает максимальную выносливость на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
+rare_stat = 2
+
+[sub_resource type="Resource" id="Node_start_stamina"]
+script = ExtResource("2_node")
+node_id = &"node_debug_start_stamina_1"
+display_name = "Start Stamina +1"
+description = "Повышает стартовую выносливость на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_max_stamina_1"])
+rare_stat = 3
+
+[sub_resource type="Resource" id="Node_armor"]
+script = ExtResource("2_node")
+node_id = &"node_debug_armor_1"
+display_name = "Броня +1"
+description = "Повышает постоянную броню на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_health_1"])
+rare_stat = 4
+
 [resource]
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_debug_sechevik"
 display_name = "Отладочная сетка Сечевика"
-nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health")])
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor")])

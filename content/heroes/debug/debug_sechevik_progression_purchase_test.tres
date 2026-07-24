@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="HeroProgressionState" format=3]
+[gd_resource type="Resource" script_class="HeroProgressionState" format=3 uid="uid://5mlrljx6pow5"]
 
-[ext_resource type="Script" path="res://core/heroes/hero_progression_state.gd" id="1_progression"]
+[ext_resource type="Script" uid="uid://pb2qoxxjae71" path="res://core/heroes/hero_progression_state.gd" id="1_progression"]
 
 [resource]
 script = ExtResource("1_progression")
-level = 6
-unspent_skill_points = 5
+level = 10
+unspent_skill_points = 9

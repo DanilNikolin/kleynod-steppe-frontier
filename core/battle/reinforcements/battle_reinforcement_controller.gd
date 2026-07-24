@@ -137,12 +137,26 @@ func process_round(
 
 				continue
 
+			var battle_build := (
+				spawn.create_battle_build()
+			)
+
+			if (
+				battle_build == null
+				or not battle_build.is_valid()
+			):
+				remaining_indices.append(
+					spawn_index
+				)
+
+				continue
+
 			var combatant := session.add_combatant(
 				spawn.instance_id,
-				spawn.combatant_definition,
+				battle_build.combatant_definition,
 				spawn.team_id,
 				spawn_coordinate,
-				spawn.get_effective_loadout()
+				battle_build.loadout
 			)
 
 			if combatant == null:

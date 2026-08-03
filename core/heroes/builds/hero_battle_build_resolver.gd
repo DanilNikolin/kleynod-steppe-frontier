@@ -75,6 +75,10 @@ func resolve(
 	if combatant_definition == null:
 		return null
 
+	combatant_definition.display_name = (
+		hero.display_name
+	)
+	
 	combatant_definition.base_strength = clampi(
 		combatant_definition.base_strength
 			+ total_bonuses.strength_rank_bonus,

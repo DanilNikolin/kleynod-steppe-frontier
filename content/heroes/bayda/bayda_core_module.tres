@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BaydaCoreModuleDefinition" format=3 uid="uid://nn841vmpt7i1"]
+
+[ext_resource type="Script" uid="uid://gcpp3fu72jqv" path="res://core/heroes/core/bayda/bayda_core_module_definition.gd" id="1_core"]
+
+[resource]
+script = ExtResource("1_core")
+core_id = &"core_bayda_unbroken"
+display_name = "Несломленность"
+description = "Чем ближе Байда к смерти, тем больше выносливости он способен удержать. Смертельный прямой удар можно пережить ценой выносливости, но после этого наступает Надлом."

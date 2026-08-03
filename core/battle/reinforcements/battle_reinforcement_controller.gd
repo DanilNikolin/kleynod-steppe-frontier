@@ -156,7 +156,8 @@ func process_round(
 				battle_build.combatant_definition,
 				spawn.team_id,
 				spawn_coordinate,
-				battle_build.loadout
+				battle_build.loadout,
+				battle_build.core_module
 			)
 
 			if combatant == null:

@@ -156,6 +156,12 @@ func execute(
 		command.ability.stamina_cost
 	)
 
+	var action_scope_targets := (
+		_begin_target_action_scopes(
+			targeting_result
+		)
+	)
+
 	var targets_by_coordinate := (
 		_get_targets_by_coordinate(
 			targeting_result
@@ -208,8 +214,15 @@ func execute(
 					FAILURE_EFFECT_RESOLUTION_FAILED
 				)
 
+				_end_target_action_scopes(
+					action_scope_targets
+				)
+
 				return result
 
+	_end_target_action_scopes(
+		action_scope_targets
+	)
 	result.is_successful = true
 
 	result.cooldown_started = (
@@ -492,6 +505,50 @@ func _has_combatant_targeted_effect(
 	return false
 
 
+func _begin_target_action_scopes(
+	targeting_result: BattleTargetingResult
+) -> Array[CombatantState]:
+	var result: Array[CombatantState] = []
+
+	if targeting_result == null:
+		return result
+
+	var used_target_ids: Dictionary = {}
+
+	for target in (
+		targeting_result.affected_combatants
+	):
+		if (
+			target == null
+			or not target.is_alive
+			or used_target_ids.has(
+				target.instance_id
+			)
+		):
+			continue
+
+		used_target_ids[
+			target.instance_id
+		] = true
+
+		target.begin_incoming_action_resolution()
+
+		result.append(
+			target
+		)
+
+	return result
+
+
+func _end_target_action_scopes(
+	targets: Array[CombatantState]
+) -> void:
+	for target in targets:
+		if target == null:
+			continue
+
+		target.end_incoming_action_resolution()
+		
 func _get_targets_by_coordinate(
 	targeting_result: BattleTargetingResult
 ) -> Dictionary:

@@ -84,7 +84,8 @@ func resolve(
 	bypass_guard: bool = false,
 	allow_critical: bool = true,
 	target_coordinate: Vector2i = BattleGrid.INVALID_COORDINATE,
-	standard_critical_mode: int = StandardCriticalMode.RANDOM
+	standard_critical_mode: int = StandardCriticalMode.RANDOM,
+	damage_kind: StringName = BattleDamageKind.DIRECT
 ) -> BattleEffectResult:
 	if effect == null:
 		return _create_failure_result(
@@ -142,7 +143,8 @@ func resolve(
 			target,
 			bypass_guard,
 			allow_critical,
-			standard_critical_mode
+			standard_critical_mode,
+			damage_kind
 		)
 
 	if effect is HealEffect:
@@ -414,7 +416,8 @@ func _resolve_damage(
 	target: CombatantState,
 	bypass_guard: bool,
 	allow_critical: bool,
-	standard_critical_mode: int
+	standard_critical_mode: int,
+	damage_kind: StringName
 ) -> BattleEffectResult:
 	var result := BattleEffectResult.new()
 
@@ -554,7 +557,8 @@ func _resolve_damage(
 	result.applied_amount = (
 		target.apply_resolved_damage(
 			result.resolved_amount,
-			bypass_guard
+			bypass_guard,
+			damage_kind
 		)
 	)
 

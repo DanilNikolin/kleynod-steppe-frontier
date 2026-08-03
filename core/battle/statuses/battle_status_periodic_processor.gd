@@ -144,7 +144,12 @@ func _process_trigger(
 				owner,
 				session,
 				true,
-				false
+				false,
+				BattleGrid.INVALID_COORDINATE,
+				EffectResolver
+					.StandardCriticalMode
+					.RANDOM,
+				BattleDamageKind.PERIODIC
 			)
 		)
 

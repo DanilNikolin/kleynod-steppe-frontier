@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="BattleEncounterDefinition" format=3]
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" format=3 uid="uid://8hxioc2t5t4n"]
 
-[ext_resource type="Script" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
-[ext_resource type="Script" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
-[ext_resource type="Resource" path="res://scenes/debug_sechevik.tres" id="3_player"]
-[ext_resource type="Resource" path="res://content/combatants/prototype/proto_steppe_raider.tres" id="4_raider"]
-[ext_resource type="Resource" path="res://content/combatants/prototype/proto_steppe_shieldbearer.tres" id="5_shieldbearer"]
-[ext_resource type="Script" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
+[ext_resource type="Script" uid="uid://btrmmugs1t8yq" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
+[ext_resource type="Script" uid="uid://blbixnlpyjeaf" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
+[ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_player"]
+[ext_resource type="Resource" uid="uid://cvjqcjyhusucr" path="res://content/combatants/prototype/proto_steppe_raider.tres" id="4_raider"]
+[ext_resource type="Script" uid="uid://cv0u875s12ql" path="res://core/battle/encounters/battle_reinforcement_wave_definition.gd" id="5_60bnq"]
+[ext_resource type="Resource" uid="uid://co8lwfk1guhba" path="res://content/combatants/prototype/proto_steppe_shieldbearer.tres" id="5_shieldbearer"]
+[ext_resource type="Script" uid="uid://2apyueuevyjk" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
+[ext_resource type="Script" uid="uid://cmu30nbvdwynk" path="res://core/battle/encounters/battle_surface_spawn_definition.gd" id="8_c0k52"]
 
 [sub_resource type="Resource" id="PartySlot_1"]
 script = ExtResource("2_spawn")

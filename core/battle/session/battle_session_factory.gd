@@ -34,7 +34,8 @@ func create_from_encounter(
 			battle_build.combatant_definition,
 			spawn.team_id,
 			spawn.coordinate,
-			battle_build.loadout
+			battle_build.loadout,
+			battle_build.core_module
 		)
 
 		if combatant == null:

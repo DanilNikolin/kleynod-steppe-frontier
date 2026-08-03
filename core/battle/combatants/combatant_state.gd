@@ -5,6 +5,8 @@ extends RefCounted
 signal health_changed(previous_value: int, current_value: int)
 signal guard_changed(previous_value: int, current_value: int)
 signal stamina_changed(previous_value: int, current_value: int)
+signal max_stamina_changed(previous_value: int, current_value: int)
+
 signal ability_lock_changed(
 	ability_id: StringName,
 	previous_remaining_turns: int,
@@ -44,6 +46,8 @@ var definition: CombatantDefinition
 var team_id: StringName
 var loadout: CombatantLoadoutDefinition
 
+var hero_core_runtime_state: HeroCoreRuntimeState
+
 var grid_position: Vector2i = INVALID_COORDINATE
 
 var strength: int
@@ -81,7 +85,8 @@ func _init(
 	p_definition: CombatantDefinition,
 	p_team_id: StringName,
 	p_loadout: CombatantLoadoutDefinition,
-	p_grid_position: Vector2i = INVALID_COORDINATE
+	p_grid_position: Vector2i = INVALID_COORDINATE,
+	p_core_module: HeroCoreModuleDefinition = null
 ) -> void:
 	assert(
 		p_instance_id != &"",
@@ -106,6 +111,23 @@ func _init(
 
 	_initialize_runtime_attributes()
 
+	_initialize_hero_core_runtime_state(
+		p_core_module
+	)
+
+func _initialize_hero_core_runtime_state(
+	core_module: HeroCoreModuleDefinition
+) -> void:
+	hero_core_runtime_state = null
+
+	if core_module == null:
+		return
+
+	hero_core_runtime_state = (
+		core_module.create_runtime_state(
+			self
+		)
+	)
 
 func _initialize_runtime_attributes() -> void:
 	strength = definition.base_strength
@@ -199,7 +221,69 @@ func restore_stamina(amount: int) -> int:
 
 
 func restore_round_stamina() -> int:
-	return restore_stamina(stamina_regeneration)
+	return restore_stamina(
+		stamina_regeneration
+	)
+
+
+func set_max_stamina(
+	new_value: int,
+	clamp_current_stamina: bool = true
+) -> bool:
+	var resolved_value := maxi(
+		1,
+		new_value
+	)
+
+	var previous_maximum := max_stamina
+	var previous_current := current_stamina
+
+	max_stamina = resolved_value
+
+	if clamp_current_stamina:
+		current_stamina = mini(
+			current_stamina,
+			max_stamina
+		)
+
+	if previous_maximum != max_stamina:
+		max_stamina_changed.emit(
+			previous_maximum,
+			max_stamina
+		)
+
+	if previous_current != current_stamina:
+		stamina_changed.emit(
+			previous_current,
+			current_stamina
+		)
+
+	return (
+		previous_maximum != max_stamina
+		or previous_current != current_stamina
+	)
+
+
+func begin_incoming_action_resolution() -> void:
+	if hero_core_runtime_state == null:
+		return
+
+	hero_core_runtime_state.begin_incoming_action_resolution()
+
+
+func end_incoming_action_resolution() -> void:
+	if hero_core_runtime_state == null:
+		return
+
+	hero_core_runtime_state.end_incoming_action_resolution()
+
+
+func get_hero_core_debug_summary() -> String:
+	if hero_core_runtime_state == null:
+		return "Hero Core: отсутствует."
+
+	return hero_core_runtime_state.get_debug_summary()
+
 
 func grant_guard(amount: int) -> int:
 	if amount <= 0 or not is_alive:
@@ -264,7 +348,8 @@ func clear_guard() -> int:
 
 func apply_resolved_damage(
 	amount: int,
-	bypass_guard: bool = false
+	bypass_guard: bool = false,
+	damage_kind: StringName = BattleDamageKind.DIRECT
 ) -> int:
 	if amount <= 0 or not is_alive:
 		return 0
@@ -277,6 +362,23 @@ func apply_resolved_damage(
 				remaining_damage
 			)
 		)
+
+	if remaining_damage <= 0:
+		return 0
+
+	if hero_core_runtime_state != null:
+		remaining_damage = (
+			hero_core_runtime_state
+				.modify_health_damage(
+					remaining_damage,
+					damage_kind
+				)
+		)
+
+	remaining_damage = maxi(
+		0,
+		remaining_damage
+	)
 
 	if remaining_damage <= 0:
 		return 0
@@ -298,6 +400,16 @@ func apply_resolved_damage(
 			current_health
 		)
 
+		if (
+			hero_core_runtime_state != null
+			and current_health > 0
+		):
+			hero_core_runtime_state.on_health_changed(
+				previous_value,
+				current_health,
+				&"damage"
+			)
+
 	if previous_value > 0 and current_health == 0:
 		clear_guard()
 
@@ -308,7 +420,6 @@ func apply_resolved_damage(
 		died.emit()
 
 	return received_damage
-
 
 func heal(amount: int) -> int:
 	if amount <= 0 or not is_alive:
@@ -321,13 +432,22 @@ func heal(amount: int) -> int:
 		current_health + amount
 	)
 
-	var healed_amount := current_health - previous_value
+	var healed_amount := (
+		current_health - previous_value
+	)
 
 	if healed_amount > 0:
 		health_changed.emit(
 			previous_value,
 			current_health
 		)
+
+		if hero_core_runtime_state != null:
+			hero_core_runtime_state.on_health_changed(
+				previous_value,
+				current_health,
+				&"heal"
+			)
 
 	return healed_amount
 
@@ -1119,5 +1239,13 @@ func create_runtime_copy() -> CombatantState:
 			true
 		)
 	)
+
+	if hero_core_runtime_state != null:
+		result.hero_core_runtime_state = (
+			hero_core_runtime_state
+				.create_runtime_copy(
+					result
+				)
+		)
 
 	return result

@@ -21,6 +21,12 @@ var description: String = ""
 var base_combatant_definition: CombatantDefinition
 
 
+@export_group("Hero Core")
+
+@export
+var core_module: HeroCoreModuleDefinition
+
+
 @export_group("Skill Grid")
 
 @export
@@ -98,6 +104,15 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Base CombatantDefinition is invalid."
 		)
+
+	if core_module != null:
+		for core_error in (
+			core_module.get_validation_errors()
+		):
+			errors.append(
+				"Hero Core: %s"
+				% core_error
+			)
 
 	if skill_grid == null:
 		errors.append(

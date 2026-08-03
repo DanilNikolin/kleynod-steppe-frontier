@@ -78,7 +78,7 @@ func resolve(
 	combatant_definition.display_name = (
 		hero.display_name
 	)
-	
+
 	combatant_definition.base_strength = clampi(
 		combatant_definition.base_strength
 			+ total_bonuses.strength_rank_bonus,
@@ -278,6 +278,14 @@ func resolve(
 	)
 
 	result.loadout = resolved_loadout
+
+	result.core_module = (
+		hero.core_module
+	)
+
+	result.core_module = (
+		hero.core_module
+	)
 
 	result.strength_rank = (
 		combatant_definition.base_strength

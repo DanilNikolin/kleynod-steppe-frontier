@@ -47,13 +47,13 @@ func _init(
 		p_columns
 	)
 
-
 func add_combatant(
 	instance_id: StringName,
 	definition: CombatantDefinition,
 	team_id: StringName,
 	coordinate: Vector2i,
-	loadout_override: CombatantLoadoutDefinition = null
+	loadout_override: CombatantLoadoutDefinition = null,
+	core_module: HeroCoreModuleDefinition = null
 ) -> CombatantState:
 	if instance_id == &"":
 		return null
@@ -96,7 +96,8 @@ func add_combatant(
 		definition,
 		team_id,
 		resolved_loadout,
-		coordinate
+		coordinate,
+		core_module
 	)
 
 	_combatants[instance_id] = combatant

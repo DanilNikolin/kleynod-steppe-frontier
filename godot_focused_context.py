@@ -24,23 +24,26 @@ PROJECT_ROOT = Path(".").resolve()
 # Paste patterns from the LLM here.
 
 
-
 FOCUS_PATTERNS = [
-    "core/campaign/campaign_definition.gd",
-    "core/campaign/state/campaign_state.gd",
-    "core/campaign/state/campaign_state_factory.gd",
-    "core/campaign/runtime/campaign_runtime.gd",
-    "core/campaign/locations/campaign_location_definition.gd",
-    "core/campaign/heroes/campaign_hero_state.gd",
-    "core/campaign/inventory/campaign_inventory_state.gd",
-    "scenes/campaign/campaign_sandbox.gd",
-    "presentation/campaign/hero_preparation/hero_preparation_panel.gd",
-    "presentation/campaign/hero_preparation/hero_equipment_panel.gd",
-    "content/campaign/debug/debug_campaign_definition.tres",
-    "core/battle/encounters/battle_encounter_definition.gd",
-    "content/encounters/debug/debug_skirmish_2v2.tres",
-    "content/heroes/debug/debug_sechevik_hero.tres",
-    "content/heroes/debug/debug_sechevik_progression_purchase_test.tres",
+    "core/battle/combatants/combatant_definition.gd",
+    "core/battle/combatants/combatant_state.gd",
+    "core/battle/session/battle_session.gd",
+    "core/battle/session/battle_session_factory.gd",
+    "core/battle/actions/battle_action_command.gd",
+    "core/battle/actions/battle_action_result.gd",
+    "core/battle/actions/battle_effect_result.gd",
+    "core/battle/actions/battle_action_service.gd",
+    "core/battle/effects/damage_effect.gd",
+    "core/battle/effects/heal_effect.gd",
+    "core/battle/effects/effect_resolver.gd",
+    "core/battle/simulation/battle_action_simulation_service.gd",
+    "core/battle/turns/battle_turn_controller.gd",
+    "core/battle/statuses/battle_status_periodic_processor.gd",
+    "core/heroes/hero_definition.gd",
+    "core/heroes/builds/hero_battle_build.gd",
+    "core/heroes/builds/hero_battle_build_resolver.gd",
+    "core/battle/encounters/combatant_spawn_definition.gd",
+    "core/battle/reinforcements/battle_reinforcement_controller.gd",
 ]
 
 ALLOW_ADDONS = False

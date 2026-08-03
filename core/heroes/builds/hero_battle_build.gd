@@ -5,6 +5,8 @@ extends RefCounted
 var combatant_definition: CombatantDefinition
 var loadout: CombatantLoadoutDefinition
 
+var core_module: HeroCoreModuleDefinition
+
 var strength_rank: int = 0
 var agility_rank: int = 0
 var spirit_rank: int = 0
@@ -35,4 +37,8 @@ func is_valid() -> bool:
 		and combatant_definition.is_valid_definition()
 		and loadout != null
 		and loadout.is_valid_definition()
+		and (
+			core_module == null
+			or core_module.is_valid_definition()
+		)
 	)

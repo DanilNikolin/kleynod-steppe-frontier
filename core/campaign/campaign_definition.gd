@@ -21,6 +21,12 @@ var starting_heroes: Array[CampaignHeroState] = []
 var starting_active_hero_id: StringName = &""
 
 
+@export_group("Inventory")
+
+@export
+var starting_inventory_items: Array[HeroEquipmentItemInstance] = []
+
+
 @export_group("Locations")
 
 @export
@@ -108,6 +114,49 @@ func get_validation_errors() -> PackedStringArray:
 			"Starting active hero '%s' does not exist."
 			% starting_active_hero_id
 		)
+
+	var used_inventory_item_ids: Dictionary = {}
+
+	for item_index in range(
+		starting_inventory_items.size()
+	):
+		var item := starting_inventory_items[
+			item_index
+		]
+
+		if item == null:
+			errors.append(
+				"Starting inventory item at index %d is null."
+				% item_index
+			)
+
+			continue
+
+		for item_error in item.get_validation_errors():
+			errors.append(
+				"Starting inventory item %d: %s"
+				% [
+					item_index,
+					item_error,
+				]
+			)
+
+		if item.instance_id == &"":
+			continue
+
+		if used_inventory_item_ids.has(
+			item.instance_id
+		):
+			errors.append(
+				"Duplicate starting inventory item ID: %s."
+				% item.instance_id
+			)
+
+			continue
+
+		used_inventory_item_ids[
+			item.instance_id
+		] = true
 
 	if locations.is_empty():
 		errors.append(

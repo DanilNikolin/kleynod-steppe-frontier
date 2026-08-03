@@ -26,14 +26,12 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "project.godot",
-    "scenes/debug/battle_grid_sandbox.gd",
-    "scenes/debug/battle_grid_sandbox.tscn",
-    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
-    "core/battle/session/battle_session.gd",
-    "core/battle/session/battle_session_factory.gd",
-    "core/battle/encounters/combatant_spawn_definition.gd",
-    "content/encounters/debug/debug_duel_encounter.tres",
+    "scenes/debug/skill_grid_debug_sandbox.gd",
+    "scenes/campaign/campaign_sandbox.gd",
+    "core/campaign/campaign_definition.gd",
+    "core/campaign/state/campaign_state.gd",
+    "core/campaign/state/campaign_state_factory.gd",
+    "content/campaign/debug/debug_campaign_definition.tres",
 ]
 
 ALLOW_ADDONS = False

@@ -6,6 +6,8 @@ var campaign_id: StringName = &""
 
 var heroes: Array[CampaignHeroState] = []
 
+var inventory_state: CampaignInventoryState
+
 var active_hero_id: StringName = &""
 var current_location_id: StringName = &""
 

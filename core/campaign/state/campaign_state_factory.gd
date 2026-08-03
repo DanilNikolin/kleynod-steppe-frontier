@@ -18,6 +18,13 @@ func create_from_definition(
 		definition.starting_active_hero_id
 	)
 
+	result.inventory_state = _create_inventory(
+		definition
+	)
+
+	if result.inventory_state == null:
+		return null
+
 	for hero_template in (
 		definition.starting_heroes
 	):
@@ -32,6 +39,17 @@ func create_from_definition(
 		)
 
 		if progression_copy == null:
+			return null
+
+		if progression_copy.equipment_state == null:
+			progression_copy.equipment_state = (
+				HeroEquipmentState.new()
+			)
+
+		elif not _remap_equipment_to_inventory(
+			progression_copy.equipment_state,
+			result.inventory_state
+		):
 			return null
 
 		var hero_state := CampaignHeroState.new()
@@ -55,3 +73,68 @@ func create_from_definition(
 		return null
 
 	return result
+
+
+func _create_inventory(
+	definition: CampaignDefinition
+) -> CampaignInventoryState:
+	var result := CampaignInventoryState.new()
+
+	for item_template in (
+		definition.starting_inventory_items
+	):
+		if item_template == null:
+			return null
+
+		var item_copy := (
+			item_template.duplicate(true)
+			as HeroEquipmentItemInstance
+		)
+
+		if (
+			item_copy == null
+			or not item_copy.is_valid_instance()
+		):
+			return null
+
+		result.items.append(
+			item_copy
+		)
+
+	if not result.is_valid_state():
+		return null
+
+	return result
+
+
+func _remap_equipment_to_inventory(
+	equipment_state: HeroEquipmentState,
+	inventory_state: CampaignInventoryState
+) -> bool:
+	if (
+		equipment_state == null
+		or inventory_state == null
+	):
+		return false
+
+	for slot in HeroEquipmentState.get_all_slots():
+		var equipped_item := equipment_state.get_item(
+			slot
+		)
+
+		if equipped_item == null:
+			continue
+
+		var inventory_item := inventory_state.get_item(
+			equipped_item.instance_id
+		)
+
+		if inventory_item == null:
+			return false
+
+		equipment_state.set_item(
+			slot,
+			inventory_item
+		)
+
+	return equipment_state.is_valid_state()

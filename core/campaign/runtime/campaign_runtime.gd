@@ -83,6 +83,13 @@ func get_campaign_state() -> CampaignState:
 	return campaign_state
 
 
+func get_inventory_state() -> CampaignInventoryState:
+	if campaign_state == null:
+		return null
+
+	return campaign_state.inventory_state
+
+
 func get_active_hero_state() -> CampaignHeroState:
 	if campaign_state == null:
 		return null

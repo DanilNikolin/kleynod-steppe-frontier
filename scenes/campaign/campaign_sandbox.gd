@@ -2,9 +2,18 @@ class_name CampaignSandbox
 extends Control
 
 
+const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
+	"res://presentation/campaign/hero_preparation/"
+	+"hero_preparation_panel.tscn"
+)
+
+
 var build_resolver := (
 	HeroBattleBuildResolver.new()
 )
+
+var _is_preparation_open: bool = false
+
 
 
 func _ready() -> void:
@@ -22,6 +31,10 @@ func _rebuild_interface() -> void:
 		)
 
 		child.queue_free()
+
+	if _is_preparation_open:
+		_show_preparation_interface()
+		return
 
 	var background := ColorRect.new()
 
@@ -263,11 +276,11 @@ func _create_hero_panel() -> Control:
 
 	var preparation_button := Button.new()
 
-	preparation_button.text = (
-		"Подготовка героя — следующий этап"
-	)
+	preparation_button.text = "Подготовить героя"
 
-	preparation_button.disabled = true
+	preparation_button.pressed.connect(
+		_on_preparation_pressed
+	)
 
 	content.add_child(
 		preparation_button
@@ -513,6 +526,47 @@ func _get_build_summary(
 	)
 
 
+func _show_preparation_interface() -> void:
+	var panel := (
+		HERO_PREPARATION_PANEL_SCENE.instantiate()
+		as HeroPreparationPanel
+	)
+
+	if panel == null:
+		_is_preparation_open = false
+		_show_initialization_error()
+		return
+
+	add_child(
+		panel
+	)
+
+	panel.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+
+	panel.close_requested.connect(
+		_on_preparation_closed
+	)
+
+	panel.bind(
+		CampaignRuntime.get_active_hero_state(),
+		CampaignRuntime.get_inventory_state()
+	)
+
+
+func _on_preparation_pressed() -> void:
+	_is_preparation_open = true
+
+	_rebuild_interface()
+
+
+func _on_preparation_closed() -> void:
+	_is_preparation_open = false
+
+	_rebuild_interface()
+
+
 func _on_location_pressed(
 	location_id: StringName
 ) -> void:
@@ -527,6 +581,8 @@ func _on_location_pressed(
 
 
 func _on_reset_campaign_pressed() -> void:
+	_is_preparation_open = false
+
 	if not CampaignRuntime.start_new_campaign():
 		push_warning(
 			"Campaign could not be reset."

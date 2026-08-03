@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="kleynod-steppe-frontier"
+run/main_scene="res://scenes/campaign/campaign_sandbox.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+CampaignRuntime="*res://core/campaign/runtime/campaign_runtime.gd"
 
 [display]
 

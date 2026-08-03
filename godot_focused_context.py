@@ -26,12 +26,14 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/heroes/builds/hero_battle_build.gd",
-    "core/heroes/builds/hero_battle_build_resolver.gd",
-    "core/heroes/hero_definition.gd",
-    "core/battle/loadouts/combatant_loadout_definition.gd",
-    "core/battle/abilities/ability_definition.gd",
-    "scenes/debug/skill_grid_debug_sandbox.gd",
+    "project.godot",
+    "scenes/debug/battle_grid_sandbox.gd",
+    "scenes/debug/battle_grid_sandbox.tscn",
+    "scenes/debug/controllers/battle_sandbox_interaction_controller.gd",
+    "core/battle/session/battle_session.gd",
+    "core/battle/session/battle_session_factory.gd",
+    "core/battle/encounters/combatant_spawn_definition.gd",
+    "content/encounters/debug/debug_duel_encounter.tres",
 ]
 
 ALLOW_ADDONS = False

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CampaignDefinition" format=3 uid="uid://c62cq0t20ags4"]
+
+[ext_resource type="Script" uid="uid://c0tpixraq1bbo" path="res://core/campaign/campaign_definition.gd" id="1_campaign"]
+[ext_resource type="Script" uid="uid://d1trmhrixtrn1" path="res://core/campaign/heroes/campaign_hero_state.gd" id="2_hero_state"]
+[ext_resource type="Resource" uid="uid://t0hlrh42rfly" path="res://content/heroes/debug/debug_sechevik_hero.tres" id="3_hero"]
+[ext_resource type="Resource" uid="uid://5mlrljx6pow5" path="res://content/heroes/debug/debug_sechevik_progression_purchase_test.tres" id="4_progression"]
+[ext_resource type="Script" uid="uid://b057wdv6pu3ma" path="res://core/campaign/locations/campaign_location_definition.gd" id="5_location_script"]
+[ext_resource type="Resource" path="res://content/locations/debug/debug_forest_edge_location.tres" id="6_location"]
+
+[sub_resource type="Resource" id="CampaignHero_sechevik"]
+script = ExtResource("2_hero_state")
+hero_definition = ExtResource("3_hero")
+progression_state = ExtResource("4_progression")
+
+[resource]
+script = ExtResource("1_campaign")
+campaign_id = &"debug_campaign"
+display_name = "Клейнод — Campaign Sandbox"
+starting_heroes = Array[ExtResource("2_hero_state")]([SubResource("CampaignHero_sechevik")])
+starting_active_hero_id = &"hero_debug_sechevik"
+locations = Array[ExtResource("5_location_script")]([ExtResource("6_location")])

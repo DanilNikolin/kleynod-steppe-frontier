@@ -84,6 +84,8 @@ var surface_hover_panel: BattleSurfaceHoverPanel = (
 	$CanvasLayer/SurfaceHoverPanel
 )
 
+var active_encounter_definition: BattleEncounterDefinition
+
 var session: BattleSession
 var grid: BattleGrid
 
@@ -111,6 +113,8 @@ var action_service: BattleActionService
 
 var action_preview_service: BattleActionPreviewService
 var action_preview_presenter: BattleActionPreviewPresenter
+
+var _campaign_winning_team_id: StringName = &""
 
 func _ready() -> void:
 	_validate_dependencies()
@@ -199,13 +203,24 @@ func _validate_dependencies() -> void:
 		"Combatant view scene is not assigned."
 	)
 
+	active_encounter_definition = (
+		encounter_definition
+	)
+
+	if CampaignRuntime.has_pending_battle():
+		active_encounter_definition = (
+			CampaignRuntime
+				.get_pending_battle_encounter()
+		)
+
 	assert(
-		encounter_definition != null,
-		"Encounter definition is not assigned."
+		active_encounter_definition != null,
+		"Battle encounter definition is not assigned."
 	)
 
 	var encounter_errors := (
-		encounter_definition.get_validation_errors()
+		active_encounter_definition
+			.get_validation_errors()
 	)
 
 	assert(
@@ -217,7 +232,7 @@ func _validate_dependencies() -> void:
 
 func _create_battle_state() -> void:
 	session = session_factory.create_from_encounter(
-		encounter_definition
+		active_encounter_definition
 	)
 
 	assert(
@@ -448,7 +463,8 @@ func _create_reinforcement_system() -> void:
 	reinforcement_controller = (
 		BattleReinforcementController.new(
 			session,
-			encounter_definition.reinforcement_waves
+			active_encounter_definition
+				.reinforcement_waves
 		)
 	)
 
@@ -880,8 +896,122 @@ func _on_battle_finished(
 		debug_log_presenter.set_headline(
 			"Бой завершён без победителя."
 		)
+	if CampaignRuntime.has_pending_battle():
+		_campaign_winning_team_id = (
+			winning_team_id
+		)
+
+		_show_campaign_return_panel(
+			winning_team_id
+		)
+
+func _show_campaign_return_panel(
+	winning_team_id: StringName
+) -> void:
+	var canvas_layer := get_node_or_null(
+		"CanvasLayer"
+	) as CanvasLayer
+
+	if canvas_layer == null:
+		return
+
+	var existing_panel := (
+		canvas_layer.get_node_or_null(
+			"CampaignBattleResultPanel"
+		)
+	)
+
+	if existing_panel != null:
+		return
+
+	var panel := PanelContainer.new()
+
+	panel.name = "CampaignBattleResultPanel"
+
+	panel.set_anchors_preset(
+		Control.PRESET_CENTER_BOTTOM
+	)
+
+	panel.offset_left = -230.0
+	panel.offset_top = -170.0
+	panel.offset_right = 230.0
+	panel.offset_bottom = -40.0
+
+	canvas_layer.add_child(
+		panel
+	)
+
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	panel.add_child(
+		content
+	)
+
+	var result_label := Label.new()
+
+	result_label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_CENTER
+	)
+
+	result_label.add_theme_font_size_override(
+		"font_size",
+		22
+	)
+
+	if winning_team_id == PLAYER_TEAM_ID:
+		result_label.text = "ПОБЕДА"
+
+	elif winning_team_id == ENEMY_TEAM_ID:
+		result_label.text = "ПОРАЖЕНИЕ"
+
+	else:
+		result_label.text = "БОЙ ЗАВЕРШЁН"
+
+	content.add_child(
+		result_label
+	)
+
+	var return_button := Button.new()
+
+	return_button.text = "Вернуться в лагерь"
+
+	return_button.pressed.connect(
+		_on_campaign_return_pressed.bind(
+			return_button
+		)
+	)
+
+	content.add_child(
+		return_button
+	)
 
 
+func _on_campaign_return_pressed(
+	button: Button
+) -> void:
+	if button != null:
+		button.disabled = true
+
+	var completed := (
+		CampaignRuntime
+			.complete_pending_battle_and_return(
+				_campaign_winning_team_id
+			)
+	)
+
+	if not completed:
+		if button != null:
+			button.disabled = false
+
+		push_warning(
+			"Campaign battle result could not be completed."
+		)
+		
 func _set_active_combatant_selection(
 	active: CombatantState
 ) -> void:

@@ -4,10 +4,10 @@
 [ext_resource type="Resource" uid="uid://t0hlrh42rfly" path="res://content/heroes/debug/debug_sechevik_hero.tres" id="2_hero"]
 [ext_resource type="Resource" uid="uid://5mlrljx6pow5" path="res://content/heroes/debug/debug_sechevik_progression_purchase_test.tres" id="3_progression"]
 [ext_resource type="Script" uid="uid://dunmh05cf1m3b" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="4_instance_script"]
-[ext_resource type="Resource" path="res://content/equipment/debug/debug_old_sabre_instance.tres" id="5_sabre"]
-[ext_resource type="Resource" path="res://content/equipment/debug/debug_steppe_armor_instance.tres" id="6_armor"]
-[ext_resource type="Resource" path="res://content/equipment/debug/debug_traveler_charm_instance.tres" id="7_charm"]
-[ext_resource type="Resource" path="res://content/equipment/debug/debug_heavy_berdysh_instance.tres" id="8_berdysh"]
+[ext_resource type="Resource" uid="uid://bikqcfmppncw" path="res://content/equipment/debug/debug_old_sabre_instance.tres" id="5_sabre"]
+[ext_resource type="Resource" uid="uid://vh4oqfulnv38" path="res://content/equipment/debug/debug_steppe_armor_instance.tres" id="6_armor"]
+[ext_resource type="Resource" uid="uid://i3gpoobv8ldh" path="res://content/equipment/debug/debug_traveler_charm_instance.tres" id="7_charm"]
+[ext_resource type="Resource" uid="uid://ue6xhoflef4w" path="res://content/equipment/debug/debug_heavy_berdysh_instance.tres" id="8_berdysh"]
 
 [node name="SkillGridDebugSandbox" type="Control" unique_id=252782804]
 layout_mode = 3

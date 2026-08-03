@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://vh4oqfulnv38" path="res://content/equipment/debug/debug_steppe_armor_instance.tres" id="8_armor"]
 [ext_resource type="Resource" uid="uid://i3gpoobv8ldh" path="res://content/equipment/debug/debug_traveler_charm_instance.tres" id="9_charm"]
 [ext_resource type="Resource" uid="uid://ue6xhoflef4w" path="res://content/equipment/debug/debug_heavy_berdysh_instance.tres" id="10_berdysh"]
-[ext_resource type="Resource" uid="uid://bdv2eyj328t18" path="res://content/heroes/placeholders/placeholder_bayda.tres" id="11_bayda"]
+[ext_resource type="Resource" path="res://content/heroes/bayda/bayda_hero.tres" id="11_bayda"]
 [ext_resource type="Resource" uid="uid://dxpp11ujk3j57" path="res://content/heroes/placeholders/placeholder_plastunka.tres" id="12_plastunka"]
 [ext_resource type="Resource" uid="uid://b07rykw4bm07p" path="res://content/heroes/placeholders/placeholder_powder_markswoman.tres" id="13_markswoman"]
 [ext_resource type="Resource" uid="uid://ce1s3erk6fj67" path="res://content/heroes/placeholders/placeholder_mavka.tres" id="14_mavka"]
@@ -24,7 +24,7 @@ script = ExtResource("2_hero_state")
 hero_definition = ExtResource("11_bayda")
 progression_state = ExtResource("3_progression")
 is_placeholder_content = true
-roster_note = "Уникальный Core Module и способности Байды ещё не подключены."
+roster_note = "Core Module Байды уже работает. Личные способности и Skill Grid пока используют debug-контент."
 
 [sub_resource type="Resource" id="HeroPlastunka"]
 script = ExtResource("2_hero_state")

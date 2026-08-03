@@ -14,9 +14,17 @@ func create_from_definition(
 	var result := CampaignState.new()
 
 	result.campaign_id = definition.campaign_id
-	result.active_hero_id = (
-		definition.starting_active_hero_id
+
+	result.selected_hero_id = (
+		definition.starting_selected_hero_id
 	)
+
+	for hero_id in (
+		definition.starting_party_member_hero_ids
+	):
+		result.party_member_hero_ids.append(
+			hero_id
+		)
 
 	result.inventory_state = _create_inventory(
 		definition
@@ -62,6 +70,14 @@ func create_from_definition(
 			progression_copy
 		)
 
+		hero_state.is_placeholder_content = (
+			hero_template.is_placeholder_content
+		)
+
+		hero_state.roster_note = (
+			hero_template.roster_note
+		)
+
 		if not hero_state.is_valid_state():
 			return null
 
@@ -69,7 +85,7 @@ func create_from_definition(
 			hero_state
 		)
 
-	if result.get_active_hero() == null:
+	if not result.is_valid_state():
 		return null
 
 	return result

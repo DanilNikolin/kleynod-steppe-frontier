@@ -6,10 +6,16 @@ signal close_requested
 signal hero_state_changed
 
 
+var campaign_state: CampaignState
+
 var hero_state: CampaignHeroState
 var inventory_state: CampaignInventoryState
 
 var close_button_text: String = "Вернуться в лагерь"
+
+var party_service := (
+	CampaignPartyService.new()
+)
 
 
 func bind(
@@ -17,6 +23,8 @@ func bind(
 	p_inventory_state: CampaignInventoryState,
 	p_close_button_text: String = "Вернуться в лагерь"
 ) -> void:
+	campaign_state = null
+
 	hero_state = p_hero_state
 	inventory_state = p_inventory_state
 	close_button_text = p_close_button_text
@@ -24,8 +32,34 @@ func bind(
 	_rebuild_interface()
 
 
+func bind_campaign(
+	p_campaign_state: CampaignState,
+	p_close_button_text: String = "Вернуться в лагерь"
+) -> void:
+	campaign_state = p_campaign_state
+
+	hero_state = (
+		campaign_state.get_selected_hero()
+		if campaign_state != null
+		else null
+	)
+
+	inventory_state = (
+		campaign_state.inventory_state
+		if campaign_state != null
+		else null
+	)
+
+	close_button_text = p_close_button_text
+
+	_rebuild_interface()
+
+
 func _rebuild_interface() -> void:
 	_clear_children()
+
+	if campaign_state != null:
+		hero_state = campaign_state.get_selected_hero()
 
 	var background := ColorRect.new()
 
@@ -85,11 +119,14 @@ func _rebuild_interface() -> void:
 		root_column
 	)
 
-	var header := _create_header()
-
 	root_column.add_child(
-		header
+		_create_header()
 	)
+
+	if campaign_state != null:
+		root_column.add_child(
+			_create_hero_switcher()
+		)
 
 	if (
 		hero_state == null
@@ -219,10 +256,17 @@ func _rebuild_interface() -> void:
 		equipment_panel
 	)
 
-	equipment_panel.bind(
-		hero_state.progression_state,
-		inventory_state
-	)
+	if campaign_state != null:
+		equipment_panel.bind_campaign(
+			campaign_state,
+			hero_state
+		)
+
+	else:
+		equipment_panel.bind(
+			hero_state.progression_state,
+			inventory_state
+		)
 
 
 func _create_header() -> Control:
@@ -250,7 +294,7 @@ func _create_header() -> Control:
 	):
 		title.text = (
 			"ПОДГОТОВКА ГЕРОЯ · %s"
-			% hero_state.hero_definition.display_name
+			% hero_state.get_display_name()
 		)
 
 	else:
@@ -278,6 +322,104 @@ func _create_header() -> Control:
 	)
 
 	return panel
+
+
+func _create_hero_switcher() -> Control:
+	var panel := PanelContainer.new()
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	panel.add_child(
+		content
+	)
+
+	var title := Label.new()
+
+	title.text = (
+		"ГЕРОИ РОСТЕРА · ОТРЯД %d/3"
+		% campaign_state.party_member_hero_ids.size()
+	)
+
+	content.add_child(
+		title
+	)
+
+	var buttons := HFlowContainer.new()
+
+	buttons.add_theme_constant_override(
+		"h_separation",
+		8
+	)
+
+	buttons.add_theme_constant_override(
+		"v_separation",
+		8
+	)
+
+	content.add_child(
+		buttons
+	)
+
+	for roster_hero in campaign_state.heroes:
+		if roster_hero == null:
+			continue
+
+		var button := Button.new()
+
+		var button_text := roster_hero.get_display_name()
+
+		if campaign_state.is_hero_in_party(
+			roster_hero.get_hero_id()
+		):
+			button_text += " · ОТРЯД"
+
+		button.text = button_text
+
+		button.disabled = (
+			campaign_state.selected_hero_id
+			== roster_hero.get_hero_id()
+		)
+
+		button.pressed.connect(
+			_on_hero_switch_pressed.bind(
+				roster_hero.get_hero_id()
+			)
+		)
+
+		buttons.add_child(
+			button
+		)
+
+	return panel
+
+
+func _on_hero_switch_pressed(
+	hero_id: StringName
+) -> void:
+	var result := party_service.select_hero(
+		campaign_state,
+		hero_id
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Hero Preparation switch failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	hero_state = campaign_state.get_selected_hero()
+
+	hero_state_changed.emit()
+
+	call_deferred(
+		"_rebuild_interface"
+	)
 
 
 func _on_section_state_changed() -> void:

@@ -90,11 +90,23 @@ func get_inventory_state() -> CampaignInventoryState:
 	return campaign_state.inventory_state
 
 
-func get_active_hero_state() -> CampaignHeroState:
+func get_selected_hero_state() -> CampaignHeroState:
 	if campaign_state == null:
 		return null
 
-	return campaign_state.get_active_hero()
+	return campaign_state.get_selected_hero()
+
+
+## Compatibility alias для старых debug-вызовов.
+func get_active_hero_state() -> CampaignHeroState:
+	return get_selected_hero_state()
+
+
+func get_party_members() -> Array[CampaignHeroState]:
+	if campaign_state == null:
+		return []
+
+	return campaign_state.get_party_members()
 
 
 func get_location(
@@ -153,6 +165,16 @@ func start_location(
 
 		return false
 
+	if (
+		campaign_state == null
+		or not campaign_state.is_valid_state()
+	):
+		push_warning(
+			"Campaign state is invalid."
+		)
+
+		return false
+
 	var location := get_location(
 		location_id
 	)
@@ -168,15 +190,24 @@ func start_location(
 
 		return false
 
-	var active_hero := get_active_hero_state()
+	var party_members := (
+		campaign_state.get_party_members()
+	)
+
+	if party_members.is_empty():
+		push_warning(
+			"Cannot start location with an empty party."
+		)
+
+		return false
 
 	if (
-		active_hero == null
-		or not active_hero.is_valid_state()
+		party_members.size()
+		> location.party_spawn_instance_ids.size()
 	):
 		push_warning(
-			"Cannot start location without "
-			+"a valid active hero."
+			"Location does not provide enough "
+			+"party spawn slots."
 		)
 
 		return false
@@ -195,43 +226,119 @@ func start_location(
 
 		return false
 
-	var player_spawn: CombatantSpawnDefinition
+	var slot_index_by_instance_id: Dictionary = {}
+
+	for slot_index in range(
+		location.party_spawn_instance_ids.size()
+	):
+		slot_index_by_instance_id[
+			location.party_spawn_instance_ids[
+				slot_index
+			]
+		] = slot_index
+
+	var rebuilt_spawns: Array[CombatantSpawnDefinition] = []
+	var used_party_slots: Dictionary = {}
 
 	for spawn in runtime_encounter.combatant_spawns:
-		if (
-			spawn != null
-			and spawn.instance_id
-				== location.player_spawn_instance_id
-		):
-			player_spawn = spawn
-			break
+		if spawn == null:
+			continue
 
-	if player_spawn == null:
-		push_warning(
-			"Campaign encounter has no player spawn '%s'."
-			% location.player_spawn_instance_id
+		if not slot_index_by_instance_id.has(
+			spawn.instance_id
+		):
+			rebuilt_spawns.append(
+				spawn
+			)
+
+			continue
+
+		var party_index: int = int(
+			slot_index_by_instance_id[
+				spawn.instance_id
+			]
 		)
 
-		return false
+		## Незанятый party placeholder полностью
+		## удаляется из runtime encounter.
+		if party_index >= party_members.size():
+			continue
 
-	player_spawn.hero_definition = (
-		active_hero.hero_definition
-	)
+		var hero_state := party_members[
+			party_index
+		]
 
-	player_spawn.hero_progression_state = (
-		active_hero.progression_state
-	)
+		if (
+			hero_state == null
+			or not hero_state.is_valid_state()
+		):
+			push_warning(
+				"Campaign party contains "
+				+"an invalid hero state."
+			)
 
-	player_spawn.combatant_definition = (
-		active_hero
-			.hero_definition
-			.base_combatant_definition
+			return false
+
+		spawn.hero_definition = (
+			hero_state.hero_definition
+		)
+
+		spawn.hero_progression_state = (
+			hero_state.progression_state
+		)
+
+		spawn.combatant_definition = (
+			hero_state
+				.hero_definition
+				.base_combatant_definition
+		)
+
+		spawn.loadout_override = null
+		spawn.team_id = PLAYER_TEAM_ID
+
+		used_party_slots[
+			spawn.instance_id
+		] = true
+
+		rebuilt_spawns.append(
+			spawn
+		)
+
+	for party_index in range(
+		party_members.size()
+	):
+		var required_spawn_id := (
+			location.party_spawn_instance_ids[
+				party_index
+			]
+		)
+
+		if not used_party_slots.has(
+			required_spawn_id
+		):
+			push_warning(
+				"Runtime encounter is missing "
+				+"party spawn '%s'."
+				% required_spawn_id
+			)
+
+			return false
+
+	runtime_encounter.combatant_spawns = (
+		rebuilt_spawns
 	)
 
 	if not runtime_encounter.is_valid_definition():
 		push_warning(
 			"Runtime campaign encounter is invalid."
 		)
+
+		for validation_error in (
+			runtime_encounter.get_validation_errors()
+		):
+			push_warning(
+				validation_error
+			)
 
 		return false
 
@@ -248,13 +355,19 @@ func start_location(
 		location.location_id
 	)
 
-	request.active_hero_id = (
-		active_hero.get_hero_id()
-	)
+	for hero_state in party_members:
+		request.party_member_hero_ids.append(
+			hero_state.get_hero_id()
+		)
 
-	request.player_spawn_instance_id = (
-		location.player_spawn_instance_id
-	)
+	for party_index in range(
+		party_members.size()
+	):
+		request.player_spawn_instance_ids.append(
+			location.party_spawn_instance_ids[
+				party_index
+			]
+		)
 
 	request.encounter_definition = (
 		runtime_encounter
@@ -300,6 +413,14 @@ func complete_pending_battle_and_return(
 	result.winning_team_id = (
 		winning_team_id
 	)
+
+	for hero_id in (
+		pending_battle_request
+			.party_member_hero_ids
+	):
+		result.party_member_hero_ids.append(
+			hero_id
+		)
 
 	if (
 		pending_battle_request

@@ -15,6 +15,8 @@ var request_id: StringName = &""
 var location_id: StringName = &""
 var encounter_id: StringName = &""
 
+var party_member_hero_ids: Array[StringName] = []
+
 var winning_team_id: StringName = &""
 
 var outcome: Outcome = Outcome.NONE

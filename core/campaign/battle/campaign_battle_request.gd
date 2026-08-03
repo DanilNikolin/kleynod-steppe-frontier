@@ -5,8 +5,8 @@ extends RefCounted
 var request_id: StringName = &""
 
 var location_id: StringName = &""
-var active_hero_id: StringName = &""
 
-var player_spawn_instance_id: StringName = &""
+var party_member_hero_ids: Array[StringName] = []
+var player_spawn_instance_ids: Array[StringName] = []
 
 var encounter_definition: BattleEncounterDefinition

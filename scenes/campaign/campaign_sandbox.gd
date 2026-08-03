@@ -8,12 +8,7 @@ const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
 )
 
 
-var build_resolver := (
-	HeroBattleBuildResolver.new()
-)
-
 var _is_preparation_open: bool = false
-
 
 
 func _ready() -> void:
@@ -25,12 +20,7 @@ func _ready() -> void:
 
 
 func _rebuild_interface() -> void:
-	for child in get_children():
-		remove_child(
-			child
-		)
-
-		child.queue_free()
+	_clear_children()
 
 	if _is_preparation_open:
 		_show_preparation_interface()
@@ -94,10 +84,8 @@ func _rebuild_interface() -> void:
 		root_column
 	)
 
-	var header := _create_header_panel()
-
 	root_column.add_child(
-		header
+		_create_header_panel()
 	)
 
 	var body_row := HBoxContainer.new()
@@ -115,17 +103,43 @@ func _rebuild_interface() -> void:
 		body_row
 	)
 
-	var hero_panel := _create_hero_panel()
+	var party_panel := CampaignPartyPanel.new()
 
-	hero_panel.size_flags_horizontal = (
+	party_panel.custom_minimum_size = Vector2(
+		920,
+		0
+	)
+
+	party_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
+	party_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	party_panel.state_changed.connect(
+		_on_party_state_changed
+	)
+
+	party_panel.preparation_requested.connect(
+		_on_preparation_requested
+	)
+
 	body_row.add_child(
-		hero_panel
+		party_panel
+	)
+
+	party_panel.bind(
+		CampaignRuntime.get_campaign_state()
 	)
 
 	var locations_panel := _create_locations_panel()
+
+	locations_panel.custom_minimum_size = Vector2(
+		520,
+		0
+	)
 
 	locations_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -135,10 +149,8 @@ func _rebuild_interface() -> void:
 		locations_panel
 	)
 
-	var result_panel := _create_result_panel()
-
 	root_column.add_child(
-		result_panel
+		_create_result_panel()
 	)
 
 
@@ -187,108 +199,6 @@ func _create_header_panel() -> Control:
 	return panel
 
 
-func _create_hero_panel() -> Control:
-	var panel := PanelContainer.new()
-	var content := VBoxContainer.new()
-
-	content.add_theme_constant_override(
-		"separation",
-		10
-	)
-
-	panel.add_child(
-		content
-	)
-
-	var title := Label.new()
-
-	title.text = "АКТИВНЫЙ ГЕРОЙ"
-
-	title.add_theme_font_size_override(
-		"font_size",
-		22
-	)
-
-	content.add_child(
-		title
-	)
-
-	var hero_state := (
-		CampaignRuntime.get_active_hero_state()
-	)
-
-	if (
-		hero_state == null
-		or not hero_state.is_valid_state()
-	):
-		var error_label := Label.new()
-
-		error_label.text = (
-			"Активный герой отсутствует "
-			+"или имеет ошибочное состояние."
-		)
-
-		content.add_child(
-			error_label
-		)
-
-		return panel
-
-	var hero_name := Label.new()
-
-	hero_name.text = (
-		hero_state.hero_definition.display_name
-	)
-
-	hero_name.add_theme_font_size_override(
-		"font_size",
-		20
-	)
-
-	content.add_child(
-		hero_name
-	)
-
-	var build := build_resolver.resolve(
-		hero_state.hero_definition,
-		hero_state.progression_state
-	)
-
-	var summary := Label.new()
-
-	summary.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD_SMART
-	)
-
-	if build == null:
-		summary.text = (
-			"Hero Battle Build не удалось собрать."
-		)
-
-	else:
-		summary.text = _get_build_summary(
-			build
-		)
-
-	content.add_child(
-		summary
-	)
-
-	var preparation_button := Button.new()
-
-	preparation_button.text = "Подготовить героя"
-
-	preparation_button.pressed.connect(
-		_on_preparation_pressed
-	)
-
-	content.add_child(
-		preparation_button
-	)
-
-	return panel
-
-
 func _create_locations_panel() -> Control:
 	var panel := PanelContainer.new()
 	var content := VBoxContainer.new()
@@ -313,6 +223,25 @@ func _create_locations_panel() -> Control:
 
 	content.add_child(
 		title
+	)
+
+	var party_label := Label.new()
+
+	party_label.text = (
+		"В поход отправятся:\n%s"
+		% _get_party_names()
+	)
+
+	party_label.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	content.add_child(
+		party_label
+	)
+
+	content.add_child(
+		HSeparator.new()
 	)
 
 	for location in (
@@ -369,7 +298,7 @@ func _create_location_card(
 
 	var start_button := Button.new()
 
-	start_button.text = "Отправиться"
+	start_button.text = "Отправиться отрядом"
 
 	start_button.pressed.connect(
 		_on_location_pressed.bind(
@@ -439,13 +368,22 @@ func _create_result_panel() -> Control:
 			)
 		)
 
+		var battle_party_names := (
+			_get_hero_names(
+				state
+					.last_battle_result
+					.party_member_hero_ids
+			)
+		)
+
 		result_label.text = (
-			"%s · %s · завершено боёв: %d"
+			"%s · %s · отряд: %s · завершено боёв: %d"
 			% [
 				location_name,
 				state
 					.last_battle_result
 					.get_outcome_display_name(),
+				battle_party_names,
 				state.completed_battle_count,
 			]
 		)
@@ -455,75 +393,6 @@ func _create_result_panel() -> Control:
 	)
 
 	return panel
-
-
-func _get_build_summary(
-	build: HeroBattleBuild
-) -> String:
-	var ability_names := PackedStringArray()
-
-	for ability in build.loadout.get_abilities():
-		ability_names.append(
-			"• %s"
-			% ability.display_name
-		)
-
-	var item_names := PackedStringArray()
-
-	for item in build.equipped_items:
-		if (
-			item == null
-			or item.definition == null
-		):
-			continue
-
-		item_names.append(
-			"• %s"
-			% item.definition.display_name
-		)
-
-	if item_names.is_empty():
-		item_names.append(
-			"—"
-		)
-
-	return (
-		"Уровень: %d\n"
-		% CampaignRuntime
-			.get_active_hero_state()
-			.progression_state
-			.level
-		+"\n"
-		+"Сила: %d\n"
-		% build.strength_rank
-		+"Спритность: %d\n"
-		% build.agility_rank
-		+"Воля: %d\n"
-		% build.spirit_rank
-		+"\n"
-		+"HP: %d\n"
-		% build.combatant_definition.max_health
-		+"Armor: %d\n"
-		% build.combatant_definition.base_armor
-		+"Stamina: %d/%d · Regen %d\n"
-		% [
-			build.combatant_definition.start_stamina,
-			build.combatant_definition.max_stamina,
-			build
-				.combatant_definition
-				.stamina_regeneration,
-		]
-		+"\n"
-		+"Боевые способности:\n%s\n"
-		% "\n".join(
-			ability_names
-		)
-		+"\n"
-		+"Экипировка:\n%s"
-		% "\n".join(
-			item_names
-		)
-	)
 
 
 func _show_preparation_interface() -> void:
@@ -549,13 +418,88 @@ func _show_preparation_interface() -> void:
 		_on_preparation_closed
 	)
 
-	panel.bind(
-		CampaignRuntime.get_active_hero_state(),
-		CampaignRuntime.get_inventory_state()
+	panel.bind_campaign(
+		CampaignRuntime.get_campaign_state()
 	)
 
 
-func _on_preparation_pressed() -> void:
+func _get_party_names() -> String:
+	var state := CampaignRuntime.get_campaign_state()
+
+	if state == null:
+		return "—"
+
+	var lines := PackedStringArray()
+
+	for party_index in range(
+		state.party_member_hero_ids.size()
+	):
+		var hero_state := state.get_hero(
+			state.party_member_hero_ids[
+				party_index
+			]
+		)
+
+		if hero_state == null:
+			continue
+
+		lines.append(
+			"%d. %s"
+			% [
+				party_index + 1,
+				hero_state.get_display_name(),
+			]
+		)
+
+	if lines.is_empty():
+		return "—"
+
+	return "\n".join(
+		lines
+	)
+
+
+func _get_hero_names(
+	hero_ids: Array[StringName]
+) -> String:
+	var state := CampaignRuntime.get_campaign_state()
+	var names := PackedStringArray()
+
+	if state == null:
+		return "—"
+
+	for hero_id in hero_ids:
+		var hero_state := state.get_hero(
+			hero_id
+		)
+
+		if hero_state == null:
+			names.append(
+				String(hero_id)
+			)
+
+		else:
+			names.append(
+				hero_state.get_display_name()
+			)
+
+	if names.is_empty():
+		return "—"
+
+	return ", ".join(
+		names
+	)
+
+
+func _on_party_state_changed() -> void:
+	call_deferred(
+		"_rebuild_interface"
+	)
+
+
+func _on_preparation_requested(
+	_hero_id: StringName
+) -> void:
 	_is_preparation_open = true
 
 	_rebuild_interface()
@@ -609,3 +553,12 @@ func _show_initialization_error() -> void:
 	add_child(
 		label
 	)
+
+
+func _clear_children() -> void:
+	for child in get_children():
+		remove_child(
+			child
+		)
+
+		child.queue_free()

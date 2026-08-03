@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="CampaignLocationDefinition" format=3 uid="uid://bv4l8i720765u"]
 
 [ext_resource type="Script" uid="uid://b057wdv6pu3ma" path="res://core/campaign/locations/campaign_location_definition.gd" id="1_location"]
-[ext_resource type="Resource" uid="uid://dgp7p6h0tjn5n" path="res://content/encounters/debug/debug_duel_encounter.tres" id="2_encounter"]
+[ext_resource type="Resource" uid="uid://dewdvcq85u1o5" path="res://content/encounters/debug/debug_campaign_party_encounter.tres" id="2_encounter"]
 
 [resource]
 script = ExtResource("1_location")
 location_id = &"debug_forest_edge"
 display_name = "Лесная окраина"
-description = "Небольшая отладочная локация. Здесь пока находится один степной рубака."
+description = "Отладочная локация для похода партии размером от одного до трёх героев."
 encounter_definition = ExtResource("2_encounter")
+party_spawn_instance_ids = Array[StringName]([&"party_slot_1", &"party_slot_2", &"party_slot_3"])

@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="BattleEncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/encounters/battle_encounter_definition.gd" id="1_encounter"]
+[ext_resource type="Script" path="res://core/battle/encounters/combatant_spawn_definition.gd" id="2_spawn"]
+[ext_resource type="Resource" path="res://scenes/debug_sechevik.tres" id="3_player"]
+[ext_resource type="Resource" path="res://content/combatants/prototype/proto_steppe_raider.tres" id="4_raider"]
+[ext_resource type="Resource" path="res://content/combatants/prototype/proto_steppe_shieldbearer.tres" id="5_shieldbearer"]
+[ext_resource type="Script" path="res://core/battle/sides/battle_side_rules.gd" id="6_side_rules"]
+
+[sub_resource type="Resource" id="PartySlot_1"]
+script = ExtResource("2_spawn")
+instance_id = &"party_slot_1"
+combatant_definition = ExtResource("3_player")
+team_id = &"team_player"
+coordinate = Vector2i(0, 1)
+
+[sub_resource type="Resource" id="PartySlot_2"]
+script = ExtResource("2_spawn")
+instance_id = &"party_slot_2"
+combatant_definition = ExtResource("3_player")
+team_id = &"team_player"
+coordinate = Vector2i(1, 0)
+
+[sub_resource type="Resource" id="PartySlot_3"]
+script = ExtResource("2_spawn")
+instance_id = &"party_slot_3"
+combatant_definition = ExtResource("3_player")
+team_id = &"team_player"
+coordinate = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="EnemyRaider"]
+script = ExtResource("2_spawn")
+instance_id = &"enemy_raider"
+combatant_definition = ExtResource("4_raider")
+team_id = &"team_enemy"
+coordinate = Vector2i(4, 0)
+
+[sub_resource type="Resource" id="EnemyShieldbearer"]
+script = ExtResource("2_spawn")
+instance_id = &"enemy_shieldbearer"
+combatant_definition = ExtResource("5_shieldbearer")
+team_id = &"team_enemy"
+coordinate = Vector2i(4, 2)
+
+[sub_resource type="Resource" id="SideRules"]
+script = ExtResource("6_side_rules")
+
+[resource]
+script = ExtResource("1_encounter")
+encounter_id = &"debug_campaign_party_encounter"
+display_name = "Отладочный поход отряда"
+description = "Campaign encounter с тремя placeholder-местами для партии размером от одного до трёх героев."
+side_rules = SubResource("SideRules")
+combatant_spawns = Array[ExtResource("2_spawn")]([SubResource("PartySlot_1"), SubResource("PartySlot_2"), SubResource("PartySlot_3"), SubResource("EnemyRaider"), SubResource("EnemyShieldbearer")])

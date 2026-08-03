@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="HeroDefinition" format=3 uid="uid://b5hdj25dtajbg"]
+
+[ext_resource type="Script" uid="uid://bldck1o3mhuyn" path="res://core/heroes/hero_definition.gd" id="1_hero"]
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
+[ext_resource type="Resource" uid="uid://b3fmtemw5g732" path="res://scenes/debug_sechevik.tres" id="3_combatant"]
+[ext_resource type="Resource" uid="uid://cvv0xgjjefuwd" path="res://content/skill_grids/debug/debug_sechevik_skill_grid.tres" id="4_grid"]
+[ext_resource type="Resource" uid="uid://bh0xtv0ndcte4" path="res://content/abilities/debug/debug_sabre_slash.tres" id="5_sabre"]
+[ext_resource type="Resource" uid="uid://bnk0vuvlj8iqp" path="res://content/abilities/debug/debug_spirit_mend.tres" id="6_mend"]
+
+[resource]
+script = ExtResource("1_hero")
+hero_id = &"hero_wolf_shepherd"
+display_name = "Вовчарка"
+description = "Контент героя — заглушка. Временно использует механику Отладочного Сечевика."
+base_combatant_definition = ExtResource("3_combatant")
+skill_grid = ExtResource("4_grid")
+personal_abilities = Array[ExtResource("2_ability")]([ExtResource("5_sabre"), ExtResource("6_mend")])
+starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash"])
+default_ability_id = &"ability_sabre_slash"

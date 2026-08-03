@@ -3,6 +3,10 @@ class_name CampaignLocationDefinition
 extends Resource
 
 
+const PLAYER_TEAM_ID: StringName = &"team_player"
+const MAX_PARTY_SIZE: int = 3
+
+
 @export_group("Identity")
 
 @export
@@ -20,11 +24,11 @@ var description: String = ""
 @export
 var encounter_definition: BattleEncounterDefinition
 
-## Instance ID игрока внутри encounter.
-## При запуске кампании его HeroDefinition и
-## HeroProgressionState заменяются состоянием кампании.
+## Упорядоченные placeholder-spawn ID.
+## Первый герой отряда получает первый spawn,
+## второй — второй, третий — третий.
 @export
-var player_spawn_instance_id: StringName = &"debug_hero"
+var party_spawn_instance_ids: Array[StringName] = []
 
 
 func is_valid_definition() -> bool:
@@ -54,28 +58,68 @@ func get_validation_errors() -> PackedStringArray:
 			"Campaign location encounter is invalid."
 		)
 
-	if player_spawn_instance_id == &"":
+	if party_spawn_instance_ids.is_empty():
 		errors.append(
-			"Campaign location player spawn ID is empty."
+			"Campaign location has no party spawn slots."
 		)
 
-	elif encounter_definition != null:
-		var has_player_spawn := false
+	if party_spawn_instance_ids.size() > MAX_PARTY_SIZE:
+		errors.append(
+			"Campaign location cannot contain "
+			+"more than three party spawn slots."
+		)
+
+	var used_spawn_ids: Dictionary = {}
+
+	for spawn_id in party_spawn_instance_ids:
+		if spawn_id == &"":
+			errors.append(
+				"Campaign party spawn ID is empty."
+			)
+
+			continue
+
+		if used_spawn_ids.has(
+			spawn_id
+		):
+			errors.append(
+				"Duplicate campaign party spawn ID: %s."
+				% spawn_id
+			)
+
+			continue
+
+		used_spawn_ids[
+			spawn_id
+		] = true
+
+		if encounter_definition == null:
+			continue
+
+		var found_spawn: CombatantSpawnDefinition
 
 		for spawn in encounter_definition.combatant_spawns:
 			if (
 				spawn != null
-				and spawn.instance_id
-					== player_spawn_instance_id
+				and spawn.instance_id == spawn_id
 			):
-				has_player_spawn = true
+				found_spawn = spawn
 				break
 
-		if not has_player_spawn:
+		if found_spawn == null:
 			errors.append(
-				"Campaign location player spawn '%s' "
-				% player_spawn_instance_id
+				"Campaign party spawn '%s' "
+				% spawn_id
 				+"does not exist in the encounter."
+			)
+
+			continue
+
+		if found_spawn.team_id != PLAYER_TEAM_ID:
+			errors.append(
+				"Campaign party spawn '%s' "
+				% spawn_id
+				+"does not belong to the player team."
 			)
 
 	return errors

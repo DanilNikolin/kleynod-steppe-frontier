@@ -12,11 +12,30 @@ var hero_definition: HeroDefinition
 var progression_state: HeroProgressionState
 
 
+@export_group("Campaign Presentation")
+
+## Временный герой, использующий общий debug-контент.
+## Campaign Flow уже работает, но уникальный набор
+## способностей героя ещё не реализован.
+@export
+var is_placeholder_content: bool = false
+
+@export_multiline
+var roster_note: String = ""
+
+
 func get_hero_id() -> StringName:
 	if hero_definition == null:
 		return &""
 
 	return hero_definition.hero_id
+
+
+func get_display_name() -> String:
+	if hero_definition == null:
+		return "Неизвестный герой"
+
+	return hero_definition.display_name
 
 
 func is_valid_state() -> bool:

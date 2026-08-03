@@ -26,12 +26,21 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "scenes/debug/skill_grid_debug_sandbox.gd",
-    "scenes/campaign/campaign_sandbox.gd",
     "core/campaign/campaign_definition.gd",
     "core/campaign/state/campaign_state.gd",
     "core/campaign/state/campaign_state_factory.gd",
+    "core/campaign/runtime/campaign_runtime.gd",
+    "core/campaign/locations/campaign_location_definition.gd",
+    "core/campaign/heroes/campaign_hero_state.gd",
+    "core/campaign/inventory/campaign_inventory_state.gd",
+    "scenes/campaign/campaign_sandbox.gd",
+    "presentation/campaign/hero_preparation/hero_preparation_panel.gd",
+    "presentation/campaign/hero_preparation/hero_equipment_panel.gd",
     "content/campaign/debug/debug_campaign_definition.tres",
+    "core/battle/encounters/battle_encounter_definition.gd",
+    "content/encounters/debug/debug_skirmish_2v2.tres",
+    "content/heroes/debug/debug_sechevik_hero.tres",
+    "content/heroes/debug/debug_sechevik_progression_purchase_test.tres",
 ]
 
 ALLOW_ADDONS = False

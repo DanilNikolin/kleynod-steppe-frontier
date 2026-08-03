@@ -5,6 +5,9 @@ extends PanelContainer
 signal state_changed
 
 
+var campaign_state: CampaignState
+var hero_state: CampaignHeroState
+
 var progression: HeroProgressionState
 var inventory_state: CampaignInventoryState
 
@@ -12,14 +15,49 @@ var equipment_service := (
 	HeroEquipmentService.new()
 )
 
+var campaign_equipment_service := (
+	CampaignEquipmentService.new()
+)
+
 
 func bind(
 	p_progression: HeroProgressionState,
 	p_inventory_state: CampaignInventoryState
 ) -> void:
+	campaign_state = null
+	hero_state = null
+
 	progression = p_progression
 	inventory_state = p_inventory_state
 
+	_ensure_equipment_state()
+	_rebuild_interface()
+
+
+func bind_campaign(
+	p_campaign_state: CampaignState,
+	p_hero_state: CampaignHeroState
+) -> void:
+	campaign_state = p_campaign_state
+	hero_state = p_hero_state
+
+	progression = (
+		hero_state.progression_state
+		if hero_state != null
+		else null
+	)
+
+	inventory_state = (
+		campaign_state.inventory_state
+		if campaign_state != null
+		else null
+	)
+
+	_ensure_equipment_state()
+	_rebuild_interface()
+
+
+func _ensure_equipment_state() -> void:
 	if (
 		progression != null
 		and progression.equipment_state == null
@@ -27,8 +65,6 @@ func bind(
 		progression.equipment_state = (
 			HeroEquipmentState.new()
 		)
-
-	_rebuild_interface()
 
 
 func _rebuild_interface() -> void:
@@ -251,6 +287,31 @@ func _create_inventory_item_row(
 		name_label
 	)
 
+	var owner := _get_item_owner(
+		item.instance_id
+	)
+
+	var owner_label := Label.new()
+
+	if owner == null:
+		owner_label.text = "Свободно"
+
+	elif (
+		hero_state != null
+		and owner == hero_state
+	):
+		owner_label.text = "Надето на текущем герое"
+
+	else:
+		owner_label.text = (
+			"Надето: %s"
+			% owner.get_display_name()
+		)
+
+	content.add_child(
+		owner_label
+	)
+
 	var description := Label.new()
 
 	description.text = item.definition.description
@@ -278,10 +339,22 @@ func _create_inventory_item_row(
 	):
 		var equip_button := Button.new()
 
-		equip_button.text = _get_equip_button_text(
+		var button_text := _get_equip_button_text(
 			item,
 			slot
 		)
+
+		if (
+			owner != null
+			and hero_state != null
+			and owner != hero_state
+		):
+			button_text = (
+				"Передать → %s"
+				% button_text
+			)
+
+		equip_button.text = button_text
 
 		equip_button.pressed.connect(
 			_on_equip_pressed.bind(
@@ -295,6 +368,18 @@ func _create_inventory_item_row(
 		)
 
 	return panel
+
+
+func _get_item_owner(
+	item_instance_id: StringName
+) -> CampaignHeroState:
+	if campaign_state == null:
+		return null
+
+	return campaign_equipment_service.get_item_owner(
+		campaign_state,
+		item_instance_id
+	)
 
 
 func _get_equip_button_text(
@@ -328,6 +413,30 @@ func _on_equip_pressed(
 	item_instance_id: StringName,
 	slot: int
 ) -> void:
+	if (
+		campaign_state != null
+		and hero_state != null
+	):
+		var campaign_result := (
+			campaign_equipment_service.equip_item(
+				campaign_state,
+				hero_state.get_hero_id(),
+				item_instance_id,
+				slot
+			)
+		)
+
+		if not campaign_result.is_successful:
+			push_warning(
+				"Campaign equipment failed: %s"
+				% campaign_result.failure_code
+			)
+
+			return
+
+		state_changed.emit()
+		return
+
 	var item := inventory_state.get_item(
 		item_instance_id
 	)
@@ -360,6 +469,29 @@ func _on_equip_pressed(
 func _on_unequip_pressed(
 	slot: int
 ) -> void:
+	if (
+		campaign_state != null
+		and hero_state != null
+	):
+		var campaign_result := (
+			campaign_equipment_service.unequip_slot(
+				campaign_state,
+				hero_state.get_hero_id(),
+				slot
+			)
+		)
+
+		if not campaign_result.is_successful:
+			push_warning(
+				"Campaign unequip failed: %s"
+				% campaign_result.failure_code
+			)
+
+			return
+
+		state_changed.emit()
+		return
+
 	var result := equipment_service.unequip(
 		progression.equipment_state,
 		slot

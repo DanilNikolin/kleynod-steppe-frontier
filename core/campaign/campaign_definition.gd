@@ -3,6 +3,10 @@ class_name CampaignDefinition
 extends Resource
 
 
+const MIN_PARTY_SIZE: int = 1
+const MAX_PARTY_SIZE: int = 3
+
+
 @export_group("Identity")
 
 @export
@@ -18,7 +22,10 @@ var display_name: String = "Unnamed Campaign"
 var starting_heroes: Array[CampaignHeroState] = []
 
 @export
-var starting_active_hero_id: StringName = &""
+var starting_selected_hero_id: StringName = &""
+
+@export
+var starting_party_member_hero_ids: Array[StringName] = []
 
 
 @export_group("Inventory")
@@ -102,18 +109,68 @@ func get_validation_errors() -> PackedStringArray:
 			hero_id
 		] = true
 
-	if starting_active_hero_id == &"":
+	if starting_selected_hero_id == &"":
 		errors.append(
-			"Starting active hero ID is empty."
+			"Starting selected hero ID is empty."
 		)
 
 	elif not used_hero_ids.has(
-		starting_active_hero_id
+		starting_selected_hero_id
 	):
 		errors.append(
-			"Starting active hero '%s' does not exist."
-			% starting_active_hero_id
+			"Starting selected hero '%s' does not exist."
+			% starting_selected_hero_id
 		)
+
+	if (
+		starting_party_member_hero_ids.size()
+		< MIN_PARTY_SIZE
+	):
+		errors.append(
+			"Starting party requires at least one hero."
+		)
+
+	if (
+		starting_party_member_hero_ids.size()
+		> MAX_PARTY_SIZE
+	):
+		errors.append(
+			"Starting party cannot contain "
+			+"more than three heroes."
+		)
+
+	var used_party_hero_ids: Dictionary = {}
+
+	for hero_id in starting_party_member_hero_ids:
+		if hero_id == &"":
+			errors.append(
+				"Starting party hero ID is empty."
+			)
+
+			continue
+
+		if not used_hero_ids.has(
+			hero_id
+		):
+			errors.append(
+				"Starting party references "
+				+"unknown hero: %s."
+				% hero_id
+			)
+
+		if used_party_hero_ids.has(
+			hero_id
+		):
+			errors.append(
+				"Duplicate starting party hero: %s."
+				% hero_id
+			)
+
+			continue
+
+		used_party_hero_ids[
+			hero_id
+		] = true
 
 	var used_inventory_item_ids: Dictionary = {}
 

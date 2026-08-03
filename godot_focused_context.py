@@ -25,16 +25,28 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/heroes/core/hero_core_runtime_state.gd",
-    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
-    "core/heroes/core/bayda/bayda_core_module_definition.gd",
-    "core/battle/combatants/combatant_state.gd",
-    "core/battle/statuses/battle_status_periodic_processor.gd",
-    "core/battle/statuses/battle_status_periodic_trigger_result.gd",
-    "core/battle/turns/battle_turn_controller.gd",
+    "core/battle/abilities/ability_definition.gd",
+    "core/battle/effects/battle_effect.gd",
+    "core/battle/effects/damage_effect.gd",
+    "core/battle/effects/heal_effect.gd",
+    "core/battle/effects/grant_guard_effect.gd",
     "core/battle/effects/effect_resolver.gd",
+    "core/battle/actions/battle_action_service.gd",
+    "core/battle/actions/battle_action_result.gd",
     "core/battle/actions/battle_effect_result.gd",
-    "scenes/debug/bayda_core_debug_sandbox.gd",
+    "core/battle/combatants/combatant_state.gd",
+    "core/battle/targeting/ability_targeting_definition.gd",
+    "core/battle/targeting/battle_targeting_service.gd",
+    "core/battle/targeting/battle_targeting_result.gd",
+    "core/battle/simulation/battle_action_simulation_service.gd",
+    "core/battle/simulation/battle_action_simulation_result.gd",
+    "core/battle/ai/utility/battle_ai_plan_evaluator.gd",
+    "core/battle/ai/utility/battle_ai_score_breakdown.gd",
+    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
+    "presentation/battle/previews/battle_action_preview_formatter.gd",
+    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
+    "content/heroes/bayda/bayda_hero.tres",
+    "content/heroes/bayda/debug_bayda_core_hero.tres",
 ]
 
 ALLOW_ADDONS = False

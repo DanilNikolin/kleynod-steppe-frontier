@@ -9,6 +9,9 @@ enum StandardCriticalMode {
 const FAILURE_INVALID_EFFECT: StringName = &"invalid_effect"
 const FAILURE_INVALID_SOURCE: StringName = &"invalid_source"
 const FAILURE_INVALID_TARGET: StringName = &"invalid_target"
+const FAILURE_HEALTH_COST_CANNOT_BE_PAID: StringName = (
+	&"health_cost_cannot_be_paid"
+)
 const FAILURE_UNSUPPORTED_EFFECT: StringName = &"unsupported_effect"
 const FAILURE_SURFACE_PLACEMENT_FAILED: StringName = (
 	&"surface_placement_failed"
@@ -59,6 +62,8 @@ func can_resolve(
 		effect is DamageEffect
 		or effect is HealEffect
 		or effect is GrantGuardEffect
+		or effect is HealthCostEffect
+		or effect is RestoreStaminaEffect
 		or effect is ApplyStatusEffect
 		or effect is RemoveStatusEffect
 		or effect is ForcedMovementEffect
@@ -67,14 +72,71 @@ func can_resolve(
 		or effect is TeleportEffect
 	)
 
+
+func get_effect_recipient(
+	effect: BattleEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> CombatantState:
+	if effect == null:
+		return null
+
+	if effect.targets_source():
+		return source
+
+	return target
+
+
 func requires_combatant_target(
 	effect: BattleEffect
 ) -> bool:
+	if effect == null:
+		return false
+
+	if effect.targets_source():
+		return false
+
 	return (
 		not effect is PlaceSurfaceEffect
 		and not effect is TeleportEffect
 	)
 
+
+func get_runtime_validation_failure(
+	effect: BattleEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> StringName:
+	if effect == null:
+		return FAILURE_INVALID_EFFECT
+
+	if source == null:
+		return FAILURE_INVALID_SOURCE
+
+	var recipient := get_effect_recipient(
+		effect,
+		source,
+		target
+	)
+
+	if recipient == null:
+		return FAILURE_INVALID_TARGET
+
+	if effect is HealthCostEffect:
+		var health_cost_effect := (
+			effect as HealthCostEffect
+		)
+
+		if not recipient.can_pay_health_cost(
+			health_cost_effect.health_cost,
+			health_cost_effect
+				.minimum_remaining_health
+		):
+			return (
+				FAILURE_HEALTH_COST_CANNOT_BE_PAID
+			)
+
+	return &""
 
 func resolve(
 	effect: BattleEffect,
@@ -120,27 +182,63 @@ func resolve(
 			target_coordinate
 		)
 
-	if target == null:
+	var resolved_target := get_effect_recipient(
+		effect,
+		source,
+		target
+	)
+
+	if resolved_target == null:
 		return _create_failure_result(
 			FAILURE_INVALID_TARGET,
 			effect,
 			source,
+			resolved_target
+		)
+
+	var runtime_failure := (
+		get_runtime_validation_failure(
+			effect,
+			source,
 			target
+		)
+	)
+
+	if runtime_failure != &"":
+		return _create_failure_result(
+			runtime_failure,
+			effect,
+			source,
+			resolved_target
 		)
 
 	if effect is SwapPositionsEffect:
 		return _resolve_swap_positions(
 			effect as SwapPositionsEffect,
 			source,
-			target,
+			resolved_target,
 			session
+		)
+
+	if effect is HealthCostEffect:
+		return _resolve_health_cost(
+			effect as HealthCostEffect,
+			source,
+			resolved_target
+		)
+
+	if effect is RestoreStaminaEffect:
+		return _resolve_restore_stamina(
+			effect as RestoreStaminaEffect,
+			source,
+			resolved_target
 		)
 
 	if effect is DamageEffect:
 		return _resolve_damage(
 			effect as DamageEffect,
 			source,
-			target,
+			resolved_target,
 			bypass_guard,
 			allow_critical,
 			standard_critical_mode,
@@ -151,34 +249,35 @@ func resolve(
 		return _resolve_heal(
 			effect as HealEffect,
 			source,
-			target
+			resolved_target
 		)
 
 	if effect is GrantGuardEffect:
 		return _resolve_grant_guard(
 			effect as GrantGuardEffect,
 			source,
-			target
+			resolved_target
 		)
 
 	if effect is ApplyStatusEffect:
 		return _resolve_apply_status(
 			effect as ApplyStatusEffect,
 			source,
-			target
+			resolved_target
 		)
 
 	if effect is RemoveStatusEffect:
 		return _resolve_remove_status(
 			effect as RemoveStatusEffect,
 			source,
-			target
+			resolved_target
 		)
+
 	if effect is ForcedMovementEffect:
 		return _resolve_forced_movement(
 			effect as ForcedMovementEffect,
 			source,
-			target,
+			resolved_target,
 			session
 		)
 
@@ -186,10 +285,108 @@ func resolve(
 		FAILURE_UNSUPPORTED_EFFECT,
 		effect,
 		source,
-		target
+		resolved_target
 	)
 
+func _resolve_health_cost(
+	effect: HealthCostEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
 
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"health_cost"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = effect.health_cost
+	result.resolved_amount = effect.health_cost
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	result.applied_amount = (
+		target.pay_health_cost(
+			effect.health_cost,
+			effect.minimum_remaining_health
+		)
+	)
+
+	result.current_value = (
+		target.current_health
+	)
+
+	if result.applied_amount != effect.health_cost:
+		result.failure_code = (
+			FAILURE_HEALTH_COST_CANNOT_BE_PAID
+		)
+
+		return result
+
+	result.is_successful = true
+	return result
+
+
+func _resolve_restore_stamina(
+	effect: RestoreStaminaEffect,
+	source: CombatantState,
+	target: CombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"restore_stamina"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = effect.stamina_amount
+	result.resolved_amount = effect.stamina_amount
+
+	result.previous_stamina = (
+		target.current_stamina
+	)
+
+	result.previous_value = (
+		target.current_stamina
+	)
+
+	result.previous_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
+	result.applied_amount = (
+		target.restore_stamina(
+			effect.stamina_amount,
+			&"ability_effect"
+		)
+	)
+
+	result.current_stamina = (
+		target.current_stamina
+	)
+
+	result.current_value = (
+		target.current_stamina
+	)
+
+	result.current_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
+	result.stamina_restoration_debt_paid_amount = maxi(
+		0,
+		result.previous_stamina_restoration_debt
+			- result
+				.current_stamina_restoration_debt
+	)
+
+	result.is_successful = true
+	return result
+	
 func _resolve_swap_positions(
 	effect: SwapPositionsEffect,
 	source: CombatantState,

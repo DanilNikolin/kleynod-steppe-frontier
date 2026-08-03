@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" path="res://core/battle/effects/health_cost_effect.gd" id="5_health_cost"]
+[ext_resource type="Script" path="res://core/battle/effects/restore_stamina_effect.gd" id="6_restore_stamina"]
+
+[sub_resource type="Resource" id="Resource_blood_payment_damage"]
+script = ExtResource("4_damage")
+base_damage = 2
+strength_scaling = 0.0
+crit_mode = 0
+effect_id = &"effect_bayda_blood_payment_damage"
+
+[sub_resource type="Resource" id="Resource_blood_payment_health_cost"]
+script = ExtResource("5_health_cost")
+health_cost = 2
+minimum_remaining_health = 1
+effect_id = &"effect_bayda_blood_payment_health_cost"
+recipient = 1
+
+[sub_resource type="Resource" id="Resource_blood_payment_stamina"]
+script = ExtResource("6_restore_stamina")
+stamina_amount = 3
+effect_id = &"effect_bayda_blood_payment_stamina"
+recipient = 1
+
+[sub_resource type="Resource" id="Resource_blood_payment_targeting"]
+script = ExtResource("2_targeting")
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_bayda_blood_payment"
+display_name = "Кровью заплатить"
+description = "Байда ранит врага, платит 2 здоровья и восстанавливает 3 выносливости. Цена не может оставить его ниже 1 HP."
+branch = 2
+stamina_cost = 0
+cooldown_turns = 1
+targeting = SubResource("Resource_blood_payment_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_blood_payment_damage"), SubResource("Resource_blood_payment_health_cost"), SubResource("Resource_blood_payment_stamina")])

@@ -186,7 +186,7 @@ func get_stamina_restoration_debt() -> int:
 func on_health_changed(
 	previous_health: int,
 	current_health: int,
-	_reason: StringName
+	reason: StringName
 ) -> void:
 	var combatant := _get_owner()
 	var bayda_definition = definition
@@ -210,14 +210,22 @@ func on_health_changed(
 		)
 	)
 
+	## Max Stamina зависит от фактического HP
+	## независимо от причины его изменения.
 	var max_stamina_changed := (
 		_sync_max_stamina_to_health()
 	)
 
 	var restored_stamina: int = 0
 
+	## Пороговая награда выдаётся только за урон,
+	## который Байде навязал противник или окружение.
+	##
+	## Добровольная цена здоровья расширяет
+	## Max Stamina, но не создаёт дополнительное топливо.
 	if (
-		current_health < previous_health
+		reason == &"damage"
+		and current_health < previous_health
 		and current_tier > previous_tier
 	):
 		var crossed_threshold_count := (
@@ -229,7 +237,7 @@ func on_health_changed(
 				crossed_threshold_count
 					* bayda_definition
 						.stamina_per_crossed_threshold,
-				&"bayda_health_threshold"
+				&"health_threshold"
 			)
 		)
 

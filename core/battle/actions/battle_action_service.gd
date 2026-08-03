@@ -143,6 +143,18 @@ func execute(
 			command.actor.instance_id
 		)
 
+	if (
+		_has_source_recipient_effect(
+			command.ability
+		)
+		and not result.affected_target_ids.has(
+			command.actor.instance_id
+		)
+	):
+		result.affected_target_ids.append(
+			command.actor.instance_id
+		)
+
 	if not command.actor.spend_stamina(
 		command.ability.stamina_cost
 	):
@@ -168,6 +180,8 @@ func execute(
 		)
 	)
 
+	var resolved_source_effect_ids: Dictionary = {}
+
 	# Эффекты разрешаются отдельно для каждой
 	# impact-клетки и строго в заданном порядке.
 	for coordinate in (
@@ -180,6 +194,21 @@ func execute(
 		)
 
 		for effect in command.ability.effects:
+			if effect == null:
+				continue
+
+			## SOURCE-эффект разрешается ровно один раз
+			## за действие, даже если способность
+			## затрагивает несколько impact-клеток.
+			if effect.targets_source():
+				if resolved_source_effect_ids.has(
+					effect.effect_id
+				):
+					continue
+
+				resolved_source_effect_ids[
+					effect.effect_id
+				] = true
 			if (
 				effect_resolver
 				.requires_combatant_target(
@@ -329,6 +358,17 @@ func _get_validation_failure(
 		):
 			return FAILURE_UNSUPPORTED_EFFECT
 
+	var effect_runtime_failure := (
+		_get_effect_runtime_validation_failure(
+			actor,
+			ability,
+			targeting_result
+		)
+	)
+
+	if effect_runtime_failure != &"":
+		return effect_runtime_failure
+
 	var surface_placement_failure := (
 		_get_surface_placement_validation_failure(
 			session,
@@ -356,6 +396,65 @@ func _get_validation_failure(
 		ability.stamina_cost
 	):
 		return FAILURE_NOT_ENOUGH_STAMINA
+
+	return &""
+
+func _get_effect_runtime_validation_failure(
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	targeting_result: BattleTargetingResult
+) -> StringName:
+	if (
+		actor == null
+		or ability == null
+		or targeting_result == null
+	):
+		return FAILURE_INVALID_COMMAND
+
+	for effect in ability.effects:
+		if effect == null:
+			continue
+
+		if effect.targets_source():
+			var source_failure := (
+				effect_resolver
+					.get_runtime_validation_failure(
+						effect,
+						actor,
+						null
+					)
+			)
+
+			if source_failure != &"":
+				return source_failure
+
+			continue
+
+		if not effect_resolver.requires_combatant_target(
+			effect
+		):
+			continue
+
+		for target in (
+			targeting_result.affected_combatants
+		):
+			if (
+				target == null
+				or not target.is_alive
+			):
+				continue
+
+			var target_failure := (
+				effect_resolver
+					.get_runtime_validation_failure(
+						effect,
+						actor,
+						target
+					)
+			)
+
+			if target_failure != &"":
+				return target_failure
 
 	return &""
 
@@ -490,6 +589,21 @@ func _get_surface_placement_validation_failure(
 	return &""
 
 
+func _has_source_recipient_effect(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	for effect in ability.effects:
+		if (
+			effect != null
+			and effect.targets_source()
+		):
+			return true
+
+	return false
+	
 func _has_combatant_targeted_effect(
 	ability: AbilityDefinition
 ) -> bool:

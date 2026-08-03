@@ -197,6 +197,56 @@ func spend_stamina(amount: int) -> bool:
 
 	return true
 
+func can_pay_health_cost(
+	amount: int,
+	minimum_remaining_health: int = 1
+) -> bool:
+	if (
+		amount <= 0
+		or minimum_remaining_health <= 0
+		or not is_alive
+	):
+		return false
+
+	return (
+		current_health - amount
+		>= minimum_remaining_health
+	)
+
+
+func pay_health_cost(
+	amount: int,
+	minimum_remaining_health: int = 1
+) -> int:
+	if not can_pay_health_cost(
+		amount,
+		minimum_remaining_health
+	):
+		return 0
+
+	var previous_value := current_health
+
+	current_health -= amount
+
+	var paid_amount := (
+		previous_value - current_health
+	)
+
+	health_changed.emit(
+		previous_value,
+		current_health
+	)
+
+	if hero_core_runtime_state != null:
+		hero_core_runtime_state.on_health_changed(
+			previous_value,
+			current_health,
+			&"health_cost"
+		)
+
+	return paid_amount
+
+	
 ## Снимает столько Stamina, сколько реально доступно.
 ## В отличие от spend_stamina(), не требует полной суммы.
 func drain_stamina(amount: int) -> int:
@@ -341,7 +391,7 @@ func get_stamina_restoration_debt() -> int:
 		hero_core_runtime_state
 			.get_stamina_restoration_debt()
 	)
-	
+
 func grant_guard(amount: int) -> int:
 	if amount <= 0 or not is_alive:
 		return 0

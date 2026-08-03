@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://content/skill_grids/debug/debug_sechevik_skill_grid.tres" id="5_grid"]
 [ext_resource type="Resource" path="res://content/abilities/debug/debug_sabre_slash.tres" id="6_sabre"]
 [ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="7_mend"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="8_blood_payment"]
 
 [resource]
 script = ExtResource("1_hero")
@@ -16,8 +17,8 @@ description = "Временная версия Байды для проверк�
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")
-personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("7_mend")])
-starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash"])
+personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("7_mend")])
+starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment"])
 default_ability_id = &"ability_sabre_slash"
-starting_active_slot_count = 1
+starting_active_slot_count = 2
 maximum_active_slot_count = 6

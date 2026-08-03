@@ -54,6 +54,7 @@ var previous_stamina_restoration_debt: int = 0
 var current_stamina_restoration_debt: int = 0
 
 var stamina_restoration_debt_added_amount: int = 0
+var stamina_restoration_debt_paid_amount: int = 0
 
 var overkill_amount: int:
 	get:

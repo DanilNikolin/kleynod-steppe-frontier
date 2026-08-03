@@ -25,25 +25,16 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/combatants/combatant_definition.gd",
+    "core/heroes/core/hero_core_runtime_state.gd",
+    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
+    "core/heroes/core/bayda/bayda_core_module_definition.gd",
     "core/battle/combatants/combatant_state.gd",
-    "core/battle/session/battle_session.gd",
-    "core/battle/session/battle_session_factory.gd",
-    "core/battle/actions/battle_action_command.gd",
-    "core/battle/actions/battle_action_result.gd",
-    "core/battle/actions/battle_effect_result.gd",
-    "core/battle/actions/battle_action_service.gd",
-    "core/battle/effects/damage_effect.gd",
-    "core/battle/effects/heal_effect.gd",
-    "core/battle/effects/effect_resolver.gd",
-    "core/battle/simulation/battle_action_simulation_service.gd",
-    "core/battle/turns/battle_turn_controller.gd",
     "core/battle/statuses/battle_status_periodic_processor.gd",
-    "core/heroes/hero_definition.gd",
-    "core/heroes/builds/hero_battle_build.gd",
-    "core/heroes/builds/hero_battle_build_resolver.gd",
-    "core/battle/encounters/combatant_spawn_definition.gd",
-    "core/battle/reinforcements/battle_reinforcement_controller.gd",
+    "core/battle/statuses/battle_status_periodic_trigger_result.gd",
+    "core/battle/turns/battle_turn_controller.gd",
+    "core/battle/effects/effect_resolver.gd",
+    "core/battle/actions/battle_effect_result.gd",
+    "scenes/debug/bayda_core_debug_sandbox.gd",
 ]
 
 ALLOW_ADDONS = False

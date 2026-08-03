@@ -35,7 +35,25 @@ var was_critical: bool = false
 var raw_amount: int = 0
 var mitigated_amount: int = 0
 var resolved_amount: int = 0
+
+## Для damage это количество урона,
+## реально применённого к Health.
 var applied_amount: int = 0
+
+## Часть урона, перенаправленная Core
+## из Health в другую боевую экономику.
+var redirected_damage_amount: int = 0
+
+var damage_was_redirected_from_health: bool = false
+
+var previous_stamina: int = 0
+var current_stamina: int = 0
+var stamina_drained_amount: int = 0
+
+var previous_stamina_restoration_debt: int = 0
+var current_stamina_restoration_debt: int = 0
+
+var stamina_restoration_debt_added_amount: int = 0
 
 var overkill_amount: int:
 	get:
@@ -47,6 +65,7 @@ var overkill_amount: int:
 			resolved_amount
 			- guard_absorbed_amount
 			- applied_amount
+			- redirected_damage_amount
 		)
 
 var overheal_amount: int:

@@ -554,6 +554,14 @@ func _resolve_damage(
 		target.current_health
 	)
 
+	result.previous_stamina = (
+		target.current_stamina
+	)
+
+	result.previous_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
 	result.applied_amount = (
 		target.apply_resolved_damage(
 			result.resolved_amount,
@@ -561,6 +569,41 @@ func _resolve_damage(
 			damage_kind
 		)
 	)
+
+	result.current_stamina = (
+		target.current_stamina
+	)
+
+	result.current_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
+	result.stamina_drained_amount = maxi(
+		0,
+		result.previous_stamina
+		- result.current_stamina
+	)
+
+	result.stamina_restoration_debt_added_amount = maxi(
+		0,
+		result.current_stamina_restoration_debt
+		- result.previous_stamina_restoration_debt
+	)
+
+	if (
+		damage_kind == BattleDamageKind.PERIODIC
+		and result.applied_amount == 0
+	):
+		result.redirected_damage_amount = mini(
+			result.resolved_amount,
+			result.stamina_drained_amount
+			+ result
+				.stamina_restoration_debt_added_amount
+		)
+
+		result.damage_was_redirected_from_health = (
+			result.redirected_damage_amount > 0
+		)
 
 	result.current_guard = (
 		target.current_guard

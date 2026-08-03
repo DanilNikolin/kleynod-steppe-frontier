@@ -35,6 +35,24 @@ func modify_health_damage(
 	)
 
 
+## Позволяет Core изменить любое восстановление Stamina.
+## Например, сначала погасить долг истощения.
+func modify_stamina_restoration(
+	amount: int,
+	_reason: StringName
+) -> int:
+	return maxi(
+		0,
+		amount
+	)
+
+
+## Общий диагностический интерфейс.
+## У большинства героев всегда возвращает 0.
+func get_stamina_restoration_debt() -> int:
+	return 0
+
+
 func on_health_changed(
 	_previous_health: int,
 	_current_health: int,

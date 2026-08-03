@@ -197,19 +197,65 @@ func spend_stamina(amount: int) -> bool:
 
 	return true
 
-
-func restore_stamina(amount: int) -> int:
+## Снимает столько Stamina, сколько реально доступно.
+## В отличие от spend_stamina(), не требует полной суммы.
+func drain_stamina(amount: int) -> int:
 	if amount <= 0:
+		return 0
+
+	var previous_value := current_stamina
+
+	var drained_amount := mini(
+		amount,
+		current_stamina
+	)
+
+	current_stamina -= drained_amount
+
+	if drained_amount > 0:
+		stamina_changed.emit(
+			previous_value,
+			current_stamina
+		)
+
+	return drained_amount
+
+func restore_stamina(
+	amount: int,
+	reason: StringName = &"generic"
+) -> int:
+	if amount <= 0:
+		return 0
+
+	var resolved_amount := amount
+
+	if hero_core_runtime_state != null:
+		resolved_amount = (
+			hero_core_runtime_state
+				.modify_stamina_restoration(
+					amount,
+					reason
+				)
+		)
+
+	resolved_amount = maxi(
+		0,
+		resolved_amount
+	)
+
+	if resolved_amount <= 0:
 		return 0
 
 	var previous_value := current_stamina
 
 	current_stamina = mini(
 		max_stamina,
-		current_stamina + amount
+		current_stamina + resolved_amount
 	)
 
-	var restored_amount := current_stamina - previous_value
+	var restored_amount := (
+		current_stamina - previous_value
+	)
 
 	if restored_amount > 0:
 		stamina_changed.emit(
@@ -222,7 +268,8 @@ func restore_stamina(amount: int) -> int:
 
 func restore_round_stamina() -> int:
 	return restore_stamina(
-		stamina_regeneration
+		stamina_regeneration,
+		&"round_regeneration"
 	)
 
 
@@ -285,6 +332,16 @@ func get_hero_core_debug_summary() -> String:
 	return hero_core_runtime_state.get_debug_summary()
 
 
+func get_stamina_restoration_debt() -> int:
+	if hero_core_runtime_state == null:
+		return 0
+
+	return maxi(
+		0,
+		hero_core_runtime_state
+			.get_stamina_restoration_debt()
+	)
+	
 func grant_guard(amount: int) -> int:
 	if amount <= 0 or not is_alive:
 		return 0

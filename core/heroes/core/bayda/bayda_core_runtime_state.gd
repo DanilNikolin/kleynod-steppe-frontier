@@ -7,6 +7,11 @@ var base_max_stamina: int = 1
 var unbroken_available: bool = true
 var is_fractured: bool = false
 
+## Неоплаченная часть периодического урона.
+## Следующее восстановление Stamina сначала
+## погашает этот долг.
+var exhaustion_debt: int = 0
+
 var _incoming_action_depth: int = 0
 var _survived_current_action: bool = false
 
@@ -68,9 +73,32 @@ func modify_health_damage(
 			amount
 		)
 
-	## Периодический урон пока проходит обычным путём.
-	## В следующем срезе на 1 HP он будет высушивать
-	## Stamina и создавать долг истощения.
+	## Пока Байда выше 1 HP, периодический урон
+	## работает как обычный урон по здоровью.
+	if damage_kind == BattleDamageKind.PERIODIC:
+		if combatant.current_health > 1:
+			return amount
+
+		## На 1 HP периодический урон больше
+		## не затрагивает здоровье.
+		var drained_stamina := (
+			combatant.drain_stamina(
+				amount
+			)
+		)
+
+		var unpaid_amount := maxi(
+			0,
+			amount - drained_stamina
+		)
+
+		if unpaid_amount > 0:
+			exhaustion_debt += unpaid_amount
+
+		state_changed.emit()
+
+		return 0
+
 	if damage_kind != BattleDamageKind.DIRECT:
 		return amount
 
@@ -122,6 +150,39 @@ func modify_health_damage(
 	)
 
 
+func modify_stamina_restoration(
+	amount: int,
+	_reason: StringName
+) -> int:
+	if amount <= 0:
+		return 0
+
+	if exhaustion_debt <= 0:
+		return amount
+
+	var paid_debt := mini(
+		amount,
+		exhaustion_debt
+	)
+
+	exhaustion_debt -= paid_debt
+
+	if paid_debt > 0:
+		state_changed.emit()
+
+	return maxi(
+		0,
+		amount - paid_debt
+	)
+
+
+func get_stamina_restoration_debt() -> int:
+	return maxi(
+		0,
+		exhaustion_debt
+	)
+
+
 func on_health_changed(
 	previous_health: int,
 	current_health: int,
@@ -166,8 +227,9 @@ func on_health_changed(
 		restored_stamina = (
 			combatant.restore_stamina(
 				crossed_threshold_count
-				* bayda_definition
-					.stamina_per_crossed_threshold
+					* bayda_definition
+						.stamina_per_crossed_threshold,
+				&"bayda_health_threshold"
 			)
 		)
 
@@ -205,6 +267,8 @@ func get_debug_summary() -> String:
 		% unbroken_text
 		+"Надлом: %s | "
 		% fracture_text
+		+"Долг истощения: %d | "
+		% exhaustion_debt
 		+"HP-порог: %d | "
 		% bayda_definition.get_health_tier(
 			combatant.current_health
@@ -230,6 +294,10 @@ func create_runtime_copy(
 
 	result.is_fractured = (
 		is_fractured
+	)
+
+	result.exhaustion_debt = (
+		exhaustion_debt
 	)
 
 	result._incoming_action_depth = (

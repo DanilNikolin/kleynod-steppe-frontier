@@ -216,6 +216,33 @@ func _rebuild_interface() -> void:
 
 	_add_button(
 		button_row,
+		"Периодический урон 5",
+		Callable(
+			self,
+			"_apply_periodic_damage"
+		).bind(5)
+	)
+
+	_add_button(
+		button_row,
+		"Периодический урон 12",
+		Callable(
+			self,
+			"_apply_periodic_damage"
+		).bind(12)
+	)
+
+	_add_button(
+		button_row,
+		"Восстановить Stamina 4",
+		Callable(
+			self,
+			"_restore_debug_stamina"
+		).bind(4)
+	)
+
+	_add_button(
+		button_row,
 		"Лечение 3",
 		Callable(
 			self,
@@ -323,6 +350,114 @@ func _apply_multi_hit() -> void:
 		% [
 			first_applied,
 			second_applied,
+		]
+	)
+
+	_rebuild_interface()
+
+
+func _apply_periodic_damage(
+	amount: int
+) -> void:
+	if bayda == null or not bayda.is_alive:
+		_last_event = (
+			"Байда уже погиб."
+		)
+
+		_rebuild_interface()
+		return
+
+	var previous_health := (
+		bayda.current_health
+	)
+
+	var previous_stamina := (
+		bayda.current_stamina
+	)
+
+	var previous_debt := (
+		bayda.get_stamina_restoration_debt()
+	)
+
+	var applied_health_damage := (
+		bayda.apply_resolved_damage(
+			amount,
+			true,
+			BattleDamageKind.PERIODIC
+		)
+	)
+
+	var drained_stamina := maxi(
+		0,
+		previous_stamina
+		- bayda.current_stamina
+	)
+
+	var added_debt := maxi(
+		0,
+		bayda.get_stamina_restoration_debt()
+		- previous_debt
+	)
+
+	_last_event = (
+		"Периодический урон: запрошено %d. "
+		% amount
+		+"HP %d → %d, применено к HP %d. "
+		% [
+			previous_health,
+			bayda.current_health,
+			applied_health_damage,
+		]
+		+"Снято Stamina %d, добавлено долга %d."
+		% [
+			drained_stamina,
+			added_debt,
+		]
+	)
+
+	_rebuild_interface()
+
+
+func _restore_debug_stamina(
+	amount: int
+) -> void:
+	if bayda == null or not bayda.is_alive:
+		_last_event = (
+			"Байда недоступен."
+		)
+
+		_rebuild_interface()
+		return
+
+	var previous_stamina := (
+		bayda.current_stamina
+	)
+
+	var previous_debt := (
+		bayda.get_stamina_restoration_debt()
+	)
+
+	var restored_amount := bayda.restore_stamina(
+		amount,
+		&"debug_restore"
+	)
+
+	var paid_debt := maxi(
+		0,
+		previous_debt
+		- bayda.get_stamina_restoration_debt()
+	)
+
+	_last_event = (
+		"Восстановление: запрошено %d. "
+		% amount
+		+"Погашено долга %d. "
+		% paid_debt
+		+"Stamina %d → %d, реально восстановлено %d."
+		% [
+			previous_stamina,
+			bayda.current_stamina,
+			restored_amount,
 		]
 	)
 

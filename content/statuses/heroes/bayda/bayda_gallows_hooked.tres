@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" path="res://core/battle/restrictions/battle_action_restriction.gd" id="2_restriction"]
+
+[sub_resource type="Resource" id="Resource_gallows_hook_restriction"]
+script = ExtResource("2_restriction")
+block_movement = true
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"status_bayda_gallows_hooked"
+display_name = "На крюке"
+description = "Цель не может двигаться до конца своего следующего хода."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"control", &"movement_control", &"immobilized", &"hook"])
+duration_turns = 1
+action_restriction = SubResource("Resource_gallows_hook_restriction")

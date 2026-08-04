@@ -25,11 +25,20 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/battle/previews/battle_action_preview_service.gd",
-    "core/battle/previews/battle_action_preview_result.gd",
-    "core/battle/previews/battle_preview_combatant_state.gd",
-    "core/battle/previews/battle_target_preview.gd",
-    "presentation/battle/previews/battle_action_preview_presenter.gd",
+    "core/battle/statuses/battle_status_definition.gd",
+    "core/battle/statuses/battle_status_instance.gd",
+    "core/battle/turns/battle_turn_controller.gd",
+    "core/battle/effects/apply_status_effect.gd",
+    "core/battle/effects/damage_effect.gd",
+    "core/battle/effects/effect_resolver.gd",
+    "core/battle/movement/battle_movement_service.gd",
+    "core/battle/restrictions/battle_action_restriction.gd",
+    "core/battle/targeting/ability_targeting_definition.gd",
+    "content/statuses/debug/debug_immobilized.tres",
+    "content/abilities/debug/debug_hamstring.tres",
+    "content/abilities/debug/debug_stunning_blow.tres",
+    "content/heroes/bayda/bayda_hero.tres",
+    "content/heroes/bayda/debug_bayda_core_hero.tres",
 ]
 
 ALLOW_ADDONS = False

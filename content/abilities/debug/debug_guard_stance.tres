@@ -22,5 +22,6 @@ ability_id = &"ability_guard_stance"
 display_name = "Оборонительная стойка"
 description = "Даёт 8 единиц обороны. Оборона сохраняется, пока её не поглотит прямой урон."
 stamina_cost = 2
+cooldown_turns = 1
 targeting = SubResource("Resource_guard_stance_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_stance_effect")])

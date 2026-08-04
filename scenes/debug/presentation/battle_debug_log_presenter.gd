@@ -743,10 +743,27 @@ func _append_hero_core_result(
 			"; ".join(parts),
 		]
 	)
-	
+
 func _append_damage_result(
 	effect_result: BattleEffectResult
 ) -> void:
+	var source: CombatantState = (
+		session.get_combatant(
+			effect_result.source_id
+		)
+	)
+
+	var source_name: String = String(
+		effect_result.source_id
+	)
+
+	if (
+		source != null
+		and source.definition != null
+	):
+		source_name = (
+			source.definition.display_name
+		)
 	var target := session.get_combatant(
 		effect_result.target_id
 	)
@@ -847,11 +864,11 @@ func _append_damage_result(
 		)
 
 	var message := (
-		"%s: сырой урон до крита — %d; "
+		"%s → %s: сырой урон до крита — %d; "
 		% [
+			source_name,
 			target_name,
-			effect_result
-				.raw_amount_before_critical,
+			effect_result.raw_amount_before_critical,
 		]
 		+"%s; "
 		% critical_text
@@ -874,7 +891,10 @@ func _append_damage_result(
 	)
 
 	if effect_result.target_died:
-		message += " Цель погибает."
+		message += (
+			" %s погибает."
+			% target_name
+		)
 
 	push_battle_log(
 		message
@@ -1568,6 +1588,9 @@ func _on_combatant_status_removed(
 	if _status_signal_logging_suspended:
 		return
 
+	if reason == &"owner_defeated":
+		return
+		
 	var removed_armor_modifier := (
 		get_status_stat_modifier_amount(
 			status,

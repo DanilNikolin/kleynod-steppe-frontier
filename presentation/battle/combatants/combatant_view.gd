@@ -75,6 +75,11 @@ var status_strip: BattleStatusStrip = (
 )
 
 @onready
+var hero_core_indicator_label: Label = (
+	$HeroCoreAnchor/HeroCoreIndicatorLabel
+)
+
+@onready
 var action_preview_badge: BattleActionPreviewBadge = (
 	$IntentAnchor/BattleActionPreviewBadge
 )
@@ -207,6 +212,14 @@ func _connect_state_signals() -> void:
 	)
 
 	state.connect(
+		&"max_stamina_changed",
+		Callable(
+			self,
+			"_on_max_stamina_changed"
+		)
+	)
+
+	state.connect(
 		&"morale_changed",
 		Callable(self, "_on_morale_changed")
 	)
@@ -216,6 +229,7 @@ func _connect_state_signals() -> void:
 		Callable(self, "_on_died")
 	)
 
+	_connect_hero_core_signal()
 
 func _disconnect_state_signals() -> void:
 	if state == null:
@@ -235,6 +249,13 @@ func _disconnect_state_signals() -> void:
 			Callable(self, "_on_stamina_changed")
 		],
 		[
+			&"max_stamina_changed",
+			Callable(
+				self,
+				"_on_max_stamina_changed"
+			)
+		],
+		[
 			&"morale_changed",
 			Callable(self, "_on_morale_changed")
 		],
@@ -250,7 +271,60 @@ func _disconnect_state_signals() -> void:
 
 		if state.is_connected(signal_name, callback):
 			state.disconnect(signal_name, callback)
+	_disconnect_hero_core_signal()
 
+func _connect_hero_core_signal() -> void:
+	if (
+		state == null
+		or state.hero_core_runtime_state == null
+	):
+		return
+
+	var core: HeroCoreRuntimeState = (
+		state.hero_core_runtime_state
+	)
+
+	var callback := Callable(
+		self,
+		"_on_hero_core_state_changed"
+	)
+
+	if core.is_connected(
+		&"state_changed",
+		callback
+	):
+		return
+
+	core.connect(
+		&"state_changed",
+		callback
+	)
+
+
+func _disconnect_hero_core_signal() -> void:
+	if (
+		state == null
+		or state.hero_core_runtime_state == null
+	):
+		return
+
+	var core: HeroCoreRuntimeState = (
+		state.hero_core_runtime_state
+	)
+
+	var callback := Callable(
+		self,
+		"_on_hero_core_state_changed"
+	)
+
+	if core.is_connected(
+		&"state_changed",
+		callback
+	):
+		core.disconnect(
+			&"state_changed",
+			callback
+		)
 
 func _rebuild_visual() -> void:
 	if visual != null:
@@ -298,6 +372,8 @@ func refresh_from_state() -> void:
 
 	if state == null:
 		name_label.text = "No Combatant"
+		hero_core_indicator_label.text = ""
+		hero_core_indicator_label.visible = false
 
 		health_bar.max_value = 1
 		health_bar.value = 0
@@ -338,7 +414,37 @@ func refresh_from_state() -> void:
 		state.current_stamina,
 		state.max_stamina,
 	]
+	_refresh_hero_core_indicator()
 
+func _refresh_hero_core_indicator() -> void:
+	if (
+		state == null
+		or state.hero_core_runtime_state == null
+	):
+		hero_core_indicator_label.text = ""
+		hero_core_indicator_label.visible = false
+		return
+
+	var core: HeroCoreRuntimeState = (
+		state.hero_core_runtime_state
+	)
+
+	var indicator_text := (
+		core.get_battle_indicator_text()
+	)
+
+	hero_core_indicator_label.text = (
+		indicator_text
+	)
+
+	hero_core_indicator_label.visible = (
+		not indicator_text.is_empty()
+	)
+
+	hero_core_indicator_label.add_theme_color_override(
+		"font_color",
+		core.get_battle_indicator_color()
+	)
 
 func show_action_preview(
 	text: String
@@ -514,6 +620,16 @@ func _on_stamina_changed(
 	refresh_from_state()
 
 
+func _on_max_stamina_changed(
+	_previous_value: int,
+	_current_value: int
+) -> void:
+	refresh_from_state()
+
+
+func _on_hero_core_state_changed() -> void:
+	refresh_from_state()
+	
 func _on_morale_changed(
 	_previous_value: int,
 	_current_value: int

@@ -434,6 +434,125 @@ func resolve_effect(
 
 	return result
 
+func get_battle_indicator_text() -> String:
+	var parts := PackedStringArray()
+
+	if unbroken_available:
+		parts.append(
+			"НЕСЛОМЛЕН ✓"
+		)
+
+	else:
+		parts.append(
+			"НЕСЛОМЛЕН ✕"
+		)
+
+	if is_fractured:
+		parts.append(
+			"НАДЛОМ"
+		)
+
+	if exhaustion_debt > 0:
+		parts.append(
+			"ДОЛГ %d"
+			% exhaustion_debt
+		)
+
+	if grit_teeth_max_stamina_penalty > 0:
+		parts.append(
+			"MAX ST −%d"
+			% grit_teeth_max_stamina_penalty
+		)
+
+	return "  |  ".join(
+		parts
+	)
+
+
+func get_battle_indicator_color() -> Color:
+	if is_fractured:
+		return Color(
+			1.0,
+			0.32,
+			0.25,
+			1.0
+		)
+
+	if exhaustion_debt > 0:
+		return Color(
+			1.0,
+			0.68,
+			0.2,
+			1.0
+		)
+
+	if not unbroken_available:
+		return Color(
+			0.78,
+			0.78,
+			0.78,
+			1.0
+		)
+
+	return Color(
+		0.55,
+		1.0,
+		0.55,
+		1.0
+	)
+
+
+func get_hover_details_text() -> String:
+	var combatant := _get_owner()
+	var bayda_definition = definition
+
+	if (
+		combatant == null
+		or bayda_definition == null
+	):
+		return ""
+
+	var unbroken_text := (
+		"ГОТОВА"
+		if unbroken_available
+		else "ПОТРАЧЕНА"
+	)
+
+	var fracture_text := (
+		"ЕСТЬ"
+		if is_fractured
+		else "НЕТ"
+	)
+
+	var threshold_bonus: int = (
+		bayda_definition
+			.get_max_stamina_bonus_for_health(
+				combatant.current_health
+			)
+	)
+
+	return (
+		"Hero Core — Байда:\n"
+		+"• Несломленность: %s\n"
+		% unbroken_text
+		+"• Надлом: %s\n"
+		% fracture_text
+		+"• Долг истощения: %d\n"
+		% exhaustion_debt
+		+"• HP-порог: %d\n"
+		% bayda_definition.get_health_tier(
+			combatant.current_health
+		)
+		+"• Max Stamina: %d\n"
+		% combatant.max_stamina
+		+"  База %d, порог +%d, штраф −%d"
+		% [
+			base_max_stamina,
+			threshold_bonus,
+			grit_teeth_max_stamina_penalty,
+		]
+	)
+	
 func get_debug_summary() -> String:
 	var combatant := _get_owner()
 	var bayda_definition = definition

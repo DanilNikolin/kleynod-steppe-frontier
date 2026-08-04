@@ -15,6 +15,7 @@ base_agility = 2
 max_health = 12
 base_armor = 2
 max_stamina = 8
+start_stamina = 6
 stamina_regeneration = 3
 base_initiative = 4
 visual_scene = ExtResource("2_visual")

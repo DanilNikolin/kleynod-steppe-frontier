@@ -25,26 +25,18 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "core/heroes/core/hero_core_runtime_state.gd",
-    "core/heroes/core/hero_core_module_definition.gd",
-    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
-    "core/heroes/core/bayda/bayda_core_module_definition.gd",
+    "presentation/battle/combatants/combatant_view.gd",
+    "presentation/battle/combatants/combatant_view.tscn",
+    "presentation/battle/combatants/battle_combatant_presenter.gd",
+    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
+    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
+    "presentation/battle/combatants/statuses/battle_status_strip.gd",
+    "presentation/battle/combatants/statuses/battle_status_strip.tscn",
+    "presentation/battle/combatants/statuses/battle_status_chip.gd",
+    "presentation/battle/combatants/statuses/battle_status_chip.tscn",
     "core/battle/combatants/combatant_state.gd",
-    "core/battle/effects/battle_effect.gd",
-    "core/battle/effects/effect_resolver.gd",
-    "core/battle/actions/battle_effect_result.gd",
-    "core/battle/actions/battle_action_service.gd",
-    "core/battle/previews/battle_action_preview_service.gd",
-    "core/battle/previews/battle_preview_combatant_state.gd",
-    "presentation/battle/abilities/battle_ability_presentation_builder.gd",
-    "presentation/battle/previews/battle_action_preview_formatter.gd",
-    "scenes/debug/presentation/battle_debug_log_presenter.gd",
-    "core/battle/ai/utility/battle_ai_plan_evaluator.gd",
-    "core/battle/targeting/ability_targeting_definition.gd",
-    "content/abilities/debug/debug_battle_focus.tres",
-    "content/abilities/debug/debug_guard_stance.tres",
-    "content/heroes/bayda/bayda_hero.tres",
-    "content/heroes/bayda/debug_bayda_core_hero.tres",
+    "core/heroes/core/hero_core_runtime_state.gd",
+    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
 ]
 
 ALLOW_ADDONS = False

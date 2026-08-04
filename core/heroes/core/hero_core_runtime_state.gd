@@ -123,6 +123,22 @@ func resolve_effect(
 	return result
 
 
+## Короткая строка над фигуркой.
+## Пустой текст означает, что постоянный
+## боевой индикатор Core не нужен.
+func get_battle_indicator_text() -> String:
+	return ""
+
+
+## Цвет короткого индикатора.
+func get_battle_indicator_color() -> Color:
+	return Color.WHITE
+
+
+## Подробное состояние Core для hover-панели.
+func get_hover_details_text() -> String:
+	return get_debug_summary()
+	
 func get_debug_summary() -> String:
 	if definition == null:
 		return "Hero Core отсутствует."

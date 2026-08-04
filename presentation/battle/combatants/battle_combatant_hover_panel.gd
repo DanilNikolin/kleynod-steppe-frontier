@@ -18,6 +18,16 @@ var resources_label: Label = (
 )
 
 @onready
+var hero_core_label: Label = (
+	$ContentMargin/VBoxContainer/HeroCoreLabel
+)
+
+@onready
+var hero_core_separator: HSeparator = (
+	$ContentMargin/VBoxContainer/HeroCoreSeparator
+)
+
+@onready
 var armor_label: Label = (
 	$ContentMargin/VBoxContainer/ArmorLabel
 )
@@ -74,6 +84,9 @@ func clear_combatant() -> void:
 	name_label.text = ""
 	relation_label.text = ""
 	resources_label.text = ""
+	hero_core_label.text = ""
+	hero_core_label.visible = false
+	hero_core_separator.visible = false
 	armor_label.text = ""
 	attributes_label.text = ""
 	statuses_label.text = ""
@@ -126,7 +139,21 @@ func refresh() -> void:
 			_combatant.max_morale,
 		]
 	)
+	var hero_core_text := (
+		_build_hero_core_text()
+	)
 
+	hero_core_label.text = (
+		hero_core_text
+	)
+
+	hero_core_label.visible = (
+		not hero_core_text.is_empty()
+	)
+
+	hero_core_separator.visible = (
+		hero_core_label.visible
+	)
 	var effective_armor := (
 		_combatant.get_effective_armor()
 	)
@@ -201,6 +228,19 @@ func refresh() -> void:
 		)
 
 	statuses_label.text = statuses_text
+
+func _build_hero_core_text() -> String:
+	if (
+		_combatant == null
+		or _combatant.hero_core_runtime_state == null
+	):
+		return ""
+
+	return (
+		_combatant
+			.hero_core_runtime_state
+			.get_hover_details_text()
+	)
 
 func _build_immunities_text() -> String:
 	if (
@@ -348,6 +388,14 @@ func _connect_combatant_signals() -> void:
 	)
 
 	_connect_signal_if_needed(
+		&"max_stamina_changed",
+		Callable(
+			self,
+			"_on_resource_changed"
+		)
+	)
+
+	_connect_signal_if_needed(
 		&"morale_changed",
 		Callable(
 			self,
@@ -387,6 +435,7 @@ func _connect_combatant_signals() -> void:
 		)
 	)
 
+	_connect_hero_core_signal()
 
 func _disconnect_combatant_signals() -> void:
 	if _combatant == null:
@@ -409,6 +458,13 @@ func _disconnect_combatant_signals() -> void:
 		],
 		[
 			&"stamina_changed",
+			Callable(
+				self,
+				"_on_resource_changed"
+			),
+		],
+		[
+			&"max_stamina_changed",
 			Callable(
 				self,
 				"_on_resource_changed"
@@ -469,6 +525,62 @@ func _disconnect_combatant_signals() -> void:
 				callback
 			)
 
+	_disconnect_hero_core_signal()
+
+
+func _connect_hero_core_signal() -> void:
+	if (
+		_combatant == null
+		or _combatant.hero_core_runtime_state == null
+	):
+		return
+
+	var core: HeroCoreRuntimeState = (
+		_combatant.hero_core_runtime_state
+	)
+
+	var callback := Callable(
+		self,
+		"_on_hero_core_state_changed"
+	)
+
+	if core.is_connected(
+		&"state_changed",
+		callback
+	):
+		return
+
+	core.connect(
+		&"state_changed",
+		callback
+	)
+
+
+func _disconnect_hero_core_signal() -> void:
+	if (
+		_combatant == null
+		or _combatant.hero_core_runtime_state == null
+	):
+		return
+
+	var core: HeroCoreRuntimeState = (
+		_combatant.hero_core_runtime_state
+	)
+
+	var callback := Callable(
+		self,
+		"_on_hero_core_state_changed"
+	)
+
+	if core.is_connected(
+		&"state_changed",
+		callback
+	):
+		core.disconnect(
+			&"state_changed",
+			callback
+		)
+
 
 func _connect_signal_if_needed(
 	signal_name: StringName,
@@ -486,6 +598,9 @@ func _connect_signal_if_needed(
 	)
 
 
+func _on_hero_core_state_changed() -> void:
+	refresh()
+	
 func _on_resource_changed(
 	_previous_value: int,
 	_current_value: int
@@ -516,6 +631,7 @@ func _on_status_removed(
 
 func _on_died() -> void:
 	refresh()
+
 
 
 func _build_stat_line(

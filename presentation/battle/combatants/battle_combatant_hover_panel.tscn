@@ -10,7 +10,7 @@ anchor_right = 1.0
 offset_left = -404.0
 offset_top = 24.0
 offset_right = -24.0
-offset_bottom = 354.0
+offset_bottom = 440.0
 grow_horizontal = 0
 mouse_filter = 2
 script = ExtResource("1_hover")
@@ -43,6 +43,17 @@ layout_mode = 2
 text = "Здоровье
 Выносливость
 Мораль"
+
+[node name="HeroCoreLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+text = "Hero Core"
+autowrap_mode = 2
+
+[node name="HeroCoreSeparator" type="HSeparator" parent="ContentMargin/VBoxContainer"]
+visible = false
+layout_mode = 2
 
 [node name="ArmorLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=1120237684]
 layout_mode = 2

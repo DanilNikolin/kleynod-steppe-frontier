@@ -5,6 +5,19 @@ extends RefCounted
 signal state_changed
 
 
+const FAILURE_INVALID_CORE_EFFECT: StringName = (
+	&"invalid_core_effect"
+)
+
+const FAILURE_UNSUPPORTED_CORE_EFFECT: StringName = (
+	&"unsupported_core_effect"
+)
+
+const FAILURE_INVALID_CORE_OWNER: StringName = (
+	&"invalid_core_owner"
+)
+
+
 var definition
 var owner
 
@@ -59,6 +72,55 @@ func on_health_changed(
 	_reason: StringName
 ) -> void:
 	pass
+
+
+## Поддерживает ли конкретный Hero Core этот эффект.
+func can_resolve_effect(
+	_effect
+) -> bool:
+	return false
+
+
+func get_effect_validation_failure(
+	effect
+) -> StringName:
+	if effect == null:
+		return FAILURE_INVALID_CORE_EFFECT
+
+	if owner == null:
+		return FAILURE_INVALID_CORE_OWNER
+
+	if not can_resolve_effect(
+		effect
+	):
+		return FAILURE_UNSUPPORTED_CORE_EFFECT
+
+	return &""
+
+
+## Базовый метод создаёт стандартный результат.
+## Конкретный Hero Core заполняет его и меняет состояние.
+func resolve_effect(
+	effect,
+	source_id: StringName,
+	target_id: StringName
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_kind = &"hero_core"
+	result.source_id = source_id
+	result.target_id = target_id
+
+	if effect != null:
+		result.effect_id = effect.effect_id
+
+	result.failure_code = (
+		get_effect_validation_failure(
+			effect
+		)
+	)
+
+	return result
 
 
 func get_debug_summary() -> String:

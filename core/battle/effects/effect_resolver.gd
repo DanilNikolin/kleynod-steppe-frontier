@@ -12,6 +12,10 @@ const FAILURE_INVALID_TARGET: StringName = &"invalid_target"
 const FAILURE_HEALTH_COST_CANNOT_BE_PAID: StringName = (
 	&"health_cost_cannot_be_paid"
 )
+const FAILURE_MISSING_HERO_CORE: StringName = (
+	&"missing_hero_core"
+)
+
 const FAILURE_UNSUPPORTED_EFFECT: StringName = &"unsupported_effect"
 const FAILURE_SURFACE_PLACEMENT_FAILED: StringName = (
 	&"surface_placement_failed"
@@ -59,7 +63,8 @@ func can_resolve(
 	effect: BattleEffect
 ) -> bool:
 	return (
-		effect is DamageEffect
+		effect is HeroCoreEffect
+		or effect is DamageEffect
 		or effect is HealEffect
 		or effect is GrantGuardEffect
 		or effect is HealthCostEffect
@@ -121,6 +126,17 @@ func get_runtime_validation_failure(
 
 	if recipient == null:
 		return FAILURE_INVALID_TARGET
+	if effect is HeroCoreEffect:
+		if recipient.hero_core_runtime_state == null:
+			return FAILURE_MISSING_HERO_CORE
+
+		return (
+			recipient
+				.hero_core_runtime_state
+				.get_effect_validation_failure(
+					effect
+				)
+		)
 
 	if effect is HealthCostEffect:
 		var health_cost_effect := (
@@ -219,7 +235,28 @@ func resolve(
 			resolved_target,
 			session
 		)
+	if effect is HeroCoreEffect:
+		if (
+			resolved_target
+				.hero_core_runtime_state
+			== null
+		):
+			return _create_failure_result(
+				FAILURE_MISSING_HERO_CORE,
+				effect,
+				source,
+				resolved_target
+			)
 
+		return (
+			resolved_target
+				.hero_core_runtime_state
+				.resolve_effect(
+					effect,
+					source.instance_id,
+					resolved_target.instance_id
+				)
+		)
 	if effect is HealthCostEffect:
 		return _resolve_health_cost(
 			effect as HealthCostEffect,
@@ -386,7 +423,7 @@ func _resolve_restore_stamina(
 
 	result.is_successful = true
 	return result
-	
+
 func _resolve_swap_positions(
 	effect: SwapPositionsEffect,
 	source: CombatantState,

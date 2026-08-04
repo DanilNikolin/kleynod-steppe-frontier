@@ -351,6 +351,11 @@ func append_action_results(
 					effect_result
 				)
 
+			&"hero_core":
+				_append_hero_core_result(
+					effect_result
+				)
+
 			&"grant_guard":
 				_append_guard_result(
 					effect_result
@@ -670,6 +675,75 @@ func _append_restore_stamina_result(
 	)
 
 
+func _append_hero_core_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var parts := PackedStringArray()
+
+	if effect_result.unbroken_was_restored:
+		parts.append(
+			"Несломленность восстановлена"
+		)
+
+	if effect_result.fracture_was_removed:
+		parts.append(
+			"Надлом снят"
+		)
+
+	parts.append(
+		"Max Stamina: %d → %d "
+		% [
+			effect_result.previous_max_stamina,
+			effect_result.current_max_stamina,
+		]
+		+"(постоянный штраф +%d)"
+		% effect_result
+			.max_stamina_penalty_applied_amount
+	)
+
+	parts.append(
+		"выносливость: %d → %d"
+		% [
+			effect_result.previous_stamina,
+			effect_result.current_stamina,
+		]
+	)
+
+	if (
+		effect_result
+			.stamina_restoration_debt_paid_amount
+		> 0
+	):
+		parts.append(
+			"погашено долга: %d"
+			% effect_result
+				.stamina_restoration_debt_paid_amount
+		)
+
+	push_battle_log(
+		"%s: %s."
+		% [
+			target_name,
+			"; ".join(parts),
+		]
+	)
+	
 func _append_damage_result(
 	effect_result: BattleEffectResult
 ) -> void:

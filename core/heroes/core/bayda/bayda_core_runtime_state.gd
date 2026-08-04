@@ -12,6 +12,13 @@ var is_fractured: bool = false
 ## погашает этот долг.
 var exhaustion_debt: int = 0
 
+## Постоянное до конца текущего боя уменьшение
+## Max Stamina от «Стиснуть зубы».
+var grit_teeth_max_stamina_penalty: int = 0
+
+## Нижняя граница после всех штрафов.
+var minimum_effective_max_stamina: int = 1
+
 var _incoming_action_depth: int = 0
 var _survived_current_action: bool = false
 
@@ -248,6 +255,185 @@ func on_health_changed(
 		state_changed.emit()
 
 
+func can_resolve_effect(
+	effect
+) -> bool:
+	return effect is BaydaGritTeethEffect
+
+
+func get_effect_validation_failure(
+	effect
+) -> StringName:
+	var failure_code: StringName = (
+		super.get_effect_validation_failure(
+			effect
+		)
+	)
+
+	if failure_code != &"":
+		return failure_code
+
+	var combatant := _get_owner()
+
+	if (
+		combatant == null
+		or not combatant.is_alive
+	):
+		return FAILURE_INVALID_CORE_OWNER
+
+	return &""
+
+
+func resolve_effect(
+	effect,
+	source_id: StringName,
+	target_id: StringName
+) -> BattleEffectResult:
+	var result := super.resolve_effect(
+		effect,
+		source_id,
+		target_id
+	)
+
+	if result.failure_code != &"":
+		return result
+
+	var grit_effect: BaydaGritTeethEffect = (
+		effect as BaydaGritTeethEffect
+	)
+
+	if grit_effect == null:
+		result.failure_code = (
+			FAILURE_UNSUPPORTED_CORE_EFFECT
+		)
+
+		return result
+
+	var combatant := _get_owner()
+
+	if combatant == null:
+		result.failure_code = (
+			FAILURE_INVALID_CORE_OWNER
+		)
+
+		return result
+
+	result.core_effect_kind = (
+		BaydaGritTeethEffect
+			.CORE_EFFECT_KIND
+	)
+
+	result.raw_amount = (
+		grit_effect.stamina_restoration
+	)
+
+	result.resolved_amount = (
+		grit_effect.stamina_restoration
+	)
+
+	result.previous_max_stamina = (
+		combatant.max_stamina
+	)
+
+	result.previous_stamina = (
+		combatant.current_stamina
+	)
+
+	result.previous_value = (
+		combatant.current_stamina
+	)
+
+	result.previous_stamina_restoration_debt = (
+		get_stamina_restoration_debt()
+	)
+
+	result.previous_unbroken_available = (
+		unbroken_available
+	)
+
+	result.previous_fractured = (
+		is_fractured
+	)
+
+	## Сначала возвращаем защитный механизм.
+	unbroken_available = true
+	is_fractured = false
+
+	## Затем навсегда ухудшаем потолок
+	## текущего боя.
+	grit_teeth_max_stamina_penalty += (
+		grit_effect
+			.max_stamina_reduction
+	)
+
+	minimum_effective_max_stamina = maxi(
+		minimum_effective_max_stamina,
+		grit_effect.minimum_max_stamina
+	)
+
+	_sync_max_stamina_to_health()
+
+	## И только после нового потолка
+	## восстанавливаем Current Stamina.
+	result.applied_amount = (
+		combatant.restore_stamina(
+			grit_effect.stamina_restoration,
+			&"bayda_grit_teeth"
+		)
+	)
+
+	result.current_max_stamina = (
+		combatant.max_stamina
+	)
+
+	result.current_stamina = (
+		combatant.current_stamina
+	)
+
+	result.current_value = (
+		combatant.current_stamina
+	)
+
+	result.current_stamina_restoration_debt = (
+		get_stamina_restoration_debt()
+	)
+
+	result.stamina_restoration_debt_paid_amount = maxi(
+		0,
+		result.previous_stamina_restoration_debt
+			- result
+				.current_stamina_restoration_debt
+	)
+
+	result.max_stamina_penalty_applied_amount = (
+		grit_effect
+			.max_stamina_reduction
+	)
+
+	result.current_unbroken_available = (
+		unbroken_available
+	)
+
+	result.current_fractured = (
+		is_fractured
+	)
+
+	result.unbroken_was_restored = (
+		not result.previous_unbroken_available
+		and result.current_unbroken_available
+	)
+
+	result.fracture_was_removed = (
+		result.previous_fractured
+		and not result.current_fractured
+	)
+
+	result.is_successful = true
+
+	state_changed.emit()
+
+	return result
+
 func get_debug_summary() -> String:
 	var combatant := _get_owner()
 	var bayda_definition = definition
@@ -281,8 +467,10 @@ func get_debug_summary() -> String:
 		% bayda_definition.get_health_tier(
 			combatant.current_health
 		)
-		+"Базовая Max Stamina: %d"
+		+"Базовая Max Stamina: %d | "
 		% base_max_stamina
+		+"Штраф «Стиснуть зубы»: %d"
+		% grit_teeth_max_stamina_penalty
 	)
 
 
@@ -306,6 +494,14 @@ func create_runtime_copy(
 
 	result.exhaustion_debt = (
 		exhaustion_debt
+	)
+
+	result.grit_teeth_max_stamina_penalty = (
+		grit_teeth_max_stamina_penalty
+	)
+
+	result.minimum_effective_max_stamina = (
+		minimum_effective_max_stamina
 	)
 
 	result._incoming_action_depth = (
@@ -336,8 +532,19 @@ func _sync_max_stamina_to_health() -> bool:
 			)
 	)
 
+	var resolved_max_stamina: int = (
+		base_max_stamina
+		+ stamina_bonus
+		- grit_teeth_max_stamina_penalty
+	)
+
+	resolved_max_stamina = maxi(
+		minimum_effective_max_stamina,
+		resolved_max_stamina
+	)
+
 	return combatant.set_max_stamina(
-		base_max_stamina + stamina_bonus,
+		resolved_max_stamina,
 		true
 	)
 

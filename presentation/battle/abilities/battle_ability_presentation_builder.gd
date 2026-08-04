@@ -117,6 +117,13 @@ static func build_effect_list_text(
 				)
 			)
 
+		elif effect is HeroCoreEffect:
+			lines.append(
+				(
+					effect as HeroCoreEffect
+				).get_presentation_text()
+			)
+			
 		elif effect is GrantGuardEffect:
 			lines.append(
 				_build_guard_effect_text(

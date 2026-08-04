@@ -109,6 +109,11 @@ static func build_target_text(
 		preview.normal_effect_results
 	)
 
+	_append_hero_core_lines(
+		lines,
+		preview.normal_effect_results
+	)
+
 	_append_guard_lines(
 		lines,
 		preview.normal_effect_results
@@ -343,6 +348,85 @@ static func _append_stamina_restoration_lines(
 		)
 
 
+static func _append_hero_core_lines(
+	lines: PackedStringArray,
+	effect_results: Array[BattleEffectResult]
+) -> void:
+	for effect_result in effect_results:
+		if (
+			effect_result == null
+			or effect_result.effect_kind
+				!= &"hero_core"
+		):
+			continue
+
+		if effect_result.unbroken_was_restored:
+			lines.append(
+				"Несломленность: восстановится"
+			)
+
+		if effect_result.fracture_was_removed:
+			lines.append(
+				"Надлом: снимется"
+			)
+
+		if (
+			effect_result.previous_max_stamina
+				!= effect_result.current_max_stamina
+			or effect_result
+				.max_stamina_penalty_applied_amount
+				> 0
+		):
+			lines.append(
+				"Max Stamina: %d → %d "
+				% [
+					effect_result
+						.previous_max_stamina,
+					effect_result
+						.current_max_stamina,
+				]
+				+"(штраф +%d)"
+				% effect_result
+					.max_stamina_penalty_applied_amount
+			)
+
+		var stamina_text := (
+			"Выносливость: %d → %d"
+			% [
+				effect_result.previous_stamina,
+				effect_result.current_stamina,
+			]
+		)
+
+		if (
+			effect_result
+				.stamina_restoration_debt_paid_amount
+			> 0
+		):
+			stamina_text += (
+				"\nДолг: -%d"
+				% effect_result
+					.stamina_restoration_debt_paid_amount
+			)
+
+		var unused_amount := maxi(
+			0,
+			effect_result.resolved_amount
+			- effect_result.applied_amount
+			- effect_result
+				.stamina_restoration_debt_paid_amount
+		)
+
+		if unused_amount > 0:
+			stamina_text += (
+				"\nНе восстановится: %d"
+				% unused_amount
+			)
+
+		lines.append(
+			stamina_text
+		)
+		
 static func _append_guard_lines(
 	lines: PackedStringArray,
 	effect_results: Array[BattleEffectResult]

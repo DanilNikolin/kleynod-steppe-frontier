@@ -90,6 +90,79 @@ func _init(
 		}
 
 
+func preview_hero_core_effect(
+	effect: HeroCoreEffect,
+	source_id: StringName
+) -> BattleEffectResult:
+	if (
+		_runtime_state == null
+		or effect == null
+	):
+		var failure_result := (
+			BattleEffectResult.new()
+		)
+
+		failure_result.effect_kind = (
+			&"hero_core"
+		)
+
+		failure_result.source_id = source_id
+		failure_result.target_id = instance_id
+
+		if effect != null:
+			failure_result.effect_id = (
+				effect.effect_id
+			)
+
+		failure_result.failure_code = (
+			EffectResolver
+				.FAILURE_MISSING_HERO_CORE
+		)
+
+		return failure_result
+
+	_sync_runtime_state_from_preview()
+
+	var core_runtime = (
+		_runtime_state
+			.hero_core_runtime_state
+	)
+
+	if core_runtime == null:
+		var failure_result := (
+			BattleEffectResult.new()
+		)
+
+		failure_result.effect_id = (
+			effect.effect_id
+		)
+
+		failure_result.effect_kind = (
+			&"hero_core"
+		)
+
+		failure_result.source_id = source_id
+		failure_result.target_id = instance_id
+
+		failure_result.failure_code = (
+			EffectResolver
+				.FAILURE_MISSING_HERO_CORE
+		)
+
+		return failure_result
+
+	var result: BattleEffectResult = (
+		core_runtime.resolve_effect(
+			effect,
+			source_id,
+			instance_id
+		)
+	)
+
+	_sync_preview_from_runtime_state()
+
+	return result
+	
 func can_pay_health_cost(
 	amount: int,
 	minimum_remaining_health: int = 1

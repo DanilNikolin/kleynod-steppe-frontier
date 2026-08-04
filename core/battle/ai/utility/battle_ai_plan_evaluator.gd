@@ -80,6 +80,14 @@ const SCORE_STAMINA_DEBT_PAYMENT: StringName = (
 	&"stamina_debt_payment"
 )
 
+const SCORE_CORE_SURVIVAL: StringName = (
+	&"core_survival"
+)
+
+const SCORE_MAX_STAMINA_PENALTY: StringName = (
+	&"max_stamina_penalty"
+)
+
 const SCORE_MOVEMENT: StringName = &"movement"
 const SCORE_COOLDOWN: StringName = &"cooldown"
 
@@ -145,6 +153,11 @@ const STAMINA_DEBT_PAYMENT_SCORE_PER_POINT: float = 0.5
 const ENEMY_STAMINA_RESTORE_PENALTY_PER_POINT: float = -3.0
 
 const ENEMY_STAMINA_DEBT_PAYMENT_PENALTY_PER_POINT: float = -1.0
+
+const UNBROKEN_RESTORE_SCORE: float = 40.0
+const FRACTURE_REMOVE_SCORE: float = 20.0
+
+const MAX_STAMINA_PENALTY_PER_POINT: float = -6.0
 
 const MOVEMENT_PENALTY_PER_POINT: float = -0.25
 const COOLDOWN_PENALTY_PER_TURN: float = -2.0
@@ -328,6 +341,14 @@ func _score_effect_result(
 
 		&"restore_stamina":
 			_score_restore_stamina_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"hero_core":
+			_score_hero_core_result(
 				breakdown,
 				simulation,
 				actor,
@@ -554,6 +575,62 @@ func _score_restore_stamina_result(
 		)
 
 
+func _score_hero_core_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if (
+		target == null
+		or target.team_id != actor.team_id
+	):
+		return
+
+	if effect_result.unbroken_was_restored:
+		breakdown.add_score(
+			SCORE_CORE_SURVIVAL,
+			UNBROKEN_RESTORE_SCORE
+		)
+
+	if effect_result.fracture_was_removed:
+		breakdown.add_score(
+			SCORE_CORE_SURVIVAL,
+			FRACTURE_REMOVE_SCORE
+		)
+
+	breakdown.add_score(
+		SCORE_MAX_STAMINA_PENALTY,
+		float(
+			effect_result
+				.max_stamina_penalty_applied_amount
+		)
+		* MAX_STAMINA_PENALTY_PER_POINT
+	)
+
+	breakdown.add_score(
+		SCORE_STAMINA_RESTORE,
+		float(
+			effect_result.applied_amount
+		)
+		* STAMINA_RESTORE_SCORE_PER_POINT
+	)
+
+	breakdown.add_score(
+		SCORE_STAMINA_DEBT_PAYMENT,
+		float(
+			effect_result
+				.stamina_restoration_debt_paid_amount
+		)
+		* STAMINA_DEBT_PAYMENT_SCORE_PER_POINT
+	)
+	
 func _score_heal_result(
 	breakdown: BattleAIScoreBreakdown,
 	simulation: BattleActionSimulationResult,

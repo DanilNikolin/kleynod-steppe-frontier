@@ -56,6 +56,24 @@ var current_stamina_restoration_debt: int = 0
 var stamina_restoration_debt_added_amount: int = 0
 var stamina_restoration_debt_paid_amount: int = 0
 
+## Универсальные данные Hero Core Effect.
+
+var core_effect_kind: StringName = &""
+
+var previous_max_stamina: int = 0
+var current_max_stamina: int = 0
+
+var max_stamina_penalty_applied_amount: int = 0
+
+var previous_unbroken_available: bool = false
+var current_unbroken_available: bool = false
+
+var previous_fractured: bool = false
+var current_fractured: bool = false
+
+var unbroken_was_restored: bool = false
+var fracture_was_removed: bool = false
+
 var overkill_amount: int:
 	get:
 		if effect_kind != &"damage":

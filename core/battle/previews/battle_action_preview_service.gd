@@ -954,6 +954,12 @@ func _preview_effect(
 	preview_grid: BattlePreviewGridState,
 	force_standard_critical: bool
 ) -> BattleEffectResult:
+	if effect is HeroCoreEffect:
+		return target.preview_hero_core_effect(
+			effect as HeroCoreEffect,
+			source.instance_id
+		)
+
 	if effect is HealthCostEffect:
 		return _preview_health_cost(
 			effect as HealthCostEffect,

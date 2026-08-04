@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="7_mend"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="8_blood_payment"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="9_gallows_hook"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="10_grit_teeth"]
 
 [resource]
 script = ExtResource("1_hero")
@@ -18,8 +19,8 @@ description = "Временная версия Байды для проверк�
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")
-personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("7_mend")])
-starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment", &"ability_bayda_gallows_hook"])
+personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("7_mend")])
+starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment", &"ability_bayda_gallows_hook", &"ability_bayda_grit_teeth"])
 default_ability_id = &"ability_sabre_slash"
-starting_active_slot_count = 3
+starting_active_slot_count = 4
 maximum_active_slot_count = 6

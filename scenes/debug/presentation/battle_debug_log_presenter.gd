@@ -341,6 +341,16 @@ func append_action_results(
 					effect_result
 				)
 
+			&"health_cost":
+				_append_health_cost_result(
+					effect_result
+				)
+
+			&"restore_stamina":
+				_append_restore_stamina_result(
+					effect_result
+				)
+
 			&"grant_guard":
 				_append_guard_result(
 					effect_result
@@ -567,6 +577,96 @@ func _append_place_surface_result(
 		]
 		+"Длительность: %s."
 		% duration_text
+	)
+
+
+func _append_health_cost_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	push_battle_log(
+		"%s платит %d HP. Здоровье: %d → %d."
+		% [
+			target_name,
+			effect_result.applied_amount,
+			effect_result.previous_value,
+			effect_result.current_value,
+		]
+	)
+
+
+func _append_restore_stamina_result(
+	effect_result: BattleEffectResult
+) -> void:
+	var target := session.get_combatant(
+		effect_result.target_id
+	)
+
+	var target_name := String(
+		effect_result.target_id
+	)
+
+	if (
+		target != null
+		and target.definition != null
+	):
+		target_name = (
+			target.definition.display_name
+		)
+
+	var message := (
+		"%s восстанавливает выносливость: "
+		% target_name
+		+"%d → %d, получено %d."
+		% [
+			effect_result.previous_stamina,
+			effect_result.current_stamina,
+			effect_result.applied_amount,
+		]
+	)
+
+	if (
+		effect_result
+			.stamina_restoration_debt_paid_amount
+		> 0
+	):
+		message += (
+			" Погашено долга: %d."
+			% effect_result
+				.stamina_restoration_debt_paid_amount
+		)
+
+	var unused_amount := maxi(
+		0,
+		effect_result.resolved_amount
+		- effect_result.applied_amount
+		- effect_result
+			.stamina_restoration_debt_paid_amount
+	)
+
+	if unused_amount > 0:
+		message += (
+			" Не восстановлено из-за лимита: %d."
+			% unused_amount
+		)
+
+	push_battle_log(
+		message
 	)
 
 

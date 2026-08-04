@@ -103,6 +103,20 @@ static func build_effect_list_text(
 				)
 			)
 
+		elif effect is HealthCostEffect:
+			lines.append(
+				_build_health_cost_effect_text(
+					effect as HealthCostEffect
+				)
+			)
+
+		elif effect is RestoreStaminaEffect:
+			lines.append(
+				_build_restore_stamina_effect_text(
+					effect as RestoreStaminaEffect
+				)
+			)
+
 		elif effect is GrantGuardEffect:
 			lines.append(
 				_build_guard_effect_text(
@@ -263,6 +277,38 @@ static func _format_multiplier(
 			0.01
 		)
 	)
+
+static func _build_health_cost_effect_text(
+	effect: HealthCostEffect
+) -> String:
+	return (
+		"• Цена здоровьем: -%d HP"
+		% effect.health_cost
+		+"\n  После оплаты останется "
+		+"не меньше %d HP"
+		% effect.minimum_remaining_health
+	)
+
+
+static func _build_restore_stamina_effect_text(
+	effect: RestoreStaminaEffect
+) -> String:
+	var recipient_text := (
+		"себе"
+		if effect.targets_source()
+		else "цели"
+	)
+
+	return (
+		"• Выносливость: +%d (%s)"
+		% [
+			effect.stamina_amount,
+			recipient_text,
+		]
+		+"\n  Сначала погашает "
+		+"долг восстановления"
+	)
+
 
 static func _build_heal_effect_text(
 	effect: HealEffect,

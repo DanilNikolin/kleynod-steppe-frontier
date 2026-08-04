@@ -21,6 +21,15 @@ var max_health: int = 1
 var current_health: int = 1
 var current_guard: int = 0
 
+var max_stamina: int = 1
+var current_stamina: int = 0
+
+var stamina_restoration_debt: int = 0
+
+## Независимая runtime-копия настоящего бойца.
+## Используется для Core-aware изменений HP и Stamina.
+var _runtime_state
+
 var _statuses_by_id: Dictionary = {}
 
 
@@ -53,6 +62,18 @@ func _init(
 	current_health = original_state.current_health
 	current_guard = original_state.current_guard
 
+	max_stamina = original_state.max_stamina
+	current_stamina = original_state.current_stamina
+
+	stamina_restoration_debt = (
+		original_state
+			.get_stamina_restoration_debt()
+	)
+
+	_runtime_state = (
+		original_state.create_runtime_copy()
+	)
+
 	for status in original_state.get_active_statuses():
 		if (
 			status == null
@@ -67,6 +88,125 @@ func _init(
 			"stack_count": status.stack_count,
 			"remaining_turns": status.remaining_turns,
 		}
+
+
+func can_pay_health_cost(
+	amount: int,
+	minimum_remaining_health: int = 1
+) -> bool:
+	if _runtime_state == null:
+		return false
+
+	_sync_runtime_state_from_preview()
+
+	return _runtime_state.can_pay_health_cost(
+		amount,
+		minimum_remaining_health
+	)
+
+
+func pay_health_cost(
+	amount: int,
+	minimum_remaining_health: int = 1
+) -> int:
+	if _runtime_state == null:
+		return 0
+
+	_sync_runtime_state_from_preview()
+
+	var paid_amount: int = (
+		_runtime_state.pay_health_cost(
+			amount,
+			minimum_remaining_health
+		)
+	)
+
+	_sync_preview_from_runtime_state()
+
+	return paid_amount
+
+
+func restore_stamina(
+	amount: int,
+	reason: StringName = &"preview"
+) -> int:
+	if _runtime_state == null:
+		return 0
+
+	_sync_runtime_state_from_preview()
+
+	var restored_amount: int = (
+		_runtime_state.restore_stamina(
+			amount,
+			reason
+		)
+	)
+
+	_sync_preview_from_runtime_state()
+
+	return restored_amount
+
+
+func get_stamina_restoration_debt() -> int:
+	return maxi(
+		0,
+		stamina_restoration_debt
+	)
+
+
+func _sync_runtime_state_from_preview() -> void:
+	if _runtime_state == null:
+		return
+
+	_runtime_state.current_health = (
+		current_health
+	)
+
+	_runtime_state.current_guard = (
+		current_guard
+	)
+
+	_runtime_state.max_stamina = (
+		max_stamina
+	)
+
+	_runtime_state.current_stamina = (
+		current_stamina
+	)
+
+	_runtime_state.grid_position = (
+		grid_position
+	)
+
+
+func _sync_preview_from_runtime_state() -> void:
+	if _runtime_state == null:
+		return
+
+	current_health = (
+		_runtime_state.current_health
+	)
+
+	current_guard = (
+		_runtime_state.current_guard
+	)
+
+	max_stamina = (
+		_runtime_state.max_stamina
+	)
+
+	current_stamina = (
+		_runtime_state.current_stamina
+	)
+
+	stamina_restoration_debt = (
+		_runtime_state
+			.get_stamina_restoration_debt()
+	)
+
+	grid_position = (
+		_runtime_state.grid_position
+	)
 
 
 func get_status_snapshot(

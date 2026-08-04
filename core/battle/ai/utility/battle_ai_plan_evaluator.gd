@@ -67,6 +67,19 @@ const SCORE_FRIENDLY_KILL: StringName = (
 const SCORE_POSITION: StringName = &"position"
 
 const SCORE_STAMINA: StringName = &"stamina"
+
+const SCORE_HEALTH_COST: StringName = (
+	&"health_cost"
+)
+
+const SCORE_STAMINA_RESTORE: StringName = (
+	&"stamina_restore"
+)
+
+const SCORE_STAMINA_DEBT_PAYMENT: StringName = (
+	&"stamina_debt_payment"
+)
+
 const SCORE_MOVEMENT: StringName = &"movement"
 const SCORE_COOLDOWN: StringName = &"cooldown"
 
@@ -114,6 +127,25 @@ const FRIENDLY_GUARD_DAMAGE_PENALTY_PER_POINT: float = -8.0
 const FRIENDLY_KILL_PENALTY: float = -250.0
 
 const STAMINA_PENALTY_PER_POINT: float = -0.5
+
+## Добровольная HP-цена ощутима, но дешевле
+## случайного урона союзнику.
+const HEALTH_COST_PENALTY_PER_HP: float = -8.0
+
+## На четверти HP или ниже добровольная цена
+## становится вдвое опаснее.
+const LOW_HEALTH_COST_MULTIPLIER: float = 2.0
+
+const STAMINA_RESTORE_SCORE_PER_POINT: float = 1.5
+
+## Погашенный долг полезен, но не равен
+## ресурсу, доступному прямо сейчас.
+const STAMINA_DEBT_PAYMENT_SCORE_PER_POINT: float = 0.5
+
+const ENEMY_STAMINA_RESTORE_PENALTY_PER_POINT: float = -3.0
+
+const ENEMY_STAMINA_DEBT_PAYMENT_PENALTY_PER_POINT: float = -1.0
+
 const MOVEMENT_PENALTY_PER_POINT: float = -0.25
 const COOLDOWN_PENALTY_PER_TURN: float = -2.0
 const APPROACH_SCORE_PER_TILE: float = 4.0
@@ -286,6 +318,22 @@ func _score_effect_result(
 				effect_result
 			)
 
+		&"health_cost":
+			_score_health_cost_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
+		&"restore_stamina":
+			_score_restore_stamina_result(
+				breakdown,
+				simulation,
+				actor,
+				effect_result
+			)
+
 		&"grant_guard":
 			_score_guard_result(
 				breakdown,
@@ -405,6 +453,104 @@ func _score_damage_result(
 			actor,
 			effect_result.target_id,
 			scored_kill_ids
+		)
+
+
+func _score_health_cost_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	var score := (
+		float(
+			effect_result.applied_amount
+		)
+		* HEALTH_COST_PENALTY_PER_HP
+	)
+
+	## Сейчас HealthCostEffect разрешён только
+	## для владельца способности.
+	if target.team_id != actor.team_id:
+		score = - score
+
+	elif (
+		target.max_health > 0
+		and effect_result.current_value * 4
+			<= target.max_health
+	):
+		score *= (
+			LOW_HEALTH_COST_MULTIPLIER
+		)
+
+	breakdown.add_score(
+		SCORE_HEALTH_COST,
+		score
+	)
+
+
+func _score_restore_stamina_result(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	var target := (
+		simulation.get_simulated_combatant(
+			effect_result.target_id
+		)
+	)
+
+	if target == null:
+		return
+
+	var is_ally := (
+		target.team_id == actor.team_id
+	)
+
+	if is_ally:
+		breakdown.add_score(
+			SCORE_STAMINA_RESTORE,
+			float(
+				effect_result.applied_amount
+			)
+			* STAMINA_RESTORE_SCORE_PER_POINT
+		)
+
+		breakdown.add_score(
+			SCORE_STAMINA_DEBT_PAYMENT,
+			float(
+				effect_result
+					.stamina_restoration_debt_paid_amount
+			)
+			* STAMINA_DEBT_PAYMENT_SCORE_PER_POINT
+		)
+
+	else:
+		breakdown.add_score(
+			SCORE_STAMINA_RESTORE,
+			float(
+				effect_result.applied_amount
+			)
+			* ENEMY_STAMINA_RESTORE_PENALTY_PER_POINT
+		)
+
+		breakdown.add_score(
+			SCORE_STAMINA_DEBT_PAYMENT,
+			float(
+				effect_result
+					.stamina_restoration_debt_paid_amount
+			)
+			* ENEMY_STAMINA_DEBT_PAYMENT_PENALTY_PER_POINT
 		)
 
 

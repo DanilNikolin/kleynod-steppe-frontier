@@ -99,6 +99,16 @@ static func build_target_text(
 		preview.normal_effect_results
 	)
 
+	_append_health_cost_lines(
+		lines,
+		preview.normal_effect_results
+	)
+
+	_append_stamina_restoration_lines(
+		lines,
+		preview.normal_effect_results
+	)
+
 	_append_guard_lines(
 		lines,
 		preview.normal_effect_results
@@ -254,6 +264,78 @@ static func _append_healing_lines(
 			text += (
 				"  (избыток %d)"
 				% effect_result.overheal_amount
+			)
+
+		lines.append(
+			text
+		)
+
+
+static func _append_health_cost_lines(
+	lines: PackedStringArray,
+	effect_results: Array[BattleEffectResult]
+) -> void:
+	for effect_result in effect_results:
+		if (
+			effect_result == null
+			or effect_result.effect_kind
+				!= &"health_cost"
+		):
+			continue
+
+		lines.append(
+			"HP: %d → %d (цена %d)"
+			% [
+				effect_result.previous_value,
+				effect_result.current_value,
+				effect_result.applied_amount,
+			]
+		)
+
+
+static func _append_stamina_restoration_lines(
+	lines: PackedStringArray,
+	effect_results: Array[BattleEffectResult]
+) -> void:
+	for effect_result in effect_results:
+		if (
+			effect_result == null
+			or effect_result.effect_kind
+				!= &"restore_stamina"
+		):
+			continue
+
+		var text := (
+			"Выносливость: %d → %d"
+			% [
+				effect_result.previous_stamina,
+				effect_result.current_stamina,
+			]
+		)
+
+		if (
+			effect_result
+				.stamina_restoration_debt_paid_amount
+			> 0
+		):
+			text += (
+				"\nДолг: -%d"
+				% effect_result
+					.stamina_restoration_debt_paid_amount
+			)
+
+		var unused_amount := maxi(
+			0,
+			effect_result.resolved_amount
+			- effect_result.applied_amount
+			- effect_result
+				.stamina_restoration_debt_paid_amount
+		)
+
+		if unused_amount > 0:
+			text += (
+				"\nНе восстановится: %d"
+				% unused_amount
 			)
 
 		lines.append(

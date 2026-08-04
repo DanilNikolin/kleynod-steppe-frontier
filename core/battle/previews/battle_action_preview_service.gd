@@ -188,13 +188,13 @@ func create_preview(
 			original_target.instance_id
 		)
 
-		var normal_state := (
+		var normal_state = (
 			normal_states.get(
 				target_id
 			) as BattlePreviewCombatantState
 		)
 
-		var critical_state := (
+		var critical_state = (
 			critical_states.get(
 				target_id
 			) as BattlePreviewCombatantState
@@ -471,25 +471,59 @@ func _get_preview_targets(
 	):
 		return result
 
-	var actor_preview_state := (
+	var actor_preview_state = (
 		normal_states.get(
 			command.actor.instance_id
 		) as BattlePreviewCombatantState
 	)
 
-	if (
+	var actor_position_changed: bool = (
 		actor_preview_state != null
 		and actor_preview_state.grid_position
 			!= command.actor.grid_position
+	)
+
+	var ability_affects_source := (
+		_has_source_recipient_effect(
+			command.ability
+		)
+	)
+
+	if (
+		actor_preview_state != null
+		and (
+			actor_position_changed
+			or ability_affects_source
+		)
 		and not used_ids.has(
 			command.actor.instance_id
 		)
 	):
+		used_ids[
+			command.actor.instance_id
+		] = true
+
 		result.append(
 			command.actor
 		)
 
 	return result
+
+
+func _has_source_recipient_effect(
+	ability: AbilityDefinition
+) -> bool:
+	if ability == null:
+		return false
+
+	for effect in ability.effects:
+		if (
+			effect != null
+			and effect.targets_source()
+		):
+			return true
+
+	return false
 
 
 func _get_relocation_effect(
@@ -708,7 +742,7 @@ func _simulate(
 
 	var results_by_target: Dictionary = {}
 
-	var source := (
+	var source = (
 		preview_states.get(
 			command.actor.instance_id
 		) as BattlePreviewCombatantState
@@ -719,7 +753,7 @@ func _simulate(
 			"is_valid": false,
 			"failure_code": (
 				BattleActionService
-				.FAILURE_INVALID_ACTOR
+					.FAILURE_INVALID_ACTOR
 			),
 		}
 
@@ -738,13 +772,15 @@ func _simulate(
 			targeting_result
 		)
 
+	var resolved_source_effect_ids: Dictionary = {}
+
 	for original_target in (
 		targeting_result.affected_combatants
 	):
 		if original_target == null:
 			continue
 
-		var target := (
+		var target = (
 			preview_states.get(
 				original_target.instance_id
 			) as BattlePreviewCombatantState
@@ -753,14 +789,11 @@ func _simulate(
 		if target == null:
 			continue
 
-		var target_results: Array[BattleEffectResult] = []
-
-		results_by_target[
-			target.instance_id
-		] = target_results
-
 		for effect in command.ability.effects:
-			## Координатный эффект рассчитывается
+			if effect == null:
+				continue
+
+			## Координатные эффекты рассчитываются
 			## отдельно от состояния бойца.
 			if (
 				effect is PlaceSurfaceEffect
@@ -769,24 +802,44 @@ func _simulate(
 			):
 				continue
 
-			if not target.is_alive:
-				break
+			var resolved_target: BattlePreviewCombatantState = (
+				target
+			)
+
+			if effect.targets_source():
+				## SOURCE-эффект выполняется один раз
+				## за всё действие, как и в
+				## BattleActionService.
+				if resolved_source_effect_ids.has(
+					effect.effect_id
+				):
+					continue
+
+				resolved_source_effect_ids[
+					effect.effect_id
+				] = true
+
+				resolved_target = source
+
+			elif not target.is_alive:
+				## Смерть выбранной цели пропускает
+				## последующие TARGET-эффекты,
+				## но не отменяет SOURCE-эффекты.
+				continue
 
 			var effect_result := _preview_effect(
 				effect,
 				source,
-				target,
+				resolved_target,
 				preview_grid,
 				force_standard_critical
 			)
 
-			target_results.append(
+			_append_effect_result(
+				results_by_target,
+				resolved_target.instance_id,
 				effect_result
 			)
-
-			results_by_target[
-				target.instance_id
-			] = target_results
 
 			if (
 				effect_result == null
@@ -803,8 +856,59 @@ func _simulate(
 
 			if effect_result.target_died:
 				preview_grid.remove_occupant(
-					target.instance_id
+					resolved_target.instance_id
 				)
+
+	## Поддержка способностей, где SOURCE-эффект есть,
+	## а affected_combatants пуст — например,
+	## действие по свободной клетке с усилением себя.
+	for effect in command.ability.effects:
+		if (
+			effect == null
+			or not effect.targets_source()
+			or resolved_source_effect_ids.has(
+				effect.effect_id
+			)
+		):
+			continue
+
+		if (
+			effect is PlaceSurfaceEffect
+			or effect is SwapPositionsEffect
+			or effect is TeleportEffect
+		):
+			continue
+
+		resolved_source_effect_ids[
+			effect.effect_id
+		] = true
+
+		var effect_result := _preview_effect(
+			effect,
+			source,
+			source,
+			preview_grid,
+			force_standard_critical
+		)
+
+		_append_effect_result(
+			results_by_target,
+			source.instance_id,
+			effect_result
+		)
+
+		if (
+			effect_result == null
+			or not effect_result.is_successful
+		):
+			return {
+				"is_valid": false,
+				"failure_code": (
+					effect_result.failure_code
+					if effect_result != null
+					else FAILURE_PREVIEW_EFFECT_FAILED
+				),
+			}
 
 	return {
 		"is_valid": true,
@@ -816,6 +920,33 @@ func _simulate(
 	}
 
 
+func _append_effect_result(
+	results_by_target: Dictionary,
+	target_id: StringName,
+	effect_result: BattleEffectResult
+) -> void:
+	if (
+		target_id == &""
+		or effect_result == null
+	):
+		return
+
+	var target_results: Array = (
+		results_by_target.get(
+			target_id,
+			[]
+		)
+	)
+
+	target_results.append(
+		effect_result
+	)
+
+	results_by_target[
+		target_id
+	] = target_results
+
+
 func _preview_effect(
 	effect: BattleEffect,
 	source: BattlePreviewCombatantState,
@@ -823,6 +954,20 @@ func _preview_effect(
 	preview_grid: BattlePreviewGridState,
 	force_standard_critical: bool
 ) -> BattleEffectResult:
+	if effect is HealthCostEffect:
+		return _preview_health_cost(
+			effect as HealthCostEffect,
+			source,
+			target
+		)
+
+	if effect is RestoreStaminaEffect:
+		return _preview_restore_stamina(
+			effect as RestoreStaminaEffect,
+			source,
+			target
+		)
+
 	if effect is DamageEffect:
 		return _preview_damage(
 			effect as DamageEffect,
@@ -873,6 +1018,131 @@ func _preview_effect(
 			.FAILURE_UNSUPPORTED_EFFECT
 	)
 
+	return result
+
+
+func _preview_health_cost(
+	effect: HealthCostEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"health_cost"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = (
+		effect.health_cost
+	)
+
+	result.resolved_amount = (
+		effect.health_cost
+	)
+
+	result.previous_value = (
+		target.current_health
+	)
+
+	if not target.can_pay_health_cost(
+		effect.health_cost,
+		effect.minimum_remaining_health
+	):
+		result.failure_code = (
+			EffectResolver
+				.FAILURE_HEALTH_COST_CANNOT_BE_PAID
+		)
+
+		return result
+
+	result.applied_amount = (
+		target.pay_health_cost(
+			effect.health_cost,
+			effect.minimum_remaining_health
+		)
+	)
+
+	result.current_value = (
+		target.current_health
+	)
+
+	if (
+		result.applied_amount
+		!= effect.health_cost
+	):
+		result.failure_code = (
+			EffectResolver
+				.FAILURE_HEALTH_COST_CANNOT_BE_PAID
+		)
+
+		return result
+
+	result.is_successful = true
+	return result
+
+
+func _preview_restore_stamina(
+	effect: RestoreStaminaEffect,
+	source: BattlePreviewCombatantState,
+	target: BattlePreviewCombatantState
+) -> BattleEffectResult:
+	var result := BattleEffectResult.new()
+
+	result.effect_id = effect.effect_id
+	result.effect_kind = &"restore_stamina"
+
+	result.source_id = source.instance_id
+	result.target_id = target.instance_id
+
+	result.raw_amount = (
+		effect.stamina_amount
+	)
+
+	result.resolved_amount = (
+		effect.stamina_amount
+	)
+
+	result.previous_stamina = (
+		target.current_stamina
+	)
+
+	result.previous_value = (
+		target.current_stamina
+	)
+
+	result.previous_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
+	result.applied_amount = (
+		target.restore_stamina(
+			effect.stamina_amount,
+			&"ability_preview"
+		)
+	)
+
+	result.current_stamina = (
+		target.current_stamina
+	)
+
+	result.current_value = (
+		target.current_stamina
+	)
+
+	result.current_stamina_restoration_debt = (
+		target.get_stamina_restoration_debt()
+	)
+
+	result.stamina_restoration_debt_paid_amount = maxi(
+		0,
+		result.previous_stamina_restoration_debt
+			- result
+				.current_stamina_restoration_debt
+	)
+
+	result.is_successful = true
 	return result
 
 
@@ -1329,7 +1599,7 @@ func _preview_remove_status(
 
 	result.is_successful = true
 	return result
-    
+	
 func _preview_forced_movement(
 	effect: ForcedMovementEffect,
 	source: BattlePreviewCombatantState,

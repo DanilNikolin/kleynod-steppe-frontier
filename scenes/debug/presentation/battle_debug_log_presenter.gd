@@ -890,6 +890,37 @@ func _append_damage_result(
 		% effect_result.overkill_amount
 	)
 
+	if effect_result.stamina_drained_amount > 0:
+		message += (
+			" Выносливость цели: %d → %d, снято %d."
+			% [
+				effect_result.previous_stamina,
+				effect_result.current_stamina,
+				effect_result.stamina_drained_amount,
+			]
+		)
+
+	if (
+		effect_result
+			.stamina_restoration_debt_added_amount
+		> 0
+	):
+		message += (
+			" Добавлен долг восстановления: %d."
+			% effect_result
+				.stamina_restoration_debt_added_amount
+		)
+
+	if (
+		effect_result
+			.damage_was_redirected_from_health
+	):
+		message += (
+			" Из HP перенаправлено: %d."
+			% effect_result
+				.redirected_damage_amount
+		)
+		
 	if effect_result.target_died:
 		message += (
 			" %s погибает."
@@ -1590,7 +1621,7 @@ func _on_combatant_status_removed(
 
 	if reason == &"owner_defeated":
 		return
-		
+
 	var removed_armor_modifier := (
 		get_status_stat_modifier_amount(
 			status,

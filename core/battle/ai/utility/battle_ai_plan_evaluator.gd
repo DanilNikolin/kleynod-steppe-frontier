@@ -80,6 +80,13 @@ const SCORE_STAMINA_DEBT_PAYMENT: StringName = (
 	&"stamina_debt_payment"
 )
 
+const SCORE_STAMINA_DRAIN: StringName = (
+	&"stamina_drain"
+)
+
+const SCORE_STAMINA_DEBT_PRESSURE: StringName = (
+	&"stamina_debt_pressure"
+)
 const SCORE_CORE_SURVIVAL: StringName = (
 	&"core_survival"
 )
@@ -153,7 +160,18 @@ const STAMINA_DEBT_PAYMENT_SCORE_PER_POINT: float = 0.5
 const ENEMY_STAMINA_RESTORE_PENALTY_PER_POINT: float = -3.0
 
 const ENEMY_STAMINA_DEBT_PAYMENT_PENALTY_PER_POINT: float = -1.0
+## Снятая с противника Stamina полезна сама по себе.
+## В случае Байды это также означает давление
+## на Несломленность и будущую выживаемость.
+const ENEMY_STAMINA_DRAIN_SCORE_PER_POINT: float = 3.0
 
+const FRIENDLY_STAMINA_DRAIN_PENALTY_PER_POINT: float = -6.0
+
+## Добавленный противнику долг слабее немедленного
+## снятия ресурса, но ухудшает будущие восстановления.
+const ENEMY_STAMINA_DEBT_SCORE_PER_POINT: float = 1.5
+
+const FRIENDLY_STAMINA_DEBT_PENALTY_PER_POINT: float = -3.0
 const UNBROKEN_RESTORE_SCORE: float = 40.0
 const FRACTURE_REMOVE_SCORE: float = 20.0
 
@@ -476,6 +494,45 @@ func _score_damage_result(
 			scored_kill_ids
 		)
 
+	if effect_result.stamina_drained_amount > 0:
+		var stamina_drain_score := (
+			float(
+				effect_result
+					.stamina_drained_amount
+			)
+			* (
+				ENEMY_STAMINA_DRAIN_SCORE_PER_POINT
+				if is_enemy
+				else FRIENDLY_STAMINA_DRAIN_PENALTY_PER_POINT
+			)
+		)
+
+		breakdown.add_score(
+			SCORE_STAMINA_DRAIN,
+			stamina_drain_score
+		)
+
+	if (
+		effect_result
+			.stamina_restoration_debt_added_amount
+		> 0
+	):
+		var stamina_debt_score := (
+			float(
+				effect_result
+					.stamina_restoration_debt_added_amount
+			)
+			* (
+				ENEMY_STAMINA_DEBT_SCORE_PER_POINT
+				if is_enemy
+				else FRIENDLY_STAMINA_DEBT_PENALTY_PER_POINT
+			)
+		)
+
+		breakdown.add_score(
+			SCORE_STAMINA_DEBT_PRESSURE,
+			stamina_debt_score
+		)
 
 func _score_health_cost_result(
 	breakdown: BattleAIScoreBreakdown,
@@ -630,7 +687,7 @@ func _score_hero_core_result(
 		)
 		* STAMINA_DEBT_PAYMENT_SCORE_PER_POINT
 	)
-	
+
 func _score_heal_result(
 	breakdown: BattleAIScoreBreakdown,
 	simulation: BattleActionSimulationResult,

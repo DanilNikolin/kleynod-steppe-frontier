@@ -4,12 +4,13 @@
 [ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
 [ext_resource type="Resource" path="res://content/combatants/heroes/bayda/bayda_base_combatant.tres" id="3_combatant"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_core_module.tres" id="4_core"]
-[ext_resource type="Resource" path="res://content/skill_grids/debug/debug_sechevik_skill_grid.tres" id="5_grid"]
+[ext_resource type="Resource" path="res://content/skill_grids/heroes/bayda/bayda_skill_grid_debug.tres" id="5_grid"]
 [ext_resource type="Resource" path="res://content/abilities/debug/debug_sabre_slash.tres" id="6_sabre"]
 [ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="7_mend"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="8_blood_payment"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="9_gallows_hook"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="10_grit_teeth"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="11_slanting_cut"]
 
 [resource]
 script = ExtResource("1_hero")
@@ -19,7 +20,7 @@ description = "Первый настоящий герой. Core Module реал�
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")
-personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("7_mend")])
+personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("11_slanting_cut"), ExtResource("7_mend")])
 starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment", &"ability_bayda_gallows_hook", &"ability_bayda_grit_teeth"])
 default_ability_id = &"ability_sabre_slash"
 starting_active_slot_count = 4

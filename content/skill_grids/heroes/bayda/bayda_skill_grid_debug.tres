@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="SkillGridDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
+[ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
+[ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="3_mend"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="4_slanting_cut"]
+
+[sub_resource type="Resource" id="Node_strength_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_strength_1"
+display_name = "Сила +1"
+description = "Повышает ветку Силы на 1."
+branch = 1
+
+[sub_resource type="Resource" id="Node_agility_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_agility_1"
+display_name = "Спритность +1"
+description = "Повышает ветку Спритности на 1."
+branch = 2
+
+[sub_resource type="Resource" id="Node_spirit_1"]
+script = ExtResource("2_node")
+node_id = &"node_debug_spirit_1"
+display_name = "Воля +1"
+description = "Повышает ветку Воли на 1."
+branch = 3
+
+[sub_resource type="Resource" id="Node_learn_slanting_cut"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_slanting_cut"
+display_name = "Косая сечь"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_strength_1"])
+granted_ability = ExtResource("4_slanting_cut")
+
+[sub_resource type="Resource" id="Node_learn_mend"]
+script = ExtResource("2_node")
+node_id = &"node_debug_learn_spirit_mend"
+display_name = "Духовное восстановление"
+description = "Открывает личный приём."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("3_mend")
+
+[sub_resource type="Resource" id="Node_active_slot"]
+script = ExtResource("2_node")
+node_id = &"node_debug_active_slot_1"
+display_name = "Активный слот"
+description = "Добавляет один личный активный слот."
+node_type = 2
+prerequisite_node_ids = Array[StringName]([&"node_debug_strength_1"])
+
+[sub_resource type="Resource" id="Node_health"]
+script = ExtResource("2_node")
+node_id = &"node_debug_health_1"
+display_name = "Здоровье +2"
+description = "Повышает максимальное здоровье на 2."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+rare_stat = 1
+rare_stat_amount = 2
+
+[sub_resource type="Resource" id="Node_max_stamina"]
+script = ExtResource("2_node")
+node_id = &"node_debug_max_stamina_1"
+display_name = "Max Stamina +1"
+description = "Повышает максимальную выносливость на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
+rare_stat = 2
+
+[sub_resource type="Resource" id="Node_start_stamina"]
+script = ExtResource("2_node")
+node_id = &"node_debug_start_stamina_1"
+display_name = "Start Stamina +1"
+description = "Повышает стартовую выносливость на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_max_stamina_1"])
+rare_stat = 3
+
+[sub_resource type="Resource" id="Node_armor"]
+script = ExtResource("2_node")
+node_id = &"node_debug_armor_1"
+display_name = "Броня +1"
+description = "Повышает постоянную броню на 1."
+node_type = 6
+prerequisite_node_ids = Array[StringName]([&"node_debug_health_1"])
+rare_stat = 4
+
+[resource]
+script = ExtResource("1_grid")
+grid_id = &"skill_grid_bayda_debug"
+display_name = "Временная сетка Байды"
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor")])

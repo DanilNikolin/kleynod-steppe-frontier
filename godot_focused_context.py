@@ -25,18 +25,34 @@ PROJECT_ROOT = Path(".").resolve()
 
 
 FOCUS_PATTERNS = [
-    "presentation/battle/combatants/combatant_view.gd",
-    "presentation/battle/combatants/combatant_view.tscn",
-    "presentation/battle/combatants/battle_combatant_presenter.gd",
-    "presentation/battle/combatants/battle_combatant_hover_panel.gd",
-    "presentation/battle/combatants/battle_combatant_hover_panel.tscn",
-    "presentation/battle/combatants/statuses/battle_status_strip.gd",
-    "presentation/battle/combatants/statuses/battle_status_strip.tscn",
-    "presentation/battle/combatants/statuses/battle_status_chip.gd",
-    "presentation/battle/combatants/statuses/battle_status_chip.tscn",
-    "core/battle/combatants/combatant_state.gd",
-    "core/heroes/core/hero_core_runtime_state.gd",
-    "core/heroes/core/bayda/bayda_core_runtime_state.gd",
+	"core/battle/abilities/ability_definition.gd",
+	"core/battle/targeting/*.gd",
+	"core/battle/effects/battle_effect.gd",
+	"core/battle/effects/damage_effect.gd",
+	"core/battle/effects/apply_status_effect.gd",
+	"core/battle/effects/health_cost_effect.gd",
+	"core/battle/effects/restore_stamina_effect.gd",
+	"core/battle/statuses/battle_status_definition.gd",
+	"core/battle/statuses/battle_status_instance.gd",
+	"core/battle/restrictions/battle_action_restriction.gd",
+
+	"content/abilities/heroes/bayda/*.tres",
+	"content/statuses/heroes/bayda/*.tres",
+
+	"content/abilities/debug/debug_sweeping_slash.tres",
+	"content/abilities/debug/debug_stunning_blow.tres",
+	"content/abilities/debug/debug_rending_cut.tres",
+	"content/abilities/debug/debug_sabre_slash.tres",
+	"content/abilities/debug/debug_guaranteed_critical.tres",
+
+	"content/statuses/debug/debug_bleeding.tres",
+	"content/statuses/debug/debug_cracked_defense.tres",
+	"content/statuses/debug/debug_stunned.tres",
+	"content/statuses/debug/debug_immobilized.tres",
+
+	"core/heroes/hero_definition.gd",
+	"content/heroes/bayda/bayda_hero.tres",
+	"content/heroes/bayda/debug_bayda_core_hero.tres",
 ]
 
 ALLOW_ADDONS = False

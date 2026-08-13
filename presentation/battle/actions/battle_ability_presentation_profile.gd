@@ -23,6 +23,12 @@ enum ActorMotion {
 }
 
 
+enum FeedbackRepeatMode {
+	SINGLE,
+	PER_DAMAGE_EFFECT,
+}
+
+
 const DAMAGE_FLASH_COLOR := Color(
 	1.0,
 	0.28,
@@ -80,6 +86,11 @@ var feedback_kind: FeedbackKind = (
 	FeedbackKind.AUTO
 )
 
+@export
+var feedback_repeat_mode: FeedbackRepeatMode = (
+	FeedbackRepeatMode.SINGLE
+)
+
 
 @export_group("Animation")
 
@@ -121,6 +132,44 @@ var impact_vfx_id: StringName = &""
 
 @export
 var sound_id: StringName = &""
+
+
+func get_feedback_repeat_count(
+	action_result: BattleActionResult
+) -> int:
+	if (
+		feedback_repeat_mode
+		!= FeedbackRepeatMode.PER_DAMAGE_EFFECT
+	):
+		return 1
+
+	if action_result == null:
+		return 1
+
+	var used_damage_effect_ids: Dictionary = {}
+	var anonymous_damage_count: int = 0
+
+	for effect_result in action_result.effect_results:
+		if (
+			effect_result == null
+			or not effect_result.is_successful
+			or effect_result.effect_kind != &"damage"
+		):
+			continue
+
+		if effect_result.effect_id == &"":
+			anonymous_damage_count += 1
+			continue
+
+		used_damage_effect_ids[
+			effect_result.effect_id
+		] = true
+
+	return maxi(
+		1,
+		used_damage_effect_ids.size()
+		+ anonymous_damage_count
+	)
 
 
 func resolve_feedback_kind(

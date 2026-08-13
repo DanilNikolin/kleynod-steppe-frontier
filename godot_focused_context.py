@@ -23,36 +23,20 @@ PROJECT_ROOT = Path(".").resolve()
 
 # Paste patterns from the LLM here.
 
-
 FOCUS_PATTERNS = [
-	"core/battle/abilities/ability_definition.gd",
-	"core/battle/targeting/*.gd",
-	"core/battle/effects/battle_effect.gd",
-	"core/battle/effects/damage_effect.gd",
-	"core/battle/effects/apply_status_effect.gd",
-	"core/battle/effects/health_cost_effect.gd",
-	"core/battle/effects/restore_stamina_effect.gd",
-	"core/battle/statuses/battle_status_definition.gd",
-	"core/battle/statuses/battle_status_instance.gd",
-	"core/battle/restrictions/battle_action_restriction.gd",
+	"content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres",
 
-	"content/abilities/heroes/bayda/*.tres",
-	"content/statuses/heroes/bayda/*.tres",
+	"core/battle/actions/battle_action_service.gd",
+	"core/battle/actions/battle_action_result.gd",
+	"core/battle/actions/battle_effect_result.gd",
+	"core/battle/effects/effect_resolver.gd",
+	"core/battle/damage/damage_calculator.gd",
 
-	"content/abilities/debug/debug_sweeping_slash.tres",
-	"content/abilities/debug/debug_stunning_blow.tres",
-	"content/abilities/debug/debug_rending_cut.tres",
-	"content/abilities/debug/debug_sabre_slash.tres",
-	"content/abilities/debug/debug_guaranteed_critical.tres",
-
-	"content/statuses/debug/debug_bleeding.tres",
-	"content/statuses/debug/debug_cracked_defense.tres",
-	"content/statuses/debug/debug_stunned.tres",
-	"content/statuses/debug/debug_immobilized.tres",
-
-	"core/heroes/hero_definition.gd",
-	"content/heroes/bayda/bayda_hero.tres",
-	"content/heroes/bayda/debug_bayda_core_hero.tres",
+	"presentation/battle/actions/battle_action_runner.gd",
+	"presentation/battle/actions/battle_action_outcome.gd",
+	"presentation/battle/combatants/battle_combatant_presenter.gd",
+	"presentation/battle/combatants/combatant_view.gd",
+	"presentation/battle/presentation/battle_debug_log_presenter.gd",
 ]
 
 ALLOW_ADDONS = False

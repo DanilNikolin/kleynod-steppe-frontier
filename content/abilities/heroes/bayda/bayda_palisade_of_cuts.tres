@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding.tres" id="6_bleeding"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_cracked_armor.tres" id="7_exposure"]
+[ext_resource type="Script" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="8_presentation"]
+
+[sub_resource type="Resource" id="Resource_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 2
+strength_scaling = 0.0
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 2
+strength_scaling = 0.0
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 2
+strength_scaling = 0.0
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+[sub_resource type="Resource" id="Resource_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("6_bleeding")
+effect_id = &"effect_bayda_palisade_bleeding"
+
+[sub_resource type="Resource" id="Resource_self_exposure"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("7_exposure")
+recipient = 1
+effect_id = &"effect_bayda_palisade_self_exposure"
+
+[sub_resource type="Resource" id="Resource_presentation"]
+script = ExtResource("8_presentation")
+feedback_repeat_mode = 1
+
+[sub_resource type="Resource" id="Resource_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_bayda_palisade_of_cuts"
+display_name = "Частокол порезов"
+description = "Байда трижды режет одну цель, вызывает кровотечение и раскрывает собственную защиту."
+branch = 2
+stamina_cost = 7
+cooldown_turns = 2
+presentation_profile = SubResource("Resource_presentation")
+targeting = SubResource("Resource_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_cut_1"), SubResource("Resource_cut_2"), SubResource("Resource_cut_3"), SubResource("Resource_bleeding"), SubResource("Resource_self_exposure")])

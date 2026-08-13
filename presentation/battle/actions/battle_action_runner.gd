@@ -149,17 +149,43 @@ func execute_action(
 			)
 		)
 
-		outcome.action_presented = await (
-			combatant_presenter
-			.play_ability_feedback(
-				command.actor.instance_id,
-				target_ids,
-				defeated_target_ids,
-				outcome.action_result,
-				presentation_profile,
-				animated
+		var feedback_repeat_count := (
+			presentation_profile
+			.get_feedback_repeat_count(
+				outcome.action_result
 			)
 		)
+
+		outcome.action_presented = true
+
+		for feedback_index in range(
+			feedback_repeat_count
+		):
+			var repeat_defeated_target_ids: Array[StringName] = []
+
+			if (
+				feedback_index
+				== feedback_repeat_count - 1
+			):
+				repeat_defeated_target_ids = (
+					defeated_target_ids
+				)
+
+			var feedback_presented := await (
+				combatant_presenter
+				.play_ability_feedback(
+					command.actor.instance_id,
+					target_ids,
+					repeat_defeated_target_ids,
+					outcome.action_result,
+					presentation_profile,
+					animated
+				)
+			)
+
+			if not feedback_presented:
+				outcome.action_presented = false
+				break
 
 		if not outcome.action_presented:
 			outcome.failure_code = (

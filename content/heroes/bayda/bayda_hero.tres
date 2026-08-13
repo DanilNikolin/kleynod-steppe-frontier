@@ -13,6 +13,8 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="11_slanting_cut"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_pin_down.tres" id="12_pin_down"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_black_massacre.tres" id="13_black_massacre"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="14_open_vein"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres" id="15_palisade"]
 
 [resource]
 script = ExtResource("1_hero")
@@ -22,7 +24,7 @@ description = "Первый настоящий герой. Core Module реал�
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")
-personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("11_slanting_cut"), ExtResource("12_pin_down"), ExtResource("13_black_massacre"), ExtResource("7_mend")])
+personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("11_slanting_cut"), ExtResource("12_pin_down"), ExtResource("13_black_massacre"), ExtResource("14_open_vein"), ExtResource("15_palisade"), ExtResource("7_mend")])
 starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment", &"ability_bayda_gallows_hook", &"ability_bayda_grit_teeth"])
 default_ability_id = &"ability_sabre_slash"
 starting_active_slot_count = 4

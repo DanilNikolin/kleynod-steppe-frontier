@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_black_massacre.tres" id="6_black_massacre"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="7_open_vein"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres" id="8_palisade"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_without_looking_back.tres" id="9_without_looking_back"]
 
 [sub_resource type="Resource" id="Node_strength_1"]
 script = ExtResource("2_node")
@@ -75,6 +76,15 @@ node_type = 1
 prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
 granted_ability = ExtResource("8_palisade")
 
+[sub_resource type="Resource" id="Node_learn_without_looking_back"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_without_looking_back"
+display_name = "Без оглядки"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
+granted_ability = ExtResource("9_without_looking_back")
+
 [sub_resource type="Resource" id="Node_learn_mend"]
 script = ExtResource("2_node")
 node_id = &"node_debug_learn_spirit_mend"
@@ -133,4 +143,4 @@ rare_stat = 4
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_bayda_debug"
 display_name = "Временная сетка Байды"
-nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor")])
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_without_looking_back"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor")])

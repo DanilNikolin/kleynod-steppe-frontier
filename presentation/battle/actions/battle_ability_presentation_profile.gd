@@ -181,6 +181,14 @@ func resolve_feedback_kind(
 	if action_result == null:
 		return FeedbackKind.NONE
 
+	return resolve_feedback_kind_from_effect_results(
+		action_result.effect_results
+	)
+
+
+func resolve_feedback_kind_from_effect_results(
+	effect_results: Array[BattleEffectResult]
+) -> int:
 	var has_damage := false
 	var has_heal := false
 	var has_guard := false
@@ -189,7 +197,7 @@ func resolve_feedback_kind(
 	var has_control := false
 	var has_surface := false
 
-	for effect_result in action_result.effect_results:
+	for effect_result in effect_results:
 		if (
 			effect_result == null
 			or not effect_result.is_successful
@@ -240,6 +248,7 @@ func resolve_feedback_kind(
 		return FeedbackKind.SURFACE
 
 	return FeedbackKind.NONE
+
 
 
 func get_actor_animation_key(

@@ -5,6 +5,14 @@ extends PanelContainer
 signal state_changed
 
 
+static var _expanded_sections: Dictionary = {
+	SkillGridNodeDefinition.Branch.STRENGTH: true,
+	SkillGridNodeDefinition.Branch.AGILITY: false,
+	SkillGridNodeDefinition.Branch.SPIRIT: false,
+	SkillGridNodeDefinition.Branch.NONE: false,
+}
+
+
 var hero_definition: HeroDefinition
 var progression: HeroProgressionState
 
@@ -27,6 +35,14 @@ func _rebuild_interface() -> void:
 	_clear_children()
 
 	var outer := VBoxContainer.new()
+
+	outer.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	outer.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
 
 	outer.add_theme_constant_override(
 		"separation",
@@ -101,30 +117,149 @@ func _rebuild_interface() -> void:
 		scroll
 	)
 
-	var nodes_content := VBoxContainer.new()
+	var sections := VBoxContainer.new()
 
-	nodes_content.size_flags_horizontal = (
+	sections.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	nodes_content.add_theme_constant_override(
+	sections.add_theme_constant_override(
 		"separation",
 		10
 	)
 
 	scroll.add_child(
-		nodes_content
+		sections
 	)
+
+	var grouped_nodes: Dictionary = {
+		SkillGridNodeDefinition.Branch.STRENGTH: [],
+		SkillGridNodeDefinition.Branch.AGILITY: [],
+		SkillGridNodeDefinition.Branch.SPIRIT: [],
+		SkillGridNodeDefinition.Branch.NONE: [],
+	}
 
 	for node in hero_definition.skill_grid.nodes:
 		if node == null:
 			continue
 
-		nodes_content.add_child(
+		var branch := _get_node_branch(
+			node
+		)
+
+		grouped_nodes[branch].append(
+			node
+		)
+
+	var section_order := [
+		SkillGridNodeDefinition.Branch.STRENGTH,
+		SkillGridNodeDefinition.Branch.AGILITY,
+		SkillGridNodeDefinition.Branch.SPIRIT,
+		SkillGridNodeDefinition.Branch.NONE,
+	]
+
+	for branch in section_order:
+		var branch_nodes: Array = (
+			grouped_nodes[branch]
+		)
+
+		if branch_nodes.is_empty():
+			continue
+
+		sections.add_child(
+			_create_node_section(
+				branch,
+				branch_nodes
+			)
+		)
+
+
+func _create_node_section(
+	branch: int,
+	nodes: Array
+) -> Control:
+	var section := VBoxContainer.new()
+
+	section.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	section.add_theme_constant_override(
+		"separation",
+		6
+	)
+
+	var expanded := bool(
+		_expanded_sections.get(
+			branch,
+			false
+		)
+	)
+
+	var header := Button.new()
+
+	header.toggle_mode = true
+
+	header.set_pressed_no_signal(
+		expanded
+	)
+
+	header.text = _build_section_title(
+		branch,
+		nodes.size(),
+		expanded
+	)
+
+	header.custom_minimum_size = Vector2(
+		0,
+		44
+	)
+
+	header.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	section.add_child(
+		header
+	)
+
+	var body := VBoxContainer.new()
+
+	body.visible = expanded
+
+	body.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	body.add_theme_constant_override(
+		"separation",
+		6
+	)
+
+	section.add_child(
+		body
+	)
+
+	for node in nodes:
+		if node == null:
+			continue
+
+		body.add_child(
 			_create_node_row(
 				node
 			)
 		)
+
+	header.toggled.connect(
+		_on_section_toggled.bind(
+			branch,
+			body,
+			header,
+			nodes.size()
+		)
+	)
+
+	return section
 
 
 func _create_node_row(
@@ -169,6 +304,7 @@ func _create_node_row(
 	var description := Label.new()
 
 	description.text = node.description
+
 	description.autowrap_mode = (
 		TextServer.AUTOWRAP_WORD_SMART
 	)
@@ -211,6 +347,7 @@ func _create_node_row(
 
 	else:
 		purchase_button.text = "Купить"
+
 		purchase_button.disabled = (
 			not purchase_result.is_successful
 		)
@@ -226,6 +363,104 @@ func _create_node_row(
 	)
 
 	return panel
+
+
+func _get_node_branch(
+	node: SkillGridNodeDefinition
+) -> int:
+	if node == null:
+		return SkillGridNodeDefinition.Branch.NONE
+
+	if (
+		node.branch
+		!= SkillGridNodeDefinition.Branch.NONE
+	):
+		return node.branch
+
+	if (
+		node.node_type
+		== SkillGridNodeDefinition.NodeType.LEARN_ABILITY
+		and node.granted_ability != null
+	):
+		match node.granted_ability.branch:
+			AbilityDefinition.Branch.STRENGTH:
+				return (
+					SkillGridNodeDefinition
+						.Branch.STRENGTH
+				)
+
+			AbilityDefinition.Branch.AGILITY:
+				return (
+					SkillGridNodeDefinition
+						.Branch.AGILITY
+				)
+
+			AbilityDefinition.Branch.SPIRIT:
+				return (
+					SkillGridNodeDefinition
+						.Branch.SPIRIT
+				)
+
+	return SkillGridNodeDefinition.Branch.NONE
+
+
+func _build_section_title(
+	branch: int,
+	node_count: int,
+	expanded: bool
+) -> String:
+	var arrow := (
+		"▼"
+		if expanded
+		else "▶"
+	)
+
+	return (
+		"%s  %s · %d"
+		% [
+			arrow,
+			_get_section_name(
+				branch
+			),
+			node_count,
+		]
+	)
+
+
+func _get_section_name(
+	branch: int
+) -> String:
+	match branch:
+		SkillGridNodeDefinition.Branch.STRENGTH:
+			return "СИЛА"
+
+		SkillGridNodeDefinition.Branch.AGILITY:
+			return "СПРИТНОСТЬ"
+
+		SkillGridNodeDefinition.Branch.SPIRIT:
+			return "ВОЛЯ"
+
+	return "ПРОЧЕЕ"
+
+
+func _on_section_toggled(
+	expanded: bool,
+	branch: int,
+	body: Control,
+	header: Button,
+	node_count: int
+) -> void:
+	_expanded_sections[
+		branch
+	] = expanded
+
+	body.visible = expanded
+
+	header.text = _build_section_title(
+		branch,
+		node_count,
+		expanded
+	)
 
 
 func _get_node_state_text(

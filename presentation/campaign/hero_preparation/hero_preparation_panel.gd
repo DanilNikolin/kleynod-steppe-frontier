@@ -6,6 +6,14 @@ signal close_requested
 signal hero_state_changed
 
 
+enum PreparationTab {
+	PROGRESSION,
+	ABILITIES,
+	EQUIPMENT,
+	SUMMARY,
+}
+
+
 var campaign_state: CampaignState
 
 var hero_state: CampaignHeroState
@@ -16,6 +24,12 @@ var close_button_text: String = "Вернуться в лагерь"
 var party_service := (
 	CampaignPartyService.new()
 )
+
+var _current_tab: PreparationTab = (
+	PreparationTab.PROGRESSION
+)
+
+var _selected_ability_id: StringName = &""
 
 
 func bind(
@@ -110,6 +124,14 @@ func _rebuild_interface() -> void:
 
 	var root_column := VBoxContainer.new()
 
+	root_column.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	root_column.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
 	root_column.add_theme_constant_override(
 		"separation",
 		16
@@ -145,128 +167,29 @@ func _rebuild_interface() -> void:
 
 		return
 
-	var main_row := HBoxContainer.new()
+	root_column.add_child(
+		_create_tabs()
+	)
 
-	main_row.size_flags_vertical = (
+	var separator := HSeparator.new()
+
+	root_column.add_child(
+		separator
+	)
+
+	var content := _create_active_tab_content()
+
+	content.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	main_row.add_theme_constant_override(
-		"separation",
-		20
+	content.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
 	)
 
 	root_column.add_child(
-		main_row
+		content
 	)
-
-	var skill_grid_panel := HeroSkillGridPanel.new()
-
-	skill_grid_panel.custom_minimum_size = Vector2(
-		520,
-		0
-	)
-
-	skill_grid_panel.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	skill_grid_panel.state_changed.connect(
-		_on_section_state_changed
-	)
-
-	main_row.add_child(
-		skill_grid_panel
-	)
-
-	skill_grid_panel.bind(
-		hero_state.hero_definition,
-		hero_state.progression_state
-	)
-
-	var center_column := VBoxContainer.new()
-
-	center_column.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	center_column.add_theme_constant_override(
-		"separation",
-		16
-	)
-
-	main_row.add_child(
-		center_column
-	)
-
-	var summary_panel := HeroBuildSummaryPanel.new()
-
-	summary_panel.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	summary_panel.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	center_column.add_child(
-		summary_panel
-	)
-
-	summary_panel.bind(
-		hero_state.hero_definition,
-		hero_state.progression_state
-	)
-
-	var loadout_panel := HeroLoadoutPanel.new()
-
-	loadout_panel.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	loadout_panel.state_changed.connect(
-		_on_section_state_changed
-	)
-
-	center_column.add_child(
-		loadout_panel
-	)
-
-	loadout_panel.bind(
-		hero_state.hero_definition,
-		hero_state.progression_state
-	)
-
-	var equipment_panel := HeroEquipmentPanel.new()
-
-	equipment_panel.custom_minimum_size = Vector2(
-		430,
-		0
-	)
-
-	equipment_panel.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	equipment_panel.state_changed.connect(
-		_on_section_state_changed
-	)
-
-	main_row.add_child(
-		equipment_panel
-	)
-
-	if campaign_state != null:
-		equipment_panel.bind_campaign(
-			campaign_state,
-			hero_state
-		)
-
-	else:
-		equipment_panel.bind(
-			hero_state.progression_state,
-			inventory_state
-		)
 
 
 func _create_header() -> Control:
@@ -397,6 +320,420 @@ func _create_hero_switcher() -> Control:
 	return panel
 
 
+func _create_tabs() -> Control:
+	var panel := PanelContainer.new()
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	panel.add_child(
+		row
+	)
+
+	var button_group := ButtonGroup.new()
+
+	button_group.allow_unpress = false
+
+	row.add_child(
+		_create_tab_button(
+			"РАЗВИТИЕ",
+			PreparationTab.PROGRESSION,
+			button_group
+		)
+	)
+
+	row.add_child(
+		_create_tab_button(
+			"УМЕНИЯ",
+			PreparationTab.ABILITIES,
+			button_group
+		)
+	)
+
+	row.add_child(
+		_create_tab_button(
+			"СНАРЯЖЕНИЕ",
+			PreparationTab.EQUIPMENT,
+			button_group
+		)
+	)
+
+	row.add_child(
+		_create_tab_button(
+			"СВОДКА",
+			PreparationTab.SUMMARY,
+			button_group
+		)
+	)
+
+	return panel
+
+
+func _create_tab_button(
+	button_text: String,
+	tab: PreparationTab,
+	button_group: ButtonGroup
+) -> Button:
+	var button := Button.new()
+
+	button.text = button_text
+	button.toggle_mode = true
+	button.button_group = button_group
+
+	button.custom_minimum_size = Vector2(
+		170,
+		46
+	)
+
+	button.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	button.set_pressed_no_signal(
+		_current_tab == tab
+	)
+
+	button.pressed.connect(
+		_on_tab_pressed.bind(
+			tab
+		)
+	)
+
+	return button
+
+
+func _create_active_tab_content() -> Control:
+	match _current_tab:
+		PreparationTab.PROGRESSION:
+			return _create_progression_tab()
+
+		PreparationTab.ABILITIES:
+			return _create_abilities_tab()
+
+		PreparationTab.EQUIPMENT:
+			return _create_equipment_tab()
+
+		PreparationTab.SUMMARY:
+			return _create_summary_tab()
+
+	var fallback := Label.new()
+
+	fallback.text = "Неизвестная вкладка."
+
+	return fallback
+
+
+func _create_progression_tab() -> Control:
+	var root := VBoxContainer.new()
+
+	root.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	root.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	root.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	root.add_child(
+		_create_progression_qa_bar()
+	)
+
+	var skill_grid_panel := HeroSkillGridPanel.new()
+
+	skill_grid_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	skill_grid_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	skill_grid_panel.state_changed.connect(
+		_on_section_state_changed
+	)
+
+	root.add_child(
+		skill_grid_panel
+	)
+
+	skill_grid_panel.bind(
+		hero_state.hero_definition,
+		hero_state.progression_state
+	)
+
+	return root
+
+
+func _create_abilities_tab() -> Control:
+	var abilities_panel := HeroAbilitiesPanel.new()
+
+	abilities_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	abilities_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	abilities_panel.state_changed.connect(
+		_on_section_state_changed
+	)
+
+	abilities_panel.ability_selected.connect(
+		_on_ability_selected
+	)
+
+	abilities_panel.bind(
+		hero_state.hero_definition,
+		hero_state.progression_state,
+		_selected_ability_id
+	)
+
+	return abilities_panel
+
+
+func _create_equipment_tab() -> Control:
+	var equipment_panel := HeroEquipmentPanel.new()
+
+	equipment_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	equipment_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	equipment_panel.state_changed.connect(
+		_on_section_state_changed
+	)
+
+	if campaign_state != null:
+		equipment_panel.bind_campaign(
+			campaign_state,
+			hero_state
+		)
+
+	else:
+		equipment_panel.bind(
+			hero_state.progression_state,
+			inventory_state
+		)
+
+	return equipment_panel
+
+
+func _create_summary_tab() -> Control:
+	var summary_panel := HeroBuildSummaryPanel.new()
+
+	summary_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	summary_panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	summary_panel.bind(
+		hero_state.hero_definition,
+		hero_state.progression_state
+	)
+
+	return summary_panel
+
+
+func _create_progression_qa_bar() -> Control:
+	var panel := PanelContainer.new()
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	panel.add_child(
+		row
+	)
+
+	var progression := (
+		hero_state.progression_state
+	)
+
+	var label := Label.new()
+
+	label.text = (
+		"QA · Skill Points: %d · Куплено нод: %d"
+		% [
+			progression.unspent_skill_points,
+			progression.purchased_node_ids.size(),
+		]
+	)
+
+	label.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	row.add_child(
+		label
+	)
+
+	var add_points_button := Button.new()
+
+	add_points_button.text = "+20 SP"
+
+	add_points_button.pressed.connect(
+		_on_qa_add_skill_points_pressed
+	)
+
+	row.add_child(
+		add_points_button
+	)
+
+	var reset_button := Button.new()
+
+	reset_button.text = "Сбросить Skill Grid"
+
+	reset_button.pressed.connect(
+		_on_qa_reset_skill_grid_pressed
+	)
+
+	row.add_child(
+		reset_button
+	)
+
+	return panel
+
+func _on_qa_add_skill_points_pressed() -> void:
+	if (
+		hero_state == null
+		or hero_state.progression_state == null
+	):
+		return
+
+	var progression := (
+		hero_state.progression_state
+	)
+
+	progression.unspent_skill_points = clampi(
+		progression.unspent_skill_points + 20,
+		0,
+		999
+	)
+
+	hero_state_changed.emit()
+
+	call_deferred(
+		"_rebuild_interface"
+	)
+
+
+func _on_qa_reset_skill_grid_pressed() -> void:
+	if (
+		hero_state == null
+		or hero_state.hero_definition == null
+		or hero_state.progression_state == null
+	):
+		return
+
+	var hero_definition := (
+		hero_state.hero_definition
+	)
+
+	var progression := (
+		hero_state.progression_state
+	)
+
+	var refunded_skill_points := 0
+
+	if hero_definition.skill_grid != null:
+		for node_id in progression.purchased_node_ids:
+			var node := (
+				hero_definition
+					.skill_grid
+					.get_node_definition(
+						node_id
+					)
+			)
+
+			if node == null:
+				continue
+
+			refunded_skill_points += (
+				node.skill_point_cost
+			)
+
+	progression.unspent_skill_points = clampi(
+		progression.unspent_skill_points
+			+ refunded_skill_points,
+		0,
+		999
+	)
+
+	progression.purchased_node_ids.clear()
+
+	progression.selected_personal_ability_ids.clear()
+
+	if hero_definition.default_ability_id != &"":
+		progression.selected_personal_ability_ids.append(
+			hero_definition.default_ability_id
+		)
+
+	for ability_id in (
+		hero_definition.starting_known_ability_ids
+	):
+		if (
+			progression
+				.selected_personal_ability_ids
+				.size()
+			>= hero_definition.starting_active_slot_count
+		):
+			break
+
+		if (
+			progression
+				.selected_personal_ability_ids
+				.has(
+					ability_id
+				)
+		):
+			continue
+
+		progression.selected_personal_ability_ids.append(
+			ability_id
+		)
+
+	_selected_ability_id = &""
+
+	hero_state_changed.emit()
+
+	call_deferred(
+		"_rebuild_interface"
+	)
+
+func _on_tab_pressed(
+	tab: PreparationTab
+) -> void:
+	if _current_tab == tab:
+		return
+
+	_current_tab = tab
+
+	_rebuild_interface()
+
+
+func _on_ability_selected(
+	ability_id: StringName
+) -> void:
+	_selected_ability_id = ability_id
+
+
 func _on_hero_switch_pressed(
 	hero_id: StringName
 ) -> void:
@@ -414,6 +751,8 @@ func _on_hero_switch_pressed(
 		return
 
 	hero_state = campaign_state.get_selected_hero()
+
+	_selected_ability_id = &""
 
 	hero_state_changed.emit()
 

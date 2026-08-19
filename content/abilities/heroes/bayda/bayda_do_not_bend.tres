@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="5_guard"]
+
+[sub_resource type="Resource" id="Resource_damage"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+effect_id = &"effect_bayda_do_not_bend_damage"
+
+[sub_resource type="Resource" id="Resource_guard"]
+script = ExtResource("5_guard")
+guard_amount = 3
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_guard"
+
+[sub_resource type="Resource" id="Resource_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
+
+[resource]
+script = ExtResource("1_ability")
+ability_id = &"ability_bayda_do_not_bend"
+display_name = "Не согнуться"
+description = "Байда наносит удар и готовится принять ответ: наносит 5 урона и получает 3 обороны."
+branch = 3
+stamina_cost = 5
+cooldown_turns = 0
+targeting = SubResource("Resource_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_damage"), SubResource("Resource_guard")])

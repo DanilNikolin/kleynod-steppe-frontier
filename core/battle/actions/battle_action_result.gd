@@ -20,7 +20,7 @@ var cooldown_started: bool = false
 var cooldown_turns: int = 0
 
 var effect_results: Array[BattleEffectResult] = []
-
+var reaction_results: Array[BattleActionReactionResult] = []
 
 func get_primary_target_id() -> StringName:
 	if affected_target_ids.is_empty():

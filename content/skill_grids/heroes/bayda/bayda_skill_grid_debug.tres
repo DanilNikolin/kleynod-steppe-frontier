@@ -9,26 +9,30 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="7_open_vein"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres" id="8_palisade"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_without_looking_back.tres" id="9_without_looking_back"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_do_not_bend.tres" id="10_do_not_bend"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_answer_for_answer.tres" id="11_answer_for_answer"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_hit_me_more.tres" id="12_hit_me_more"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_last_word.tres" id="13_last_word"]
 
 [sub_resource type="Resource" id="Node_strength_1"]
 script = ExtResource("2_node")
 node_id = &"node_debug_strength_1"
-display_name = "Сила +1"
-description = "Повышает ветку Силы на 1."
+display_name = "QA · Сила I"
+description = "Повышает ранг ветки Силы до I."
 branch = 1
 
 [sub_resource type="Resource" id="Node_agility_1"]
 script = ExtResource("2_node")
 node_id = &"node_debug_agility_1"
-display_name = "Спритность +1"
-description = "Повышает ветку Спритности на 1."
+display_name = "QA · Спритность I"
+description = "Повышает ранг ветки Спритности до I."
 branch = 2
 
 [sub_resource type="Resource" id="Node_spirit_1"]
 script = ExtResource("2_node")
 node_id = &"node_debug_spirit_1"
-display_name = "Воля +1"
-description = "Повышает ветку Воли на 1."
+display_name = "QA · Воля I"
+description = "Повышает ранг ветки Воли до I."
 branch = 3
 
 [sub_resource type="Resource" id="Node_learn_slanting_cut"]
@@ -85,6 +89,42 @@ node_type = 1
 prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
 granted_ability = ExtResource("9_without_looking_back")
 
+[sub_resource type="Resource" id="Node_learn_do_not_bend"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_do_not_bend"
+display_name = "Не согнуться"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("10_do_not_bend")
+
+[sub_resource type="Resource" id="Node_learn_answer_for_answer"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("11_answer_for_answer")
+
+[sub_resource type="Resource" id="Node_learn_hit_me_more"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_hit_me_more"
+display_name = "Бейте ещё"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("12_hit_me_more")
+
+[sub_resource type="Resource" id="Node_learn_last_word"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_last_word"
+display_name = "Последнее слово"
+description = "Открывает золотой личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+granted_ability = ExtResource("13_last_word")
+
 [sub_resource type="Resource" id="Node_learn_mend"]
 script = ExtResource("2_node")
 node_id = &"node_debug_learn_spirit_mend"
@@ -139,8 +179,225 @@ node_type = 6
 prerequisite_node_ids = Array[StringName]([&"node_debug_health_1"])
 rare_stat = 4
 
+[sub_resource type="Resource" id="Node_qa_strength_2"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_2"
+display_name = "QA · Сила II"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_debug_strength_1"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_3"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_3"
+display_name = "QA · Сила III"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_2"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_4"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_4"
+display_name = "QA · Сила IV"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_3"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_5"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_5"
+display_name = "QA · Сила V"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_4"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_6"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_6"
+display_name = "QA · Сила VI"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_5"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_7"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_7"
+display_name = "QA · Сила VII"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_6"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_8"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_8"
+display_name = "QA · Сила VIII"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_7"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_9"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_9"
+display_name = "QA · Сила IX"
+description = "Повышает ранг ветки Силы до следующей ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_8"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_strength_10"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_strength_10"
+display_name = "QA · Сила X"
+description = "Повышает ранг ветки Силы до максимальной тестовой ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_strength_9"])
+branch = 1
+
+[sub_resource type="Resource" id="Node_qa_agility_2"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_2"
+display_name = "QA · Спритность II"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_debug_agility_1"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_3"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_3"
+display_name = "QA · Спритность III"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_2"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_4"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_4"
+display_name = "QA · Спритность IV"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_3"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_5"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_5"
+display_name = "QA · Спритность V"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_4"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_6"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_6"
+display_name = "QA · Спритность VI"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_5"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_7"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_7"
+display_name = "QA · Спритность VII"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_6"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_8"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_8"
+display_name = "QA · Спритность VIII"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_7"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_9"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_9"
+display_name = "QA · Спритность IX"
+description = "Повышает ранг ветки Спритности на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_8"])
+branch = 2
+
+[sub_resource type="Resource" id="Node_qa_agility_10"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_agility_10"
+display_name = "QA · Спритность X"
+description = "Повышает ранг ветки Спритности до максимальной тестовой ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_agility_9"])
+branch = 2
+
+
+[sub_resource type="Resource" id="Node_qa_spirit_2"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_2"
+display_name = "QA · Воля II"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_3"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_3"
+display_name = "QA · Воля III"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_2"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_4"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_4"
+display_name = "QA · Воля IV"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_3"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_5"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_5"
+display_name = "QA · Воля V"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_4"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_6"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_6"
+display_name = "QA · Воля VI"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_5"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_7"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_7"
+display_name = "QA · Воля VII"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_6"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_8"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_8"
+display_name = "QA · Воля VIII"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_7"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_9"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_9"
+display_name = "QA · Воля IX"
+description = "Повышает ранг ветки Воли на следующую ступень."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_8"])
+branch = 3
+
+[sub_resource type="Resource" id="Node_qa_spirit_10"]
+script = ExtResource("2_node")
+node_id = &"node_qa_bayda_spirit_10"
+display_name = "QA · Воля X"
+description = "Повышает ранг ветки Воли до максимальной тестовой ступени."
+prerequisite_node_ids = Array[StringName]([&"node_qa_bayda_spirit_9"])
+branch = 3
+
 [resource]
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_bayda_debug"
 display_name = "Временная сетка Байды"
-nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_without_looking_back"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor")])
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_without_looking_back"), SubResource("Node_learn_do_not_bend"), SubResource("Node_learn_answer_for_answer"), SubResource("Node_learn_hit_me_more"), SubResource("Node_learn_last_word"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor"), SubResource("Node_qa_strength_2"), SubResource("Node_qa_strength_3"), SubResource("Node_qa_strength_4"), SubResource("Node_qa_strength_5"), SubResource("Node_qa_strength_6"), SubResource("Node_qa_strength_7"), SubResource("Node_qa_strength_8"), SubResource("Node_qa_strength_9"), SubResource("Node_qa_strength_10"), SubResource("Node_qa_agility_2"), SubResource("Node_qa_agility_3"), SubResource("Node_qa_agility_4"), SubResource("Node_qa_agility_5"), SubResource("Node_qa_agility_6"), SubResource("Node_qa_agility_7"), SubResource("Node_qa_agility_8"), SubResource("Node_qa_agility_9"), SubResource("Node_qa_agility_10"), SubResource("Node_qa_spirit_2"), SubResource("Node_qa_spirit_3"), SubResource("Node_qa_spirit_4"), SubResource("Node_qa_spirit_5"), SubResource("Node_qa_spirit_6"), SubResource("Node_qa_spirit_7"), SubResource("Node_qa_spirit_8"), SubResource("Node_qa_spirit_9"), SubResource("Node_qa_spirit_10")])

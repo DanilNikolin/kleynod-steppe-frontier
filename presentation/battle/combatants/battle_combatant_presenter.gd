@@ -630,6 +630,46 @@ func play_ability_feedback(
 	return true
 
 
+func play_reaction_feedback(
+	reaction_result: BattleActionReactionResult,
+	animated: bool = true
+) -> bool:
+	if (
+		reaction_result == null
+		or not reaction_result.is_successful
+		or reaction_result.reactor_id == &""
+	):
+		return false
+
+	var reaction_profile := (
+		BattleAbilityPresentationProfile.new()
+	)
+
+	reaction_profile.feedback_kind = (
+		reaction_profile
+		.resolve_feedback_kind_from_effect_results(
+			reaction_result.effect_results
+		) as BattleAbilityPresentationProfile.FeedbackKind
+	)
+
+	if (
+		reaction_profile.feedback_kind
+		== BattleAbilityPresentationProfile
+			.FeedbackKind
+			.NONE
+	):
+		return true
+
+	return await play_ability_feedback(
+		reaction_result.reactor_id,
+		reaction_result.get_affected_target_ids(),
+		reaction_result.get_defeated_target_ids(),
+		null,
+		reaction_profile,
+		animated
+	)
+
+
 ## Совместимый переходный метод для уже существующих вызовов.
 func play_action_feedback(
 	actor_id: StringName,

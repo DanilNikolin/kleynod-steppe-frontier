@@ -64,6 +64,7 @@ const FAILURE_INVALID_RELOCATION_TARGET: StringName = (
 
 var targeting_service: BattleTargetingService
 var effect_resolver := EffectResolver.new()
+var reaction_processor: BattleStatusReactionProcessor
 
 var relocation_service := BattleRelocationService.new()
 
@@ -77,6 +78,11 @@ func _init(
 	)
 
 	targeting_service = p_targeting_service
+	reaction_processor = (
+		BattleStatusReactionProcessor.new(
+			effect_resolver
+		)
+	)
 
 
 func execute(
@@ -263,6 +269,24 @@ func execute(
 	if result.cooldown_started:
 		result.cooldown_turns = (
 			command.ability.cooldown_turns
+		)
+
+	var resolved_reactions := (
+		reaction_processor
+		.process_after_enemy_action(
+			session,
+			command.actor,
+			result,
+			action_scope_targets,
+			standard_critical_mode
+		)
+	)
+
+	for reaction_result in (
+		resolved_reactions
+	):
+		result.reaction_results.append(
+			reaction_result
 		)
 
 	return result

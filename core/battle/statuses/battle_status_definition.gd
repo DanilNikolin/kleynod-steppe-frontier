@@ -63,6 +63,10 @@ var action_restriction: BattleActionRestriction
 @export
 var periodic_triggers: Array[BattleStatusPeriodicTrigger] = []
 
+@export_group("Reactions")
+
+@export
+var reactions: Array[BattleStatusReactionDefinition] = []
 
 @export_group("Stat Modifiers")
 
@@ -179,6 +183,32 @@ func get_validation_errors() -> PackedStringArray:
 				% [
 					trigger_index,
 					trigger_error,
+				]
+			)
+
+	for reaction_index in range(
+		reactions.size()
+	):
+		var reaction := reactions[
+			reaction_index
+		]
+
+		if reaction == null:
+			errors.append(
+				"Reaction at index %d is null."
+				% reaction_index
+			)
+
+			continue
+
+		for reaction_error in (
+			reaction.get_validation_errors()
+		):
+			errors.append(
+				"Reaction %d: %s"
+				% [
+					reaction_index,
+					reaction_error,
 				]
 			)
 

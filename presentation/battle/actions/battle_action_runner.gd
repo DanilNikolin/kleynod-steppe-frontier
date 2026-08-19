@@ -18,6 +18,10 @@ const FAILURE_PRESENTATION_FAILED: StringName = (
 	&"presentation_failed"
 )
 
+const FAILURE_REACTION_PRESENTATION_FAILED: StringName = (
+	&"reaction_presentation_failed"
+)
+
 const FAILURE_FORCED_MOVEMENT_PRESENTATION_FAILED: StringName = (
 	&"forced_movement_presentation_failed"
 )
@@ -260,10 +264,76 @@ func execute_action(
 			effect_result.target_id
 		)
 
-	if remove_defeated_views:
-		for target_id in (
-			defeated_target_ids
+	var reaction_defeated_target_ids: Array[StringName] = []
+
+	for reaction_result in (
+		outcome.action_result.reaction_results
+	):
+		if (
+			reaction_result == null
+			or not reaction_result.is_successful
 		):
+			continue
+
+		var reaction_presented := await (
+			combatant_presenter
+			.play_reaction_feedback(
+				reaction_result,
+				animated
+			)
+		)
+
+		if not reaction_presented:
+			outcome.failure_code = (
+				FAILURE_REACTION_PRESENTATION_FAILED
+			)
+
+			return outcome
+
+		for defeated_id in (
+			reaction_result
+			.get_defeated_target_ids()
+		):
+			if (
+				defeated_id == &""
+				or reaction_defeated_target_ids.has(
+					defeated_id
+				)
+			):
+				continue
+
+			reaction_defeated_target_ids.append(
+				defeated_id
+			)
+
+	var defeated_view_ids: Array[StringName] = []
+
+	for target_id in defeated_target_ids:
+		if (
+			target_id != &""
+			and not defeated_view_ids.has(
+				target_id
+			)
+		):
+			defeated_view_ids.append(
+				target_id
+			)
+
+	for target_id in (
+		reaction_defeated_target_ids
+	):
+		if (
+			target_id != &""
+			and not defeated_view_ids.has(
+				target_id
+			)
+		):
+			defeated_view_ids.append(
+				target_id
+			)
+
+	if remove_defeated_views:
+		for target_id in defeated_view_ids:
 			var removed := (
 				combatant_presenter
 				.remove_view(

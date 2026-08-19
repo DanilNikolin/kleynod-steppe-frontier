@@ -195,12 +195,24 @@ static func _build_place_surface_effect_text(
 		)
 	)
 
-	return (
+	var result := (
 		"• Создаёт поверхность: «%s»"
 		% definition.display_name
 		+"\n  Длительность: %s"
 		% duration_text
 	)
+
+	var description := (
+		definition.description.strip_edges()
+	)
+
+	if not description.is_empty():
+		result += (
+			"\n  %s"
+			% description
+		)
+
+	return result
 
 static func _build_damage_effect_text(
 	effect: DamageEffect,
@@ -211,7 +223,12 @@ static func _build_damage_effect_text(
 		% effect.base_damage
 	)
 
-	if effect.armor_piercing > 0:
+	if effect.armor_piercing >= 999:
+		damage_text += (
+			"\n  Броня: полностью игнорируется"
+		)
+
+	elif effect.armor_piercing > 0:
 		damage_text += (
 			"\n  Пробитие брони: %d"
 			% effect.armor_piercing

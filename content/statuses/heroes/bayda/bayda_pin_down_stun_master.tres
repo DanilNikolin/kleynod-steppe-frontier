@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" path="res://core/battle/restrictions/battle_action_restriction.gd" id="2_restriction"]
+
+[sub_resource type="Resource" id="Resource_stun_restriction"]
+script = ExtResource("2_restriction")
+skip_owner_turn = true
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"status_bayda_pinned_stun"
+display_name = "Прибит к земле"
+description = "Боец полностью пропускает два следующих хода."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"control", &"hard_control", &"stun"])
+duration_turns = 2
+action_restriction = SubResource("Resource_stun_restriction")

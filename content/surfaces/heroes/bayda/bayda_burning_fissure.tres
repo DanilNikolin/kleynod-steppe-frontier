@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="BattleSurfaceEffectDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/surfaces/battle_surface_effect_definition.gd" id="1_surface"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="2_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="3_damage"]
+
+[sub_resource type="Resource" id="Resource_fissure_damage"]
+script = ExtResource("3_damage")
+base_damage = 1
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_burning_fissure_damage"
+
+[resource]
+script = ExtResource("1_surface")
+surface_effect_id = &"surface_bayda_burning_fissure"
+display_name = "Пылающая трещина"
+description = "Наносит 1 урон при входе на клетку и в начале хода бойца, стоящего на ней."
+trigger_mask = 3
+target_relation = 0
+effects = Array[ExtResource("2_effect")]([SubResource("Resource_fissure_damage")])
+bypass_guard = false
+stops_movement = false
+consume_after_trigger = false
+duration_rounds = 2
+presentation_color = Color(0.95, 0.18, 0.04, 0.46)

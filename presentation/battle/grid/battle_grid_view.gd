@@ -275,6 +275,41 @@ func _draw() -> void:
 			if coordinate == hovered_cell:
 				draw_rect(cell_rect, hover_color, true)
 
+			## Временная универсальная визуализация
+			## активной поверхности.
+			##
+			## Основной цвет поверхности рисуется
+			## под interaction overlays, а этот контур
+			## остаётся видимым поверх них.
+			##
+			## TODO(PRESENTATION):
+			## Когда появятся реальные surface VFX/art,
+			## выводить их через SurfaceLayer.
+			## Этот fallback не удалять, пока каждая
+			## игровая поверхность не имеет своей
+			## полноценной визуализации.
+			if _surface_effect_colors.has(
+				coordinate
+			):
+				var surface_outline_color: Color = (
+					_surface_effect_colors[
+						coordinate
+					]
+				)
+
+				surface_outline_color.a = maxf(
+					surface_outline_color.a,
+					0.92
+				)
+
+				draw_rect(
+					cell_rect.grow(-5.0),
+					surface_outline_color,
+					false,
+					5.0,
+					true
+				)
+
 			if coordinate == selected_cell:
 				draw_rect(
 					cell_rect,

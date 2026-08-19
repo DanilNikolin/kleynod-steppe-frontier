@@ -212,6 +212,10 @@ func get_validation_errors() -> PackedStringArray:
 				% growth_error
 			)
 
+		var known_effect_ids: Dictionary = (
+			base_effect_ids.duplicate()
+		)
+
 		for step_index in range(
 			growth_table.rank_steps.size()
 		):
@@ -224,6 +228,31 @@ func get_validation_errors() -> PackedStringArray:
 			if rank_step == null:
 				continue
 
+			for effect_addition in (
+				rank_step.effect_additions
+			):
+				if (
+					effect_addition == null
+					or effect_addition.effect_id == &""
+				):
+					continue
+
+				if known_effect_ids.has(
+					effect_addition.effect_id
+				):
+					errors.append(
+						"Growth rank %d adds "
+						% (step_index + 1)
+						+"already known effect '%s'."
+						% effect_addition.effect_id
+					)
+
+					continue
+
+				known_effect_ids[
+					effect_addition.effect_id
+				] = true
+
 			for effect_override in (
 				rank_step.effect_overrides
 			):
@@ -233,13 +262,13 @@ func get_validation_errors() -> PackedStringArray:
 				):
 					continue
 
-				if not base_effect_ids.has(
+				if not known_effect_ids.has(
 					effect_override.effect_id
 				):
 					errors.append(
 						"Growth rank %d replaces "
 						% (step_index + 1)
-						+"unknown base effect '%s'."
+						+"unknown effect '%s'."
 						% effect_override.effect_id
 					)
 

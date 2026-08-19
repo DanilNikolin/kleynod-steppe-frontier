@@ -91,6 +91,18 @@ func _apply_rank_step(
 		if ability.targeting == null:
 			return false
 
+	for effect_addition in (
+		rank_step.effect_additions
+	):
+		if effect_addition == null:
+			return false
+
+		if not _add_effect(
+			ability,
+			effect_addition
+		):
+			return false
+
 	for effect_override in (
 		rank_step.effect_overrides
 	):
@@ -106,6 +118,40 @@ func _apply_rank_step(
 	return true
 
 
+func _add_effect(
+	ability: AbilityDefinition,
+	effect_addition: BattleEffect
+) -> bool:
+	if (
+		ability == null
+		or effect_addition == null
+	):
+		return false
+
+	for current_effect in ability.effects:
+		if current_effect == null:
+			continue
+
+		if (
+			current_effect.effect_id
+			== effect_addition.effect_id
+		):
+			return false
+
+	var effect_copy := (
+		effect_addition.duplicate(true)
+		as BattleEffect
+	)
+
+	if effect_copy == null:
+		return false
+
+	ability.effects.append(
+		effect_copy
+	)
+
+	return true
+	
 func _replace_effect(
 	ability: AbilityDefinition,
 	effect_override: BattleEffect

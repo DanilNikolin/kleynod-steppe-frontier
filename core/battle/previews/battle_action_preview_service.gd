@@ -807,17 +807,15 @@ func _simulate(
 			)
 
 			if effect.targets_source():
-				## SOURCE-эффект выполняется один раз
-				## за всё действие, как и в
-				## BattleActionService.
-				if resolved_source_effect_ids.has(
-					effect.effect_id
-				):
-					continue
+				if not effect.repeats_for_affected_targets():
+					if resolved_source_effect_ids.has(
+						effect.effect_id
+					):
+						continue
 
-				resolved_source_effect_ids[
-					effect.effect_id
-				] = true
+					resolved_source_effect_ids[
+						effect.effect_id
+					] = true
 
 				resolved_target = source
 
@@ -866,6 +864,7 @@ func _simulate(
 		if (
 			effect == null
 			or not effect.targets_source()
+			or effect.repeats_for_affected_targets()
 			or resolved_source_effect_ids.has(
 				effect.effect_id
 			)

@@ -306,12 +306,20 @@ static func _build_restore_stamina_effect_text(
 		else "цели"
 	)
 
+	var repeat_text := ""
+
+	if effect.repeats_for_affected_targets():
+		repeat_text = (
+			"\n  За каждую поражённую цель"
+		)
+
 	return (
 		"• Выносливость: +%d (%s)"
 		% [
 			effect.stamina_amount,
 			recipient_text,
 		]
+		+ repeat_text
 		+"\n  Сначала погашает "
 		+"долг восстановления"
 	)
@@ -329,9 +337,17 @@ static func _build_heal_effect_text(
 static func _build_guard_effect_text(
 	effect: GrantGuardEffect
 ) -> String:
+	var repeat_text := ""
+
+	if effect.repeats_for_affected_targets():
+		repeat_text = (
+			"\n  За каждую поражённую цель"
+		)
+
 	return (
 		"• Оборона: +%d"
 		% effect.guard_amount
+		+ repeat_text
 		+"\n  Максимум: здоровье бойца"
 	)
 

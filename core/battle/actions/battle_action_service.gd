@@ -203,18 +203,26 @@ func execute(
 			if effect == null:
 				continue
 
-			## SOURCE-эффект разрешается ровно один раз
-			## за действие, даже если способность
-			## затрагивает несколько impact-клеток.
+			## Обычный SOURCE-эффект выполняется
+			## один раз за действие.
+			##
+			## PER_AFFECTED_TARGET выполняется
+			## отдельно за каждого бойца,
+			## находившегося на impact-клетке.
 			if effect.targets_source():
-				if resolved_source_effect_ids.has(
-					effect.effect_id
-				):
-					continue
+				if effect.repeats_for_affected_targets():
+					if target == null:
+						continue
 
-				resolved_source_effect_ids[
-					effect.effect_id
-				] = true
+				else:
+					if resolved_source_effect_ids.has(
+						effect.effect_id
+					):
+						continue
+
+					resolved_source_effect_ids[
+						effect.effect_id
+					] = true
 			if (
 				effect_resolver
 				.requires_combatant_target(

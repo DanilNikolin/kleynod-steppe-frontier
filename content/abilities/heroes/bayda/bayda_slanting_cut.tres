@@ -6,19 +6,33 @@
 [ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
 [ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_cracked_armor.tres" id="6_cracked_armor"]
+[ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="7_guard"]
+[ext_resource type="Script" path="res://core/battle/effects/restore_stamina_effect.gd" id="8_restore_stamina"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="9_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="10_growth_table"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_slanting_cut_cracked_armor_rank3.tres" id="11_rank3_armor"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_slanting_cut_cracked_armor_rank8.tres" id="12_rank8_armor"]
 
-[sub_resource type="Resource" id="Resource_slanting_cut_damage"]
+
+[sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 4
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
 effect_id = &"effect_bayda_slanting_cut_damage"
 
-[sub_resource type="Resource" id="Resource_slanting_cut_status"]
+
+[sub_resource type="Resource" id="Resource_cracked_armor"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("6_cracked_armor")
 effect_id = &"effect_bayda_slanting_cut_cracked_armor"
 
-[sub_resource type="Resource" id="Resource_slanting_cut_targeting"]
+
+[sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
 aim_requirement = 1
 aim_relation_mask = 4
@@ -26,12 +40,190 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 affected_relation_mask = 4
 impact_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0)])
 
+
+[sub_resource type="Resource" id="Resource_rank1_damage"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_slanting_cut_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank2_guard"]
+script = ExtResource("7_guard")
+guard_amount = 2
+recipient = 1
+source_repeat_mode = 1
+effect_id = &"effect_bayda_slanting_cut_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank3_cracked_armor"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("11_rank3_armor")
+effect_id = &"effect_bayda_slanting_cut_cracked_armor"
+
+
+[sub_resource type="Resource" id="Resource_rank4_damage"]
+script = ExtResource("4_damage")
+base_damage = 6
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_slanting_cut_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank5_stamina"]
+script = ExtResource("8_restore_stamina")
+stamina_amount = 1
+recipient = 1
+source_repeat_mode = 1
+effect_id = &"effect_bayda_slanting_cut_stamina"
+
+
+[sub_resource type="Resource" id="Resource_rank6_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_slanting_cut_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank7_guard"]
+script = ExtResource("7_guard")
+guard_amount = 3
+recipient = 1
+source_repeat_mode = 1
+effect_id = &"effect_bayda_slanting_cut_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank7_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0)])
+
+
+[sub_resource type="Resource" id="Resource_rank8_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_slanting_cut_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank8_cracked_armor"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("12_rank8_armor")
+effect_id = &"effect_bayda_slanting_cut_cracked_armor"
+
+
+[sub_resource type="Resource" id="Resource_rank9_guard"]
+script = ExtResource("7_guard")
+guard_amount = 4
+recipient = 1
+source_repeat_mode = 1
+effect_id = &"effect_bayda_slanting_cut_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank9_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(5, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1), Vector2i(5, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0)])
+
+
+[sub_resource type="Resource" id="Resource_rank10_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(5, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1), Vector2i(5, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0)])
+
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("9_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_guard")])
+
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_cracked_armor")])
+
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("9_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_stamina")])
+
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("9_growth_rank")
+targeting_override = SubResource("Resource_rank7_targeting")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_guard")])
+
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_damage"), SubResource("Resource_rank8_cracked_armor")])
+
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("9_growth_rank")
+targeting_override = SubResource("Resource_rank9_targeting")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_guard")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("9_growth_rank")
+targeting_override = SubResource("Resource_rank10_targeting")
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("10_growth_table")
+rank_steps = Array[ExtResource("9_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_slanting_cut"
 display_name = "Косая сечь"
-description = "Байда рубит выбранного врага и противника сразу за ним, наносит 4 урона и снижает их броню на 2."
+description = "Байда косым рубящим ударом прорезает врагов, стоящих друг за другом в одном ряду, раскалывая их броню."
 branch = 1
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 6
-targeting = SubResource("Resource_slanting_cut_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_slanting_cut_damage"), SubResource("Resource_slanting_cut_status")])
+targeting = SubResource("Resource_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_damage"), SubResource("Resource_cracked_armor")])

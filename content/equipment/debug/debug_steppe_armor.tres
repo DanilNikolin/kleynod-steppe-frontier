@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="HeroEquipmentItemDefinition" format=3 uid="uid://ncbudkbiqhh4"]
 
-[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_6y31e"]
 [ext_resource type="Script" uid="uid://b12lvmi2lhigp" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="1_item"]
 [ext_resource type="Script" uid="uid://bcau4u236iqo" path="res://core/heroes/builds/hero_build_stat_bonuses.gd" id="2_bonuses"]
 

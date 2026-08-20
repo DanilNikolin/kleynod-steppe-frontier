@@ -196,81 +196,33 @@ func _connect_state_signals() -> void:
 	if state == null:
 		return
 
-	state.connect(
-		&"health_changed",
-		Callable(self, "_on_health_changed")
-	)
-
-	state.connect(
-		&"guard_changed",
-		Callable(self, "_on_guard_changed")
-	)
-
-	state.connect(
-		&"stamina_changed",
-		Callable(self, "_on_stamina_changed")
-	)
-
-	state.connect(
-		&"max_stamina_changed",
-		Callable(
-			self,
-			"_on_max_stamina_changed"
-		)
-	)
-
-	state.connect(
-		&"morale_changed",
-		Callable(self, "_on_morale_changed")
-	)
-
-	state.connect(
-		&"died",
-		Callable(self, "_on_died")
-	)
+	state.health_changed.connect(_on_health_changed)
+	state.guard_changed.connect(_on_guard_changed)
+	state.stamina_changed.connect(_on_stamina_changed)
+	state.max_stamina_changed.connect(_on_max_stamina_changed)
+	state.morale_changed.connect(_on_morale_changed)
+	state.died.connect(_on_died)
 
 	_connect_hero_core_signal()
+
 
 func _disconnect_state_signals() -> void:
 	if state == null:
 		return
 
-	var connections: Array[Array] = [
-		[
-			&"health_changed",
-			Callable(self, "_on_health_changed")
-		],
-		[
-			&"guard_changed",
-			Callable(self, "_on_guard_changed")
-		],
-		[
-			&"stamina_changed",
-			Callable(self, "_on_stamina_changed")
-		],
-		[
-			&"max_stamina_changed",
-			Callable(
-				self,
-				"_on_max_stamina_changed"
-			)
-		],
-		[
-			&"morale_changed",
-			Callable(self, "_on_morale_changed")
-		],
-		[
-			&"died",
-			Callable(self, "_on_died")
-		],
-	]
+	if state.health_changed.is_connected(_on_health_changed):
+		state.health_changed.disconnect(_on_health_changed)
+	if state.guard_changed.is_connected(_on_guard_changed):
+		state.guard_changed.disconnect(_on_guard_changed)
+	if state.stamina_changed.is_connected(_on_stamina_changed):
+		state.stamina_changed.disconnect(_on_stamina_changed)
+	if state.max_stamina_changed.is_connected(_on_max_stamina_changed):
+		state.max_stamina_changed.disconnect(_on_max_stamina_changed)
+	if state.morale_changed.is_connected(_on_morale_changed):
+		state.morale_changed.disconnect(_on_morale_changed)
+	if state.died.is_connected(_on_died):
+		state.died.disconnect(_on_died)
 
-	for connection_data in connections:
-		var signal_name: StringName = connection_data[0]
-		var callback: Callable = connection_data[1]
-
-		if state.is_connected(signal_name, callback):
-			state.disconnect(signal_name, callback)
 	_disconnect_hero_core_signal()
 
 func _connect_hero_core_signal() -> void:

@@ -287,25 +287,25 @@ func _create_inventory_item_row(
 		name_label
 	)
 
-	var owner := _get_item_owner(
+	var item_owner := _get_item_owner(
 		item.instance_id
 	)
 
 	var owner_label := Label.new()
 
-	if owner == null:
+	if item_owner == null:
 		owner_label.text = "Свободно"
 
 	elif (
 		hero_state != null
-		and owner == hero_state
+		and item_owner == hero_state
 	):
 		owner_label.text = "Надето на текущем герое"
 
 	else:
 		owner_label.text = (
 			"Надето: %s"
-			% owner.get_display_name()
+			% item_owner.get_display_name()
 		)
 
 	content.add_child(

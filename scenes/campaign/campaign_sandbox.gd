@@ -400,7 +400,7 @@ func _show_preparation_interface() -> void:
 		HERO_PREPARATION_PANEL_SCENE.instantiate()
 		as HeroPreparationPanel
 	)
-
+	
 	if panel == null:
 		_is_preparation_open = false
 		_show_initialization_error()

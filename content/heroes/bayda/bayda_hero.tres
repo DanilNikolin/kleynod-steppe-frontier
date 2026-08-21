@@ -5,8 +5,6 @@
 [ext_resource type="Resource" path="res://content/combatants/heroes/bayda/bayda_base_combatant.tres" id="3_combatant"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_core_module.tres" id="4_core"]
 [ext_resource type="Resource" path="res://content/skill_grids/heroes/bayda/bayda_skill_grid_debug.tres" id="5_grid"]
-[ext_resource type="Resource" path="res://content/abilities/debug/debug_sabre_slash.tres" id="6_sabre"]
-[ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="7_mend"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="8_blood_payment"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="9_gallows_hook"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="10_grit_teeth"]
@@ -20,6 +18,7 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_answer_for_answer.tres" id="18_answer_for_answer"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_hit_me_more.tres" id="19_hit_me_more"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_last_word.tres" id="20_last_word"]
+[ext_resource type="Resource" path="res://content/abilities/common/unarmed_strike.tres" id="21_unarmed"]
 
 [resource]
 script = ExtResource("1_hero")
@@ -29,8 +28,22 @@ description = "Первый настоящий герой. Core Module реал�
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")
-personal_abilities = Array[ExtResource("2_ability")]([ExtResource("6_sabre"), ExtResource("8_blood_payment"), ExtResource("9_gallows_hook"), ExtResource("10_grit_teeth"), ExtResource("11_slanting_cut"), ExtResource("12_pin_down"), ExtResource("13_black_massacre"), ExtResource("14_open_vein"), ExtResource("15_palisade"), ExtResource("16_without_looking_back"), ExtResource("17_do_not_bend"), ExtResource("18_answer_for_answer"), ExtResource("19_hit_me_more"), ExtResource("20_last_word"), ExtResource("7_mend")])
-starting_known_ability_ids = Array[StringName]([&"ability_sabre_slash", &"ability_bayda_blood_payment", &"ability_bayda_gallows_hook", &"ability_bayda_grit_teeth"])
-default_ability_id = &"ability_sabre_slash"
+fallback_ability = ExtResource("21_unarmed")
+personal_abilities = Array[ExtResource("2_ability")]([
+	ExtResource("8_blood_payment"),
+	ExtResource("9_gallows_hook"),
+	ExtResource("10_grit_teeth"),
+	ExtResource("11_slanting_cut"),
+	ExtResource("12_pin_down"),
+	ExtResource("13_black_massacre"),
+	ExtResource("14_open_vein"),
+	ExtResource("15_palisade"),
+	ExtResource("16_without_looking_back"),
+	ExtResource("17_do_not_bend"),
+	ExtResource("18_answer_for_answer"),
+	ExtResource("19_hit_me_more"),
+	ExtResource("20_last_word")
+])
+starting_known_ability_ids = Array[StringName]([])
 starting_active_slot_count = 4
 maximum_active_slot_count = 6

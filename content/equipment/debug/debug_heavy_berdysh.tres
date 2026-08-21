@@ -10,4 +10,4 @@ item_id = &"debug_heavy_berdysh"
 display_name = "Тяжёлая бердыш"
 description = "Двуручное оружие, занимающее оба оружейных слота."
 is_two_handed = true
-granted_abilities = Array[ExtResource("2_ability_script")]([ExtResource("3_ability")])
+primary_ability = ExtResource("3_ability")

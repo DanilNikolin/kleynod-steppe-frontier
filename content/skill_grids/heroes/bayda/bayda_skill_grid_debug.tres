@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
 [ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
-[ext_resource type="Resource" path="res://content/abilities/debug/debug_spirit_mend.tres" id="3_mend"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="4_slanting_cut"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_pin_down.tres" id="5_pin_down"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_black_massacre.tres" id="6_black_massacre"]
@@ -13,6 +12,9 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_answer_for_answer.tres" id="11_answer_for_answer"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_hit_me_more.tres" id="12_hit_me_more"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_last_word.tres" id="13_last_word"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="21_gallows_hook"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="22_blood_payment"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="23_grit_teeth"]
 
 [sub_resource type="Resource" id="Node_strength_1"]
 script = ExtResource("2_node")
@@ -34,6 +36,40 @@ node_id = &"node_debug_spirit_1"
 display_name = "QA · Воля I"
 description = "Повышает ранг ветки Воли до I."
 branch = 3
+
+[sub_resource type="Resource" id="Node_learn_gallows_hook"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_gallows_hook"
+display_name = "Крюк висельника"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([
+	&"node_debug_strength_1"
+])
+granted_ability = ExtResource("21_gallows_hook")
+
+[sub_resource type="Resource" id="Node_learn_blood_payment"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_blood_payment"
+display_name = "Кровью заплатить"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([
+	&"node_debug_agility_1"
+])
+granted_ability = ExtResource("22_blood_payment")
+
+[sub_resource type="Resource" id="Node_learn_grit_teeth"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_learn_grit_teeth"
+display_name = "Стиснуть зубы"
+description = "Открывает личный приём Байды."
+node_type = 1
+prerequisite_node_ids = Array[StringName]([
+	&"node_debug_spirit_1"
+])
+granted_ability = ExtResource("23_grit_teeth")
+
 
 [sub_resource type="Resource" id="Node_learn_slanting_cut"]
 script = ExtResource("2_node")
@@ -124,15 +160,6 @@ description = "Открывает золотой личный приём Бай�
 node_type = 1
 prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
 granted_ability = ExtResource("13_last_word")
-
-[sub_resource type="Resource" id="Node_learn_mend"]
-script = ExtResource("2_node")
-node_id = &"node_debug_learn_spirit_mend"
-display_name = "Духовное восстановление"
-description = "Открывает личный приём."
-node_type = 1
-prerequisite_node_ids = Array[StringName]([&"node_debug_spirit_1"])
-granted_ability = ExtResource("3_mend")
 
 [sub_resource type="Resource" id="Node_active_slot"]
 script = ExtResource("2_node")
@@ -400,4 +427,4 @@ branch = 3
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_bayda_debug"
 display_name = "Временная сетка Байды"
-nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_without_looking_back"), SubResource("Node_learn_do_not_bend"), SubResource("Node_learn_answer_for_answer"), SubResource("Node_learn_hit_me_more"), SubResource("Node_learn_last_word"), SubResource("Node_learn_mend"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor"), SubResource("Node_qa_strength_2"), SubResource("Node_qa_strength_3"), SubResource("Node_qa_strength_4"), SubResource("Node_qa_strength_5"), SubResource("Node_qa_strength_6"), SubResource("Node_qa_strength_7"), SubResource("Node_qa_strength_8"), SubResource("Node_qa_strength_9"), SubResource("Node_qa_strength_10"), SubResource("Node_qa_agility_2"), SubResource("Node_qa_agility_3"), SubResource("Node_qa_agility_4"), SubResource("Node_qa_agility_5"), SubResource("Node_qa_agility_6"), SubResource("Node_qa_agility_7"), SubResource("Node_qa_agility_8"), SubResource("Node_qa_agility_9"), SubResource("Node_qa_agility_10"), SubResource("Node_qa_spirit_2"), SubResource("Node_qa_spirit_3"), SubResource("Node_qa_spirit_4"), SubResource("Node_qa_spirit_5"), SubResource("Node_qa_spirit_6"), SubResource("Node_qa_spirit_7"), SubResource("Node_qa_spirit_8"), SubResource("Node_qa_spirit_9"), SubResource("Node_qa_spirit_10")])
+nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1"), SubResource("Node_agility_1"), SubResource("Node_spirit_1"), SubResource("Node_learn_gallows_hook"), SubResource("Node_learn_blood_payment"), SubResource("Node_learn_grit_teeth"), SubResource("Node_learn_slanting_cut"), SubResource("Node_learn_pin_down"), SubResource("Node_learn_black_massacre"), SubResource("Node_learn_open_vein"), SubResource("Node_learn_palisade"), SubResource("Node_learn_without_looking_back"), SubResource("Node_learn_do_not_bend"), SubResource("Node_learn_answer_for_answer"), SubResource("Node_learn_hit_me_more"), SubResource("Node_learn_last_word"), SubResource("Node_active_slot"), SubResource("Node_health"), SubResource("Node_max_stamina"), SubResource("Node_start_stamina"), SubResource("Node_armor"), SubResource("Node_qa_strength_2"), SubResource("Node_qa_strength_3"), SubResource("Node_qa_strength_4"), SubResource("Node_qa_strength_5"), SubResource("Node_qa_strength_6"), SubResource("Node_qa_strength_7"), SubResource("Node_qa_strength_8"), SubResource("Node_qa_strength_9"), SubResource("Node_qa_strength_10"), SubResource("Node_qa_agility_2"), SubResource("Node_qa_agility_3"), SubResource("Node_qa_agility_4"), SubResource("Node_qa_agility_5"), SubResource("Node_qa_agility_6"), SubResource("Node_qa_agility_7"), SubResource("Node_qa_agility_8"), SubResource("Node_qa_agility_9"), SubResource("Node_qa_agility_10"), SubResource("Node_qa_spirit_2"), SubResource("Node_qa_spirit_3"), SubResource("Node_qa_spirit_4"), SubResource("Node_qa_spirit_5"), SubResource("Node_qa_spirit_6"), SubResource("Node_qa_spirit_7"), SubResource("Node_qa_spirit_8"), SubResource("Node_qa_spirit_9"), SubResource("Node_qa_spirit_10")])

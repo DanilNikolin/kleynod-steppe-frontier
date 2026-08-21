@@ -45,6 +45,14 @@ var stat_bonuses: HeroBuildStatBonuses
 
 @export_group("Abilities")
 
+## Основной приём оружия.
+## Если оружие экипировано, он заменяет
+## fallback-атаку героя.
+##
+## Не занимает личный активный слот.
+@export
+var primary_ability: AbilityDefinition
+
 ## Предмет может давать от нуля до двух активных способностей.
 ## Они не занимают личные активные слоты героя.
 @export
@@ -100,6 +108,26 @@ func get_validation_errors() -> PackedStringArray:
 			)
 
 	var used_ability_ids: Dictionary = {}
+
+	if primary_ability != null:
+		if category != Category.WEAPON:
+			errors.append(
+				"Only weapons can define "
+				+ "a primary ability."
+			)
+
+		for ability_error in (
+			primary_ability.get_validation_errors()
+		):
+			errors.append(
+				"Primary ability: %s"
+				% ability_error
+			)
+
+		if primary_ability.ability_id != &"":
+			used_ability_ids[
+				primary_ability.ability_id
+			] = true
 
 	for ability_index in range(
 		granted_abilities.size()

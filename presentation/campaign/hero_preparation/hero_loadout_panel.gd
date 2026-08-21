@@ -170,8 +170,9 @@ func _create_ability_row(
 
 	elif is_selected:
 		if (
-			ability.ability_id
-			== hero_definition.default_ability_id
+			hero_definition.fallback_ability == null
+			and ability.ability_id
+				== hero_definition.default_ability_id
 		):
 			action_button.text = "Обязательный"
 			action_button.disabled = true
@@ -235,7 +236,8 @@ func _get_state_text(
 		return "Состояние: не изучено"
 
 	if (
-		is_selected
+		hero_definition.fallback_ability == null
+		and is_selected
 		and ability.ability_id
 			== hero_definition.default_ability_id
 	):

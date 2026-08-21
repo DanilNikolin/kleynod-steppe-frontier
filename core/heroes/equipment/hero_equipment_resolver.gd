@@ -30,6 +30,33 @@ func resolve(
 		if item == null:
 			continue
 
+		var definition := item.definition
+
+		if definition == null:
+			continue
+
+		if (
+			result.primary_ability == null
+			and (
+				slot
+				== HeroEquipmentState.Slot.WEAPON_1
+				or slot
+				== HeroEquipmentState.Slot.WEAPON_2
+			)
+			and definition.primary_ability != null
+		):
+			result.primary_ability = (
+				definition.primary_ability
+			)
+
+			if (
+				result.primary_ability.ability_id
+				!= &""
+			):
+				used_ability_ids[
+					result.primary_ability.ability_id
+				] = true
+
 		if used_instance_ids.has(
 			item.instance_id
 		):
@@ -42,8 +69,6 @@ func resolve(
 		result.equipped_items.append(
 			item
 		)
-
-		var definition := item.definition
 
 		if definition.stat_bonuses != null:
 			result.stat_bonuses.add_from(

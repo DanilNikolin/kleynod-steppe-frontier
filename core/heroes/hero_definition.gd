@@ -33,6 +33,15 @@ var core_module: HeroCoreModuleDefinition
 var skill_grid: SkillGridDefinition
 
 
+@export_group("Basic Ability")
+
+## Слабая базовая атака героя, используемая,
+## если экипированное оружие не предоставляет
+## собственный основной приём.
+@export
+var fallback_ability: AbilityDefinition
+
+
 @export_group("Personal Abilities")
 
 @export
@@ -41,6 +50,8 @@ var personal_abilities: Array[AbilityDefinition] = []
 @export
 var starting_known_ability_ids: Array[StringName] = []
 
+## Legacy compatibility для старых debug-героев.
+## Новые HeroDefinition должны использовать fallback_ability.
 @export
 var default_ability_id: StringName = &""
 
@@ -192,18 +203,39 @@ func get_validation_errors() -> PackedStringArray:
 			ability_id
 		] = true
 
-	if default_ability_id == &"":
-		errors.append(
-			"Hero default ability ID is empty."
-		)
+	if fallback_ability != null:
+		if not fallback_ability.is_valid_definition():
+			errors.append(
+				"Hero fallback ability is invalid."
+			)
 
-	elif not used_starting_ids.has(
-		default_ability_id
-	):
-		errors.append(
-			"Hero default ability must be "
-			+"known at the start."
-		)
+		if personal_ability_ids.has(
+			fallback_ability.ability_id
+		):
+			errors.append(
+				"Hero fallback ability cannot also "
+				+ "be a personal ability."
+			)
+
+		if default_ability_id != &"":
+			errors.append(
+				"Hero with fallback ability cannot "
+				+ "also define a legacy default ability."
+			)
+
+	else:
+		if default_ability_id == &"":
+			errors.append(
+				"Hero fallback ability is not assigned."
+			)
+
+		elif not used_starting_ids.has(
+			default_ability_id
+		):
+			errors.append(
+				"Legacy hero default ability must be "
+				+ "known at the start."
+			)
 
 	if starting_active_slot_count <= 0:
 		errors.append(

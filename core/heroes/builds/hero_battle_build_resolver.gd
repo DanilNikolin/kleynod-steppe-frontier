@@ -173,15 +173,16 @@ func resolve(
 		)
 	)
 
-	if selected_ability_ids.is_empty():
-		return null
-
 	if selected_ability_ids.size() > active_slot_count:
 		return null
 
-	if not selected_ability_ids.has(
-		hero.default_ability_id
-	):
+	var basic_ability := _resolve_basic_ability(
+		hero,
+		equipment_resolution,
+		selected_ability_ids
+	)
+
+	if basic_ability == null:
 		return null
 
 	var unresolved_loadout := (
@@ -199,10 +200,18 @@ func resolve(
 	)
 
 	unresolved_loadout.default_ability_id = (
-		hero.default_ability_id
+		basic_ability.ability_id
 	)
 
 	var added_ability_ids: Dictionary = {}
+
+	added_ability_ids[
+		basic_ability.ability_id
+	] = true
+
+	unresolved_loadout.abilities.append(
+		basic_ability
+	)
 
 	for ability_id in selected_ability_ids:
 		if not known_ability_ids.has(
@@ -325,10 +334,22 @@ func resolve(
 			ability_id
 		)
 
+	if equipment_resolution.primary_ability != null:
+		result.equipment_ability_ids.append(
+			equipment_resolution
+				.primary_ability
+				.ability_id
+		)
+
 	for ability in (
 		equipment_resolution.granted_abilities
 	):
 		if ability == null:
+			continue
+
+		if result.equipment_ability_ids.has(
+			ability.ability_id
+		):
 			continue
 
 		result.equipment_ability_ids.append(
@@ -353,6 +374,41 @@ func resolve(
 		)
 
 	return result
+
+
+func _resolve_basic_ability(
+	hero: HeroDefinition,
+	equipment_resolution: HeroEquipmentResolution,
+	selected_personal_ability_ids: Array[StringName]
+) -> AbilityDefinition:
+	if (
+		equipment_resolution != null
+		and equipment_resolution.primary_ability != null
+	):
+		return equipment_resolution.primary_ability
+
+	if (
+		hero != null
+		and hero.fallback_ability != null
+	):
+		return hero.fallback_ability
+
+	## Legacy compatibility для старых
+	## debug/placeholder HeroDefinition.
+	if (
+		hero == null
+		or hero.default_ability_id == &""
+	):
+		return null
+
+	if not selected_personal_ability_ids.has(
+		hero.default_ability_id
+	):
+		return null
+
+	return hero.get_personal_ability(
+		hero.default_ability_id
+	)
 
 
 func _get_selected_ability_ids(

@@ -387,7 +387,12 @@ func get_remove_result(
 
 		return result
 
-	if ability_id == hero.default_ability_id:
+	## Только старые debug-герои ещё держат
+	## default ability внутри personal loadout.
+	if (
+		hero.fallback_ability == null
+		and ability_id == hero.default_ability_id
+	):
 		result.failure_code = (
 			FAILURE_DEFAULT_ABILITY_REQUIRED
 		)
@@ -493,8 +498,11 @@ func _get_selection_failure(
 	if selected_ability_ids.size() > active_slot_count:
 		return FAILURE_INVALID_CURRENT_LOADOUT
 
-	if not selected_ability_ids.has(
-		hero.default_ability_id
+	if (
+		hero.fallback_ability == null
+		and not selected_ability_ids.has(
+			hero.default_ability_id
+		)
 	):
 		return FAILURE_INVALID_CURRENT_LOADOUT
 

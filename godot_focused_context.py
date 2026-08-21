@@ -24,15 +24,9 @@ PROJECT_ROOT = Path(".").resolve()
 # Paste patterns from the LLM here.
 
 FOCUS_PATTERNS = [
-	"content/abilities/heroes/bayda/bayda_black_massacre.tres",
-
-	"content/statuses/heroes/bayda/bayda_massacre_pinned.tres",
-	"content/statuses/heroes/bayda/bayda_cracked_armor.tres",
-	"content/statuses/heroes/bayda/bayda_pinned_stun.tres",
-
-	"core/battle/effects/remove_status_effect.gd",
-
-	"presentation/battle/abilities/battle_ability_presentation_builder.gd",
+	"content/abilities/heroes/bayda/bayda_without_looking_back.tres",
+	"content/statuses/heroes/bayda/bayda_reckless_exposure.tres",
+	"content/statuses/heroes/bayda/bayda_bleeding.tres",
 ]
 
 ALLOW_ADDONS = False

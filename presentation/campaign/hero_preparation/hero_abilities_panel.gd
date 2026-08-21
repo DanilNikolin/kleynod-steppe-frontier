@@ -41,6 +41,20 @@ func bind(
 func _rebuild_interface() -> void:
 	_clear_children()
 
+	var page_scroll := ScrollContainer.new()
+
+	page_scroll.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	page_scroll.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	add_child(
+		page_scroll
+	)
+
 	var root := VBoxContainer.new()
 
 	root.size_flags_horizontal = (
@@ -56,7 +70,7 @@ func _rebuild_interface() -> void:
 		14
 	)
 
-	add_child(
+	page_scroll.add_child(
 		root
 	)
 

@@ -7,33 +7,49 @@
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
 [ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding.tres" id="6_bleeding"]
 [ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_cracked_armor.tres" id="7_exposure"]
-[ext_resource type="Script" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="8_presentation"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="8_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="9_growth_table"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding_rank2.tres" id="10_bleeding_rank2"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding_rank7.tres" id="11_bleeding_rank7"]
+[ext_resource type="Script" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="palisade_presentation"]
+
+
 
 [sub_resource type="Resource" id="Resource_cut_1"]
 script = ExtResource("4_damage")
 base_damage = 2
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
 crit_mode = 0
 effect_id = &"effect_bayda_palisade_cut_1"
+
 
 [sub_resource type="Resource" id="Resource_cut_2"]
 script = ExtResource("4_damage")
 base_damage = 2
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
 crit_mode = 0
 effect_id = &"effect_bayda_palisade_cut_2"
+
 
 [sub_resource type="Resource" id="Resource_cut_3"]
 script = ExtResource("4_damage")
 base_damage = 2
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
 crit_mode = 0
 effect_id = &"effect_bayda_palisade_cut_3"
+
 
 [sub_resource type="Resource" id="Resource_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("6_bleeding")
 effect_id = &"effect_bayda_palisade_bleeding"
+
 
 [sub_resource type="Resource" id="Resource_self_exposure"]
 script = ExtResource("5_apply_status")
@@ -41,9 +57,11 @@ status_definition = ExtResource("7_exposure")
 recipient = 1
 effect_id = &"effect_bayda_palisade_self_exposure"
 
-[sub_resource type="Resource" id="Resource_presentation"]
-script = ExtResource("8_presentation")
+
+[sub_resource type="Resource" id="Resource_palisade_presentation"]
+script = ExtResource("palisade_presentation")
 feedback_repeat_mode = 1
+
 
 [sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
@@ -53,14 +71,308 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 affected_relation_mask = 4
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+[sub_resource type="Resource" id="Resource_rank1_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_rank1_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_rank1_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+
+[sub_resource type="Resource" id="Resource_rank2_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_rank2_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_rank2_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+[sub_resource type="Resource" id="Resource_rank2_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
+
+
+[sub_resource type="Resource" id="Resource_rank3_cut_4"]
+script = ExtResource("4_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_4"
+
+
+[sub_resource type="Resource" id="Resource_rank4_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_rank4_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_rank4_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+[sub_resource type="Resource" id="Resource_rank4_cut_4"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_4"
+
+[sub_resource type="Resource" id="Resource_rank4_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("10_bleeding_rank2")
+effect_id = &"effect_bayda_palisade_bleeding"
+
+
+[sub_resource type="Resource" id="Resource_rank5_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 2
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_rank5_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 2
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_rank5_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 2
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+[sub_resource type="Resource" id="Resource_rank5_cut_4"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 4
+minimum_damage = 2
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_4"
+
+
+[sub_resource type="Resource" id="Resource_rank6_cut_5"]
+script = ExtResource("4_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 5
+minimum_damage = 2
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_5"
+
+
+[sub_resource type="Resource" id="Resource_rank7_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("11_bleeding_rank7")
+effect_id = &"effect_bayda_palisade_bleeding"
+
+
+[sub_resource type="Resource" id="Resource_rank8_cut_1"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_1"
+
+[sub_resource type="Resource" id="Resource_rank8_cut_2"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_2"
+
+[sub_resource type="Resource" id="Resource_rank8_cut_3"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_3"
+
+[sub_resource type="Resource" id="Resource_rank8_cut_4"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 4
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_4"
+
+[sub_resource type="Resource" id="Resource_rank8_cut_5"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 5
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_5"
+
+
+[sub_resource type="Resource" id="Resource_rank9_cut_6"]
+script = ExtResource("4_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 6
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_6"
+
+
+[sub_resource type="Resource" id="Resource_rank10_cut_6"]
+script = ExtResource("4_damage")
+base_damage = 8
+strength_scaling = 0.0
+armor_piercing = 999
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_palisade_cut_6"
+
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_cut_1"), SubResource("Resource_rank1_cut_2"), SubResource("Resource_rank1_cut_3")])
+
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("8_growth_rank")
+targeting_override = SubResource("Resource_rank2_targeting")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_cut_1"), SubResource("Resource_rank2_cut_2"), SubResource("Resource_rank2_cut_3")])
+
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("8_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_cut_4")])
+
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_cut_1"), SubResource("Resource_rank4_cut_2"), SubResource("Resource_rank4_cut_3"), SubResource("Resource_rank4_cut_4"), SubResource("Resource_rank4_bleeding")])
+
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_cut_1"), SubResource("Resource_rank5_cut_2"), SubResource("Resource_rank5_cut_3"), SubResource("Resource_rank5_cut_4")])
+
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("8_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_cut_5")])
+
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_bleeding")])
+
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_cut_1"), SubResource("Resource_rank8_cut_2"), SubResource("Resource_rank8_cut_3"), SubResource("Resource_rank8_cut_4"), SubResource("Resource_rank8_cut_5")])
+
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("8_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_cut_6")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("8_growth_rank")
+cooldown_turns_override = 1
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_cut_6")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("9_growth_table")
+rank_steps = Array[ExtResource("8_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_palisade_of_cuts"
 display_name = "Частокол порезов"
-description = "Байда трижды режет одну цель, вызывает кровотечение и раскрывает собственную защиту."
+description = "Байда обрушивает на одну цель длинную серию быстрых порезов, вызывая кровотечение и раскрывая собственную защиту."
 branch = 2
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 7
 cooldown_turns = 2
-presentation_profile = SubResource("Resource_presentation")
 targeting = SubResource("Resource_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_cut_1"), SubResource("Resource_cut_2"), SubResource("Resource_cut_3"), SubResource("Resource_bleeding"), SubResource("Resource_self_exposure")])
+presentation_profile = SubResource("Resource_palisade_presentation")

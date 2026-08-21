@@ -6,19 +6,32 @@
 [ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
 [ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding.tres" id="6_bleeding"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="7_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="8_growth_table"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding_rank2.tres" id="9_bleeding_rank2"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding_rank5.tres" id="10_bleeding_rank5"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_bleeding_rank7.tres" id="11_bleeding_rank7"]
 
-[sub_resource type="Resource" id="Resource_open_vein_damage"]
+
+[sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 5
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
 effect_id = &"effect_bayda_open_vein_damage"
 
-[sub_resource type="Resource" id="Resource_open_vein_bleeding"]
+
+[sub_resource type="Resource" id="Resource_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("6_bleeding")
 effect_id = &"effect_bayda_open_vein_bleeding"
 
-[sub_resource type="Resource" id="Resource_open_vein_targeting"]
+
+[sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
 aim_requirement = 1
 aim_relation_mask = 4
@@ -26,13 +39,218 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 affected_relation_mask = 4
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+[sub_resource type="Resource" id="Resource_rank1_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 0
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank2_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 15
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank2_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("9_bleeding_rank2")
+effect_id = &"effect_bayda_open_vein_bleeding"
+
+
+[sub_resource type="Resource" id="Resource_rank3_damage"]
+script = ExtResource("4_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 15
+critical_multiplier = 1.5
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank3_targeting"]
+script = ExtResource("2_targeting")
+aim_requirement = 1
+aim_relation_mask = 4
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1)])
+affected_relation_mask = 4
+impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
+
+
+[sub_resource type="Resource" id="Resource_rank4_damage"]
+script = ExtResource("4_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 20
+critical_multiplier = 1.75
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank5_damage"]
+script = ExtResource("4_damage")
+base_damage = 12
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 20
+critical_multiplier = 2.0
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank5_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("10_bleeding_rank5")
+effect_id = &"effect_bayda_open_vein_bleeding"
+
+
+[sub_resource type="Resource" id="Resource_rank6_damage"]
+script = ExtResource("4_damage")
+base_damage = 12
+strength_scaling = 0.0
+armor_piercing = 4
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 25
+critical_multiplier = 2.0
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank7_damage"]
+script = ExtResource("4_damage")
+base_damage = 14
+strength_scaling = 0.0
+armor_piercing = 4
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 25
+critical_multiplier = 2.0
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank7_bleeding"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("11_bleeding_rank7")
+effect_id = &"effect_bayda_open_vein_bleeding"
+
+
+[sub_resource type="Resource" id="Resource_rank8_damage"]
+script = ExtResource("4_damage")
+base_damage = 14
+strength_scaling = 0.0
+armor_piercing = 4
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 30
+critical_multiplier = 2.25
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank9_damage"]
+script = ExtResource("4_damage")
+base_damage = 15
+strength_scaling = 0.0
+armor_piercing = 999
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 30
+critical_multiplier = 2.25
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank10_damage"]
+script = ExtResource("4_damage")
+base_damage = 18
+strength_scaling = 0.0
+armor_piercing = 999
+minimum_damage = 1
+crit_mode = 1
+crit_chance_bonus_percent = 30
+critical_multiplier = 2.5
+effect_id = &"effect_bayda_open_vein_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_damage"), SubResource("Resource_rank2_bleeding")])
+
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("7_growth_rank")
+targeting_override = SubResource("Resource_rank3_targeting")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_damage"), SubResource("Resource_rank5_bleeding")])
+
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_damage"), SubResource("Resource_rank7_bleeding")])
+
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_damage")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("8_growth_table")
+rank_steps = Array[ExtResource("7_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_open_vein"
 display_name = "Вскрыть жилу"
-description = "Байда наносит глубокий порез: 5 прямого урона и кровотечение на два хода."
+description = "Байда наносит точный глубокий порез, превращая один удар в опасную кровоточащую рану."
 branch = 2
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 5
 cooldown_turns = 1
-targeting = SubResource("Resource_open_vein_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_open_vein_damage"), SubResource("Resource_open_vein_bleeding")])
+targeting = SubResource("Resource_targeting")
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_damage"), SubResource("Resource_bleeding")])

@@ -9,7 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_restore_stamina"]
 script = ExtResource("4_restore")
-stamina_amount = 2
+stamina_amount = 3
 recipient = 1
 effect_id = &"effect_bayda_hit_me_more_restore_stamina"
 
@@ -28,7 +28,7 @@ effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_stamina"
 script = ExtResource("1_status")
 status_id = &"status_bayda_hit_me_more"
 display_name = "Бейте ещё"
-description = "До следующего хода каждое отдельное вражеское действие, повредившее Байде здоровье или оборону, восстанавливает 2 выносливости, но снижает его броню на 1."
+description = "До следующего хода каждое отдельное вражеское действие, повредившее Байде здоровье или оборону, восстанавливает 3 выносливости и накладывает 1 стак Распахнутой защиты. Каждый стак снижает броню на 1, максимум 3 стака."
 polarity = 1
 tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
 duration_turns = 2

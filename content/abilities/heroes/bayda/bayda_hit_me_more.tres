@@ -4,12 +4,20 @@
 [ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
 [ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres" id="5_status"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="5_status"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="6_reaction"]
+[ext_resource type="Script" path="res://core/battle/effects/restore_stamina_effect.gd" id="7_restore"]
+[ext_resource type="Script" path="res://core/battle/stats/battle_stat_modifier.gd" id="8_modifier"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="9_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="10_growth_table"]
 
-[sub_resource type="Resource" id="Resource_apply_stance"]
-script = ExtResource("4_apply_status")
-status_definition = ExtResource("5_status")
-effect_id = &"effect_bayda_hit_me_more_stance"
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres" id="11_base_stance"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_exposure.tres" id="12_base_exposure"]
+
+
+; ============================================================
+; TARGETING
+; ============================================================
 
 [sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
@@ -19,13 +27,564 @@ aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+; ============================================================
+; SHARED STAMINA EFFECTS
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_restore_2"]
+script = ExtResource("7_restore")
+stamina_amount = 2
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_3"]
+script = ExtResource("7_restore")
+stamina_amount = 3
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_4"]
+script = ExtResource("7_restore")
+stamina_amount = 4
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_5"]
+script = ExtResource("7_restore")
+stamina_amount = 5
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_6"]
+script = ExtResource("7_restore")
+stamina_amount = 6
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_7"]
+script = ExtResource("7_restore")
+stamina_amount = 7
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_8"]
+script = ExtResource("7_restore")
+stamina_amount = 8
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_9"]
+script = ExtResource("7_restore")
+stamina_amount = 9
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+[sub_resource type="Resource" id="Resource_restore_10"]
+script = ExtResource("7_restore")
+stamina_amount = 10
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+
+
+; ============================================================
+; EXPOSURE
+; R0-R1: max 3
+; R2+: max 2
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_apply_base_exposure"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_base_exposure")
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_exposure"
+
+
+[sub_resource type="Resource" id="Resource_rank2_armor_modifier"]
+script = ExtResource("8_modifier")
+amount_per_stack = -1
+
+[sub_resource type="Resource" id="Resource_rank2_exposure"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more_exposure"
+display_name = "Распахнутая защита"
+description = "Каждый стак снижает броню на 1. Максимум 2 стака."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"armor_debuff", &"self_exposure", &"reckless"])
+duration_turns = 1
+max_stacks = 2
+reapply_rule = 1
+stat_modifiers = Array[ExtResource("8_modifier")]([SubResource("Resource_rank2_armor_modifier")])
+
+[sub_resource type="Resource" id="Resource_apply_rank2_exposure"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_rank2_exposure")
+recipient = 1
+effect_id = &"effect_bayda_hit_me_more_exposure"
+
+
+; ============================================================
+; R0
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_base_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("11_base_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R1
+; HP >= 5 : +2
+; HP 1-4  : +3
+; Exposure max 3
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r1_reaction_normal"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_base_exposure")])
+
+[sub_resource type="Resource" id="Resource_r1_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_base_exposure")])
+
+[sub_resource type="Resource" id="Resource_r1_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Каждый повредивший Байду вражеский ход восстанавливает 3 выносливости, а при 4 HP или меньше — 4. Распахнутая защита может набрать до 3 стаков."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r1_reaction_normal"), SubResource("Resource_r1_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r1_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r1_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R2
+; Same stamina as R1
+; Exposure max 3 -> 2
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r2_reaction_normal"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r2_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r2_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "При 4 HP или меньше входящие удары восстанавливают 4 выносливости. Распахнутая защита теперь ограничена 2 стаками."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r2_reaction_normal"), SubResource("Resource_r2_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r2_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r2_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R3
+; HP >= 5 : +3
+; HP 1-4  : +4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r3_reaction_normal"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r3_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r3_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Каждый повредивший Байду вражеский ход восстанавливает 3 выносливости, а при 4 HP или меньше — 5."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r3_reaction_normal"), SubResource("Resource_r3_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r3_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r3_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R5
+; HP >= 5 : +3
+; HP 1-4  : +5
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r5_reaction_normal"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r5_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r5_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "При 4 HP или меньше каждый повредивший Байду вражеский ход восстанавливает 6 выносливости."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r5_reaction_normal"), SubResource("Resource_r5_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r5_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r5_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R6
+; HP >= 8 : +3
+; HP 5-7  : +4
+; HP 1-4  : +5
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r6_reaction_high"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 8
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r6_reaction_mid"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+maximum_reactor_health = 7
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r6_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r6_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Чем сильнее ранен Байда, тем больше выносливости возвращает каждый вражеский удар: 3 при 8+ HP, 4 при 5–7 HP и 6 при 1–4 HP."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r6_reaction_high"), SubResource("Resource_r6_reaction_mid"), SubResource("Resource_r6_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r6_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r6_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R7
+; HP >= 8 : +3
+; HP 5-7  : +4
+; HP 2-4  : +5
+; HP 1    : +7
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r7_reaction_high"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 8
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r7_reaction_mid"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+maximum_reactor_health = 7
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r7_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 2
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r7_reaction_last"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r7_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "На последнем HP Байда восстанавливает 8 выносливости за каждое повредившее его вражеское действие."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r7_reaction_high"), SubResource("Resource_r7_reaction_mid"), SubResource("Resource_r7_reaction_low"), SubResource("Resource_r7_reaction_last")])
+
+[sub_resource type="Resource" id="Resource_r7_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r7_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R8
+; HP >= 8 : +4
+; HP 5-7  : +5
+; HP 2-4  : +6
+; HP 1    : +8
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r8_reaction_high"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 8
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r8_reaction_mid"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+maximum_reactor_health = 7
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r8_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 2
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r8_reaction_last"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r8_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Входящие удары возвращают 4/5/6 выносливости в зависимости от здоровья Байды, а на 1 HP — 8."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r8_reaction_high"), SubResource("Resource_r8_reaction_mid"), SubResource("Resource_r8_reaction_low"), SubResource("Resource_r8_reaction_last")])
+
+[sub_resource type="Resource" id="Resource_r8_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r8_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; R9
+; HP >= 8 : +5
+; HP 5-7  : +6
+; HP 2-4  : +7
+; HP 1    : +9
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r9_reaction_high"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 8
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r9_reaction_mid"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+maximum_reactor_health = 7
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r9_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 2
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_7"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r9_reaction_last"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_9"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r9_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Входящие удары восстанавливают 5/6/7 выносливости по мере падения здоровья Байды, а на 1 HP — 9."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r9_reaction_high"), SubResource("Resource_r9_reaction_mid"), SubResource("Resource_r9_reaction_low"), SubResource("Resource_r9_reaction_last")])
+
+[sub_resource type="Resource" id="Resource_r9_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r9_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+
+; ============================================================
+; R10
+; HP >= 8 : +4
+; HP 5-7  : +5
+; HP 2-4  : +6
+; HP 1    : +10
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r10_reaction_high"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 8
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r10_reaction_mid"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+maximum_reactor_health = 7
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r10_reaction_low"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 2
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r10_reaction_last"]
+script = ExtResource("6_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_10"), SubResource("Resource_apply_rank2_exposure")])
+
+[sub_resource type="Resource" id="Resource_r10_stance"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more"
+display_name = "Бейте ещё"
+description = "Чем ближе Байда к смерти, тем больше враги сами подпитывают его: 5 выносливости при 8+ HP, 6 при 5–7 HP, 8 при 2–4 HP и 10 на последнем HP."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"stamina_reaction", &"reckless"])
+duration_turns = 2
+reactions = Array[ExtResource("6_reaction")]([SubResource("Resource_r10_reaction_high"), SubResource("Resource_r10_reaction_mid"), SubResource("Resource_r10_reaction_low"), SubResource("Resource_r10_reaction_last")])
+
+[sub_resource type="Resource" id="Resource_r10_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r10_stance")
+effect_id = &"effect_bayda_hit_me_more_stance"
+
+
+; ============================================================
+; GROWTH
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r1_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r2_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r3_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("9_growth_rank")
+cooldown_turns_override = 2
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r5_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r6_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r7_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r8_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r9_apply_stance")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r10_apply_stance")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("10_growth_table")
+rank_steps = Array[ExtResource("9_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
+; ============================================================
+; ABILITY
+; ============================================================
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_hit_me_more"
 display_name = "Бейте ещё"
-description = "Байда провоцирует врагов на размен. До следующего хода каждое отдельное вражеское действие, повредившее его здоровью или обороне, восстанавливает 2 выносливости, но снижает броню на 1, вплоть до 3 раз."
+description = "Байда превращает вражескую агрессию в топливо. До следующего хода каждое отдельное вражеское действие, повредившее его здоровью или обороне, восстанавливает выносливость и накладывает Распахнутую защиту."
 branch = 3
-stamina_cost = 4
+growth_table = SubResource("Resource_growth_table")
+stamina_cost = 0
 cooldown_turns = 3
 targeting = SubResource("Resource_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_apply_stance")])
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_base_apply_stance")])

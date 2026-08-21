@@ -361,7 +361,8 @@ func play_ability_feedback(
 	defeated_target_ids: Array[StringName],
 	action_result: BattleActionResult,
 	profile: BattleAbilityPresentationProfile,
-	animated: bool = true
+	animated: bool = true,
+	restart_actor_animation: bool = false
 ) -> bool:
 	var actor_view := get_view(
 		actor_id
@@ -430,7 +431,8 @@ func play_ability_feedback(
 
 	actor_view.play_visual_animation(
 		actor_animation,
-		&"idle"
+		&"idle",
+		restart_actor_animation
 	)
 
 	var target_animation := (
@@ -660,13 +662,32 @@ func play_reaction_feedback(
 	):
 		return true
 
+	## У реакции уже есть точный боец,
+	## чьё действие её вызвало.
+	##
+	## Для presentation это надёжнее, чем
+	## повторно выводить цель из набора эффектов.
+	var target_ids: Array[StringName] = []
+
+	if reaction_result.triggering_actor_id != &"":
+		target_ids.append(
+			reaction_result.triggering_actor_id
+		)
+
+	else:
+		target_ids = (
+			reaction_result
+			.get_affected_target_ids()
+		)
+
 	return await play_ability_feedback(
 		reaction_result.reactor_id,
-		reaction_result.get_affected_target_ids(),
+		target_ids,
 		reaction_result.get_defeated_target_ids(),
 		null,
 		reaction_profile,
-		animated
+		animated,
+		true
 	)
 
 

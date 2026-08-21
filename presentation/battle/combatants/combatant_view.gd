@@ -431,14 +431,16 @@ func set_facing_direction(direction: int) -> void:
 
 func play_visual_animation(
 	animation_key: StringName,
-	fallback_key: StringName = &"idle"
+	fallback_key: StringName = &"idle",
+	restart_if_same: bool = false
 ) -> bool:
 	if visual == null:
 		return false
 
 	return visual.play_animation(
 		animation_key,
-		fallback_key
+		fallback_key,
+		restart_if_same
 	)
 
 

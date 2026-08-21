@@ -100,7 +100,8 @@ func set_facing_direction(direction: int) -> void:
 
 func play_animation(
 	animation_key: StringName,
-	fallback_key: StringName = &"idle"
+	fallback_key: StringName = &"idle",
+	restart_if_same: bool = false
 ) -> bool:
 	if _animation_player == null:
 		_cache_nodes()
@@ -108,21 +109,42 @@ func play_animation(
 	if _animation_player == null:
 		return false
 
+	var resolved_key: StringName = EMPTY_ANIMATION
+
 	if (
 		animation_key != EMPTY_ANIMATION
-		and _animation_player.has_animation(animation_key)
+		and _animation_player.has_animation(
+			animation_key
+		)
 	):
-		_animation_player.play(animation_key)
-		return true
+		resolved_key = animation_key
 
-	if (
+	elif (
 		fallback_key != EMPTY_ANIMATION
-		and _animation_player.has_animation(fallback_key)
+		and _animation_player.has_animation(
+			fallback_key
+		)
 	):
-		_animation_player.play(fallback_key)
-		return true
+		resolved_key = fallback_key
 
-	return false
+	if resolved_key == EMPTY_ANIMATION:
+		return false
+
+	## Реакции могут подряд запускать один и тот же
+	## animation key. Обычный play() не обязан
+	## перезапускать уже играющую ту же анимацию.
+	if (
+		restart_if_same
+		and _animation_player.assigned_animation
+			== resolved_key
+	):
+		_animation_player.stop()
+
+	_animation_player.play(
+		resolved_key
+	)
+
+	return true
 
 
 func play_idle() -> bool:

@@ -271,6 +271,17 @@ func resolve(
 			resolved_target
 		)
 
+	if effect is GuardConversionDamageEffect:
+		return _resolve_guard_conversion_damage(
+			effect as GuardConversionDamageEffect,
+			source,
+			resolved_target,
+			bypass_guard,
+			allow_critical,
+			standard_critical_mode,
+			damage_kind
+		)
+
 	if effect is DamageEffect:
 		return _resolve_damage(
 			effect as DamageEffect,
@@ -643,6 +654,49 @@ func _resolve_place_surface(
 
 	return result
 
+	
+func _resolve_guard_conversion_damage(
+	effect: GuardConversionDamageEffect,
+	source: CombatantState,
+	target: CombatantState,
+	bypass_guard: bool,
+	allow_critical: bool,
+	standard_critical_mode: int,
+	damage_kind: StringName
+) -> BattleEffectResult:
+	var consumed_guard := source.consume_guard(
+		effect.max_guard_spend
+	)
+
+	## Создаём runtime-копию, чтобы не менять
+	## исходный Resource способности.
+	var runtime_effect := (
+		effect.duplicate(true) as DamageEffect
+	)
+
+	if runtime_effect == null:
+		return _create_failure_result(
+			FAILURE_INVALID_EFFECT,
+			effect,
+			source,
+			target
+		)
+
+	runtime_effect.base_damage = (
+		effect.base_damage
+		+ consumed_guard
+		* effect.bonus_damage_per_guard
+	)
+
+	return _resolve_damage(
+		runtime_effect,
+		source,
+		target,
+		bypass_guard,
+		allow_critical,
+		standard_critical_mode,
+		damage_kind
+	)
 	
 func _resolve_damage(
 	effect: DamageEffect,

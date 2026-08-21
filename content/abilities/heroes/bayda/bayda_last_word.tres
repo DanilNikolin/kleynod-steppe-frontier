@@ -5,21 +5,17 @@
 [ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="5_apply_status"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_last_word_stance.tres" id="6_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_last_word_stance.tres" id="6_base_stance"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="7_reaction"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="8_status"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="9_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="10_growth_table"]
+[ext_resource type="Script" path="res://core/battle/effects/guard_conversion_damage_effect.gd" id="11_guard_damage"]
 
-[sub_resource type="Resource" id="Resource_apply_stance"]
-script = ExtResource("5_apply_status")
-status_definition = ExtResource("6_status")
-recipient = 1
-effect_id = &"effect_bayda_last_word_stance"
 
-[sub_resource type="Resource" id="Resource_damage"]
-script = ExtResource("4_damage")
-base_damage = 7
-strength_scaling = 0.0
-armor_piercing = 1
-crit_mode = 0
-effect_id = &"effect_bayda_last_word_damage"
+; ============================================================
+; TARGETING
+; ============================================================
 
 [sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
@@ -29,14 +25,294 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 affected_relation_mask = 4
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+; ============================================================
+; R0
+; Main: 7 damage, armor piercing 1
+; Counter: 6 damage, armor piercing 1
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r0_apply_stance"]
+script = ExtResource("5_apply_status")
+status_definition = ExtResource("6_base_stance")
+recipient = 1
+effect_id = &"effect_bayda_last_word_stance"
+
+[sub_resource type="Resource" id="Resource_r0_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 1
+crit_mode = 0
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R1
+; Main: 9 damage
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r1_damage"]
+script = ExtResource("4_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 1
+crit_mode = 0
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R2
+; Counter: 8 damage, armor piercing 1
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r2_counter"]
+script = ExtResource("4_damage")
+base_damage = 8
+strength_scaling = 0.0
+armor_piercing = 1
+crit_mode = 0
+effect_id = &"effect_bayda_last_word_counter"
+
+[sub_resource type="Resource" id="Resource_r2_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r2_counter")])
+consume_status_on_trigger = true
+
+[sub_resource type="Resource" id="Resource_r2_stance"]
+script = ExtResource("8_status")
+status_id = &"status_bayda_last_word"
+display_name = "Последнее слово"
+description = "Первый враг, который до следующего хода Байды повредит его здоровью или обороне, получает контратаку на 8 урона с пробитием 1."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack", &"gold"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r2_reaction")])
+
+[sub_resource type="Resource" id="Resource_r2_apply_stance"]
+script = ExtResource("5_apply_status")
+status_definition = SubResource("Resource_r2_stance")
+recipient = 1
+effect_id = &"effect_bayda_last_word_stance"
+
+
+; ============================================================
+; R3
+; Main: 9 + up to 3 Guard
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r3_damage"]
+script = ExtResource("11_guard_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 1
+crit_mode = 0
+max_guard_spend = 3
+bonus_damage_per_guard = 1
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R5
+; Main: 11 + up to 5 Guard
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r5_damage"]
+script = ExtResource("11_guard_damage")
+base_damage = 11
+strength_scaling = 0.0
+armor_piercing = 1
+crit_mode = 0
+max_guard_spend = 5
+bonus_damage_per_guard = 1
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R6
+; Main: 11 + up to 5 Guard
+; Armor piercing 3
+; Minimum damage 4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r6_damage"]
+script = ExtResource("11_guard_damage")
+base_damage = 11
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 4
+crit_mode = 0
+max_guard_spend = 5
+bonus_damage_per_guard = 1
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R7
+; Counter: 10 damage, armor piercing 2
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r7_counter"]
+script = ExtResource("4_damage")
+base_damage = 10
+strength_scaling = 0.0
+armor_piercing = 2
+crit_mode = 0
+effect_id = &"effect_bayda_last_word_counter"
+
+[sub_resource type="Resource" id="Resource_r7_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r7_counter")])
+consume_status_on_trigger = true
+
+[sub_resource type="Resource" id="Resource_r7_stance"]
+script = ExtResource("8_status")
+status_id = &"status_bayda_last_word"
+display_name = "Последнее слово"
+description = "Первый враг, который до следующего хода Байды повредит его здоровью или обороне, получает контратаку на 10 урона с пробитием 2."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack", &"gold"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r7_reaction")])
+
+[sub_resource type="Resource" id="Resource_r7_apply_stance"]
+script = ExtResource("5_apply_status")
+status_definition = SubResource("Resource_r7_stance")
+recipient = 1
+effect_id = &"effect_bayda_last_word_stance"
+
+
+; ============================================================
+; R8
+; Main: 13 + up to 8 Guard
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r8_damage"]
+script = ExtResource("11_guard_damage")
+base_damage = 13
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 4
+crit_mode = 0
+max_guard_spend = 8
+bonus_damage_per_guard = 1
+effect_id = &"effect_bayda_last_word_damage"
+
+
+; ============================================================
+; R10
+; Main: 15 + up to 10 Guard
+; Counter: 12 damage, armor piercing 3
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r10_damage"]
+script = ExtResource("11_guard_damage")
+base_damage = 15
+strength_scaling = 0.0
+armor_piercing = 3
+minimum_damage = 4
+crit_mode = 0
+max_guard_spend = 10
+bonus_damage_per_guard = 1
+effect_id = &"effect_bayda_last_word_damage"
+
+[sub_resource type="Resource" id="Resource_r10_counter"]
+script = ExtResource("4_damage")
+base_damage = 12
+strength_scaling = 0.0
+armor_piercing = 3
+crit_mode = 0
+effect_id = &"effect_bayda_last_word_counter"
+
+[sub_resource type="Resource" id="Resource_r10_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r10_counter")])
+consume_status_on_trigger = true
+
+[sub_resource type="Resource" id="Resource_r10_stance"]
+script = ExtResource("8_status")
+status_id = &"status_bayda_last_word"
+display_name = "Последнее слово"
+description = "Первый враг, который до следующего хода Байды повредит его здоровью или обороне, получает контратаку на 12 урона с пробитием 3."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack", &"gold"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r10_reaction")])
+
+[sub_resource type="Resource" id="Resource_r10_apply_stance"]
+script = ExtResource("5_apply_status")
+status_definition = SubResource("Resource_r10_stance")
+recipient = 1
+effect_id = &"effect_bayda_last_word_stance"
+
+
+; ============================================================
+; GROWTH R1-R10
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r1_damage")])
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r2_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r3_damage")])
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("9_growth_rank")
+initial_lock_turns_override = 1
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r5_damage")])
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r6_damage")])
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r7_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r8_damage")])
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("9_growth_rank")
+initial_lock_turns_override = 0
+cooldown_turns_override = 3
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r10_apply_stance"), SubResource("Resource_r10_damage")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("10_growth_table")
+rank_steps = Array[ExtResource("9_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
+; ============================================================
+; ABILITY
+; ============================================================
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_last_word"
 display_name = "Последнее слово"
 description = "Байда наносит 7 урона с пробитием 1 и бросает вызов врагам. Первый враг, который до следующего хода повредит его здоровью или обороне, получает контратаку на 6 урона с пробитием 1."
 branch = 3
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 8
 initial_lock_turns = 2
 cooldown_turns = 4
 targeting = SubResource("Resource_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_apply_stance"), SubResource("Resource_damage")])
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r0_apply_stance"), SubResource("Resource_r0_damage")])

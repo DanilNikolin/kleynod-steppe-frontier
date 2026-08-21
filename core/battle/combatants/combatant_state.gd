@@ -416,6 +416,31 @@ func grant_guard(amount: int) -> int:
 	return granted_amount
 
 
+## Добровольно тратит до указанного количества Guard.
+##
+## В отличие от absorb_damage_with_guard(),
+## это не поглощение входящего урона, а расход
+## Guard как собственного боевого ресурса.
+func consume_guard(amount: int) -> int:
+	if amount <= 0 or current_guard <= 0:
+		return 0
+
+	var previous_value := current_guard
+
+	var consumed_amount := mini(
+		amount,
+		current_guard
+	)
+
+	current_guard -= consumed_amount
+
+	guard_changed.emit(
+		previous_value,
+		current_guard
+	)
+
+	return consumed_amount
+	
 func absorb_damage_with_guard(
 	amount: int
 ) -> int:

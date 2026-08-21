@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
 [ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" path="res://core/heroes/core/bayda/bayda_grit_teeth_effect.gd" id="4_grit_teeth"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="5_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="6_growth_table"]
+
 
 [sub_resource type="Resource" id="Resource_grit_teeth_effect"]
 script = ExtResource("4_grit_teeth")
@@ -13,6 +16,7 @@ minimum_max_stamina = 4
 recipient = 1
 effect_id = &"effect_bayda_grit_teeth"
 
+
 [sub_resource type="Resource" id="Resource_grit_teeth_targeting"]
 script = ExtResource("2_targeting")
 aim_requirement = 1
@@ -21,12 +25,151 @@ aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+[sub_resource type="Resource" id="Resource_rank1_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 5
+max_stamina_reduction = 1
+minimum_max_stamina = 4
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank2_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 6
+max_stamina_reduction = 1
+minimum_max_stamina = 4
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank3_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 6
+max_stamina_reduction = 1
+minimum_max_stamina = 5
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank5_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 7
+max_stamina_reduction = 1
+minimum_max_stamina = 5
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank6_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 8
+max_stamina_reduction = 1
+minimum_max_stamina = 5
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank7_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 8
+max_stamina_reduction = 1
+minimum_max_stamina = 6
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank8_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 9
+max_stamina_reduction = 1
+minimum_max_stamina = 6
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank9_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 10
+max_stamina_reduction = 1
+minimum_max_stamina = 6
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank10_effect"]
+script = ExtResource("4_grit_teeth")
+stamina_restoration = 10
+max_stamina_reduction = 1
+minimum_max_stamina = 8
+recipient = 1
+effect_id = &"effect_bayda_grit_teeth"
+
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("5_growth_rank")
+cooldown_turns_override = 2
+
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("5_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_effect")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("5_growth_rank")
+cooldown_turns_override = 1
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_effect")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("6_growth_table")
+rank_steps = Array[ExtResource("5_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_grit_teeth"
 display_name = "Стиснуть зубы"
 description = "Байда подавляет Надлом, вновь готовится пережить смертельный удар и восстанавливает выносливость ценой постоянного уменьшения её максимального запаса."
 branch = 3
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 0
 cooldown_turns = 3
 targeting = SubResource("Resource_grit_teeth_targeting")

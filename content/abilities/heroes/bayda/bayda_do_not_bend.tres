@@ -5,18 +5,32 @@
 [ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
 [ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="5_guard"]
+[ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="6_apply_status"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="7_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="8_growth_table"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank1.tres" id="9_rank1_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank4.tres" id="10_rank4_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank5.tres" id="11_rank5_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank8.tres" id="12_rank8_status"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank10.tres" id="13_rank10_status"]
+
 
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 5
 strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
 effect_id = &"effect_bayda_do_not_bend_damage"
+
 
 [sub_resource type="Resource" id="Resource_guard"]
 script = ExtResource("5_guard")
 guard_amount = 3
 recipient = 1
 effect_id = &"effect_bayda_do_not_bend_guard"
+
 
 [sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
@@ -26,12 +40,165 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 affected_relation_mask = 4
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+[sub_resource type="Resource" id="Resource_rank1_status"]
+script = ExtResource("6_apply_status")
+status_definition = ExtResource("9_rank1_status")
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_stance"
+
+
+[sub_resource type="Resource" id="Resource_rank2_damage"]
+script = ExtResource("4_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 1
+effect_id = &"effect_bayda_do_not_bend_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank3_guard"]
+script = ExtResource("5_guard")
+guard_amount = 5
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank4_status"]
+script = ExtResource("6_apply_status")
+status_definition = ExtResource("10_rank4_status")
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_stance"
+
+
+[sub_resource type="Resource" id="Resource_rank5_status"]
+script = ExtResource("6_apply_status")
+status_definition = ExtResource("11_rank5_status")
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_stance"
+
+
+[sub_resource type="Resource" id="Resource_rank6_damage"]
+script = ExtResource("4_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 1
+effect_id = &"effect_bayda_do_not_bend_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank7_guard"]
+script = ExtResource("5_guard")
+guard_amount = 7
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank8_status"]
+script = ExtResource("6_apply_status")
+status_definition = ExtResource("12_rank8_status")
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_stance"
+
+
+[sub_resource type="Resource" id="Resource_rank9_damage"]
+script = ExtResource("4_damage")
+base_damage = 11
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+effect_id = &"effect_bayda_do_not_bend_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank10_damage"]
+script = ExtResource("4_damage")
+base_damage = 13
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 1
+crit_mode = 1
+effect_id = &"effect_bayda_do_not_bend_damage"
+
+
+[sub_resource type="Resource" id="Resource_rank10_guard"]
+script = ExtResource("5_guard")
+guard_amount = 8
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_guard"
+
+
+[sub_resource type="Resource" id="Resource_rank10_status"]
+script = ExtResource("6_apply_status")
+status_definition = ExtResource("13_rank10_status")
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_stance"
+
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("7_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_status")])
+
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_guard")])
+
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_status")])
+
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_status")])
+
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_guard")])
+
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_status")])
+
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_damage")])
+
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("7_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_damage"), SubResource("Resource_rank10_guard"), SubResource("Resource_rank10_status")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("8_growth_table")
+rank_steps = Array[ExtResource("7_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_do_not_bend"
 display_name = "Не согнуться"
-description = "Байда наносит удар и готовится принять ответ: наносит 5 урона и получает 3 обороны."
+description = "Байда наносит удар, укрепляет оборону и учится превращать давление врагов в новую стойкость."
 branch = 3
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 5
 cooldown_turns = 0
 targeting = SubResource("Resource_targeting")

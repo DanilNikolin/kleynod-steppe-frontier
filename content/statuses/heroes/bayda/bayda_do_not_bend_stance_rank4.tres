@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="2_reaction"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="4_guard"]
+
+[sub_resource type="Resource" id="Resource_guard_normal"]
+script = ExtResource("4_guard")
+guard_amount = 2
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_reactive_guard"
+
+[sub_resource type="Resource" id="Resource_guard_low"]
+script = ExtResource("4_guard")
+guard_amount = 4
+recipient = 1
+effect_id = &"effect_bayda_do_not_bend_reactive_guard"
+
+[sub_resource type="Resource" id="Resource_reaction_normal"]
+script = ExtResource("2_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_normal")])
+consume_status_on_trigger = true
+
+[sub_resource type="Resource" id="Resource_reaction_low"]
+script = ExtResource("2_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_low")])
+consume_status_on_trigger = true
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"status_bayda_do_not_bend"
+display_name = "Не согнуться"
+description = "Первое повредившее Байду вражеское действие возвращает 2 обороны, а при 4 HP или меньше — 4."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"guard"])
+duration_turns = 2
+reactions = Array[ExtResource("2_reaction")]([SubResource("Resource_reaction_normal"), SubResource("Resource_reaction_low")])

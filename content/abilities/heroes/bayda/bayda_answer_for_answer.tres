@@ -4,12 +4,21 @@
 [ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
 [ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
 [ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_stance.tres" id="5_status"]
+[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="5_damage"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="6_status"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="7_reaction"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="8_growth_rank"]
+[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="9_growth_table"]
 
-[sub_resource type="Resource" id="Resource_apply_stance"]
-script = ExtResource("4_apply_status")
-status_definition = ExtResource("5_status")
-effect_id = &"effect_bayda_answer_for_answer_stance"
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank1.tres" id="10_breach_rank1"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank3.tres" id="11_breach_rank3"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank7.tres" id="12_breach_rank7"]
+[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank10.tres" id="13_breach_rank10"]
+
+
+; ============================================================
+; TARGETING
+; ============================================================
 
 [sub_resource type="Resource" id="Resource_targeting"]
 script = ExtResource("2_targeting")
@@ -19,13 +28,592 @@ aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+
+; ============================================================
+; R0
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r0_counter"]
+script = ExtResource("5_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r0_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r0_counter")])
+
+[sub_resource type="Resource" id="Resource_r0_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "До следующего хода Байда отвечает ударом на каждое отдельное вражеское действие, которое повредило его здоровью или обороне."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r0_reaction")])
+
+[sub_resource type="Resource" id="Resource_r0_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r0_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R1 — breach -1, max 2
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r1_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("10_breach_rank1")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r1_counter"]
+script = ExtResource("5_damage")
+base_damage = 3
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r1_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r1_breach"), SubResource("Resource_r1_counter")])
+
+[sub_resource type="Resource" id="Resource_r1_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Каждая контратака вскрывает защиту нападающего, снижая его броню."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r1_reaction")])
+
+[sub_resource type="Resource" id="Resource_r1_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r1_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R2 — damage 4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r2_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("10_breach_rank1")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r2_counter"]
+script = ExtResource("5_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r2_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r2_breach"), SubResource("Resource_r2_counter")])
+
+[sub_resource type="Resource" id="Resource_r2_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Байда отвечает на каждое повредившее его вражеское действие и вскрывает защиту нападающего."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r2_reaction")])
+
+[sub_resource type="Resource" id="Resource_r2_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r2_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R3 — breach max 3
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r3_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("11_breach_rank3")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r3_counter"]
+script = ExtResource("5_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 0
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r3_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r3_breach"), SubResource("Resource_r3_counter")])
+
+[sub_resource type="Resource" id="Resource_r3_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Повторные контратаки всё сильнее раскрывают защиту одного и того же противника."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r3_reaction")])
+
+[sub_resource type="Resource" id="Resource_r3_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r3_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R4 — armor piercing 1
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r4_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("11_breach_rank3")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r4_counter"]
+script = ExtResource("5_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 1
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r4_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r4_breach"), SubResource("Resource_r4_counter")])
+
+[sub_resource type="Resource" id="Resource_r4_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Контратаки Байды пробивают броню и постепенно раскрывают защиту нападающего."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r4_reaction")])
+
+[sub_resource type="Resource" id="Resource_r4_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r4_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R5 — minimum damage 3
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r5_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("11_breach_rank3")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r5_counter"]
+script = ExtResource("5_damage")
+base_damage = 4
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r5_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r5_breach"), SubResource("Resource_r5_counter")])
+
+[sub_resource type="Resource" id="Resource_r5_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Броня больше не способна полностью погасить ответ Байды."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r5_reaction")])
+
+[sub_resource type="Resource" id="Resource_r5_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r5_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R6 — damage 5
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r6_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("11_breach_rank3")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r6_counter"]
+script = ExtResource("5_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r6_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r6_breach"), SubResource("Resource_r6_counter")])
+
+[sub_resource type="Resource" id="Resource_r6_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Каждый размен с Байдой становится всё опаснее для нападающего."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r6_reaction")])
+
+[sub_resource type="Resource" id="Resource_r6_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r6_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R7 — breach -2 per stack
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r7_breach"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_breach_rank7")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r7_counter"]
+script = ExtResource("5_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r7_reaction"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r7_breach"), SubResource("Resource_r7_counter")])
+
+[sub_resource type="Resource" id="Resource_r7_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Контратаки Байды быстро разрушают броню противника, который продолжает размен."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r7_reaction")])
+
+[sub_resource type="Resource" id="Resource_r7_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r7_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R8 — 5 damage normally / 7 at HP <= 4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r8_breach_normal"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_breach_rank7")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r8_counter_normal"]
+script = ExtResource("5_damage")
+base_damage = 5
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r8_reaction_normal"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r8_breach_normal"), SubResource("Resource_r8_counter_normal")])
+
+
+[sub_resource type="Resource" id="Resource_r8_breach_low"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_breach_rank7")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r8_counter_low"]
+script = ExtResource("5_damage")
+base_damage = 7
+strength_scaling = 0.0
+armor_piercing = 1
+minimum_damage = 3
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r8_reaction_low"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r8_breach_low"), SubResource("Resource_r8_counter_low")])
+
+
+[sub_resource type="Resource" id="Resource_r8_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Когда Байда оказывается близок к смерти, его контратаки становятся значительно сильнее."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r8_reaction_normal"), SubResource("Resource_r8_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r8_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r8_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R9 — 6 normally / 8 at HP <= 4
+; AP 2, minimum 4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r9_breach_normal"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_breach_rank7")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r9_counter_normal"]
+script = ExtResource("5_damage")
+base_damage = 6
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 4
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r9_reaction_normal"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r9_breach_normal"), SubResource("Resource_r9_counter_normal")])
+
+
+[sub_resource type="Resource" id="Resource_r9_breach_low"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_breach_rank7")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r9_counter_low"]
+script = ExtResource("5_damage")
+base_damage = 8
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 4
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r9_reaction_low"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r9_breach_low"), SubResource("Resource_r9_counter_low")])
+
+
+[sub_resource type="Resource" id="Resource_r9_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Ослабленный Байда отвечает особенно тяжело, а его удары всё хуже терпят броню."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r9_reaction_normal"), SubResource("Resource_r9_reaction_low")])
+
+[sub_resource type="Resource" id="Resource_r9_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r9_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; R10
+; HP >= 5 : 6
+; HP 2-4  : 9
+; HP 1    : 12, full armor ignore
+; breach -2, max 4
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_r10_breach_normal"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("13_breach_rank10")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r10_counter_normal"]
+script = ExtResource("5_damage")
+base_damage = 6
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 4
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r10_reaction_normal"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r10_breach_normal"), SubResource("Resource_r10_counter_normal")])
+
+
+[sub_resource type="Resource" id="Resource_r10_breach_low"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("13_breach_rank10")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r10_counter_low"]
+script = ExtResource("5_damage")
+base_damage = 9
+strength_scaling = 0.0
+armor_piercing = 2
+minimum_damage = 4
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r10_reaction_low"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 2
+maximum_reactor_health = 4
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r10_breach_low"), SubResource("Resource_r10_counter_low")])
+
+
+[sub_resource type="Resource" id="Resource_r10_breach_last"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("13_breach_rank10")
+effect_id = &"effect_bayda_answer_for_answer_breach"
+
+[sub_resource type="Resource" id="Resource_r10_counter_last"]
+script = ExtResource("5_damage")
+base_damage = 12
+strength_scaling = 0.0
+armor_piercing = 999
+minimum_damage = 12
+crit_mode = 0
+effect_id = &"effect_bayda_answer_for_answer_counter"
+
+[sub_resource type="Resource" id="Resource_r10_reaction_last"]
+script = ExtResource("7_reaction")
+damage_requirement = 1
+minimum_reactor_health = 1
+maximum_reactor_health = 1
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r10_breach_last"), SubResource("Resource_r10_counter_last")])
+
+
+[sub_resource type="Resource" id="Resource_r10_stance"]
+script = ExtResource("6_status")
+status_id = &"status_bayda_answer_for_answer"
+display_name = "Ответ за ответ"
+description = "Чем ближе Байда к смерти, тем страшнее становится каждый ответ. На последнем дыхании его контратаки полностью игнорируют броню."
+polarity = 1
+tags = Array[StringName]([&"buff", &"reaction", &"counterattack"])
+duration_turns = 2
+reactions = Array[ExtResource("7_reaction")]([SubResource("Resource_r10_reaction_normal"), SubResource("Resource_r10_reaction_low"), SubResource("Resource_r10_reaction_last")])
+
+[sub_resource type="Resource" id="Resource_r10_apply_stance"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_r10_stance")
+effect_id = &"effect_bayda_answer_for_answer_stance"
+
+
+; ============================================================
+; GROWTH STEPS
+; ============================================================
+
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r1_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r2_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r3_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r4_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r5_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r6_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r7_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r8_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r9_apply_stance")])
+
+[sub_resource type="Resource" id="Resource_rank10"]
+script = ExtResource("8_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r10_apply_stance")])
+
+
+[sub_resource type="Resource" id="Resource_growth_table"]
+script = ExtResource("9_growth_table")
+rank_steps = Array[ExtResource("8_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
+
+
+; ============================================================
+; ABILITY
+; ============================================================
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_answer_for_answer"
 display_name = "Ответ за ответ"
-description = "Байда готовится отвечать на удары. До следующего хода каждое отдельное вражеское действие, повредившее его здоровью или обороне, вызывает контратаку."
+description = "Байда принимает размен: каждое повредившее его вражеское действие вызывает контратаку, а с ростом мастерства повторные ответы разрушают защиту нападающего."
 branch = 3
+growth_table = SubResource("Resource_growth_table")
 stamina_cost = 5
 cooldown_turns = 2
 targeting = SubResource("Resource_targeting")
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_apply_stance")])
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_r0_apply_stance")])

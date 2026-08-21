@@ -77,6 +77,11 @@ func process_after_enemy_action(
 				):
 					continue
 
+				if not reaction.matches_reactor_health(
+					reactor.current_health
+				):
+					continue
+
 				if not _matches_damage_requirement(
 					action_result,
 					reactor,

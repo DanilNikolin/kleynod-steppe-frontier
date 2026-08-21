@@ -29,6 +29,17 @@ var damage_requirement: DamageRequirement = (
 )
 
 
+@export_group("Reactor Health")
+
+## 0 означает: нижнего ограничения фактически нет.
+@export_range(0, 9999, 1)
+var minimum_reactor_health: int = 0
+
+## -1 означает: верхнего ограничения нет.
+@export_range(-1, 9999, 1)
+var maximum_reactor_health: int = -1
+
+
 @export_group("Effects")
 
 @export
@@ -43,8 +54,43 @@ var effects: Array[BattleEffect] = []
 var consume_status_on_trigger: bool = false
 
 
+func matches_reactor_health(
+	current_health: int
+) -> bool:
+	if current_health < minimum_reactor_health:
+		return false
+
+	if (
+		maximum_reactor_health >= 0
+		and current_health > maximum_reactor_health
+	):
+		return false
+
+	return true
+
+
 func get_validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
+
+	if minimum_reactor_health < 0:
+		errors.append(
+			"Minimum reactor health cannot be negative."
+		)
+
+	if maximum_reactor_health < -1:
+		errors.append(
+			"Maximum reactor health cannot be lower than -1."
+		)
+
+	if (
+		maximum_reactor_health >= 0
+		and maximum_reactor_health
+			< minimum_reactor_health
+	):
+		errors.append(
+			"Maximum reactor health cannot be lower "
+			+ "than minimum reactor health."
+		)
 
 	if effects.is_empty():
 		errors.append(

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://djbs8im0vo51" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
 [ext_resource type="PackedScene" uid="uid://frc3c1tiqsau" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]
 [ext_resource type="Resource" uid="uid://dsebu43qiuvca" path="res://content/loadouts/prototype/proto_steppe_raider_loadout.tres" id="3_loadout"]
+[ext_resource type="Resource" path="res://content/ai/profiles/steppe_raider_ai_profile.tres" id="4_ai"]
 
 [resource]
 script = ExtResource("1_definition")
@@ -10,6 +11,7 @@ definition_id = &"combatant_proto_steppe_raider"
 display_name = "Степной рубака"
 description = "Базовый ближний боец. Давит простым уроном и кровотечением."
 default_loadout = ExtResource("3_loadout")
+ai_profile = ExtResource("4_ai")
 base_strength = 3
 base_agility = 2
 max_health = 12

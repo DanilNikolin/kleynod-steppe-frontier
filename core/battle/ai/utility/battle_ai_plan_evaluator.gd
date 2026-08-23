@@ -183,6 +183,88 @@ const APPROACH_SCORE_PER_TILE: float = 4.0
 const RETREAT_PENALTY_PER_TILE: float = -3.0
 const FORWARD_SCORE_PER_TILE: float = 0.75
 
+func _get_ai_profile(
+	actor: CombatantState
+) -> BattleAIProfileDefinition:
+	if (
+		actor == null
+		or actor.definition == null
+	):
+		return null
+
+	return actor.definition.ai_profile
+
+
+func _get_aggression_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.aggression
+		if profile != null
+		else 1.0
+	)
+
+
+func _get_control_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.control
+		if profile != null
+		else 1.0
+	)
+
+
+func _get_support_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.support
+		if profile != null
+		else 1.0
+	)
+
+
+func _get_caution_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.caution
+		if profile != null
+		else 1.0
+	)
+
+
+func _get_economy_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.economy
+		if profile != null
+		else 1.0
+	)
+
+
+func _get_positioning_weight(
+	actor: CombatantState
+) -> float:
+	var profile := _get_ai_profile(actor)
+
+	return (
+		profile.positioning
+		if profile != null
+		else 1.0
+	)
 
 func evaluate_plan(
 	plan: BattleAIPlan
@@ -287,6 +369,10 @@ func _score_action_result(
 		return
 
 	if simulation.action_result.cooldown_started:
+		var actor := (
+			simulation.get_simulated_actor()
+		)
+
 		breakdown.add_score(
 			SCORE_COOLDOWN,
 			float(
@@ -295,8 +381,8 @@ func _score_action_result(
 					.cooldown_turns
 			)
 			* COOLDOWN_PENALTY_PER_TURN
+			* _get_economy_weight(actor)
 		)
-
 
 func _score_effect_results(
 	breakdown: BattleAIScoreBreakdown,
@@ -443,6 +529,14 @@ func _score_damage_result(
 		target.team_id != actor.team_id
 	)
 
+	var aggression_weight := (
+		_get_aggression_weight(actor)
+	)
+
+	var control_weight := (
+		_get_control_weight(actor)
+	)
+
 	if is_enemy:
 		breakdown.add_score(
 			SCORE_DAMAGE,
@@ -450,6 +544,7 @@ func _score_damage_result(
 				effect_result.applied_amount
 			)
 			* DAMAGE_SCORE_PER_HP
+			* aggression_weight
 		)
 
 		breakdown.add_score(
@@ -458,6 +553,7 @@ func _score_damage_result(
 				effect_result.guard_absorbed_amount
 			)
 			* GUARD_DAMAGE_SCORE_PER_POINT
+			* aggression_weight
 		)
 
 		breakdown.add_score(
@@ -502,6 +598,7 @@ func _score_damage_result(
 			)
 			* (
 				ENEMY_STAMINA_DRAIN_SCORE_PER_POINT
+				* control_weight
 				if is_enemy
 				else FRIENDLY_STAMINA_DRAIN_PENALTY_PER_POINT
 			)
@@ -524,6 +621,7 @@ func _score_damage_result(
 			)
 			* (
 				ENEMY_STAMINA_DEBT_SCORE_PER_POINT
+				* control_weight
 				if is_enemy
 				else FRIENDLY_STAMINA_DEBT_PENALTY_PER_POINT
 			)
@@ -570,6 +668,11 @@ func _score_health_cost_result(
 			LOW_HEALTH_COST_MULTIPLIER
 		)
 
+	if target.team_id == actor.team_id:
+		score *= _get_caution_weight(
+			actor
+		)
+
 	breakdown.add_score(
 		SCORE_HEALTH_COST,
 		score
@@ -596,12 +699,19 @@ func _score_restore_stamina_result(
 	)
 
 	if is_ally:
+		var resource_weight := (
+			_get_economy_weight(actor)
+			if target.instance_id == actor.instance_id
+			else _get_support_weight(actor)
+		)
+
 		breakdown.add_score(
 			SCORE_STAMINA_RESTORE,
 			float(
 				effect_result.applied_amount
 			)
 			* STAMINA_RESTORE_SCORE_PER_POINT
+			* resource_weight
 		)
 
 		breakdown.add_score(
@@ -611,6 +721,7 @@ func _score_restore_stamina_result(
 					.stamina_restoration_debt_paid_amount
 			)
 			* STAMINA_DEBT_PAYMENT_SCORE_PER_POINT
+			* resource_weight
 		)
 
 	else:
@@ -650,16 +761,26 @@ func _score_hero_core_result(
 	):
 		return
 
+	var caution_weight := (
+		_get_caution_weight(actor)
+	)
+
+	var economy_weight := (
+		_get_economy_weight(actor)
+	)
+
 	if effect_result.unbroken_was_restored:
 		breakdown.add_score(
 			SCORE_CORE_SURVIVAL,
 			UNBROKEN_RESTORE_SCORE
+			* caution_weight
 		)
 
 	if effect_result.fracture_was_removed:
 		breakdown.add_score(
 			SCORE_CORE_SURVIVAL,
 			FRACTURE_REMOVE_SCORE
+			* caution_weight
 		)
 
 	breakdown.add_score(
@@ -669,6 +790,7 @@ func _score_hero_core_result(
 				.max_stamina_penalty_applied_amount
 		)
 		* MAX_STAMINA_PENALTY_PER_POINT
+		* economy_weight
 	)
 
 	breakdown.add_score(
@@ -677,6 +799,7 @@ func _score_hero_core_result(
 			effect_result.applied_amount
 		)
 		* STAMINA_RESTORE_SCORE_PER_POINT
+		* economy_weight
 	)
 
 	breakdown.add_score(
@@ -686,6 +809,7 @@ func _score_hero_core_result(
 				.stamina_restoration_debt_paid_amount
 		)
 		* STAMINA_DEBT_PAYMENT_SCORE_PER_POINT
+		* economy_weight
 	)
 
 func _score_heal_result(
@@ -710,6 +834,7 @@ func _score_heal_result(
 				effect_result.applied_amount
 			)
 			* HEAL_SCORE_PER_HP
+			* _get_support_weight(actor)
 		)
 
 		breakdown.add_score(
@@ -752,6 +877,7 @@ func _score_guard_result(
 				effect_result.applied_amount
 			)
 			* GUARD_SCORE_PER_POINT
+			* _get_support_weight(actor)
 		)
 
 		breakdown.add_score(
@@ -817,12 +943,14 @@ func _score_apply_status_result(
 				breakdown.add_score(
 					SCORE_BAD_STATUS,
 					BAD_STATUS_PENALTY
+					* _get_caution_weight(actor)
 				)
 
 			else:
 				breakdown.add_score(
 					SCORE_STATUS,
 					HARMFUL_STATUS_SCORE
+					* _get_control_weight(actor)
 				)
 
 		BattleStatusDefinition.Polarity.BENEFICIAL:
@@ -830,6 +958,7 @@ func _score_apply_status_result(
 				breakdown.add_score(
 					SCORE_STATUS,
 					BENEFICIAL_STATUS_SCORE
+					* _get_support_weight(actor)
 				)
 
 			else:
@@ -870,6 +999,7 @@ func _score_remove_status_result(
 					breakdown.add_score(
 						SCORE_CLEANSE,
 						CLEANSE_SCORE
+						* _get_support_weight(actor)
 					)
 
 				else:
@@ -889,6 +1019,7 @@ func _score_remove_status_result(
 					breakdown.add_score(
 						SCORE_CLEANSE,
 						CLEANSE_SCORE
+						* _get_control_weight(actor)
 					)
 
 
@@ -934,10 +1065,23 @@ func _score_armor_shift(
 	else:
 		useful_delta = - armor_delta
 
+	var behavior_weight := 1.0
+
+	## Усиливаем только полезное применение.
+	## Ошибка не становится менее ошибочной
+	## из-за характера AI.
+	if useful_delta > 0:
+		behavior_weight = (
+			_get_support_weight(actor)
+			if is_ally
+			else _get_control_weight(actor)
+		)
+
 	breakdown.add_score(
 		SCORE_ARMOR_SHIFT,
 		float(useful_delta)
 		* ARMOR_SHIFT_SCORE_PER_POINT
+		* behavior_weight
 	)
     
 func _score_kill(
@@ -972,9 +1116,12 @@ func _score_kill(
 		breakdown.add_score(
 			SCORE_KILL,
 			KILL_SCORE
+			* _get_aggression_weight(actor)
 		)
 
 	else:
+		## Friendly kill остаётся абсолютным
+		## запретом, а не "характером".
 		breakdown.add_score(
 			SCORE_FRIENDLY_KILL,
 			FRIENDLY_KILL_PENALTY
@@ -1001,6 +1148,10 @@ func _score_surface_awareness(
 
 	if actor == null:
 		return
+
+	var caution_weight := (
+		_get_caution_weight(actor)
+	)
 
 	var initial_coordinate := (
 		simulation.initial_actor_coordinate
@@ -1033,6 +1184,7 @@ func _score_surface_awareness(
 	breakdown.add_score(
 		SCORE_SURFACE_CELL,
 		final_surface_score
+		* caution_weight
 	)
 
 	if initial_coordinate == BattleGrid.INVALID_COORDINATE:
@@ -1058,6 +1210,7 @@ func _score_surface_awareness(
 		SCORE_SURFACE_ESCAPE,
 		surface_improvement
 		* SURFACE_ESCAPE_SCORE_MULTIPLIER
+		* caution_weight
 	)
 
 func _score_place_surface_result(
@@ -1130,24 +1283,41 @@ func _score_place_surface_result(
 	)
 
 	var score := 0.0
+	var behavior_weight := 1.0
 
 	if surface_value < 0.0:
 		if is_ally:
-			score = HARMFUL_SURFACE_ON_ALLY_PENALTY
+			score = (
+				HARMFUL_SURFACE_ON_ALLY_PENALTY
+			)
 
 		else:
-			score = HARMFUL_SURFACE_ON_ENEMY_SCORE
+			score = (
+				HARMFUL_SURFACE_ON_ENEMY_SCORE
+			)
+
+			behavior_weight = (
+				_get_control_weight(actor)
+			)
 
 	else:
 		if is_ally:
-			score = BENEFICIAL_SURFACE_ON_ALLY_SCORE
+			score = (
+				BENEFICIAL_SURFACE_ON_ALLY_SCORE
+			)
+
+			behavior_weight = (
+				_get_support_weight(actor)
+			)
 
 		else:
-			score = BENEFICIAL_SURFACE_ON_ENEMY_PENALTY
+			score = (
+				BENEFICIAL_SURFACE_ON_ENEMY_PENALTY
+			)
 
 	breakdown.add_score(
 		SCORE_PLACE_SURFACE,
-		score
+		score * behavior_weight
 	)
 
 
@@ -1362,6 +1532,10 @@ func _score_positioning(
 	):
 		return
 
+	var positioning_weight := (
+		_get_positioning_weight(actor)
+	)
+
 	var start_coordinate := (
 		simulation.initial_actor_coordinate
 	)
@@ -1406,6 +1580,7 @@ func _score_positioning(
 			SCORE_POSITION,
 			float(distance_delta)
 			* APPROACH_SCORE_PER_TILE
+			* positioning_weight
 		)
 
 	elif distance_delta < 0:
@@ -1415,6 +1590,7 @@ func _score_positioning(
 				- distance_delta
 			)
 			* RETREAT_PENALTY_PER_TILE
+			* positioning_weight
 		)
 
 	var forward_delta := (
@@ -1431,6 +1607,7 @@ func _score_positioning(
 			SCORE_POSITION,
 			float(forward_delta)
 			* FORWARD_SCORE_PER_TILE
+			* positioning_weight
 		)
 
 
@@ -1510,12 +1687,21 @@ func _score_costs(
 	plan: BattleAIPlan,
 	simulation: BattleActionSimulationResult
 ) -> void:
+	var actor := (
+		simulation.get_simulated_actor()
+	)
+
+	var economy_weight := (
+		_get_economy_weight(actor)
+	)
+
 	breakdown.add_score(
 		SCORE_STAMINA,
 		float(
 			simulation.total_stamina_spent
 		)
 		* STAMINA_PENALTY_PER_POINT
+		* economy_weight
 	)
 
 	breakdown.add_score(
@@ -1525,4 +1711,5 @@ func _score_costs(
 			+ plan.ally_swap_stamina_cost
 		)
 		* MOVEMENT_PENALTY_PER_POINT
+		* economy_weight
 	)

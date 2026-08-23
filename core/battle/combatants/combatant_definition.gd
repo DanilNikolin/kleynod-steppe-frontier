@@ -20,6 +20,13 @@ var description: String = ""
 @export
 var default_loadout: CombatantLoadoutDefinition
 
+@export_group("AI")
+
+## Необязательный профиль поведения.
+## Null означает полностью нейтральные веса 1.0.
+@export
+var ai_profile: BattleAIProfileDefinition
+
 @export_group("Battlefield Role")
 
 ## Участвует ли объект в обычной очереди ходов.
@@ -259,6 +266,15 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Default combatant loadout is invalid."
 		)
+
+	if ai_profile != null:
+		for profile_error in (
+			ai_profile.get_validation_errors()
+		):
+			errors.append(
+				"AI profile: %s"
+				% profile_error
+			)
 
 	if visual_scene == null:
 		errors.append("Visual scene is not assigned.")

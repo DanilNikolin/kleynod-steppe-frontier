@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BattleAIProfileDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/battle/ai/utility/battle_ai_profile_definition.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+profile_id = &"ai_profile_steppe_shieldbearer"
+display_name = "Steppe Shieldbearer"
+aggression = 0.9
+control = 1.0
+support = 1.2
+caution = 1.25
+economy = 1.05
+positioning = 1.15

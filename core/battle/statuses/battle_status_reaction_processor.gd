@@ -10,6 +10,8 @@ const FAILURE_REACTION_EFFECT_FAILED: StringName = (
 	&"reaction_effect_failed"
 )
 
+const DAMAGE_FLAG_HEALTH: int = 1
+const DAMAGE_FLAG_GUARD: int = 2
 
 var effect_resolver: EffectResolver
 
@@ -136,40 +138,27 @@ func _matches_damage_requirement(
 	):
 		return true
 
-	var health_was_damaged := false
-	var guard_was_damaged := false
+	var damage_flags := 0
 
 	for effect_result in (
 		action_result.effect_results
 	):
-		if (
-			effect_result == null
-			or not effect_result.is_successful
-			or effect_result.effect_kind
-				!= &"damage"
-			or effect_result.target_id
-				!= reactor.instance_id
-		):
-			continue
-
-		var survival_damage_was_prevented := (
-			reactor.is_alive
-			and effect_result.overkill_amount > 0
-			and not effect_result
-				.damage_was_redirected_from_health
+		damage_flags |= (
+			_get_damage_flags_from_effect_tree(
+				effect_result,
+				reactor
+			)
 		)
 
-		if (
-			effect_result.applied_amount > 0
-			or survival_damage_was_prevented
-		):
-			health_was_damaged = true
+	var health_was_damaged := (
+		damage_flags
+		& DAMAGE_FLAG_HEALTH
+	) != 0
 
-		if (
-			effect_result.guard_absorbed_amount
-			> 0
-		):
-			guard_was_damaged = true
+	var guard_was_damaged := (
+		damage_flags
+		& DAMAGE_FLAG_GUARD
+	) != 0
 
 	match requirement:
 		BattleStatusReactionDefinition.DamageRequirement.HEALTH_OR_GUARD:
@@ -186,7 +175,65 @@ func _matches_damage_requirement(
 
 	return false
 
+func _get_damage_flags_from_effect_tree(
+	effect_result: BattleEffectResult,
+	reactor: CombatantState
+) -> int:
+	if (
+		effect_result == null
+		or reactor == null
+	):
+		return 0
 
+	var damage_flags := 0
+
+	if (
+		effect_result.is_successful
+		and effect_result.effect_kind == &"damage"
+		and effect_result.target_id
+			== reactor.instance_id
+	):
+		var survival_damage_was_prevented := (
+			reactor.is_alive
+			and effect_result.overkill_amount > 0
+			and not effect_result
+				.damage_was_redirected_from_health
+		)
+
+		if (
+			effect_result.applied_amount > 0
+			or survival_damage_was_prevented
+		):
+			damage_flags |= (
+				DAMAGE_FLAG_HEALTH
+			)
+
+		if (
+			effect_result.guard_absorbed_amount
+			> 0
+		):
+			damage_flags |= (
+				DAMAGE_FLAG_GUARD
+			)
+
+	for trigger_result in (
+		effect_result.surface_trigger_results
+	):
+		if trigger_result == null:
+			continue
+
+		for nested_effect_result in (
+			trigger_result.effect_results
+		):
+			damage_flags |= (
+				_get_damage_flags_from_effect_tree(
+					nested_effect_result,
+					reactor
+				)
+			)
+
+	return damage_flags
+	
 func _resolve_reaction(
 	session: BattleSession,
 	reactor: CombatantState,

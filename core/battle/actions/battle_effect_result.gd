@@ -118,6 +118,10 @@ var current_guard: int = 0
 var guard_absorbed_amount: int = 0
 var guard_was_bypassed: bool = false
 
+## Guard, добровольно потраченный источником эффекта.
+## Это не поглощение входящего урона.
+var source_guard_consumed_amount: int = 0
+
 var status_id: StringName = &""
 var status_display_name: String = ""
 var status_polarity: int = -1

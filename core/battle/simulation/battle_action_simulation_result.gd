@@ -116,6 +116,8 @@ func get_all_surface_trigger_results() -> Array[BattleSurfaceTriggerResult]:
 func get_all_effect_results() -> Array[BattleEffectResult]:
 	var result: Array[BattleEffectResult] = []
 
+	## Эффекты поверхностей, сработавших
+	## во время обычного движения / swap.
 	for trigger_result in (
 		get_all_surface_trigger_results()
 	):
@@ -125,34 +127,72 @@ func get_all_effect_results() -> Array[BattleEffectResult]:
 		for effect_result in (
 			trigger_result.effect_results
 		):
-			if effect_result != null:
-				result.append(
-					effect_result
-				)
-
-	if action_result != null:
-		for effect_result in (
-			action_result.effect_results
-		):
-			if effect_result == null:
-				continue
-
-			result.append(
+			_append_effect_result_tree(
+				result,
 				effect_result
 			)
 
-			for trigger_result in (
-				effect_result.surface_trigger_results
-			):
-				if trigger_result == null:
-					continue
+	if action_result == null:
+		return result
 
-				for trigger_effect_result in (
-					trigger_result.effect_results
-				):
-					if trigger_effect_result != null:
-						result.append(
-							trigger_effect_result
-						)
+	## Прямые эффекты выполненной способности.
+	for effect_result in (
+		action_result.effect_results
+	):
+		_append_effect_result_tree(
+			result,
+			effect_result
+		)
+
+	## Реакции, вызванные выполненным действием:
+	## контратаки, восстановление Guard/Stamina,
+	## debuff атакующего и любые будущие
+	## универсальные реактивные эффекты.
+	for reaction_result in (
+		action_result.reaction_results
+	):
+		if (
+			reaction_result == null
+			or not reaction_result.is_successful
+		):
+			continue
+
+		for effect_result in (
+			reaction_result.effect_results
+		):
+			_append_effect_result_tree(
+				result,
+				effect_result
+			)
 
 	return result
+
+
+func _append_effect_result_tree(
+	result: Array[BattleEffectResult],
+	effect_result: BattleEffectResult
+) -> void:
+	if effect_result == null:
+		return
+
+	result.append(
+		effect_result
+	)
+
+	## Effect может сам вызвать поверхность,
+	## а её эффект — следующую поверхность.
+	## Собираем всё дерево последствий,
+	## а не только один уровень.
+	for trigger_result in (
+		effect_result.surface_trigger_results
+	):
+		if trigger_result == null:
+			continue
+
+		for nested_effect_result in (
+			trigger_result.effect_results
+		):
+			_append_effect_result_tree(
+				result,
+				nested_effect_result
+			)

@@ -36,6 +36,9 @@ const SCORE_ENEMY_HEAL: StringName = &"enemy_heal"
 const SCORE_GUARD: StringName = &"guard"
 const SCORE_OVERGUARD: StringName = &"overguard"
 const SCORE_ENEMY_GUARD: StringName = &"enemy_guard"
+const SCORE_GUARD_CONSUMPTION: StringName = (
+	&"guard_consumption"
+)
 
 const SCORE_STATUS: StringName = &"status"
 const SCORE_BAD_STATUS: StringName = &"bad_status"
@@ -60,6 +63,13 @@ const SCORE_FRIENDLY_GUARD_DAMAGE: StringName = (
 	&"friendly_guard_damage"
 )
 
+const SCORE_INCOMING_DAMAGE: StringName = (
+	&"incoming_damage"
+)
+
+const SCORE_INCOMING_GUARD_DAMAGE: StringName = (
+	&"incoming_guard_damage"
+)
 const SCORE_FRIENDLY_KILL: StringName = (
 	&"friendly_kill"
 )
@@ -115,6 +125,9 @@ const OVERHEAL_PENALTY_PER_HP: float = -1.0
 const ENEMY_HEAL_PENALTY_PER_HP: float = -14.0
 
 const GUARD_SCORE_PER_POINT: float = 5.0
+## Добровольно отданный Guard имеет примерно
+## ту же базовую ценность, что и полученный Guard.
+const GUARD_CONSUMPTION_VALUE_PER_POINT: float = 5.0
 const OVERGUARD_PENALTY_PER_POINT: float = -1.0
 const ENEMY_GUARD_PENALTY_PER_POINT: float = -10.0
 
@@ -139,6 +152,14 @@ const BENEFICIAL_SURFACE_ON_ENEMY_PENALTY: float = -16.0
 
 const FRIENDLY_DAMAGE_PENALTY_PER_HP: float = -20.0
 const FRIENDLY_GUARD_DAMAGE_PENALTY_PER_POINT: float = -8.0
+## Урон, который наша команда получила
+## как последствие рассматриваемого плана:
+## контратака, вражеская поверхность и т.п.
+##
+## Это риск, а не friendly fire.
+const INCOMING_DAMAGE_PENALTY_PER_HP: float = -10.0
+
+const INCOMING_GUARD_DAMAGE_PENALTY_PER_POINT: float = -4.0
 const FRIENDLY_KILL_PENALTY: float = -250.0
 
 const STAMINA_PENALTY_PER_POINT: float = -0.5
@@ -498,6 +519,13 @@ func _score_effect_result(
 		effect_result
 	)
 
+	_score_source_guard_consumption(
+		breakdown,
+		simulation,
+		actor,
+		effect_result
+	)
+
 	for defeated_id in (
 		effect_result.relocation_defeated_ids
 	):
@@ -507,6 +535,52 @@ func _score_effect_result(
 			actor,
 			defeated_id,
 			scored_kill_ids
+		)
+
+func _score_source_guard_consumption(
+	breakdown: BattleAIScoreBreakdown,
+	simulation: BattleActionSimulationResult,
+	actor: CombatantState,
+	effect_result: BattleEffectResult
+) -> void:
+	if (
+		effect_result.source_guard_consumed_amount <= 0
+		or effect_result.source_id == &""
+	):
+		return
+
+	var source := (
+		simulation.get_simulated_combatant(
+			effect_result.source_id
+		)
+	)
+
+	if source == null:
+		return
+
+	var amount := float(
+		effect_result.source_guard_consumed_amount
+	)
+
+	if source.team_id == actor.team_id:
+		## Мы сами добровольно отдаём защитный ресурс.
+		## Осторожный AI относится к этому тяжелее.
+		breakdown.add_score(
+			SCORE_GUARD_CONSUMPTION,
+			- amount
+			* GUARD_CONSUMPTION_VALUE_PER_POINT
+			* _get_caution_weight(actor)
+		)
+
+	else:
+		## Если противник сам сжёг Guard,
+		## это небольшая стратегическая выгода:
+		## его стало легче добить.
+		breakdown.add_score(
+			SCORE_GUARD_CONSUMPTION,
+			amount
+			* GUARD_CONSUMPTION_VALUE_PER_POINT
+			* _get_aggression_weight(actor)
 		)
 
 func _score_damage_result(
@@ -525,8 +599,19 @@ func _score_damage_result(
 	if target == null:
 		return
 
-	var is_enemy := (
+	var target_is_enemy := (
 		target.team_id != actor.team_id
+	)
+
+	var source := (
+		simulation.get_simulated_combatant(
+			effect_result.source_id
+		)
+	)
+
+	var source_is_ally := (
+		source != null
+		and source.team_id == actor.team_id
 	)
 
 	var aggression_weight := (
@@ -537,7 +622,14 @@ func _score_damage_result(
 		_get_control_weight(actor)
 	)
 
-	if is_enemy:
+	var caution_weight := (
+		_get_caution_weight(actor)
+	)
+
+	if target_is_enemy:
+		## Мы нанесли урон противнику
+		## либо противник получил урон как
+		## полезное для нас последствие плана.
 		breakdown.add_score(
 			SCORE_DAMAGE,
 			float(
@@ -564,7 +656,10 @@ func _score_damage_result(
 			* OVERKILL_PENALTY_PER_HP
 		)
 
-	else:
+	elif source_is_ally:
+		## Настоящий friendly fire:
+		## источник и пострадавший принадлежат
+		## нашей команде.
 		breakdown.add_score(
 			SCORE_FRIENDLY_DAMAGE,
 			float(
@@ -579,6 +674,35 @@ func _score_damage_result(
 				effect_result.guard_absorbed_amount
 			)
 			* FRIENDLY_GUARD_DAMAGE_PENALTY_PER_POINT
+		)
+
+	else:
+		## Наша команда получила урон от внешнего
+		## источника как последствие выбранного плана.
+		##
+		## Типичные примеры:
+		## - контратака;
+		## - реактивный status;
+		## - hostile surface.
+		##
+		## Это регулируемый риск, поэтому
+		## используем Caution.
+		breakdown.add_score(
+			SCORE_INCOMING_DAMAGE,
+			float(
+				effect_result.applied_amount
+			)
+			* INCOMING_DAMAGE_PENALTY_PER_HP
+			* caution_weight
+		)
+
+		breakdown.add_score(
+			SCORE_INCOMING_GUARD_DAMAGE,
+			float(
+				effect_result.guard_absorbed_amount
+			)
+			* INCOMING_GUARD_DAMAGE_PENALTY_PER_POINT
+			* caution_weight
 		)
 
 	if effect_result.target_died:
@@ -599,7 +723,7 @@ func _score_damage_result(
 			* (
 				ENEMY_STAMINA_DRAIN_SCORE_PER_POINT
 				* control_weight
-				if is_enemy
+				if target_is_enemy
 				else FRIENDLY_STAMINA_DRAIN_PENALTY_PER_POINT
 			)
 		)
@@ -622,7 +746,7 @@ func _score_damage_result(
 			* (
 				ENEMY_STAMINA_DEBT_SCORE_PER_POINT
 				* control_weight
-				if is_enemy
+				if target_is_enemy
 				else FRIENDLY_STAMINA_DEBT_PENALTY_PER_POINT
 			)
 		)

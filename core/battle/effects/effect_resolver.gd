@@ -664,12 +664,9 @@ func _resolve_guard_conversion_damage(
 	standard_critical_mode: int,
 	damage_kind: StringName
 ) -> BattleEffectResult:
-	var consumed_guard := source.consume_guard(
-		effect.max_guard_spend
-	)
-
-	## Создаём runtime-копию, чтобы не менять
-	## исходный Resource способности.
+	## Сначала создаём runtime-копию.
+	## Если это почему-то невозможно,
+	## Guard не должен исчезнуть впустую.
 	var runtime_effect := (
 		effect.duplicate(true) as DamageEffect
 	)
@@ -682,13 +679,17 @@ func _resolve_guard_conversion_damage(
 			target
 		)
 
+	var consumed_guard := source.consume_guard(
+		effect.max_guard_spend
+	)
+
 	runtime_effect.base_damage = (
 		effect.base_damage
 		+ consumed_guard
 		* effect.bonus_damage_per_guard
 	)
 
-	return _resolve_damage(
+	var result := _resolve_damage(
 		runtime_effect,
 		source,
 		target,
@@ -697,6 +698,12 @@ func _resolve_guard_conversion_damage(
 		standard_critical_mode,
 		damage_kind
 	)
+
+	result.source_guard_consumed_amount = (
+		consumed_guard
+	)
+
+	return result
 	
 func _resolve_damage(
 	effect: DamageEffect,

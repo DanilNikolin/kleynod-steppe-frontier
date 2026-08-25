@@ -249,3 +249,13 @@ func _apply_rare_stat_node(
 			result.stat_bonuses.crit_damage_bonus_percent += (
 				node.rare_stat_amount
 			)
+
+		SkillGridNodeDefinition.RareStat.HEALTH_REGENERATION_EVERY_TWO_TURNS:
+			result.stat_bonuses.health_regeneration_every_two_turns_bonus += (
+				node.rare_stat_amount
+			)
+
+		SkillGridNodeDefinition.RareStat.GUARD_REGENERATION_EVERY_TWO_TURNS:
+			result.stat_bonuses.guard_regeneration_every_two_turns_bonus += (
+				node.rare_stat_amount
+			)

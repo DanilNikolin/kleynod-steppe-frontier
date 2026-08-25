@@ -159,6 +159,18 @@ func resolve(
 			+ total_bonuses.crit_damage_bonus_percent
 	)
 
+	combatant_definition.health_regeneration_every_two_turns = maxi(
+		0,
+		combatant_definition.health_regeneration_every_two_turns
+			+ total_bonuses.health_regeneration_every_two_turns_bonus
+	)
+
+	combatant_definition.guard_regeneration_every_two_turns = maxi(
+		0,
+		combatant_definition.guard_regeneration_every_two_turns
+			+ total_bonuses.guard_regeneration_every_two_turns_bonus
+	)
+
 	var known_ability_ids: Array[StringName] = []
 
 	for ability_id in (

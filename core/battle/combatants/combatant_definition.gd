@@ -95,6 +95,12 @@ var base_crit_chance_bonus_percent: int = 0
 @export_range(-100, 999, 1)
 var base_crit_damage_bonus_percent: int = 0
 
+@export_range(0, 99, 1)
+var health_regeneration_every_two_turns: int = 0
+
+@export_range(0, 99, 1)
+var guard_regeneration_every_two_turns: int = 0
+
 @export_range(0, 999, 1)
 var base_initiative: int = 0
 
@@ -208,6 +214,16 @@ func get_validation_errors() -> PackedStringArray:
 	if base_crit_damage_bonus_percent < -100:
 		errors.append(
 			"Base crit damage bonus percent cannot be lower than -100."
+		)
+
+	if health_regeneration_every_two_turns < 0:
+		errors.append(
+			"Health regeneration every two turns cannot be negative."
+		)
+
+	if guard_regeneration_every_two_turns < 0:
+		errors.append(
+			"Guard regeneration every two turns cannot be negative."
 		)
 
 	var used_immunity_ids: Dictionary = {}

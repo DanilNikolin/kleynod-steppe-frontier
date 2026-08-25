@@ -64,6 +64,11 @@ var armor: int
 var crit_chance_bonus_percent: int
 var crit_damage_bonus_percent: int
 
+var health_regeneration_every_two_turns: int
+var guard_regeneration_every_two_turns: int
+
+var owner_turns_started_count: int = 0
+
 var max_stamina: int
 var current_stamina: int
 var stamina_regeneration: int
@@ -155,6 +160,14 @@ func _initialize_runtime_attributes() -> void:
 		definition.base_crit_damage_bonus_percent
 	)
 
+	health_regeneration_every_two_turns = (
+		definition.health_regeneration_every_two_turns
+	)
+	guard_regeneration_every_two_turns = (
+		definition.guard_regeneration_every_two_turns
+	)
+	owner_turns_started_count = 0
+
 	max_stamina = definition.max_stamina
 
 	if definition.start_stamina < 0:
@@ -175,6 +188,26 @@ func _initialize_runtime_attributes() -> void:
 	current_morale = max_morale
 
 	_initialize_ability_locks()
+
+
+func process_owner_turn_regeneration() -> void:
+	if not is_alive:
+		return
+
+	owner_turns_started_count += 1
+
+	if owner_turns_started_count % 2 != 0:
+		return
+
+	if health_regeneration_every_two_turns > 0:
+		heal(
+			health_regeneration_every_two_turns
+		)
+
+	if guard_regeneration_every_two_turns > 0:
+		grant_guard(
+			guard_regeneration_every_two_turns
+		)
 
 
 func set_grid_position(new_position: Vector2i) -> void:
@@ -1336,6 +1369,16 @@ func create_runtime_copy() -> CombatantState:
 	)
 	result.crit_damage_bonus_percent = (
 		crit_damage_bonus_percent
+	)
+
+	result.health_regeneration_every_two_turns = (
+		health_regeneration_every_two_turns
+	)
+	result.guard_regeneration_every_two_turns = (
+		guard_regeneration_every_two_turns
+	)
+	result.owner_turns_started_count = (
+		owner_turns_started_count
 	)
 
 	result.max_stamina = max_stamina

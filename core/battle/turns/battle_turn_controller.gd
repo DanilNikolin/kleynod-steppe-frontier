@@ -357,6 +357,8 @@ func _begin_turn(
 		_advance_to_next_turn()
 		return
 
+	combatant.process_owner_turn_regeneration()
+
 	if _combatant_ids_with_started_turn.has(
 		combatant.instance_id
 	):

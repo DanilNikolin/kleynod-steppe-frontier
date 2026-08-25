@@ -41,6 +41,12 @@ var crit_chance_bonus_percent: int = 0
 @export_range(-100, 999, 1)
 var crit_damage_bonus_percent: int = 0
 
+@export_range(-99, 99, 1)
+var health_regeneration_every_two_turns_bonus: int = 0
+
+@export_range(-99, 99, 1)
+var guard_regeneration_every_two_turns_bonus: int = 0
+
 
 @export_group("Hero Build")
 
@@ -61,6 +67,8 @@ func clear() -> void:
 	start_guard_bonus = 0
 	crit_chance_bonus_percent = 0
 	crit_damage_bonus_percent = 0
+	health_regeneration_every_two_turns_bonus = 0
+	guard_regeneration_every_two_turns_bonus = 0
 
 	active_slot_bonus = 0
 
@@ -115,6 +123,14 @@ func add_from(
 		source.crit_damage_bonus_percent
 	)
 
+	health_regeneration_every_two_turns_bonus += (
+		source.health_regeneration_every_two_turns_bonus
+	)
+
+	guard_regeneration_every_two_turns_bonus += (
+		source.guard_regeneration_every_two_turns_bonus
+	)
+
 	active_slot_bonus += (
 		source.active_slot_bonus
 	)
@@ -143,5 +159,7 @@ func is_zero() -> bool:
 		and start_guard_bonus == 0
 		and crit_chance_bonus_percent == 0
 		and crit_damage_bonus_percent == 0
+		and health_regeneration_every_two_turns_bonus == 0
+		and guard_regeneration_every_two_turns_bonus == 0
 		and active_slot_bonus == 0
 	)

@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="6_grit_teeth"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="7_slanting_cut"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="8_open_vein"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_do_not_bend.tres" id="9_do_not_bend"]
 
 
 [sub_resource type="Resource" id="Node_strength_1_a"]
@@ -692,6 +693,158 @@ exit_anchor_node_ids = Array[StringName]([
 	&"node_bayda_agility_2_h"
 ])
 
+[sub_resource type="Resource" id="Node_spirit_2_a"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_a"
+display_name = "+1 здоровье"
+description = "Повышает максимальное здоровье Байды на 1."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(120, 300)
+rare_stat = 1
+
+
+[sub_resource type="Resource" id="Node_spirit_2_b"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_b"
+display_name = "+2 стартовая оборона"
+description = "Байда начинает бой с дополнительными 2 Guard."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(310, 150)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
+rare_stat = 6
+rare_stat_amount = 2
+
+
+[sub_resource type="Resource" id="Node_spirit_2_c"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_c"
+display_name = "+1 макс. выносливость"
+description = "Повышает максимальную выносливость Байды на 1."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(310, 450)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
+rare_stat = 2
+
+
+[sub_resource type="Resource" id="Node_spirit_2_d"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_d"
+display_name = "+1 броня"
+description = "Повышает постоянную броню Байды на 1."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(500, 90)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_b"
+])
+rare_stat = 4
+
+
+[sub_resource type="Resource" id="Node_spirit_2_e"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_e"
+display_name = "+1 оборона / 2 хода"
+description = "Каждый второй собственный ход Байда получает 1 Guard."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(500, 300)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_f"
+])
+rare_stat = 10
+
+
+[sub_resource type="Resource" id="Node_spirit_2_f"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_f"
+display_name = "+1 здоровье / 2 хода"
+description = "Каждый второй собственный ход Байда восстанавливает 1 здоровье."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(500, 510)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_c"
+])
+rare_stat = 9
+
+
+[sub_resource type="Resource" id="Node_spirit_2_g"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_g"
+display_name = "Не согнуться"
+description = "Открывает личный приём Байды «Не согнуться»."
+node_type = 1
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(720, 150)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_e"
+])
+granted_ability = ExtResource("9_do_not_bend")
+
+
+[sub_resource type="Resource" id="Node_spirit_2_h"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_h"
+display_name = "Воля +1"
+description = "Повышает ранг ветки Воли Байды на 1."
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(720, 450)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_e",
+	&"node_bayda_spirit_2_f"
+])
+branch = 3
+
+
+[sub_resource type="Resource" id="Node_spirit_2_j"]
+script = ExtResource("2_node")
+node_id = &"node_bayda_spirit_2_j"
+display_name = "+1 стартовая выносливость"
+description = "Повышает стартовую выносливость Байды на 1."
+node_type = 6
+block_id = &"block_bayda_spirit_2"
+ui_position = Vector2(720, 650)
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_e"
+])
+rare_stat = 3
+
+
+[sub_resource type="Resource" id="Block_spirit_2"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_spirit_2"
+display_name = "ВОЛЯ II"
+branch = 3
+branch_order = 2
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a",
+	&"node_bayda_spirit_2_b",
+	&"node_bayda_spirit_2_c",
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_e",
+	&"node_bayda_spirit_2_f",
+	&"node_bayda_spirit_2_g",
+	&"node_bayda_spirit_2_h",
+	&"node_bayda_spirit_2_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_g",
+	&"node_bayda_spirit_2_h"
+])
+
 [resource]
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_bayda"
@@ -701,7 +854,8 @@ blocks = Array[ExtResource("3_block")]([
 	SubResource("Block_agility_1"),
 	SubResource("Block_spirit_1"),
 	SubResource("Block_strength_2"),
-	SubResource("Block_agility_2")
+	SubResource("Block_agility_2"),
+	SubResource("Block_spirit_2")
 ])
 nodes = Array[ExtResource("2_node")]([
 	SubResource("Node_strength_1_a"),
@@ -752,5 +906,15 @@ nodes = Array[ExtResource("2_node")]([
 	SubResource("Node_agility_2_f"),
 	SubResource("Node_agility_2_g"),
 	SubResource("Node_agility_2_h"),
-	SubResource("Node_agility_2_j")
+	SubResource("Node_agility_2_j"),
+
+	SubResource("Node_spirit_2_a"),
+	SubResource("Node_spirit_2_b"),
+	SubResource("Node_spirit_2_c"),
+	SubResource("Node_spirit_2_d"),
+	SubResource("Node_spirit_2_e"),
+	SubResource("Node_spirit_2_f"),
+	SubResource("Node_spirit_2_g"),
+	SubResource("Node_spirit_2_h"),
+	SubResource("Node_spirit_2_j")
 ])

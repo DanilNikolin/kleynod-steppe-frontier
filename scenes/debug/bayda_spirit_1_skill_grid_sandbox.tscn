@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/debug/skill_grid_debug_sandbox.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/heroes/bayda/bayda_hero.tres" id="2_hero"]
+[ext_resource type="Resource" path="res://content/heroes/bayda/debug_bayda_spirit_1_progression.tres" id="3_progression"]
+[ext_resource type="Resource" path="res://content/skill_grids/heroes/bayda/bayda_skill_grid.tres" id="4_grid"]
+
+[node name="BaydaSpirit1SkillGridSandbox" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+hero_definition = ExtResource("2_hero")
+progression_source = ExtResource("3_progression")
+skill_grid_override = ExtResource("4_grid")

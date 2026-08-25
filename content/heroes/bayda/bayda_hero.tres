@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="2_ability"]
 [ext_resource type="Resource" path="res://content/combatants/heroes/bayda/bayda_base_combatant.tres" id="3_combatant"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_core_module.tres" id="4_core"]
-[ext_resource type="Resource" path="res://content/skill_grids/heroes/bayda/bayda_skill_grid_debug.tres" id="5_grid"]
+[ext_resource type="Resource" path="res://content/skill_grids/heroes/bayda/bayda_skill_grid.tres" id="5_grid"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="8_blood_payment"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="9_gallows_hook"]
 [ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="10_grit_teeth"]
@@ -24,7 +24,7 @@
 script = ExtResource("1_hero")
 hero_id = &"hero_bayda"
 display_name = "Байда-характерник"
-description = "Первый настоящий герой. Core Module реализован, способности и Skill Grid пока используют временный debug-контент."
+description = "Первый настоящий герой. Core Module, личные способности и модульный Skill Grid подключены к campaign progression."
 base_combatant_definition = ExtResource("3_combatant")
 core_module = ExtResource("4_core")
 skill_grid = ExtResource("5_grid")

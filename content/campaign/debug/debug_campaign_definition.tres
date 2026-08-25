@@ -25,8 +25,8 @@
 script = ExtResource("2_hero_state")
 hero_definition = ExtResource("11_bayda")
 progression_state = ExtResource("19_bayda_progression")
-is_placeholder_content = true
-roster_note = "Core Module Байды уже работает. Личные способности и Skill Grid пока используют debug-контент."
+is_placeholder_content = false
+roster_note = "Байда использует настоящий Core Module, личные способности и модульный Skill Grid."
 
 [sub_resource type="Resource" id="HeroPlastunka"]
 script = ExtResource("2_hero_state")

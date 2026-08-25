@@ -16,7 +16,12 @@ var block_progress_service := (
 	SkillGridBlockProgressService.new()
 )
 
+var attachment_service := (
+	SkillGridBlockAttachmentService.new()
+)
+
 var selected_node_id: StringName = &""
+var preview_block_id: StringName = &""
 
 
 func bind(
@@ -62,15 +67,36 @@ func _rebuild_interface() -> void:
 
 		return
 
+	var candidates := (
+		attachment_service
+			.get_attachment_candidates(
+				hero_definition.skill_grid,
+				progression
+			)
+	)
+
+	_normalize_preview_block_id(
+		candidates
+	)
+
 	add_child(
 		_create_header()
 	)
 
-	var separator := HSeparator.new()
-
 	add_child(
-		separator
+		HSeparator.new()
 	)
+
+	if not candidates.is_empty():
+		add_child(
+			_create_attachment_picker(
+				candidates
+			)
+		)
+
+		add_child(
+			HSeparator.new()
+		)
 
 	var body := HBoxContainer.new()
 
@@ -92,7 +118,9 @@ func _rebuild_interface() -> void:
 	)
 
 	body.add_child(
-		_create_graph_area()
+		_create_graph_area(
+			candidates
+		)
 	)
 
 	body.add_child(
@@ -144,7 +172,229 @@ func _create_header() -> Control:
 	return row
 
 
-func _create_graph_area() -> Control:
+func _create_attachment_picker(
+	candidates: Array[SkillGridBlockDefinition]
+) -> Control:
+	var panel := PanelContainer.new()
+
+	var margin := MarginContainer.new()
+
+	margin.add_theme_constant_override(
+		"margin_left",
+		14
+	)
+
+	margin.add_theme_constant_override(
+		"margin_top",
+		12
+	)
+
+	margin.add_theme_constant_override(
+		"margin_right",
+		14
+	)
+
+	margin.add_theme_constant_override(
+		"margin_bottom",
+		12
+	)
+
+	panel.add_child(
+		margin
+	)
+
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		10
+	)
+
+	margin.add_child(
+		content
+	)
+
+	var title := Label.new()
+
+	if progression.attached_skill_block_ids.is_empty():
+		title.text = "ВЫБЕРИТЕ ПЕРВЫЙ БЛОК"
+
+	else:
+		title.text = "ВЫБЕРИТЕ СЛЕДУЮЩИЙ БЛОК"
+
+	title.add_theme_font_size_override(
+		"font_size",
+		18
+	)
+
+	content.add_child(
+		title
+	)
+
+	var description := Label.new()
+
+	if progression.attached_skill_block_ids.is_empty():
+		description.text = (
+			"Этот блок станет началом общего "
+			+"Skill Grid героя."
+		)
+
+	else:
+		description.text = (
+			"Последний блок готов к расширению. "
+			+"Выберите, куда продолжить развитие."
+		)
+
+	description.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	content.add_child(
+		description
+	)
+
+	var candidate_row := HBoxContainer.new()
+
+	candidate_row.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	content.add_child(
+		candidate_row
+	)
+
+	for block in candidates:
+		if block == null:
+			continue
+
+		var button := Button.new()
+
+		button.text = block.display_name
+
+		button.custom_minimum_size = Vector2(
+			190.0,
+			44.0
+		)
+
+		button.toggle_mode = true
+
+		button.set_pressed_no_signal(
+			block.block_id == preview_block_id
+		)
+
+		button.pressed.connect(
+			_on_attachment_preview_pressed.bind(
+				block.block_id
+			)
+		)
+
+		candidate_row.add_child(
+			button
+		)
+
+	if preview_block_id == &"":
+		var hint := Label.new()
+
+		hint.text = (
+			"Нажмите на блок, чтобы увидеть "
+			+"его предпросмотр."
+		)
+
+		content.add_child(
+			hint
+		)
+
+		return panel
+
+	var preview_block := (
+		hero_definition
+			.skill_grid
+			.get_block_definition(
+				preview_block_id
+			)
+	)
+
+	if preview_block == null:
+		return panel
+
+	var selection_separator := HSeparator.new()
+
+	content.add_child(
+		selection_separator
+	)
+
+	var selection_info := Label.new()
+
+	selection_info.text = (
+		"Предпросмотр: %s · %d нод · "
+		+"для следующего расширения: %d нод + EXIT"
+		% [
+			preview_block.display_name,
+			preview_block.node_ids.size(),
+			preview_block.minimum_purchased_nodes,
+		]
+	)
+
+	selection_info.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	content.add_child(
+		selection_info
+	)
+
+	var actions := HBoxContainer.new()
+
+	actions.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	content.add_child(
+		actions
+	)
+
+	var confirm_button := Button.new()
+
+	confirm_button.text = "ПОДТВЕРДИТЬ"
+
+	confirm_button.custom_minimum_size = Vector2(
+		180.0,
+		44.0
+	)
+
+	confirm_button.pressed.connect(
+		_on_attachment_confirm_pressed
+	)
+
+	actions.add_child(
+		confirm_button
+	)
+
+	var cancel_button := Button.new()
+
+	cancel_button.text = "ОТМЕНА"
+
+	cancel_button.custom_minimum_size = Vector2(
+		120.0,
+		44.0
+	)
+
+	cancel_button.pressed.connect(
+		_on_attachment_cancel_pressed
+	)
+
+	actions.add_child(
+		cancel_button
+	)
+
+	return panel
+
+
+func _create_graph_area(
+	candidates: Array[SkillGridBlockDefinition]
+) -> Control:
 	var scroll := ScrollContainer.new()
 
 	scroll.size_flags_horizontal = (
@@ -184,18 +434,45 @@ func _create_graph_area() -> Control:
 
 		blocks_row.add_child(
 			_create_block_column(
-				block
+				block,
+				false
 			)
 		)
 
 		attached_block_count += 1
 
-	if attached_block_count == 0:
+	if preview_block_id != &"":
+		var preview_block := (
+			hero_definition
+				.skill_grid
+				.get_block_definition(
+					preview_block_id
+				)
+		)
+
+		if preview_block != null:
+			blocks_row.add_child(
+				_create_block_column(
+					preview_block,
+					true
+				)
+			)
+
+	if (
+		attached_block_count == 0
+		and preview_block_id == &""
+	):
 		var empty_label := Label.new()
 
-		empty_label.text = (
-			"Нет присоединённых блоков Skill Grid."
-		)
+		if candidates.is_empty():
+			empty_label.text = (
+				"Нет доступных блоков Skill Grid."
+			)
+
+		else:
+			empty_label.text = (
+				"Выберите первый блок выше."
+			)
 
 		blocks_row.add_child(
 			empty_label
@@ -205,7 +482,8 @@ func _create_graph_area() -> Control:
 
 
 func _create_block_column(
-	block: SkillGridBlockDefinition
+	block: SkillGridBlockDefinition,
+	is_preview: bool = false
 ) -> Control:
 	var column := VBoxContainer.new()
 
@@ -214,22 +492,29 @@ func _create_block_column(
 		8
 	)
 
-	var purchased_count := (
-		_get_purchased_count_for_block(
-			block
-		)
-	)
-
 	var title := Label.new()
 
-	title.text = (
-		"%s · %d/%d нод"
-		% [
-			block.display_name,
-			purchased_count,
-			block.node_ids.size(),
-		]
-	)
+	if is_preview:
+		title.text = (
+			"ПРЕДПРОСМОТР · %s"
+			% block.display_name
+		)
+
+	else:
+		var purchased_count := (
+			_get_purchased_count_for_block(
+				block
+			)
+		)
+
+		title.text = (
+			"%s · %d/%d нод"
+			% [
+				block.display_name,
+				purchased_count,
+				block.node_ids.size(),
+			]
+		)
 
 	title.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_CENTER
@@ -244,27 +529,30 @@ func _create_block_column(
 		title
 	)
 
-	column.add_child(
-		_create_block_progress_label(
-			block
+	if not is_preview:
+		column.add_child(
+			_create_block_progress_label(
+				block
+			)
 		)
-	)
 
 	var graph := SkillGridGraphView.new()
 
 	graph.bind(
 		hero_definition.skill_grid,
 		block,
-		progression
+		progression,
+		is_preview
 	)
 
-	graph.set_selected_node_id(
-		selected_node_id
-	)
+	if not is_preview:
+		graph.set_selected_node_id(
+			selected_node_id
+		)
 
-	graph.node_selected.connect(
-		_on_node_selected
-	)
+		graph.node_selected.connect(
+			_on_node_selected
+		)
 
 	column.add_child(
 		graph
@@ -428,9 +716,17 @@ func _create_details_panel() -> Control:
 	if selected_node_id == &"":
 		var hint := Label.new()
 
-		hint.text = (
-			"Выберите ноду на схеме."
-		)
+		if preview_block_id != &"":
+			hint.text = (
+				"Справа показан предпросмотр "
+				+"выбранного блока. Подтвердите "
+				+"или отмените выбор выше."
+			)
+
+		else:
+			hint.text = (
+				"Выберите ноду на схеме."
+			)
 
 		hint.autowrap_mode = (
 			TextServer.AUTOWRAP_WORD_SMART
@@ -615,6 +911,74 @@ func _get_purchased_count_for_block(
 				progression
 			)
 	)
+
+
+func _normalize_preview_block_id(
+	candidates: Array[SkillGridBlockDefinition]
+) -> void:
+	if preview_block_id == &"":
+		return
+
+	if _contains_candidate(
+		candidates,
+		preview_block_id
+	):
+		return
+
+	preview_block_id = &""
+
+
+func _contains_candidate(
+	candidates: Array[SkillGridBlockDefinition],
+	block_id: StringName
+) -> bool:
+	for candidate in candidates:
+		if (
+			candidate != null
+			and candidate.block_id == block_id
+		):
+			return true
+
+	return false
+
+
+func _on_attachment_preview_pressed(
+	block_id: StringName
+) -> void:
+	preview_block_id = block_id
+	selected_node_id = &""
+
+	_rebuild_interface()
+
+
+func _on_attachment_cancel_pressed() -> void:
+	preview_block_id = &""
+
+	_rebuild_interface()
+
+
+func _on_attachment_confirm_pressed() -> void:
+	if preview_block_id == &"":
+		return
+
+	var result := attachment_service.attach(
+		hero_definition.skill_grid,
+		progression,
+		preview_block_id
+	)
+
+	if not result.is_successful:
+		push_warning(
+			"Skill Grid block attachment failed: %s"
+			% result.failure_code
+		)
+
+		return
+
+	preview_block_id = &""
+	selected_node_id = &""
+
+	state_changed.emit()
 
 
 func _on_node_selected(

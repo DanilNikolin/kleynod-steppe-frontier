@@ -18,6 +18,7 @@ const MINIMUM_CANVAS_SIZE := Vector2(
 const STATE_PURCHASED: StringName = &"purchased"
 const STATE_AVAILABLE: StringName = &"available"
 const STATE_LOCKED: StringName = &"locked"
+const STATE_PREVIEW: StringName = &"preview"
 
 
 var grid: SkillGridDefinition
@@ -25,6 +26,7 @@ var block: SkillGridBlockDefinition
 var progression: HeroProgressionState
 
 var selected_node_id: StringName = &""
+var preview_mode: bool = false
 
 var purchase_service := (
 	SkillGridPurchaseService.new()
@@ -34,11 +36,13 @@ var purchase_service := (
 func bind(
 	p_grid: SkillGridDefinition,
 	p_block: SkillGridBlockDefinition,
-	p_progression: HeroProgressionState
+	p_progression: HeroProgressionState,
+	p_preview_mode: bool = false
 ) -> void:
 	grid = p_grid
 	block = p_block
 	progression = p_progression
+	preview_mode = p_preview_mode
 
 	custom_minimum_size = MINIMUM_CANVAS_SIZE
 
@@ -108,6 +112,11 @@ func _create_node_button(
 	button.focus_mode = (
 		Control.FOCUS_ALL
 	)
+
+	button.disabled = preview_mode
+
+	if preview_mode:
+		button.focus_mode = Control.FOCUS_NONE
 
 	button.pressed.connect(
 		_on_node_button_pressed.bind(
@@ -202,12 +211,37 @@ func _apply_node_button_style(
 				1.0
 			)
 
+		STATE_PREVIEW:
+			background_color = Color(
+				0.10,
+				0.13,
+				0.18,
+				1.0
+			)
+
+			border_color = Color(
+				0.35,
+				0.48,
+				0.65,
+				1.0
+			)
+
+			font_color = Color(
+				0.72,
+				0.80,
+				0.90,
+				1.0
+			)
+
 		STATE_LOCKED:
 			pass
 
 	var border_width := 2
 
-	if node.node_id == selected_node_id:
+	if (
+		not preview_mode
+		and node.node_id == selected_node_id
+	):
 		border_color = Color(
 			0.92,
 			0.92,
@@ -261,6 +295,11 @@ func _apply_node_button_style(
 		normal_style
 	)
 
+	button.add_theme_stylebox_override(
+		"disabled",
+		normal_style
+	)
+
 	button.add_theme_color_override(
 		"font_color",
 		font_color
@@ -273,6 +312,11 @@ func _apply_node_button_style(
 
 	button.add_theme_color_override(
 		"font_pressed_color",
+		font_color
+	)
+
+	button.add_theme_color_override(
+		"font_disabled_color",
 		font_color
 	)
 
@@ -314,6 +358,9 @@ func _create_button_style(
 func _get_node_state(
 	node: SkillGridNodeDefinition
 ) -> StringName:
+	if preview_mode:
+		return STATE_PREVIEW
+
 	if (
 		progression != null
 		and progression.purchased_node_ids.has(
@@ -458,6 +505,14 @@ func _get_path_color(
 	parent_id: StringName,
 	child_id: StringName
 ) -> Color:
+	if preview_mode:
+		return Color(
+			0.35,
+			0.48,
+			0.65,
+			0.75
+		)
+
 	if progression.purchased_node_ids.has(
 		child_id
 	):
@@ -489,6 +544,14 @@ func _get_path_color(
 func _get_entry_path_color(
 	entry_node: SkillGridNodeDefinition
 ) -> Color:
+	if preview_mode:
+		return Color(
+			0.35,
+			0.48,
+			0.65,
+			0.75
+		)
+
 	if progression.purchased_node_ids.has(
 		entry_node.node_id
 	):
@@ -522,6 +585,14 @@ func _get_entry_path_color(
 func _get_exit_path_color(
 	exit_node: SkillGridNodeDefinition
 ) -> Color:
+	if preview_mode:
+		return Color(
+			0.35,
+			0.48,
+			0.65,
+			0.75
+		)
+
 	if progression.purchased_node_ids.has(
 		exit_node.node_id
 	):
@@ -543,6 +614,9 @@ func _get_exit_path_color(
 func _on_node_button_pressed(
 	node_id: StringName
 ) -> void:
+	if preview_mode:
+		return
+
 	node_selected.emit(
 		node_id
 	)

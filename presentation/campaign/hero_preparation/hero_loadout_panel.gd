@@ -94,7 +94,14 @@ func _rebuild_interface() -> void:
 		title
 	)
 
-	for ability in hero_definition.personal_abilities:
+	for ability_id in known_ability_ids:
+		var ability := (
+			hero_definition
+				.get_personal_ability(
+					ability_id
+				)
+		)
+
 		if ability == null:
 			continue
 

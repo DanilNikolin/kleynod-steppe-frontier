@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HeroProgressionState" format=3]
+
+[ext_resource type="Script" path="res://core/heroes/hero_progression_state.gd" id="1_progression"]
+
+[resource]
+script = ExtResource("1_progression")
+level = 1
+unspent_skill_points = 20
+attached_skill_block_ids = Array[StringName]([
+	&"block_bayda_agility_1"
+])

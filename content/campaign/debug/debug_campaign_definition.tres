@@ -5,11 +5,6 @@
 [ext_resource type="Resource" uid="uid://5mlrljx6pow5" path="res://content/heroes/debug/debug_sechevik_progression_purchase_test.tres" id="3_progression"]
 [ext_resource type="Script" uid="uid://b057wdv6pu3ma" path="res://core/campaign/locations/campaign_location_definition.gd" id="4_location_script"]
 [ext_resource type="Resource" uid="uid://bv4l8i720765u" path="res://content/locations/debug/debug_forest_edge_location.tres" id="5_location"]
-[ext_resource type="Script" uid="uid://dunmh05cf1m3b" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="6_item_script"]
-[ext_resource type="Resource" uid="uid://bikqcfmppncw" path="res://content/equipment/debug/debug_old_sabre_instance.tres" id="7_sabre"]
-[ext_resource type="Resource" uid="uid://vh4oqfulnv38" path="res://content/equipment/debug/debug_steppe_armor_instance.tres" id="8_armor"]
-[ext_resource type="Resource" uid="uid://i3gpoobv8ldh" path="res://content/equipment/debug/debug_traveler_charm_instance.tres" id="9_charm"]
-[ext_resource type="Resource" uid="uid://ue6xhoflef4w" path="res://content/equipment/debug/debug_heavy_berdysh_instance.tres" id="10_berdysh"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_hero.tres" id="11_bayda"]
 [ext_resource type="Resource" uid="uid://dxpp11ujk3j57" path="res://content/heroes/placeholders/placeholder_plastunka.tres" id="12_plastunka"]
 [ext_resource type="Resource" uid="uid://b07rykw4bm07p" path="res://content/heroes/placeholders/placeholder_powder_markswoman.tres" id="13_markswoman"]
@@ -89,7 +84,6 @@ display_name = "Клейнод — Campaign Sandbox"
 starting_heroes = Array[ExtResource("2_hero_state")]([SubResource("HeroBayda"), SubResource("HeroPlastunka"), SubResource("HeroMarkswoman"), SubResource("HeroMavka"), SubResource("HeroChugaister"), SubResource("HeroHunter"), SubResource("HeroWolf"), SubResource("HeroSchemonk")])
 starting_selected_hero_id = &"hero_bayda"
 starting_party_member_hero_ids = Array[StringName]([&"hero_bayda", &"hero_plastunka", &"hero_powder_markswoman"])
-starting_inventory_items = Array[ExtResource("6_item_script")]([ExtResource("7_sabre"), ExtResource("8_armor"), ExtResource("9_charm"), ExtResource("10_berdysh")])
 starting_gold = 0
 loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])

@@ -18,5 +18,6 @@ base_armor = 3
 max_stamina = 6
 stamina_regeneration = 3
 base_initiative = 2
+experience_reward = 90
 visual_scene = ExtResource("2_visual")
 visual_tint = Color(0.9, 0.45, 0.2, 1)

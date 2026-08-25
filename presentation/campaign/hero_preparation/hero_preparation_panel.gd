@@ -24,6 +24,7 @@ var close_button_text: String = "Вернуться в лагерь"
 var party_service := (
 	CampaignPartyService.new()
 )
+var experience_service := HeroExperienceService.new()
 
 var _current_tab: PreparationTab = (
 	PreparationTab.PROGRESSION
@@ -194,6 +195,17 @@ func _rebuild_interface() -> void:
 
 func _create_header() -> Control:
 	var panel := PanelContainer.new()
+	var content := VBoxContainer.new()
+
+	content.add_theme_constant_override(
+		"separation",
+		8
+	)
+
+	panel.add_child(
+		content
+	)
+
 	var row := HBoxContainer.new()
 
 	row.add_theme_constant_override(
@@ -201,7 +213,7 @@ func _create_header() -> Control:
 		12
 	)
 
-	panel.add_child(
+	content.add_child(
 		row
 	)
 
@@ -244,7 +256,108 @@ func _create_header() -> Control:
 		close_button
 	)
 
+	if (
+		hero_state != null
+		and hero_state.progression_state != null
+	):
+		content.add_child(
+			_create_experience_progress()
+		)
+
 	return panel
+
+
+func _create_experience_progress() -> Control:
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		12
+	)
+
+	var progression := hero_state.progression_state
+
+	var summary := Label.new()
+
+	summary.custom_minimum_size = Vector2(
+		300,
+		0
+	)
+
+	var bar := ProgressBar.new()
+
+	bar.custom_minimum_size = Vector2(
+		360,
+		18
+	)
+
+	bar.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	bar.show_percentage = false
+
+	if progression.level >= (
+		HeroExperienceService.MAX_LEVEL
+	):
+		summary.text = (
+			"Уровень %d · MAX · SP %d"
+			% [
+				progression.level,
+				progression.unspent_skill_points,
+			]
+		)
+
+		bar.min_value = 0.0
+		bar.max_value = 1.0
+		bar.value = 1.0
+
+	else:
+		var required_experience := (
+			experience_service
+				.get_experience_required_for_next_level(
+					progression.level
+				)
+		)
+
+		summary.text = (
+			"Уровень %d · XP %d/%d · SP %d"
+			% [
+				progression.level,
+				progression.experience,
+				required_experience,
+				progression.unspent_skill_points,
+			]
+		)
+
+		bar.min_value = 0.0
+		bar.max_value = float(
+			maxi(
+				required_experience,
+				1
+			)
+		)
+
+		bar.value = float(
+			clampi(
+				progression.experience,
+				0,
+				maxi(
+					required_experience,
+					1
+				)
+			)
+		)
+
+	row.add_child(
+		summary
+	)
+
+	row.add_child(
+		bar
+	)
+
+	return row
 
 
 func _create_hero_switcher() -> Control:

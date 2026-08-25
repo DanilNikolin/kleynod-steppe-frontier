@@ -108,6 +108,14 @@ var base_initiative: int = 0
 var base_morale: int = 2
 
 
+@export_group("Rewards")
+
+## XP pool, который этот боец добавляет после своей смерти.
+## 0 используется для объектов, summons и целей без XP.
+@export_range(0, 999999, 1)
+var experience_reward: int = 0
+
+
 @export_group("Presentation")
 
 @export
@@ -224,6 +232,11 @@ func get_validation_errors() -> PackedStringArray:
 	if guard_regeneration_every_two_turns < 0:
 		errors.append(
 			"Guard regeneration every two turns cannot be negative."
+		)
+
+	if experience_reward < 0:
+		errors.append(
+			"Experience reward cannot be negative."
 		)
 
 	var used_immunity_ids: Dictionary = {}

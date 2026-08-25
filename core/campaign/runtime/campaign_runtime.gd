@@ -24,6 +24,7 @@ var campaign_state: CampaignState
 var pending_battle_request: CampaignBattleRequest
 
 var state_factory := CampaignStateFactory.new()
+var hero_experience_service := HeroExperienceService.new()
 
 var _battle_request_counter: int = 0
 
@@ -150,6 +151,17 @@ func get_pending_battle_encounter() -> BattleEncounterDefinition:
 		return null
 
 	return pending_battle_request.encounter_definition
+
+
+func get_pending_battle_party_size() -> int:
+	if pending_battle_request == null:
+		return 0
+
+	return (
+		pending_battle_request
+			.party_member_hero_ids
+			.size()
+	)
 
 
 func start_location(
@@ -392,7 +404,8 @@ func start_location(
 
 
 func complete_pending_battle_and_return(
-	winning_team_id: StringName
+	winning_team_id: StringName,
+	defeated_enemy_experience_pool: int = 0
 ) -> bool:
 	if (
 		campaign_state == null
@@ -447,6 +460,14 @@ func complete_pending_battle_and_return(
 			CampaignBattleResult.Outcome.DEFEAT
 		)
 
+	_apply_experience_reward(
+		result,
+		maxi(
+			defeated_enemy_experience_pool,
+			0
+		)
+	)
+
 	campaign_state.last_battle_result = (
 		result
 	)
@@ -464,6 +485,67 @@ func complete_pending_battle_and_return(
 	)
 
 	return true
+
+
+func _apply_experience_reward(
+	result: CampaignBattleResult,
+	total_experience: int
+) -> void:
+	if result == null:
+		return
+
+	result.defeated_enemy_experience_pool = maxi(
+		total_experience,
+		0
+	)
+
+	var party_size := (
+		result.party_member_hero_ids.size()
+	)
+
+	if (
+		party_size <= 0
+		or result.defeated_enemy_experience_pool <= 0
+	):
+		return
+
+	result.experience_per_party_member = floori(
+		float(result.defeated_enemy_experience_pool)
+		/ float(party_size)
+	)
+
+	result.undistributed_experience = (
+		result.defeated_enemy_experience_pool
+		% party_size
+	)
+
+	if result.experience_per_party_member <= 0:
+		return
+
+	for hero_id in result.party_member_hero_ids:
+		var hero_state := campaign_state.get_hero(
+			hero_id
+		)
+
+		if (
+			hero_state == null
+			or hero_state.progression_state == null
+		):
+			continue
+
+		var gained_levels := (
+			hero_experience_service.grant_experience(
+				hero_state.progression_state,
+				result.experience_per_party_member
+			)
+		)
+
+		if gained_levels <= 0:
+			continue
+
+		result.level_ups_by_hero_id[
+			hero_id
+		] = gained_levels
 
 
 func _change_to_campaign_scene() -> void:

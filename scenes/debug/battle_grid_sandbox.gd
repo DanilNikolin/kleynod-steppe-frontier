@@ -106,6 +106,9 @@ var debug_log_presenter: BattleDebugLogPresenter
 var interaction_controller: BattleSandboxInteractionController
 
 var session_factory := BattleSessionFactory.new()
+var experience_reward_service := (
+	BattleExperienceRewardService.new()
+)
 
 var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
@@ -115,6 +118,7 @@ var action_preview_service: BattleActionPreviewService
 var action_preview_presenter: BattleActionPreviewPresenter
 
 var _campaign_winning_team_id: StringName = &""
+var _campaign_experience_reward_pool: int = 0
 
 func _ready() -> void:
 	_validate_dependencies()
@@ -882,6 +886,14 @@ func _on_battle_finished(
 
 	interaction_controller.finish_battle()
 
+	_campaign_experience_reward_pool = (
+		experience_reward_service
+			.get_defeated_team_experience(
+				session,
+				ENEMY_TEAM_ID
+			)
+	)
+
 	if winning_team_id == PLAYER_TEAM_ID:
 		debug_log_presenter.set_headline(
 			"Бой завершён. Победа!"
@@ -976,6 +988,51 @@ func _show_campaign_return_panel(
 		result_label
 	)
 
+	var experience_label := Label.new()
+
+	experience_label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_CENTER
+	)
+
+	var party_size := (
+		CampaignRuntime.get_pending_battle_party_size()
+	)
+
+	var experience_share: int = 0
+	var experience_remainder: int = 0
+
+	if party_size > 0:
+		experience_share = floori(
+			float(_campaign_experience_reward_pool)
+			/ float(party_size)
+		)
+
+		experience_remainder = (
+			_campaign_experience_reward_pool
+			% party_size
+		)
+
+	experience_label.text = (
+		"Опыт за побеждённых врагов: %d XP"
+		% _campaign_experience_reward_pool
+	)
+
+	if party_size > 0:
+		experience_label.text += (
+			" · по %d каждому"
+			% experience_share
+		)
+
+	if experience_remainder > 0:
+		experience_label.text += (
+			" · остаток %d"
+			% experience_remainder
+		)
+
+	content.add_child(
+		experience_label
+	)
+
 	var return_button := Button.new()
 
 	return_button.text = "Вернуться в лагерь"
@@ -1000,7 +1057,8 @@ func _on_campaign_return_pressed(
 	var completed := (
 		CampaignRuntime
 			.complete_pending_battle_and_return(
-				_campaign_winning_team_id
+				_campaign_winning_team_id,
+				_campaign_experience_reward_pool
 			)
 	)
 

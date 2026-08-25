@@ -11,6 +11,7 @@ var campaign_state: CampaignState
 var party_service := (
 	CampaignPartyService.new()
 )
+var experience_service := HeroExperienceService.new()
 
 
 func bind(
@@ -310,6 +311,46 @@ func _create_roster_row(
 	text_column.add_child(
 		state_label
 	)
+
+	if hero_state.progression_state != null:
+		var progression := (
+			hero_state.progression_state
+		)
+
+		var progression_label := Label.new()
+
+		if progression.level >= (
+			HeroExperienceService.MAX_LEVEL
+		):
+			progression_label.text = (
+				"Ур. %d · MAX · SP %d"
+				% [
+					progression.level,
+					progression.unspent_skill_points,
+				]
+			)
+
+		else:
+			var required_experience := (
+				experience_service
+					.get_experience_required_for_next_level(
+						progression.level
+					)
+			)
+
+			progression_label.text = (
+				"Ур. %d · XP %d/%d · SP %d"
+				% [
+					progression.level,
+					progression.experience,
+					required_experience,
+					progression.unspent_skill_points,
+				]
+			)
+
+		text_column.add_child(
+			progression_label
+		)
 
 	if not hero_state.roster_note.is_empty():
 		var note_label := Label.new()

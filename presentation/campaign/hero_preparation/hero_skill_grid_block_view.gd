@@ -327,8 +327,8 @@ func _create_attachment_picker(
 	var selection_info := Label.new()
 
 	selection_info.text = (
-		"Предпросмотр: %s · %d нод · "
-		+"для следующего расширения: %d нод + EXIT"
+		("Предпросмотр: %s · %d нод · "
+		+ "для следующего расширения: %d нод + EXIT")
 		% [
 			preview_block.display_name,
 			preview_block.node_ids.size(),

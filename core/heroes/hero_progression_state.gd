@@ -8,6 +8,11 @@ extends Resource
 @export_range(1, 999, 1)
 var level: int = 1
 
+## Опыт внутри текущего уровня.
+## При level-up порог вычитается из этого значения.
+@export_range(0, 999999999, 1)
+var experience: int = 0
+
 @export_range(0, 999, 1)
 var unspent_skill_points: int = 0
 
@@ -42,6 +47,11 @@ func get_validation_errors() -> PackedStringArray:
 	if level <= 0:
 		errors.append(
 			"Hero level must be greater than zero."
+		)
+
+	if experience < 0:
+		errors.append(
+			"Hero experience cannot be negative."
 		)
 
 	if unspent_skill_points < 0:

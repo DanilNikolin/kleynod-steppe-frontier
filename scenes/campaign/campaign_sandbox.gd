@@ -376,17 +376,85 @@ func _create_result_panel() -> Control:
 			)
 		)
 
+		var experience_text := (
+			"опыт: +%d каждому (%d всего)"
+			% [
+				state
+					.last_battle_result
+					.experience_per_party_member,
+				state
+					.last_battle_result
+					.defeated_enemy_experience_pool,
+			]
+		)
+
 		result_label.text = (
-			"%s · %s · отряд: %s · завершено боёв: %d"
+			"%s · %s · отряд: %s · %s · завершено боёв: %d"
 			% [
 				location_name,
 				state
 					.last_battle_result
 					.get_outcome_display_name(),
 				battle_party_names,
+				experience_text,
 				state.completed_battle_count,
 			]
 		)
+
+		if (
+			state
+				.last_battle_result
+				.has_level_ups()
+		):
+			var level_up_names := PackedStringArray()
+
+			for hero_id_value in (
+				state
+					.last_battle_result
+					.level_ups_by_hero_id
+					.keys()
+			):
+				var hero_id := StringName(
+					hero_id_value
+				)
+
+				var hero_state := state.get_hero(
+					hero_id
+				)
+
+				var hero_name := (
+					hero_state.get_display_name()
+					if hero_state != null
+					else String(hero_id)
+				)
+
+				var gained_levels := (
+					state
+						.last_battle_result
+						.get_level_ups_for_hero(
+							hero_id
+						)
+				)
+
+				level_up_names.append(
+					"%s +%d ур."
+					% [
+						hero_name,
+						gained_levels,
+					]
+				)
+
+			if not level_up_names.is_empty():
+				result_label.text += (
+					" · LEVEL UP: %s"
+					% ", ".join(
+						level_up_names
+					)
+				)
+
+	result_label.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
 
 	content.add_child(
 		result_label

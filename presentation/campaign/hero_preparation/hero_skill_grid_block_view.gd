@@ -12,6 +12,10 @@ var purchase_service := (
 	SkillGridPurchaseService.new()
 )
 
+var block_progress_service := (
+	SkillGridBlockProgressService.new()
+)
+
 var selected_node_id: StringName = &""
 
 
@@ -240,6 +244,12 @@ func _create_block_column(
 		title
 	)
 
+	column.add_child(
+		_create_block_progress_label(
+			block
+		)
+	)
+
 	var graph := SkillGridGraphView.new()
 
 	graph.bind(
@@ -261,6 +271,92 @@ func _create_block_column(
 	)
 
 	return column
+
+
+func _create_block_progress_label(
+	block: SkillGridBlockDefinition
+) -> Label:
+	var label := Label.new()
+
+	label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_CENTER
+	)
+
+	label.add_theme_font_size_override(
+		"font_size",
+		14
+	)
+
+	var purchased_count := (
+		block_progress_service
+			.get_purchased_node_count(
+				block,
+				progression
+			)
+	)
+
+	var has_exit := (
+		block_progress_service
+			.has_reached_exit(
+				block,
+				progression
+			)
+	)
+
+	var is_ready := (
+		block_progress_service
+			.is_ready_for_expansion(
+				block,
+				progression
+			)
+	)
+
+	if is_ready:
+		label.text = (
+			"ГОТОВ К РАСШИРЕНИЮ"
+		)
+
+		label.add_theme_color_override(
+			"font_color",
+			Color(
+				0.93,
+				0.73,
+				0.24,
+				1.0
+			)
+		)
+
+		return label
+
+	if (
+		purchased_count
+		< block.minimum_purchased_nodes
+	):
+		if has_exit:
+			label.text = (
+				"До расширения: ноды %d/%d"
+				% [
+					purchased_count,
+					block.minimum_purchased_nodes,
+				]
+			)
+
+		else:
+			label.text = (
+				"До расширения: ноды %d/%d + выход"
+				% [
+					purchased_count,
+					block.minimum_purchased_nodes,
+				]
+			)
+
+		return label
+
+	label.text = (
+		"До расширения: достигните выхода"
+	)
+
+	return label
 
 
 func _create_details_panel() -> Control:
@@ -512,15 +608,13 @@ func _get_node_state_text(
 func _get_purchased_count_for_block(
 	block: SkillGridBlockDefinition
 ) -> int:
-	var result := 0
-
-	for node_id in block.node_ids:
-		if progression.purchased_node_ids.has(
-			node_id
-		):
-			result += 1
-
-	return result
+	return (
+		block_progress_service
+			.get_purchased_node_count(
+				block,
+				progression
+			)
+	)
 
 
 func _on_node_selected(

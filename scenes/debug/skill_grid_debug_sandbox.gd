@@ -14,6 +14,9 @@ var hero_definition: HeroDefinition
 @export
 var progression_source: HeroProgressionState
 
+@export
+var skill_grid_override: SkillGridDefinition
+
 
 @export_group("Debug Equipment")
 
@@ -51,6 +54,14 @@ func _reset_debug_state() -> void:
 			HeroEquipmentState.new()
 		)
 
+	var resolved_hero_definition := (
+		_resolve_hero_definition()
+	)
+
+	if resolved_hero_definition == null:
+		_show_initialization_error()
+		return
+
 	inventory_state = CampaignInventoryState.new()
 
 	for source_item in available_equipment_instances:
@@ -71,7 +82,10 @@ func _reset_debug_state() -> void:
 
 	hero_state = CampaignHeroState.new()
 
-	hero_state.hero_definition = hero_definition
+	hero_state.hero_definition = (
+		resolved_hero_definition
+	)
+
 	hero_state.progression_state = progression
 
 	if (
@@ -82,6 +96,25 @@ func _reset_debug_state() -> void:
 		return
 
 	_show_preparation_panel()
+
+
+func _resolve_hero_definition() -> HeroDefinition:
+	if skill_grid_override == null:
+		return hero_definition
+
+	var hero_copy := (
+		hero_definition.duplicate(false)
+		as HeroDefinition
+	)
+
+	if hero_copy == null:
+		return null
+
+	hero_copy.skill_grid = (
+		skill_grid_override
+	)
+
+	return hero_copy
 
 
 func _show_preparation_panel() -> void:

@@ -34,6 +34,10 @@ func bind(
 func _rebuild_interface() -> void:
 	_clear_children()
 
+	if _should_use_block_graph_mode():
+		_rebuild_block_graph_interface()
+		return
+
 	var outer := VBoxContainer.new()
 
 	outer.size_flags_horizontal = (
@@ -543,6 +547,46 @@ func _on_purchase_pressed(
 
 		return
 
+	state_changed.emit()
+
+
+func _should_use_block_graph_mode() -> bool:
+	return (
+		hero_definition != null
+		and progression != null
+		and hero_definition.skill_grid != null
+		and not hero_definition.skill_grid.blocks.is_empty()
+	)
+
+
+func _rebuild_block_graph_interface() -> void:
+	var block_view := (
+		HeroSkillGridBlockView.new()
+	)
+
+	block_view.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	block_view.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	block_view.state_changed.connect(
+		_on_block_graph_state_changed
+	)
+
+	add_child(
+		block_view
+	)
+
+	block_view.bind(
+		hero_definition,
+		progression
+	)
+
+
+func _on_block_graph_state_changed() -> void:
 	state_changed.emit()
 
 

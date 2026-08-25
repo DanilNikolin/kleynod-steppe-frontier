@@ -28,6 +28,10 @@ enum RareStat {
 	MAX_STAMINA,
 	START_STAMINA,
 	ARMOR,
+	STAMINA_REGENERATION,
+	START_GUARD,
+	CRIT_CHANCE_PERCENT,
+	CRIT_DAMAGE_PERCENT,
 }
 
 
@@ -49,10 +53,25 @@ var node_type: NodeType = NodeType.BRANCH_RANK
 var skill_point_cost: int = 1
 
 
+@export_group("Block")
+
+@export
+var block_id: StringName = &""
+
+@export
+var ui_position: Vector2 = Vector2.ZERO
+
+
 @export_group("Dependencies")
 
 @export
 var prerequisite_node_ids: Array[StringName] = []
+
+## Физические дорожки Skill Grid.
+## Если массив содержит несколько нод,
+## достаточно купить ЛЮБУЮ одну из них.
+@export
+var path_parent_node_ids: Array[StringName] = []
 
 
 @export_group("Branch Rank")
@@ -144,6 +163,43 @@ func get_validation_errors() -> PackedStringArray:
 
 		used_prerequisite_ids[
 			prerequisite_id
+		] = true
+
+	var used_path_parent_ids: Dictionary = {}
+
+	for path_parent_id in path_parent_node_ids:
+		if path_parent_id == &"":
+			errors.append(
+				"Path parent node ID is empty."
+			)
+
+			continue
+
+		if path_parent_id == node_id:
+			errors.append(
+				"Node cannot have itself as path parent."
+			)
+
+		if used_path_parent_ids.has(
+			path_parent_id
+		):
+			errors.append(
+				"Duplicate path parent node ID: %s."
+				% path_parent_id
+			)
+
+			continue
+
+		if used_prerequisite_ids.has(
+			path_parent_id
+		):
+			errors.append(
+				"Node ID '%s' cannot be both prerequisite and path parent."
+				% path_parent_id
+			)
+
+		used_path_parent_ids[
+			path_parent_id
 		] = true
 
 	match node_type:

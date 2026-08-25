@@ -12,6 +12,12 @@ var grid_id: StringName = &""
 var display_name: String = "Unnamed Skill Grid"
 
 
+@export_group("Blocks")
+
+@export
+var blocks: Array[SkillGridBlockDefinition] = []
+
+
 @export_group("Nodes")
 
 @export
@@ -42,6 +48,48 @@ func has_node(
 	) != null
 
 
+func get_block_definition(
+	block_id: StringName
+) -> SkillGridBlockDefinition:
+	if block_id == &"":
+		return null
+
+	for block in blocks:
+		if (
+			block != null
+			and block.block_id == block_id
+		):
+			return block
+
+	return null
+
+
+func has_block(
+	block_id: StringName
+) -> bool:
+	return get_block_definition(
+		block_id
+	) != null
+
+
+func get_nodes_for_block(
+	block_id: StringName
+) -> Array[SkillGridNodeDefinition]:
+	var block_nodes: Array[SkillGridNodeDefinition] = []
+
+	if block_id == &"":
+		return block_nodes
+
+	for node in nodes:
+		if (
+			node != null
+			and node.block_id == block_id
+		):
+			block_nodes.append(node)
+
+	return block_nodes
+
+
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -63,6 +111,51 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Skill Grid must contain at least one node."
 		)
+
+	var used_block_ids: Dictionary = {}
+
+	for block_index in range(
+		blocks.size()
+	):
+		var block := blocks[
+			block_index
+		]
+
+		if block == null:
+			errors.append(
+				"Skill Grid block at index %d is null."
+				% block_index
+			)
+
+			continue
+
+		for block_error in (
+			block.get_validation_errors()
+		):
+			errors.append(
+				"Block %d: %s"
+				% [
+					block_index,
+					block_error,
+				]
+			)
+
+		if block.block_id == &"":
+			continue
+
+		if used_block_ids.has(
+			block.block_id
+		):
+			errors.append(
+				"Duplicate Skill Grid block ID: %s."
+				% block.block_id
+			)
+
+			continue
+
+		used_block_ids[
+			block.block_id
+		] = true
 
 	var used_node_ids: Dictionary = {}
 
@@ -109,9 +202,63 @@ func get_validation_errors() -> PackedStringArray:
 			node.node_id
 		] = true
 
+	for block in blocks:
+		if block == null:
+			continue
+
+		for block_node_id in block.node_ids:
+			var target_node := get_node_definition(
+				block_node_id
+			)
+
+			if target_node == null:
+				errors.append(
+					"Block '%s' references unknown node '%s'."
+					% [
+						block.block_id,
+						block_node_id,
+					]
+				)
+			elif (
+				target_node.block_id
+				!= block.block_id
+			):
+				errors.append(
+					"Node '%s' in block '%s' has mismatched block_id '%s'."
+					% [
+						block_node_id,
+						block.block_id,
+						target_node.block_id,
+					]
+				)
+
 	for node in nodes:
 		if node == null:
 			continue
+
+		if node.block_id != &"":
+			var assigned_block := get_block_definition(
+				node.block_id
+			)
+
+			if assigned_block == null:
+				errors.append(
+					"Node '%s' references unknown block '%s'."
+					% [
+						node.node_id,
+						node.block_id,
+					]
+				)
+			elif not assigned_block.node_ids.has(
+				node.node_id
+			):
+				errors.append(
+					"Block '%s' does not contain node '%s'."
+					% [
+						node.block_id,
+						node.node_id,
+					]
+				)
 
 		for prerequisite_id in (
 			node.prerequisite_node_ids
@@ -126,6 +273,39 @@ func get_validation_errors() -> PackedStringArray:
 						prerequisite_id,
 					]
 				)
+
+		for path_parent_id in (
+			node.path_parent_node_ids
+		):
+			if not used_node_ids.has(
+				path_parent_id
+			):
+				errors.append(
+					"Node '%s' has unknown path parent node '%s'."
+					% [
+						node.node_id,
+						path_parent_id,
+					]
+				)
+			else:
+				var parent_node := get_node_definition(
+					path_parent_id
+				)
+
+				if (
+					parent_node != null
+					and (
+						parent_node.block_id
+						!= node.block_id
+					)
+				):
+					errors.append(
+						"Node '%s' and path parent '%s' must belong to the same block."
+						% [
+							node.node_id,
+							path_parent_id,
+						]
+					)
 
 	if (
 		errors.is_empty()
@@ -177,23 +357,37 @@ func _visit_for_cycle(
 	if node == null:
 		return false
 
+	var upstream_ids: Array[StringName] = []
+
 	for prerequisite_id in (
 		node.prerequisite_node_ids
 	):
-		var prerequisite_state := int(
+		upstream_ids.append(
+			prerequisite_id
+		)
+
+	for path_parent_id in (
+		node.path_parent_node_ids
+	):
+		upstream_ids.append(
+			path_parent_id
+		)
+
+	for upstream_id in upstream_ids:
+		var upstream_state := int(
 			visit_states.get(
-				prerequisite_id,
+				upstream_id,
 				0
 			)
 		)
 
-		if prerequisite_state == 1:
+		if upstream_state == 1:
 			return true
 
 		if (
-			prerequisite_state == 0
+			upstream_state == 0
 			and _visit_for_cycle(
-				prerequisite_id,
+				upstream_id,
 				visit_states
 			)
 		):

@@ -12,3 +12,4 @@ var previous_unspent_skill_points: int = 0
 var current_unspent_skill_points: int = 0
 
 var missing_prerequisite_node_ids: Array[StringName] = []
+var missing_path_parent_node_ids: Array[StringName] = []

@@ -22,8 +22,16 @@ const FAILURE_ALREADY_PURCHASED: StringName = (
 	&"node_already_purchased"
 )
 
+const FAILURE_BLOCK_NOT_ATTACHED: StringName = (
+	&"block_not_attached"
+)
+
 const FAILURE_MISSING_PREREQUISITES: StringName = (
 	&"missing_prerequisites"
+)
+
+const FAILURE_PATH_NOT_REACHED: StringName = (
+	&"path_not_reached"
 )
 
 const FAILURE_NOT_ENOUGH_SKILL_POINTS: StringName = (
@@ -99,6 +107,18 @@ func get_purchase_result(
 
 		return result
 
+	# A. Block access
+	if node.block_id != &"":
+		if not progression.attached_skill_block_ids.has(
+			node.block_id
+		):
+			result.failure_code = (
+				FAILURE_BLOCK_NOT_ATTACHED
+			)
+
+			return result
+
+	# B. Hard prerequisites (AND logic)
 	for prerequisite_id in (
 		node.prerequisite_node_ids
 	):
@@ -122,6 +142,48 @@ func get_purchase_result(
 
 		return result
 
+	# C. Graph path (OR logic / entry node check)
+	if not node.path_parent_node_ids.is_empty():
+		var has_any_path_parent_purchased := false
+
+		for path_parent_id in (
+			node.path_parent_node_ids
+		):
+			if progression.purchased_node_ids.has(
+				path_parent_id
+			):
+				has_any_path_parent_purchased = true
+			else:
+				result.missing_path_parent_node_ids.append(
+					path_parent_id
+				)
+
+		if not has_any_path_parent_purchased:
+			result.failure_code = (
+				FAILURE_PATH_NOT_REACHED
+			)
+
+			return result
+		else:
+			result.missing_path_parent_node_ids.clear()
+	elif node.block_id != &"":
+		var block := grid.get_block_definition(
+			node.block_id
+		)
+
+		if (
+			block == null
+			or not block.entry_node_ids.has(
+				node.node_id
+			)
+		):
+			result.failure_code = (
+				FAILURE_PATH_NOT_REACHED
+			)
+
+			return result
+
+	# D. Skill point cost
 	if (
 		progression.unspent_skill_points
 		< node.skill_point_cost

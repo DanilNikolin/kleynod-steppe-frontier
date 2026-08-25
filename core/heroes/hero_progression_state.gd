@@ -17,6 +17,9 @@ var unspent_skill_points: int = 0
 @export
 var purchased_node_ids: Array[StringName] = []
 
+@export
+var attached_skill_block_ids: Array[StringName] = []
+
 
 @export_group("Personal Loadout")
 
@@ -49,6 +52,12 @@ func get_validation_errors() -> PackedStringArray:
 	_append_duplicate_id_errors(
 		purchased_node_ids,
 		"Purchased node",
+		errors
+	)
+
+	_append_duplicate_id_errors(
+		attached_skill_block_ids,
+		"Attached skill block",
 		errors
 	)
 

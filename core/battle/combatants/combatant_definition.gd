@@ -87,6 +87,15 @@ var start_stamina: int = -1
 var stamina_regeneration: int = 4
 
 @export_range(0, 999, 1)
+var start_guard: int = 0
+
+@export_range(-100, 100, 1)
+var base_crit_chance_bonus_percent: int = 0
+
+@export_range(-100, 999, 1)
+var base_crit_damage_bonus_percent: int = 0
+
+@export_range(0, 999, 1)
 var base_initiative: int = 0
 
 @export_range(0, 99, 1)
@@ -189,6 +198,16 @@ func get_validation_errors() -> PackedStringArray:
 	if stamina_regeneration < 0:
 		errors.append(
 			"Stamina regeneration cannot be negative."
+		)
+
+	if start_guard < 0:
+		errors.append(
+			"Start guard cannot be negative."
+		)
+
+	if base_crit_damage_bonus_percent < -100:
+		errors.append(
+			"Base crit damage bonus percent cannot be lower than -100."
 		)
 
 	var used_immunity_ids: Dictionary = {}

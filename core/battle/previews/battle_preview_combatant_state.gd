@@ -17,6 +17,9 @@ var agility: int = 0
 var spirit: int = 0
 var armor: int = 0
 
+var crit_chance_bonus_percent: int = 0
+var crit_damage_bonus_percent: int = 0
+
 var max_health: int = 1
 var current_health: int = 1
 var current_guard: int = 0
@@ -57,6 +60,13 @@ func _init(
 	agility = original_state.agility
 	spirit = original_state.spirit
 	armor = original_state.armor
+
+	crit_chance_bonus_percent = (
+		original_state.crit_chance_bonus_percent
+	)
+	crit_damage_bonus_percent = (
+		original_state.crit_damage_bonus_percent
+	)
 
 	max_health = original_state.max_health
 	current_health = original_state.current_health

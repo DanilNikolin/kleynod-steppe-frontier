@@ -61,6 +61,9 @@ var current_guard: int
 
 var armor: int
 
+var crit_chance_bonus_percent: int
+var crit_damage_bonus_percent: int
+
 var max_stamina: int
 var current_stamina: int
 var stamina_regeneration: int
@@ -137,9 +140,20 @@ func _initialize_runtime_attributes() -> void:
 	max_health = definition.max_health
 	current_health = max_health
 
-	current_guard = 0
+	current_guard = clampi(
+		definition.start_guard,
+		0,
+		max_health
+	)
 
 	armor = definition.base_armor
+
+	crit_chance_bonus_percent = (
+		definition.base_crit_chance_bonus_percent
+	)
+	crit_damage_bonus_percent = (
+		definition.base_crit_damage_bonus_percent
+	)
 
 	max_stamina = definition.max_stamina
 
@@ -1316,6 +1330,13 @@ func create_runtime_copy() -> CombatantState:
 	result.current_guard = current_guard
 
 	result.armor = armor
+
+	result.crit_chance_bonus_percent = (
+		crit_chance_bonus_percent
+	)
+	result.crit_damage_bonus_percent = (
+		crit_damage_bonus_percent
+	)
 
 	result.max_stamina = max_stamina
 	result.current_stamina = current_stamina

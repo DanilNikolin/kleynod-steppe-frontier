@@ -1208,14 +1208,19 @@ func _preview_damage(
 
 	result.critical_chance_percent = (
 		damage_calculator
-		.calculate_critical_chance_percent_from_effect(
+		.calculate_critical_chance_percent_from_values(
 			effect,
+			source.crit_chance_bonus_percent,
 			true
 		)
 	)
 
 	result.critical_multiplier = (
-		effect.critical_multiplier
+		damage_calculator
+		.calculate_critical_multiplier_from_values(
+			effect,
+			source.crit_damage_bonus_percent
+		)
 	)
 
 	result.was_critical = (

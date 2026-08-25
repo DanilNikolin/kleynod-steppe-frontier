@@ -136,6 +136,29 @@ func resolve(
 			+ total_bonuses.armor_bonus
 	)
 
+	combatant_definition.stamina_regeneration = maxi(
+		0,
+		combatant_definition.stamina_regeneration
+			+ total_bonuses.stamina_regeneration_bonus
+	)
+
+	combatant_definition.start_guard = clampi(
+		combatant_definition.start_guard
+			+ total_bonuses.start_guard_bonus,
+		0,
+		combatant_definition.max_health
+	)
+
+	combatant_definition.base_crit_chance_bonus_percent = (
+		combatant_definition.base_crit_chance_bonus_percent
+			+ total_bonuses.crit_chance_bonus_percent
+	)
+
+	combatant_definition.base_crit_damage_bonus_percent = (
+		combatant_definition.base_crit_damage_bonus_percent
+			+ total_bonuses.crit_damage_bonus_percent
+	)
+
 	var known_ability_ids: Array[StringName] = []
 
 	for ability_id in (

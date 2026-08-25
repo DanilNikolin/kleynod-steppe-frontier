@@ -67,6 +67,20 @@ func resolve(
 		if node == null:
 			continue
 
+		# A. Block attachment validation
+		if node.block_id != &"":
+			if not progression.attached_skill_block_ids.has(
+				node.block_id
+			):
+				result.errors.append(
+					"Purchased node '%s' belongs to unattached block '%s'."
+					% [
+						node.node_id,
+						node.block_id,
+					]
+				)
+
+		# B. Hard prerequisites validation (AND logic)
 		for prerequisite_id in (
 			node.prerequisite_node_ids
 		):
@@ -82,6 +96,43 @@ func resolve(
 					prerequisite_id,
 				]
 			)
+
+		# C. Graph path validation (OR logic / entry node check)
+		if not node.path_parent_node_ids.is_empty():
+			var has_any_path_parent_purchased := false
+
+			for path_parent_id in (
+				node.path_parent_node_ids
+			):
+				if purchased_ids.has(
+					path_parent_id
+				):
+					has_any_path_parent_purchased = true
+					break
+
+			if not has_any_path_parent_purchased:
+				result.errors.append(
+					"Purchased node '%s' has no purchased path parents."
+					% node.node_id
+				)
+		elif node.block_id != &"":
+			var block := grid.get_block_definition(
+				node.block_id
+			)
+
+			if (
+				block == null
+				or not block.entry_node_ids.has(
+					node.node_id
+				)
+			):
+				result.errors.append(
+					"Purchased node '%s' is not an entry node in block '%s'."
+					% [
+						node.node_id,
+						node.block_id,
+					]
+				)
 
 	if not result.errors.is_empty():
 		return result
@@ -176,5 +227,25 @@ func _apply_rare_stat_node(
 
 		SkillGridNodeDefinition.RareStat.ARMOR:
 			result.stat_bonuses.armor_bonus += (
+				node.rare_stat_amount
+			)
+
+		SkillGridNodeDefinition.RareStat.STAMINA_REGENERATION:
+			result.stat_bonuses.stamina_regeneration_bonus += (
+				node.rare_stat_amount
+			)
+
+		SkillGridNodeDefinition.RareStat.START_GUARD:
+			result.stat_bonuses.start_guard_bonus += (
+				node.rare_stat_amount
+			)
+
+		SkillGridNodeDefinition.RareStat.CRIT_CHANCE_PERCENT:
+			result.stat_bonuses.crit_chance_bonus_percent += (
+				node.rare_stat_amount
+			)
+
+		SkillGridNodeDefinition.RareStat.CRIT_DAMAGE_PERCENT:
+			result.stat_bonuses.crit_damage_bonus_percent += (
 				node.rare_stat_amount
 			)

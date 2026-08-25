@@ -29,6 +29,18 @@ var max_stamina_bonus: int = 0
 @export_range(-99, 99, 1)
 var start_stamina_bonus: int = 0
 
+@export_range(-99, 99, 1)
+var stamina_regeneration_bonus: int = 0
+
+@export_range(-999, 999, 1)
+var start_guard_bonus: int = 0
+
+@export_range(-100, 100, 1)
+var crit_chance_bonus_percent: int = 0
+
+@export_range(-100, 999, 1)
+var crit_damage_bonus_percent: int = 0
+
 
 @export_group("Hero Build")
 
@@ -45,6 +57,10 @@ func clear() -> void:
 	armor_bonus = 0
 	max_stamina_bonus = 0
 	start_stamina_bonus = 0
+	stamina_regeneration_bonus = 0
+	start_guard_bonus = 0
+	crit_chance_bonus_percent = 0
+	crit_damage_bonus_percent = 0
 
 	active_slot_bonus = 0
 
@@ -83,6 +99,22 @@ func add_from(
 		source.start_stamina_bonus
 	)
 
+	stamina_regeneration_bonus += (
+		source.stamina_regeneration_bonus
+	)
+
+	start_guard_bonus += (
+		source.start_guard_bonus
+	)
+
+	crit_chance_bonus_percent += (
+		source.crit_chance_bonus_percent
+	)
+
+	crit_damage_bonus_percent += (
+		source.crit_damage_bonus_percent
+	)
+
 	active_slot_bonus += (
 		source.active_slot_bonus
 	)
@@ -107,5 +139,9 @@ func is_zero() -> bool:
 		and armor_bonus == 0
 		and max_stamina_bonus == 0
 		and start_stamina_bonus == 0
+		and stamina_regeneration_bonus == 0
+		and start_guard_bonus == 0
+		and crit_chance_bonus_percent == 0
+		and crit_damage_bonus_percent == 0
 		and active_slot_bonus == 0
 	)

@@ -761,7 +761,11 @@ func _resolve_damage(
 	)
 
 	result.critical_multiplier = (
-		effect.critical_multiplier
+		damage_calculator
+		.calculate_critical_multiplier(
+			source,
+			effect
+		)
 	)
 
 	result.critical_chance_percent = (

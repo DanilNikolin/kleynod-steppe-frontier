@@ -46,19 +46,24 @@ func calculate_critical_chance_percent(
 	effect: DamageEffect,
 	allow_critical: bool = true
 ) -> int:
-	if attacker == null:
-		return 0
+	var attacker_bonus: int = (
+		attacker.crit_chance_bonus_percent
+		if attacker != null
+		else 0
+	)
 
 	return (
-		calculate_critical_chance_percent_from_effect(
+		calculate_critical_chance_percent_from_values(
 			effect,
+			attacker_bonus,
 			allow_critical
 		)
 	)
 
 
-func calculate_critical_chance_percent_from_effect(
+func calculate_critical_chance_percent_from_values(
 	effect: DamageEffect,
+	attacker_crit_chance_bonus_percent: int = 0,
 	allow_critical: bool = true
 ) -> int:
 	if (
@@ -77,13 +82,26 @@ func calculate_critical_chance_percent_from_effect(
 		DamageEffect.CritMode.STANDARD:
 			return clampi(
 				BASE_CRIT_CHANCE_PERCENT
-				+ effect
-					.crit_chance_bonus_percent,
+				+ attacker_crit_chance_bonus_percent
+				+ effect.crit_chance_bonus_percent,
 				0,
 				MAX_STANDARD_CRIT_CHANCE_PERCENT
 			)
 
 	return 0
+
+
+func calculate_critical_chance_percent_from_effect(
+	effect: DamageEffect,
+	allow_critical: bool = true
+) -> int:
+	return (
+		calculate_critical_chance_percent_from_values(
+			effect,
+			0,
+			allow_critical
+		)
+	)
 
 
 ## Временный совместимый метод.
@@ -98,6 +116,44 @@ func calculate_critical_chance_percent_from_agility(
 			effect,
 			allow_critical
 		)
+	)
+
+
+func calculate_critical_multiplier(
+	attacker: CombatantState,
+	effect: DamageEffect
+) -> float:
+	var attacker_bonus: int = (
+		attacker.crit_damage_bonus_percent
+		if attacker != null
+		else 0
+	)
+
+	return calculate_critical_multiplier_from_values(
+		effect,
+		attacker_bonus
+	)
+
+
+func calculate_critical_multiplier_from_values(
+	effect: DamageEffect,
+	attacker_crit_damage_bonus_percent: int = 0
+) -> float:
+	if effect == null:
+		return 1.0
+
+	var base_multiplier := (
+		effect.critical_multiplier
+	)
+
+	var bonus_points := (
+		float(attacker_crit_damage_bonus_percent)
+		/ 100.0
+	)
+
+	return maxf(
+		1.0,
+		base_multiplier + bonus_points
 	)
 
 

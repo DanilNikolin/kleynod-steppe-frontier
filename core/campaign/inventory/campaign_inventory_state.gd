@@ -3,10 +3,25 @@ class_name CampaignInventoryState
 extends Resource
 
 
+@export_group("Currency")
+
+@export_range(0, 999999999, 1)
+var gold: int = 0
+
+
 @export_group("Items")
 
 @export
 var items: Array[HeroEquipmentItemInstance] = []
+
+
+@export_group("Generated Items")
+
+## Следующий serial для runtime-generated loot instance.
+## Храним прямо в Campaign State, чтобы будущий
+## Save/Load не создавал повторяющиеся instance IDs.
+@export_range(1, 999999999, 1)
+var next_generated_item_serial: int = 1
 
 
 func get_item(
@@ -39,6 +54,17 @@ func is_valid_state() -> bool:
 
 func get_validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
+
+	if gold < 0:
+		errors.append(
+			"Campaign gold cannot be negative."
+		)
+
+	if next_generated_item_serial <= 0:
+		errors.append(
+			"Generated item serial must be greater than zero."
+		)
+
 	var used_instance_ids: Dictionary = {}
 
 	for item_index in range(
@@ -56,7 +82,9 @@ func get_validation_errors() -> PackedStringArray:
 
 			continue
 
-		for item_error in item.get_validation_errors():
+		for item_error in (
+			item.get_validation_errors()
+		):
 			errors.append(
 				"Inventory item %d: %s"
 				% [

@@ -132,7 +132,14 @@ func _rebuild_interface() -> void:
 
 	var inventory_title := Label.new()
 
-	inventory_title.text = "ПРЕДМЕТЫ КАМПАНИИ"
+	inventory_title.text = (
+		"ПРЕДМЕТЫ КАМПАНИИ · ЗОЛОТО: %d"
+		% (
+			inventory_state.gold
+			if inventory_state != null
+			else 0
+		)
+	)
 
 	outer.add_child(
 		inventory_title

@@ -95,6 +95,7 @@ func _create_inventory(
 	definition: CampaignDefinition
 ) -> CampaignInventoryState:
 	var result := CampaignInventoryState.new()
+	result.gold = definition.starting_gold
 
 	for item_template in (
 		definition.starting_inventory_items

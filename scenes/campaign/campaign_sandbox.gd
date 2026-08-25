@@ -184,6 +184,30 @@ func _create_header_panel() -> Control:
 		title
 	)
 
+	var inventory := (
+		CampaignRuntime.get_inventory_state()
+	)
+
+	var gold_label := Label.new()
+
+	gold_label.text = (
+		"Золото: %d"
+		% (
+			inventory.gold
+			if inventory != null
+			else 0
+		)
+	)
+
+	gold_label.add_theme_font_size_override(
+		"font_size",
+		18
+	)
+
+	content.add_child(
+		gold_label
+	)
+
 	var reset_button := Button.new()
 
 	reset_button.text = "Новая debug-кампания"
@@ -388,8 +412,14 @@ func _create_result_panel() -> Control:
 			]
 		)
 
+		var loot_text := (
+			_get_battle_loot_text(
+				state.last_battle_result
+			)
+		)
+
 		result_label.text = (
-			"%s · %s · отряд: %s · %s · завершено боёв: %d"
+			"%s · %s · отряд: %s · %s · %s · завершено боёв: %d"
 			% [
 				location_name,
 				state
@@ -397,6 +427,7 @@ func _create_result_panel() -> Control:
 					.get_outcome_display_name(),
 				battle_party_names,
 				experience_text,
+				loot_text,
 				state.completed_battle_count,
 			]
 		)
@@ -461,6 +492,46 @@ func _create_result_panel() -> Control:
 	)
 
 	return panel
+
+
+func _get_battle_loot_text(
+	result: CampaignBattleResult
+) -> String:
+	if result == null:
+		return "добыча: —"
+
+	if (
+		result.outcome
+		!= CampaignBattleResult
+			.Outcome
+			.VICTORY
+	):
+		return "добыча: —"
+
+	var parts := PackedStringArray()
+
+	for item_name in (
+		result.loot_item_display_names
+	):
+		parts.append(
+			item_name
+		)
+
+	if result.gold_reward > 0:
+		parts.append(
+			"%d зол."
+			% result.gold_reward
+		)
+
+	if parts.is_empty():
+		return "добыча: ничего"
+
+	return (
+		"добыча: %s"
+		% " + ".join(
+			parts
+		)
+	)
 
 
 func _show_preparation_interface() -> void:

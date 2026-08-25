@@ -35,6 +35,28 @@ var undistributed_experience: int = 0
 ## hero_id -> количество level-up в этом бою.
 var level_ups_by_hero_id: Dictionary = {}
 
+## Полный reward budget реально побеждённых врагов.
+var loot_budget: int = 0
+
+## Максимальный loot tier этого боя.
+var loot_tier_cap: int = 0
+
+## Общая стоимость выпавших предметов.
+var loot_item_value: int = 0
+
+## Реально созданные Campaign Inventory instances.
+var loot_item_instance_ids: Array[StringName] = []
+
+## Snapshot имён для истории боя.
+var loot_item_display_names := PackedStringArray()
+
+## Золото из неиспользованного budget.
+var gold_reward: int = 0
+
+
+func has_loot_items() -> bool:
+	return not loot_item_instance_ids.is_empty()
+
 
 func get_level_ups_for_hero(
 	hero_id: StringName

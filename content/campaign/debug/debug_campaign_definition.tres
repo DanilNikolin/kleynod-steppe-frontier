@@ -19,6 +19,11 @@
 [ext_resource type="Resource" uid="uid://b5hdj25dtajbg" path="res://content/heroes/placeholders/placeholder_wolf_shepherd.tres" id="17_wolf"]
 [ext_resource type="Resource" uid="uid://btccdddagbvdd" path="res://content/heroes/placeholders/placeholder_cossack_schemonk.tres" id="18_schemonk"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_starting_progression.tres" id="19_bayda_progression"]
+[ext_resource type="Script" uid="uid://b12lvmi2lhigp" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="20_item_definition_script"]
+[ext_resource type="Resource" uid="uid://bm7r61e0d2jla" path="res://content/equipment/debug/debug_old_sabre.tres" id="21_loot_sabre"]
+[ext_resource type="Resource" uid="uid://ncbudkbiqhh4" path="res://content/equipment/debug/debug_steppe_armor.tres" id="22_loot_armor"]
+[ext_resource type="Resource" uid="uid://bi323urmthrcs" path="res://content/equipment/debug/debug_traveler_charm.tres" id="23_loot_charm"]
+[ext_resource type="Resource" uid="uid://bydiyoahl710o" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="24_loot_berdysh"]
 
 
 [sub_resource type="Resource" id="HeroBayda"]
@@ -85,4 +90,6 @@ starting_heroes = Array[ExtResource("2_hero_state")]([SubResource("HeroBayda"), 
 starting_selected_hero_id = &"hero_bayda"
 starting_party_member_hero_ids = Array[StringName]([&"hero_bayda", &"hero_plastunka", &"hero_powder_markswoman"])
 starting_inventory_items = Array[ExtResource("6_item_script")]([ExtResource("7_sabre"), ExtResource("8_armor"), ExtResource("9_charm"), ExtResource("10_berdysh")])
+starting_gold = 0
+loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])

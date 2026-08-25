@@ -109,6 +109,9 @@ var session_factory := BattleSessionFactory.new()
 var experience_reward_service := (
 	BattleExperienceRewardService.new()
 )
+var loot_reward_service := (
+	BattleLootRewardService.new()
+)
 
 var movement_service: BattleMovementService
 var targeting_service: BattleTargetingService
@@ -119,6 +122,7 @@ var action_preview_presenter: BattleActionPreviewPresenter
 
 var _campaign_winning_team_id: StringName = &""
 var _campaign_experience_reward_pool: int = 0
+var _campaign_loot_reward_roll: BattleLootRewardRoll
 
 func _ready() -> void:
 	_validate_dependencies()
@@ -894,6 +898,17 @@ func _on_battle_finished(
 			)
 	)
 
+	_campaign_loot_reward_roll = (
+		loot_reward_service
+			.roll_from_session(
+				session,
+				ENEMY_TEAM_ID,
+				CampaignRuntime.get_loot_catalog(),
+				winning_team_id
+					== PLAYER_TEAM_ID
+			)
+	)
+
 	if winning_team_id == PLAYER_TEAM_ID:
 		debug_log_presenter.set_headline(
 			"Бой завершён. Победа!"
@@ -945,7 +960,7 @@ func _show_campaign_return_panel(
 	)
 
 	panel.offset_left = -230.0
-	panel.offset_top = -170.0
+	panel.offset_top = -220.0
 	panel.offset_right = 230.0
 	panel.offset_bottom = -40.0
 
@@ -1033,6 +1048,75 @@ func _show_campaign_return_panel(
 		experience_label
 	)
 
+	var loot_label := Label.new()
+
+	loot_label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_CENTER
+	)
+
+	loot_label.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	if winning_team_id != PLAYER_TEAM_ID:
+		loot_label.text = (
+			"Добыча: не получена — "
+			+"для вывоза добычи нужна победа."
+		)
+
+	elif (
+		_campaign_loot_reward_roll == null
+		or _campaign_loot_reward_roll
+			.total_budget <= 0
+	):
+		loot_label.text = "Добыча: ничего."
+
+	else:
+		var loot_names := (
+			_campaign_loot_reward_roll
+				.get_item_display_names()
+		)
+
+		var loot_parts := PackedStringArray()
+
+		for loot_name in loot_names:
+			loot_parts.append(
+				loot_name
+			)
+
+		if (
+			_campaign_loot_reward_roll
+				.gold_reward > 0
+		):
+			loot_parts.append(
+				"%d зол."
+				% _campaign_loot_reward_roll
+					.gold_reward
+			)
+
+		var reward_text := (
+			"ничего"
+			if loot_parts.is_empty()
+			else " + ".join(
+				loot_parts
+			)
+		)
+
+		loot_label.text = (
+			"Добыча: %s · бюджет %d · тир до %d"
+			% [
+				reward_text,
+				_campaign_loot_reward_roll
+					.total_budget,
+				_campaign_loot_reward_roll
+					.tier_cap,
+			]
+		)
+
+	content.add_child(
+		loot_label
+	)
+
 	var return_button := Button.new()
 
 	return_button.text = "Вернуться в лагерь"
@@ -1058,7 +1142,8 @@ func _on_campaign_return_pressed(
 		CampaignRuntime
 			.complete_pending_battle_and_return(
 				_campaign_winning_team_id,
-				_campaign_experience_reward_pool
+				_campaign_experience_reward_pool,
+				_campaign_loot_reward_roll
 			)
 	)
 

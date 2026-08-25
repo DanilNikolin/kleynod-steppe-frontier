@@ -33,6 +33,17 @@ var starting_party_member_hero_ids: Array[StringName] = []
 @export
 var starting_inventory_items: Array[HeroEquipmentItemInstance] = []
 
+@export_range(0, 999999999, 1)
+var starting_gold: int = 0
+
+
+@export_group("Rewards")
+
+## Определения вещей, доступных обычной
+## Battle Loot системе этой кампании.
+@export
+var loot_catalog: Array[HeroEquipmentItemDefinition] = []
+
 
 @export_group("Locations")
 
@@ -213,6 +224,62 @@ func get_validation_errors() -> PackedStringArray:
 
 		used_inventory_item_ids[
 			item.instance_id
+		] = true
+
+	if starting_gold < 0:
+		errors.append(
+			"Starting gold cannot be negative."
+		)
+
+	var used_loot_item_ids: Dictionary = {}
+
+	for loot_index in range(
+		loot_catalog.size()
+	):
+		var loot_item := loot_catalog[
+			loot_index
+		]
+
+		if loot_item == null:
+			errors.append(
+				"Loot catalog item at index %d is null."
+				% loot_index
+			)
+
+			continue
+
+		for item_error in (
+			loot_item.get_validation_errors()
+		):
+			errors.append(
+				"Loot catalog item %d: %s"
+				% [
+					loot_index,
+					item_error,
+				]
+			)
+
+		if not loot_item.is_loot_enabled():
+			errors.append(
+				"Loot catalog item '%s' has no loot value/tier."
+				% loot_item.item_id
+			)
+
+		if loot_item.item_id == &"":
+			continue
+
+		if used_loot_item_ids.has(
+			loot_item.item_id
+		):
+			errors.append(
+				"Duplicate loot catalog item ID: %s."
+				% loot_item.item_id
+			)
+
+			continue
+
+		used_loot_item_ids[
+			loot_item.item_id
 		] = true
 
 	if locations.is_empty():

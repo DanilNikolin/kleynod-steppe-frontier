@@ -14,4 +14,9 @@ primary_ability = ExtResource("4_primary")
 granted_abilities = Array[ExtResource("2_ability_script")]([
 	ExtResource("3_ability")
 ])
+loot_value = 40
+loot_tier = 1
+loot_weight = 100
+loot_drop_chance_percent = 100
+loot_tags = Array[StringName]([&"bandit", &"military"])
 

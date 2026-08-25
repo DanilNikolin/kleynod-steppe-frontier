@@ -59,6 +59,41 @@ var primary_ability: AbilityDefinition
 var granted_abilities: Array[AbilityDefinition] = []
 
 
+@export_group("Loot")
+
+## Сколько reward budget поглощает предмет.
+## 0 означает, что предмет не участвует
+## в обычном random loot.
+@export_range(0, 999999, 1)
+var loot_value: int = 0
+
+## Максимальный loot tier, необходимый
+## для выпадения предмета.
+@export_range(0, 99, 1)
+var loot_tier: int = 0
+
+## Относительный вес среди уже допустимых
+## предметов.
+@export_range(1, 100000, 1)
+var loot_weight: int = 100
+
+## Абсолютная редкость конкретного предмета.
+## Проверяется ДО weighted selection.
+@export_range(0, 100, 1)
+var loot_drop_chance_percent: int = 100
+
+## Тематические источники предмета.
+## Пустой массив = generic loot.
+@export
+var loot_tags: Array[StringName] = []
+
+
+func is_loot_enabled() -> bool:
+	return (
+		loot_value > 0
+		and loot_tier > 0
+	)
+	
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -113,7 +148,7 @@ func get_validation_errors() -> PackedStringArray:
 		if category != Category.WEAPON:
 			errors.append(
 				"Only weapons can define "
-				+ "a primary ability."
+				+"a primary ability."
 			)
 
 		for ability_error in (
@@ -172,4 +207,57 @@ func get_validation_errors() -> PackedStringArray:
 			ability.ability_id
 		] = true
 
+	if (
+		loot_value > 0
+		and loot_tier <= 0
+	):
+		errors.append(
+			"Loot-enabled equipment requires a positive loot tier."
+		)
+
+	if (
+		loot_tier > 0
+		and loot_value <= 0
+	):
+		errors.append(
+			"Loot tier requires a positive loot value."
+		)
+
+	if loot_weight <= 0:
+		errors.append(
+			"Loot weight must be greater than zero."
+		)
+
+	if (
+		loot_drop_chance_percent < 0
+		or loot_drop_chance_percent > 100
+	):
+		errors.append(
+			"Loot drop chance must be between 0 and 100."
+		)
+
+	var used_loot_tags: Dictionary = {}
+
+	for tag in loot_tags:
+		if tag == &"":
+			errors.append(
+				"Loot tag cannot be empty."
+			)
+
+			continue
+
+		if used_loot_tags.has(
+			tag
+		):
+			errors.append(
+				"Duplicate loot tag: %s."
+				% tag
+			)
+
+			continue
+
+		used_loot_tags[
+			tag
+		] = true
+		
 	return errors

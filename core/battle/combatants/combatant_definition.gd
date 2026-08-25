@@ -115,6 +115,20 @@ var base_morale: int = 2
 @export_range(0, 999999, 1)
 var experience_reward: int = 0
 
+## Общая ценность добычи, которую боец
+## добавляет после своей смерти.
+@export_range(0, 999999, 1)
+var loot_budget: int = 0
+
+## Максимальное качество вещей,
+## которое способен открыть этот враг.
+@export_range(0, 99, 1)
+var loot_tier: int = 0
+
+## Тематические категории возможной добычи.
+@export
+var loot_tags: Array[StringName] = []
+
 
 @export_group("Presentation")
 
@@ -238,6 +252,38 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Experience reward cannot be negative."
 		)
+
+	if (
+		loot_budget > 0
+		and loot_tier <= 0
+	):
+		errors.append(
+			"Positive loot budget requires a positive loot tier."
+		)
+
+	var used_loot_tags: Dictionary = {}
+
+	for tag in loot_tags:
+		if tag == &"":
+			errors.append(
+				"Loot tag cannot be empty."
+			)
+
+			continue
+
+		if used_loot_tags.has(
+			tag
+		):
+			errors.append(
+				"Duplicate loot tag: %s."
+				% tag
+			)
+
+			continue
+
+		used_loot_tags[
+			tag
+		] = true
 
 	var used_immunity_ids: Dictionary = {}
 

@@ -25,6 +25,9 @@ var pending_battle_request: CampaignBattleRequest
 
 var state_factory := CampaignStateFactory.new()
 var hero_experience_service := HeroExperienceService.new()
+var loot_reward_application_service := (
+	CampaignLootRewardApplicationService.new()
+)
 
 var _battle_request_counter: int = 0
 
@@ -162,6 +165,25 @@ func get_pending_battle_party_size() -> int:
 			.party_member_hero_ids
 			.size()
 	)
+
+
+func get_loot_catalog() -> Array[HeroEquipmentItemDefinition]:
+	var result: Array[HeroEquipmentItemDefinition] = []
+
+	if campaign_definition == null:
+		return result
+
+	for definition in (
+		campaign_definition.loot_catalog
+	):
+		if definition == null:
+			continue
+
+		result.append(
+			definition
+		)
+
+	return result
 
 
 func start_location(
@@ -405,7 +427,8 @@ func start_location(
 
 func complete_pending_battle_and_return(
 	winning_team_id: StringName,
-	defeated_enemy_experience_pool: int = 0
+	defeated_enemy_experience_pool: int = 0,
+	loot_reward_roll: BattleLootRewardRoll = null
 ) -> bool:
 	if (
 		campaign_state == null
@@ -459,6 +482,26 @@ func complete_pending_battle_and_return(
 		result.outcome = (
 			CampaignBattleResult.Outcome.DEFEAT
 		)
+
+	var loot_applied := (
+		loot_reward_application_service
+			.apply_reward(
+				result,
+				loot_reward_roll,
+				campaign_state.inventory_state,
+				result.outcome
+					== CampaignBattleResult
+						.Outcome
+						.VICTORY
+			)
+	)
+
+	if not loot_applied:
+		push_error(
+			"Campaign loot reward could not be applied."
+		)
+
+		return false
 
 	_apply_experience_reward(
 		result,

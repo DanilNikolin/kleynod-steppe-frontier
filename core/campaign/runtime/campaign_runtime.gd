@@ -29,6 +29,10 @@ var loot_reward_application_service := (
 	CampaignLootRewardApplicationService.new()
 )
 
+var save_service := (
+	CampaignSaveService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -185,6 +189,72 @@ func get_loot_catalog() -> Array[HeroEquipmentItemDefinition]:
 
 	return result
 
+
+func save_campaign() -> CampaignSaveResult:
+	if (
+		campaign_definition == null
+		or not campaign_definition.is_valid_definition()
+		or campaign_state == null
+		or campaign_state.campaign_id
+			!= campaign_definition.campaign_id
+	):
+		return _create_save_failure(
+			CampaignSaveService.STATUS_SAVE_ERROR,
+			"Campaign runtime is not ready for saving."
+		)
+
+	if has_pending_battle():
+		return _create_save_failure(
+			CampaignSaveService.STATUS_SAVE_ERROR,
+			"Mid-battle save is not supported."
+		)
+
+	return save_service.save_campaign(
+		campaign_state
+	)
+
+
+func load_campaign() -> CampaignSaveResult:
+	if (
+		campaign_definition == null
+		or not campaign_definition.is_valid_definition()
+	):
+		return _create_save_failure(
+			CampaignSaveService.STATUS_LOAD_ERROR,
+			"Campaign definition is not ready for loading."
+		)
+
+	if has_pending_battle():
+		return _create_save_failure(
+			CampaignSaveService.STATUS_LOAD_ERROR,
+			"Mid-battle load is not supported."
+		)
+
+	var result := (
+		save_service.load_campaign(
+			campaign_definition
+		)
+	)
+
+	if not result.is_successful:
+		return result
+
+	## Транзакционный swap:
+	## CampaignSaveService уже полностью построил
+	## и провалидировал отдельный CampaignState.
+	campaign_state = result.campaign_state
+
+	pending_battle_request = null
+
+	## Battle request ID — transient data,
+	## но после reload лучше продолжать счётчик,
+	## а не снова начинать с campaign_battle_1.
+	_battle_request_counter = maxi(
+		campaign_state.completed_battle_count,
+		0
+	)
+
+	return result
 
 func start_location(
 	location_id: StringName
@@ -591,6 +661,18 @@ func _apply_experience_reward(
 		] = gained_levels
 
 
+func _create_save_failure(
+	status_code: StringName,
+	message: String
+) -> CampaignSaveResult:
+	var result := CampaignSaveResult.new()
+
+	result.is_successful = false
+	result.status_code = status_code
+	result.message = message
+
+	return result
+	
 func _change_to_campaign_scene() -> void:
 	var scene_error := get_tree().change_scene_to_file(
 		CAMPAIGN_SCENE_PATH

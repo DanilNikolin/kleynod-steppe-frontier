@@ -9,6 +9,7 @@ const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
 
 
 var _is_preparation_open: bool = false
+var _save_status_text: String = ""
 
 
 func _ready() -> void:
@@ -206,6 +207,43 @@ func _create_header_panel() -> Control:
 
 	content.add_child(
 		gold_label
+	)
+
+	var save_status := Label.new()
+
+	save_status.text = _save_status_text
+
+	save_status.custom_minimum_size = Vector2(
+		170,
+		0
+	)
+
+	content.add_child(
+		save_status
+	)
+
+	var save_button := Button.new()
+
+	save_button.text = "СОХРАНИТЬ"
+
+	save_button.pressed.connect(
+		_on_save_campaign_pressed
+	)
+
+	content.add_child(
+		save_button
+	)
+
+	var load_button := Button.new()
+
+	load_button.text = "ЗАГРУЗИТЬ"
+
+	load_button.pressed.connect(
+		_on_load_campaign_pressed
+	)
+
+	content.add_child(
+		load_button
 	)
 
 	var reset_button := Button.new()
@@ -663,8 +701,78 @@ func _on_location_pressed(
 		)
 
 
+func _on_save_campaign_pressed() -> void:
+	var result := (
+		CampaignRuntime.save_campaign()
+	)
+
+	_apply_save_result(
+		result
+	)
+
+	_rebuild_interface()
+
+
+func _on_load_campaign_pressed() -> void:
+	var result := (
+		CampaignRuntime.load_campaign()
+	)
+
+	if result.is_successful:
+		_is_preparation_open = false
+
+	_apply_save_result(
+		result
+	)
+
+	_rebuild_interface()
+
+
+func _apply_save_result(
+	result: CampaignSaveResult
+) -> void:
+	if result == null:
+		_save_status_text = (
+			"Ошибка Save / Load"
+		)
+
+		return
+
+	match result.status_code:
+		CampaignSaveService.STATUS_SAVED:
+			_save_status_text = "Сохранено"
+
+		CampaignSaveService.STATUS_LOADED:
+			_save_status_text = "Загружено"
+
+		CampaignSaveService.STATUS_NO_SAVE:
+			_save_status_text = "Сохранения нет"
+
+		CampaignSaveService.STATUS_SAVE_ERROR:
+			_save_status_text = "Ошибка сохранения"
+
+		CampaignSaveService.STATUS_LOAD_ERROR:
+			_save_status_text = "Ошибка загрузки"
+
+		_:
+			_save_status_text = (
+				"Ошибка Save / Load"
+			)
+
+	if (
+		not result.is_successful
+		and result.status_code
+			!= CampaignSaveService.STATUS_NO_SAVE
+	):
+		push_warning(
+			"Campaign Save / Load: %s"
+			% result.message
+		)
+
+
 func _on_reset_campaign_pressed() -> void:
 	_is_preparation_open = false
+	_save_status_text = ""
 
 	if not CampaignRuntime.start_new_campaign():
 		push_warning(

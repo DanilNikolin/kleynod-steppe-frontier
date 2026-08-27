@@ -346,3 +346,48 @@ func get_location(
 			return location
 
 	return null
+
+func get_equipment_item_definition(
+	item_id: StringName
+) -> HeroEquipmentItemDefinition:
+	if item_id == &"":
+		return null
+
+	var result: HeroEquipmentItemDefinition
+
+	for item_instance in starting_inventory_items:
+		if (
+			item_instance == null
+			or item_instance.definition == null
+			or item_instance.definition.item_id
+				!= item_id
+		):
+			continue
+
+		if (
+			result != null
+			and result
+				!= item_instance.definition
+		):
+			return null
+
+		result = item_instance.definition
+
+	for item_definition in loot_catalog:
+		if (
+			item_definition == null
+			or item_definition.item_id
+				!= item_id
+		):
+			continue
+
+		if (
+			result != null
+			and result
+				!= item_definition
+		):
+			return null
+
+		result = item_definition
+
+	return result

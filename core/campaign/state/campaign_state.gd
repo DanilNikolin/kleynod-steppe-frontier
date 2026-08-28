@@ -22,6 +22,22 @@ var party_member_hero_ids: Array[StringName] = []
 
 var current_location_id: StringName = &""
 
+## Фактическое положение партии на глобальной карте.
+## Не путать с current_location_id:
+## current_location_id пока относится к CampaignLocation /
+## последней боевой локации старого Campaign flow.
+var current_world_node_id: StringName = &""
+
+## Единственный Source of Truth глобального календаря.
+## Сезон и год выводятся из этого числа.
+var current_day: int = 0
+
+## Пока одна глобальная репутация.
+var reputation: int = 0
+
+## Универсальный ресурс развития поселения.
+var materials: int = 0
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -124,6 +140,21 @@ func get_validation_errors() -> PackedStringArray:
 	if campaign_id == &"":
 		errors.append(
 			"Campaign state ID is empty."
+		)
+
+	if current_world_node_id == &"":
+		errors.append(
+			"Current world node ID is empty."
+		)
+
+	if current_day < 0:
+		errors.append(
+			"Campaign current day cannot be negative."
+		)
+
+	if materials < 0:
+		errors.append(
+			"Campaign materials cannot be negative."
 		)
 
 	if heroes.is_empty():

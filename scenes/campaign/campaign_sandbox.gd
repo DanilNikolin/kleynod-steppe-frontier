@@ -135,19 +135,23 @@ func _rebuild_interface() -> void:
 		CampaignRuntime.get_campaign_state()
 	)
 
-	var locations_panel := _create_locations_panel()
+	var world_panel := _create_world_panel()
 
-	locations_panel.custom_minimum_size = Vector2(
-		520,
+	world_panel.custom_minimum_size = Vector2(
+		540,
 		0
 	)
 
-	locations_panel.size_flags_horizontal = (
+	world_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	world_panel.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
 	)
 
 	body_row.add_child(
-		locations_panel
+		world_panel
 	)
 
 	root_column.add_child(
@@ -209,6 +213,48 @@ func _create_header_panel() -> Control:
 		gold_label
 	)
 
+	var state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	var world_resources_label := Label.new()
+
+	world_resources_label.text = (
+		"Материалы: %d · Репутация: %d"
+		% [
+			state.materials
+			if state != null
+			else 0,
+			state.reputation
+			if state != null
+			else 0,
+		]
+	)
+
+	world_resources_label.add_theme_font_size_override(
+		"font_size",
+		16
+	)
+
+	content.add_child(
+		world_resources_label
+	)
+
+	var calendar_label := Label.new()
+
+	calendar_label.text = (
+		_get_calendar_display_text()
+	)
+
+	calendar_label.add_theme_font_size_override(
+		"font_size",
+		16
+	)
+
+	content.add_child(
+		calendar_label
+	)
+
 	var save_status := Label.new()
 
 	save_status.text = _save_status_text
@@ -261,115 +307,20 @@ func _create_header_panel() -> Control:
 	return panel
 
 
-func _create_locations_panel() -> Control:
-	var panel := PanelContainer.new()
-	var content := VBoxContainer.new()
+func _create_world_panel() -> Control:
+	var panel := CampaignWorldMapPanel.new()
 
-	content.add_theme_constant_override(
-		"separation",
-		12
+	panel.travel_requested.connect(
+		_on_world_travel_requested
 	)
 
-	panel.add_child(
-		content
+	panel.adventure_requested.connect(
+		_on_world_adventure_requested
 	)
 
-	var title := Label.new()
-
-	title.text = "ДОСТУПНЫЕ ЛОКАЦИИ"
-
-	title.add_theme_font_size_override(
-		"font_size",
-		22
-	)
-
-	content.add_child(
-		title
-	)
-
-	var party_label := Label.new()
-
-	party_label.text = (
-		"В поход отправятся:\n%s"
-		% _get_party_names()
-	)
-
-	party_label.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD_SMART
-	)
-
-	content.add_child(
-		party_label
-	)
-
-	content.add_child(
-		HSeparator.new()
-	)
-
-	for location in (
-		CampaignRuntime.get_available_locations()
-	):
-		content.add_child(
-			_create_location_card(
-				location
-			)
-		)
-
-	return panel
-
-
-func _create_location_card(
-	location: CampaignLocationDefinition
-) -> Control:
-	var panel := PanelContainer.new()
-	var content := VBoxContainer.new()
-
-	content.add_theme_constant_override(
-		"separation",
-		8
-	)
-
-	panel.add_child(
-		content
-	)
-
-	var title := Label.new()
-
-	title.text = location.display_name
-
-	title.add_theme_font_size_override(
-		"font_size",
-		20
-	)
-
-	content.add_child(
-		title
-	)
-
-	var description := Label.new()
-
-	description.text = location.description
-
-	description.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD_SMART
-	)
-
-	content.add_child(
-		description
-	)
-
-	var start_button := Button.new()
-
-	start_button.text = "Отправиться отрядом"
-
-	start_button.pressed.connect(
-		_on_location_pressed.bind(
-			location.location_id
-		)
-	)
-
-	content.add_child(
-		start_button
+	panel.bind(
+		CampaignRuntime.get_world_map_definition(),
+		CampaignRuntime.get_campaign_state()
 	)
 
 	return panel
@@ -600,6 +551,46 @@ func _show_preparation_interface() -> void:
 	)
 
 
+func _get_calendar_display_text() -> String:
+	var season_name := (
+		_get_season_display_name(
+			CampaignRuntime.get_current_season()
+		)
+	)
+
+	return (
+		"%s · день %d/%d · год %d"
+		% [
+			season_name,
+			CampaignRuntime
+				.get_current_day_in_season(),
+			CampaignRuntime
+				.get_days_per_season(),
+			CampaignRuntime
+				.get_current_year_number(),
+		]
+	)
+
+
+func _get_season_display_name(
+	season: int
+) -> String:
+	match season:
+		CampaignCalendarRules.Season.SPRING:
+			return "Весна"
+
+		CampaignCalendarRules.Season.SUMMER:
+			return "Лето"
+
+		CampaignCalendarRules.Season.AUTUMN:
+			return "Осень"
+
+		CampaignCalendarRules.Season.WINTER:
+			return "Зима"
+
+		_:
+			return "Неизвестный сезон"
+
 func _get_party_names() -> String:
 	var state := CampaignRuntime.get_campaign_state()
 
@@ -688,18 +679,35 @@ func _on_preparation_closed() -> void:
 	_rebuild_interface()
 
 
-func _on_location_pressed(
-	location_id: StringName
+func _on_world_travel_requested(
+	destination_node_id: StringName
 ) -> void:
-	var started := CampaignRuntime.start_location(
-		location_id
+	var travelled := (
+		CampaignRuntime.travel_to_world_node(
+			destination_node_id
+		)
+	)
+
+	if not travelled:
+		push_warning(
+			"Campaign world travel failed."
+		)
+
+		return
+
+	_rebuild_interface()
+
+
+func _on_world_adventure_requested() -> void:
+	var started := (
+		CampaignRuntime
+			.start_current_world_adventure()
 	)
 
 	if not started:
 		push_warning(
-			"Campaign location could not be started."
+			"Campaign world adventure could not be started."
 		)
-
 
 func _on_save_campaign_pressed() -> void:
 	var result := (

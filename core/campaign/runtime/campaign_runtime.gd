@@ -33,6 +33,14 @@ var save_service := (
 	CampaignSaveService.new()
 )
 
+var travel_service := (
+	CampaignTravelService.new()
+)
+
+var calendar_rules := (
+	CampaignCalendarRules.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -127,6 +135,303 @@ func get_location(
 		location_id
 	)
 
+
+func get_world_map_definition() -> CampaignWorldMapDefinition:
+	if campaign_definition == null:
+		return null
+
+	return (
+		campaign_definition
+			.world_map_definition
+	)
+
+
+func get_current_world_node() -> CampaignWorldNodeDefinition:
+	if campaign_state == null:
+		return null
+
+	var world_map := get_world_map_definition()
+
+	if world_map == null:
+		return null
+
+	return world_map.get_node(
+		campaign_state.current_world_node_id
+	)
+
+
+func get_world_node(
+	node_id: StringName
+) -> CampaignWorldNodeDefinition:
+	var world_map := get_world_map_definition()
+
+	if world_map == null:
+		return null
+
+	return world_map.get_node(
+		node_id
+	)
+
+
+func get_connected_world_nodes() -> Array[CampaignWorldNodeDefinition]:
+	var result: Array[CampaignWorldNodeDefinition] = []
+
+	if campaign_state == null:
+		return result
+
+	var world_map := get_world_map_definition()
+
+	if world_map == null:
+		return result
+
+	var connected_ids := (
+		world_map.get_connected_node_ids(
+			campaign_state.current_world_node_id
+		)
+	)
+
+	for node_id in connected_ids:
+		var node := world_map.get_node(
+			node_id
+		)
+
+		if node == null:
+			continue
+
+		result.append(
+			node
+		)
+
+	return result
+
+
+func get_travel_days_to(
+	destination_node_id: StringName
+) -> int:
+	if campaign_state == null:
+		return (
+			CampaignTravelService
+				.INVALID_TRAVEL_DAYS
+		)
+
+	var world_map := get_world_map_definition()
+
+	if world_map == null:
+		return (
+			CampaignTravelService
+				.INVALID_TRAVEL_DAYS
+		)
+
+	return travel_service.get_travel_days(
+		world_map,
+		campaign_state.current_world_node_id,
+		destination_node_id
+	)
+
+
+func travel_to_world_node(
+	destination_node_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		push_warning(
+			"Cannot travel while a battle request is active."
+		)
+
+		return false
+
+	if (
+		campaign_state == null
+		or not campaign_state.is_valid_state()
+	):
+		push_warning(
+			"Cannot travel with an invalid campaign state."
+		)
+
+		return false
+
+	if destination_node_id == &"":
+		push_warning(
+			"Cannot travel to an empty world node ID."
+		)
+
+		return false
+
+	if (
+		destination_node_id
+		== campaign_state.current_world_node_id
+	):
+		push_warning(
+			"Campaign party is already at world node '%s'."
+			% destination_node_id
+		)
+
+		return false
+
+	var world_map := get_world_map_definition()
+
+	if (
+		world_map == null
+		or not world_map.is_valid_definition()
+	):
+		push_warning(
+			"Campaign world map is missing or invalid."
+		)
+
+		return false
+
+	var destination := world_map.get_node(
+		destination_node_id
+	)
+
+	if destination == null:
+		push_warning(
+			"Unknown world destination '%s'."
+			% destination_node_id
+		)
+
+		return false
+
+	var travel_days := (
+		travel_service.get_travel_days(
+			world_map,
+			campaign_state.current_world_node_id,
+			destination_node_id
+		)
+	)
+
+	if travel_days <= 0:
+		push_warning(
+			"No valid route from '%s' to '%s'."
+			% [
+				campaign_state.current_world_node_id,
+				destination_node_id,
+			]
+		)
+
+		return false
+
+	if (
+		campaign_state.current_day
+		> 999999999 - travel_days
+	):
+		push_warning(
+			"Campaign calendar cannot advance any further."
+		)
+
+		return false
+
+	var previous_node_id := (
+		campaign_state.current_world_node_id
+	)
+
+	var previous_day := (
+		campaign_state.current_day
+	)
+
+	campaign_state.current_world_node_id = (
+		destination.node_id
+	)
+
+	campaign_state.current_day += (
+		travel_days
+	)
+
+	## Маленькая транзакция:
+	## если после изменения CampaignState неожиданно
+	## стал невалидным, возвращаем прежнее состояние.
+	if not campaign_state.is_valid_state():
+		campaign_state.current_world_node_id = (
+			previous_node_id
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		push_error(
+			"World travel produced an invalid campaign state."
+		)
+
+		return false
+
+	return true
+
+func get_current_season() -> int:
+	if (
+		campaign_state == null
+		or campaign_definition == null
+	):
+		return (
+			CampaignCalendarRules
+				.Season
+				.SPRING
+		)
+
+	return calendar_rules.get_season(
+		campaign_state.current_day,
+		campaign_definition.days_per_season
+	)
+
+
+func get_current_year_number() -> int:
+	if (
+		campaign_state == null
+		or campaign_definition == null
+	):
+		return 1
+
+	return calendar_rules.get_year_number(
+		campaign_state.current_day,
+		campaign_definition.days_per_season
+	)
+
+
+func get_current_day_in_season() -> int:
+	if (
+		campaign_state == null
+		or campaign_definition == null
+	):
+		return 1
+
+	return calendar_rules.get_day_in_season(
+		campaign_state.current_day,
+		campaign_definition.days_per_season
+	)
+
+
+func get_current_day_in_year() -> int:
+	if (
+		campaign_state == null
+		or campaign_definition == null
+	):
+		return 1
+
+	return calendar_rules.get_day_in_year(
+		campaign_state.current_day,
+		campaign_definition.days_per_season
+	)
+
+
+func get_current_absolute_day_number() -> int:
+	if campaign_state == null:
+		return 1
+
+	return calendar_rules.get_absolute_day_number(
+		campaign_state.current_day
+	)
+
+
+func get_days_per_season() -> int:
+	if campaign_definition == null:
+		return 1
+
+	return maxi(
+		campaign_definition.days_per_season,
+		1
+	)
 
 func get_available_locations() -> Array[CampaignLocationDefinition]:
 	var result: Array[CampaignLocationDefinition] = []
@@ -255,6 +560,49 @@ func load_campaign() -> CampaignSaveResult:
 	)
 
 	return result
+
+
+func start_current_world_adventure() -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if campaign_state == null:
+		return false
+
+	var current_node := (
+		get_current_world_node()
+	)
+
+	if current_node == null:
+		push_warning(
+			"Current world node does not exist."
+		)
+
+		return false
+
+	if (
+		current_node.node_type
+		!= CampaignWorldNodeDefinition
+			.NodeType
+			.ADVENTURE
+	):
+		push_warning(
+			"Current world node is not an adventure node."
+		)
+
+		return false
+
+	if current_node.campaign_location_id == &"":
+		push_warning(
+			"Current adventure node has no campaign location."
+		)
+
+		return false
+
+	return start_location(
+		current_node.campaign_location_id
+	)
+
 
 func start_location(
 	location_id: StringName

@@ -15,6 +15,24 @@ func create_from_definition(
 
 	result.campaign_id = definition.campaign_id
 
+	result.current_world_node_id = (
+		definition
+			.world_map_definition
+			.starting_node_id
+	)
+
+	result.current_day = (
+		definition.starting_day
+	)
+
+	result.reputation = (
+		definition.starting_reputation
+	)
+
+	result.materials = (
+		definition.starting_materials
+	)
+	
 	result.selected_hero_id = (
 		definition.starting_selected_hero_id
 	)

@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 1
+const CURRENT_SAVE_VERSION: int = 2
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -223,6 +223,13 @@ func _encode_campaign(
 		"current_location_id": String(
 			state.current_location_id
 		),
+		"current_world_node_id": String(
+			state.current_world_node_id
+		),
+		"current_day": state.current_day,
+		"reputation": state.reputation,
+		"materials": state.materials,
+
 		"completed_battle_count": (
 			state.completed_battle_count
 		),
@@ -412,6 +419,10 @@ func _decode_campaign(
 			"selected_hero_id",
 			"party_member_hero_ids",
 			"current_location_id",
+			"current_world_node_id",
+			"current_day",
+			"reputation",
+			"materials",
 			"completed_battle_count",
 			"heroes",
 			"inventory",
@@ -521,6 +532,35 @@ func _decode_campaign(
 		)
 	)
 
+	state.current_world_node_id = StringName(
+		_string_value(
+			data["current_world_node_id"],
+			"current_world_node_id",
+			false
+		)
+	)
+
+	state.current_day = _int_value(
+		data["current_day"],
+		"current_day",
+		0,
+		999999999
+	)
+
+	state.reputation = _int_value(
+		data["reputation"],
+		"reputation",
+		-999999999,
+		999999999
+	)
+
+	state.materials = _int_value(
+		data["materials"],
+		"materials",
+		0,
+		999999999
+	)
+
 	state.completed_battle_count = (
 		_int_value(
 			data["completed_battle_count"],
@@ -542,6 +582,21 @@ func _decode_campaign(
 		_fail(
 			"Unknown current location '%s'."
 			% state.current_location_id
+		)
+
+		return null
+
+	if (
+		definition.world_map_definition == null
+		or definition
+			.world_map_definition
+			.get_node(
+				state.current_world_node_id
+			) == null
+	):
+		_fail(
+			"Unknown current world node '%s'."
+			% state.current_world_node_id
 		)
 
 		return null

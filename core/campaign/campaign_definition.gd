@@ -50,6 +50,28 @@ var loot_catalog: Array[HeroEquipmentItemDefinition] = []
 @export
 var locations: Array[CampaignLocationDefinition] = []
 
+@export_group("World")
+
+@export
+var world_map_definition: CampaignWorldMapDefinition
+
+## Абсолютный игровой день старта кампании.
+## Ноль — первый день первого сезона.
+@export_range(0, 999999999, 1)
+var starting_day: int = 0
+
+## Количество дней в одном сезоне.
+## Сам сезон является derived data и отдельно
+## в CampaignState не сохраняется.
+@export_range(1, 9999, 1)
+var days_per_season: int = 20
+
+@export_range(-999999999, 999999999, 1)
+var starting_reputation: int = 0
+
+@export_range(0, 999999999, 1)
+var starting_materials: int = 0
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -328,6 +350,56 @@ func get_validation_errors() -> PackedStringArray:
 		used_location_ids[
 			location.location_id
 		] = true
+
+	if world_map_definition == null:
+		errors.append(
+			"Campaign world map is not assigned."
+		)
+
+	else:
+		for world_error in (
+			world_map_definition
+				.get_validation_errors()
+		):
+			errors.append(
+				"Campaign world: %s"
+				% world_error
+			)
+
+		for world_node in (
+			world_map_definition.nodes
+		):
+			if (
+				world_node == null
+				or world_node.campaign_location_id
+					== &""
+			):
+				continue
+
+			if get_location(
+				world_node.campaign_location_id
+			) == null:
+				errors.append(
+					"World node '%s' references "
+					% world_node.node_id
+					+ "unknown campaign location '%s'."
+					% world_node.campaign_location_id
+				)
+
+	if starting_day < 0:
+		errors.append(
+			"Campaign starting day cannot be negative."
+		)
+
+	if days_per_season <= 0:
+		errors.append(
+			"Campaign days per season must be positive."
+		)
+
+	if starting_materials < 0:
+		errors.append(
+			"Campaign starting materials cannot be negative."
+		)
 
 	return errors
 

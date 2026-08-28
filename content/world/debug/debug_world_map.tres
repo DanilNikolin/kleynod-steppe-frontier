@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/world/campaign_world_map_definition.gd" id="1_map"]
+[ext_resource type="Script" path="res://core/campaign/world/campaign_world_node_definition.gd" id="2_node"]
+[ext_resource type="Script" path="res://core/campaign/world/campaign_world_route_definition.gd" id="3_route"]
+
+[sub_resource type="Resource" id="NodeHome"]
+script = ExtResource("2_node")
+node_id = &"debug_home"
+display_name = "Родное поселение"
+description = "Пока почти пустое родное поселение."
+node_type = 0
+map_position = Vector2(120, 300)
+
+[sub_resource type="Resource" id="NodeVillage"]
+script = ExtResource("2_node")
+node_id = &"debug_village"
+display_name = "Малое село"
+description = "Небольшое поселение на дороге."
+node_type = 1
+map_position = Vector2(380, 250)
+
+[sub_resource type="Resource" id="NodeCity"]
+script = ExtResource("2_node")
+node_id = &"debug_city"
+display_name = "Большой город"
+description = "Крупный торговый и городской центр."
+node_type = 2
+map_position = Vector2(700, 180)
+
+[sub_resource type="Resource" id="NodeForest"]
+script = ExtResource("2_node")
+node_id = &"debug_forest_edge_node"
+display_name = "Лесная окраина"
+description = "Опасная точка за пределами поселений."
+node_type = 3
+map_position = Vector2(430, 500)
+campaign_location_id = &"debug_forest_edge"
+
+[sub_resource type="Resource" id="RouteHomeVillage"]
+script = ExtResource("3_route")
+route_id = &"debug_route_home_village"
+node_a_id = &"debug_home"
+node_b_id = &"debug_village"
+travel_multiplier = 1.0
+travel_days_override = -1
+
+[sub_resource type="Resource" id="RouteVillageCity"]
+script = ExtResource("3_route")
+route_id = &"debug_route_village_city"
+node_a_id = &"debug_village"
+node_b_id = &"debug_city"
+travel_multiplier = 0.9
+travel_days_override = -1
+
+[sub_resource type="Resource" id="RouteVillageForest"]
+script = ExtResource("3_route")
+route_id = &"debug_route_village_forest"
+node_a_id = &"debug_village"
+node_b_id = &"debug_forest_edge_node"
+travel_multiplier = 1.15
+travel_days_override = -1
+
+[sub_resource type="Resource" id="RouteHomeForest"]
+script = ExtResource("3_route")
+route_id = &"debug_route_home_forest"
+node_a_id = &"debug_home"
+node_b_id = &"debug_forest_edge_node"
+travel_multiplier = 1.25
+travel_days_override = -1
+
+[resource]
+script = ExtResource("1_map")
+map_units_per_day = 120.0
+starting_node_id = &"debug_home"
+nodes = Array[ExtResource("2_node")]([SubResource("NodeHome"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
+routes = Array[ExtResource("3_route")]([SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])

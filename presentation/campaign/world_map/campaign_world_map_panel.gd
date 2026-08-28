@@ -8,6 +8,10 @@ signal travel_requested(
 
 signal adventure_requested
 
+signal enter_requested(
+	node_id: StringName
+)
+
 
 var _world_map: CampaignWorldMapDefinition
 var _state: CampaignState
@@ -23,6 +27,7 @@ var _map_canvas: CampaignWorldMapCanvas
 var _current_location_label: Label
 var _selection_label: Label
 var _travel_button: Button
+var _enter_button: Button
 var _adventure_button: Button
 
 
@@ -176,6 +181,18 @@ func _build_interface() -> void:
 		_travel_button
 	)
 
+	_enter_button = Button.new()
+
+	_enter_button.text = "ВОЙТИ"
+
+	_enter_button.pressed.connect(
+		_on_enter_pressed
+	)
+
+	content.add_child(
+		_enter_button
+	)
+
 	_adventure_button = Button.new()
 
 	_adventure_button.text = (
@@ -203,6 +220,7 @@ func _refresh_selection() -> void:
 		_selection_label.text = "—"
 
 		_travel_button.disabled = true
+		_enter_button.visible = false
 		_adventure_button.visible = false
 
 		return
@@ -221,6 +239,7 @@ func _refresh_selection() -> void:
 		_selection_label.text = "—"
 
 		_travel_button.disabled = true
+		_enter_button.visible = false
 		_adventure_button.visible = false
 
 		return
@@ -229,6 +248,17 @@ func _refresh_selection() -> void:
 		"Сейчас: %s"
 		% current_node.display_name
 	)
+
+	_enter_button.visible = (
+		current_node.local_location_definition
+		!= null
+	)
+
+	if _enter_button.visible:
+		_enter_button.text = (
+			"ВОЙТИ · %s"
+			% current_node.display_name
+		)
 
 	_adventure_button.visible = (
 		current_node.campaign_location_id
@@ -320,3 +350,15 @@ func _on_travel_pressed() -> void:
 
 func _on_adventure_pressed() -> void:
 	adventure_requested.emit()
+
+
+func _on_enter_pressed() -> void:
+	if (
+		_state == null
+		or _state.current_world_node_id == &""
+	):
+		return
+
+	enter_requested.emit(
+		_state.current_world_node_id
+	)

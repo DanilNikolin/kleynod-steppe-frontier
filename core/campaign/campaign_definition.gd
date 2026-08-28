@@ -60,6 +60,11 @@ var world_map_definition: CampaignWorldMapDefinition
 @export_range(0, 999999999, 1)
 var starting_day: int = 0
 
+## Минута внутри стартового дня.
+## 480 = 08:00.
+@export_range(0, 1439, 1)
+var starting_minute_of_day: int = 480
+
 ## Количество дней в одном сезоне.
 ## Сам сезон является derived data и отдельно
 ## в CampaignState не сохраняется.
@@ -382,7 +387,7 @@ func get_validation_errors() -> PackedStringArray:
 				errors.append(
 					"World node '%s' references "
 					% world_node.node_id
-					+ "unknown campaign location '%s'."
+					+"unknown campaign location '%s'."
 					% world_node.campaign_location_id
 				)
 
@@ -391,6 +396,16 @@ func get_validation_errors() -> PackedStringArray:
 			"Campaign starting day cannot be negative."
 		)
 
+	if (
+		starting_minute_of_day < 0
+		or starting_minute_of_day
+			>= CampaignTimeService.MINUTES_PER_DAY
+	):
+		errors.append(
+			"Campaign starting minute must be "
+			+"between 0 and 1439."
+		)
+		
 	if days_per_season <= 0:
 		errors.append(
 			"Campaign days per season must be positive."

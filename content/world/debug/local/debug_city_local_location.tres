@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
+
+[sub_resource type="Resource" id="Merchant"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_city_merchant"
+display_name = "Купец"
+description = "Городской торговец с гораздо большим выбором товаров."
+local_position = Vector2(230, 350)
+action_labels = PackedStringArray("Торговля", "Поговорить")
+
+[sub_resource type="Resource" id="Herbalist"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_city_herbalist"
+display_name = "Травница"
+description = "Торгует лекарствами и знает много о местных травах."
+local_position = Vector2(520, 330)
+action_labels = PackedStringArray("Поговорить", "Купить лекарства", "Спросить о травах")
+
+[sub_resource type="Resource" id="Guard"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_city_guard"
+display_name = "Городской стражник"
+description = "Следит за порядком и может рассказать о проблемах вокруг города."
+local_position = Vector2(810, 370)
+action_labels = PackedStringArray("Поговорить", "Спросить об окрестностях")
+
+[resource]
+script = ExtResource("1_location")
+local_location_id = &"debug_city_local"
+display_name = "Большой город"
+description = "Крупное поселение с торговлей, специалистами и большим количеством возможностей."
+reference_size = Vector2(1000, 500)
+interactions = Array[ExtResource("2_interaction")]([SubResource("Merchant"), SubResource("Herbalist"), SubResource("Guard")])

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
+
+[sub_resource type="Resource" id="Campfire"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_home_campfire"
+display_name = "Костёр"
+description = "Небольшой костёр — пока почти единственный признак обжитого места."
+local_position = Vector2(250, 360)
+action_labels = PackedStringArray("Осмотреть", "Отдохнуть")
+
+[sub_resource type="Resource" id="WorkshopSite"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_home_workshop_site"
+display_name = "Пустой участок"
+description = "Подходящее место для будущей мастерской."
+local_position = Vector2(610, 340)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Wagon"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_home_wagon"
+display_name = "Старая телега"
+description = "Телега с остатками вещей и припасов."
+local_position = Vector2(820, 390)
+action_labels = PackedStringArray("Осмотреть", "Проверить припасы")
+
+[resource]
+script = ExtResource("1_location")
+local_location_id = &"debug_home_local"
+display_name = "Родное поселение"
+description = "Пока здесь почти ничего нет. Со временем это место изменится благодаря игроку."
+reference_size = Vector2(1000, 500)
+interactions = Array[ExtResource("2_interaction")]([SubResource("Campfire"), SubResource("WorkshopSite"), SubResource("Wagon")])

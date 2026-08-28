@@ -9,6 +9,7 @@ const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
 
 
 var _is_preparation_open: bool = false
+var _is_local_location_open: bool = false
 var _save_status_text: String = ""
 
 
@@ -22,6 +23,10 @@ func _ready() -> void:
 
 func _rebuild_interface() -> void:
 	_clear_children()
+
+	if _is_local_location_open:
+		_show_local_location_interface()
+		return
 
 	if _is_preparation_open:
 		_show_preparation_interface()
@@ -314,6 +319,10 @@ func _create_world_panel() -> Control:
 		_on_world_travel_requested
 	)
 
+	panel.enter_requested.connect(
+		_on_world_enter_requested
+	)
+
 	panel.adventure_requested.connect(
 		_on_world_adventure_requested
 	)
@@ -551,6 +560,47 @@ func _show_preparation_interface() -> void:
 	)
 
 
+func _show_local_location_interface() -> void:
+	var definition := (
+		CampaignRuntime
+			.get_current_local_location_definition()
+	)
+
+	if definition == null:
+		_is_local_location_open = false
+
+		push_warning(
+			"Current world node has no local location."
+		)
+
+		call_deferred(
+			"_rebuild_interface"
+		)
+
+		return
+
+	var panel := (
+		CampaignLocalLocationPanel.new()
+	)
+
+	add_child(
+		panel
+	)
+
+	panel.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+
+	panel.exit_requested.connect(
+		_on_local_location_exit_requested
+	)
+
+	panel.bind(
+		definition,
+		CampaignRuntime.get_campaign_state()
+	)
+
+
 func _get_calendar_display_text() -> String:
 	var season_name := (
 		_get_season_display_name(
@@ -559,7 +609,7 @@ func _get_calendar_display_text() -> String:
 	)
 
 	return (
-		"%s · день %d/%d · год %d"
+		"%s · день %d/%d · год %d · %s"
 		% [
 			season_name,
 			CampaignRuntime
@@ -568,6 +618,8 @@ func _get_calendar_display_text() -> String:
 				.get_days_per_season(),
 			CampaignRuntime
 				.get_current_year_number(),
+			CampaignRuntime
+				.get_current_time_text(),
 		]
 	)
 
@@ -698,6 +750,50 @@ func _on_world_travel_requested(
 	_rebuild_interface()
 
 
+func _on_world_enter_requested(
+	node_id: StringName
+) -> void:
+	var state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	if (
+		state == null
+		or node_id == &""
+		or node_id
+			!= state.current_world_node_id
+	):
+		push_warning(
+			"Cannot enter a world node "
+			+ "where the party is not located."
+		)
+
+		return
+
+	var local_definition := (
+		CampaignRuntime
+			.get_current_local_location_definition()
+	)
+
+	if local_definition == null:
+		push_warning(
+			"Current world node is not enterable."
+		)
+
+		return
+
+	_is_preparation_open = false
+	_is_local_location_open = true
+
+	_rebuild_interface()
+
+
+func _on_local_location_exit_requested() -> void:
+	_is_local_location_open = false
+
+	_rebuild_interface()
+
+
 func _on_world_adventure_requested() -> void:
 	var started := (
 		CampaignRuntime
@@ -728,6 +824,7 @@ func _on_load_campaign_pressed() -> void:
 
 	if result.is_successful:
 		_is_preparation_open = false
+		_is_local_location_open = false
 
 	_apply_save_result(
 		result
@@ -780,6 +877,7 @@ func _apply_save_result(
 
 func _on_reset_campaign_pressed() -> void:
 	_is_preparation_open = false
+	_is_local_location_open = false
 	_save_status_text = ""
 
 	if not CampaignRuntime.start_new_campaign():

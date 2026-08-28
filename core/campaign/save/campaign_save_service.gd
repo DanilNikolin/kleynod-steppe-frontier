@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 2
+const CURRENT_SAVE_VERSION: int = 3
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -227,6 +227,10 @@ func _encode_campaign(
 			state.current_world_node_id
 		),
 		"current_day": state.current_day,
+		"current_minute_of_day": (
+			state.current_minute_of_day
+		),
+
 		"reputation": state.reputation,
 		"materials": state.materials,
 
@@ -421,6 +425,7 @@ func _decode_campaign(
 			"current_location_id",
 			"current_world_node_id",
 			"current_day",
+			"current_minute_of_day",
 			"reputation",
 			"materials",
 			"completed_battle_count",
@@ -547,6 +552,15 @@ func _decode_campaign(
 		999999999
 	)
 
+	state.current_minute_of_day = (
+		_int_value(
+			data["current_minute_of_day"],
+			"current_minute_of_day",
+			0,
+			CampaignTimeService.MINUTES_PER_DAY - 1
+		)
+	)
+	
 	state.reputation = _int_value(
 		data["reputation"],
 		"reputation",

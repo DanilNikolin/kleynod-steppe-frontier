@@ -34,6 +34,16 @@ var node_type: NodeType = NodeType.ADVENTURE
 @export
 var map_position: Vector2 = Vector2.ZERO
 
+@export_group("Local Location")
+
+## Необязательное authored-представление точки мира,
+## внутрь которого игрок может войти.
+##
+## Это может быть дом, село, город и в будущем
+## вообще любая world-нода, если ей нужна
+## локальная walkable/interactable сцена.
+@export
+var local_location_definition: CampaignLocalLocationDefinition
 
 @export_group("Adventure")
 
@@ -72,5 +82,13 @@ func get_validation_errors() -> PackedStringArray:
 			"Only an adventure world node may reference "
 			+"a campaign location."
 		)
-
+	if local_location_definition != null:
+		for local_error in (
+			local_location_definition
+				.get_validation_errors()
+		):
+			errors.append(
+				"Local location: %s"
+				% local_error
+			)
 	return errors

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
+[ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
+
+[sub_resource type="Resource" id="Innkeeper"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_village_innkeeper"
+display_name = "Трактирщик"
+description = "Хозяин местного трактира. Знает большую часть местных слухов."
+local_position = Vector2(270, 350)
+action_labels = PackedStringArray("Поговорить", "Торговля", "Спросить о слухах")
+
+[sub_resource type="Resource" id="Blacksmith"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_village_blacksmith"
+display_name = "Кузнец"
+description = "Местный кузнец. Пока это только placeholder будущего персонажа."
+local_position = Vector2(630, 350)
+action_labels = PackedStringArray("Поговорить", "Осмотреть товары")
+
+[sub_resource type="Resource" id="NoticeBoard"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_village_notice_board"
+display_name = "Доска объявлений"
+description = "Здесь жители оставляют просьбы, объявления и слухи."
+local_position = Vector2(850, 310)
+action_labels = PackedStringArray("Посмотреть объявления")
+
+[resource]
+script = ExtResource("1_location")
+local_location_id = &"debug_village_local"
+display_name = "Малое село"
+description = "Небольшое придорожное село. Здесь уже есть люди, торговля и свои проблемы."
+reference_size = Vector2(1000, 500)
+interactions = Array[ExtResource("2_interaction")]([SubResource("Innkeeper"), SubResource("Blacksmith"), SubResource("NoticeBoard")])

@@ -24,7 +24,9 @@ func create_from_definition(
 	result.current_day = (
 		definition.starting_day
 	)
-
+	result.current_minute_of_day = (
+		definition.starting_minute_of_day
+	)
 	result.reputation = (
 		definition.starting_reputation
 	)
@@ -32,7 +34,7 @@ func create_from_definition(
 	result.materials = (
 		definition.starting_materials
 	)
-	
+
 	result.selected_hero_id = (
 		definition.starting_selected_hero_id
 	)

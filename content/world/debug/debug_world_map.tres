@@ -1,8 +1,11 @@
-[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_map_definition.gd" id="1_map"]
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_node_definition.gd" id="2_node"]
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_route_definition.gd" id="3_route"]
+[ext_resource type="Resource" path="res://content/world/debug/local/debug_home_local_location.tres" id="4_home_local"]
+[ext_resource type="Resource" path="res://content/world/debug/local/debug_village_local_location.tres" id="5_village_local"]
+[ext_resource type="Resource" path="res://content/world/debug/local/debug_city_local_location.tres" id="6_city_local"]
 
 [sub_resource type="Resource" id="NodeHome"]
 script = ExtResource("2_node")
@@ -11,6 +14,7 @@ display_name = "Родное поселение"
 description = "Пока почти пустое родное поселение."
 node_type = 0
 map_position = Vector2(120, 300)
+local_location_definition = ExtResource("4_home_local")
 
 [sub_resource type="Resource" id="NodeVillage"]
 script = ExtResource("2_node")
@@ -19,6 +23,7 @@ display_name = "Малое село"
 description = "Небольшое поселение на дороге."
 node_type = 1
 map_position = Vector2(380, 250)
+local_location_definition = ExtResource("5_village_local")
 
 [sub_resource type="Resource" id="NodeCity"]
 script = ExtResource("2_node")
@@ -27,6 +32,7 @@ display_name = "Большой город"
 description = "Крупный торговый и городской центр."
 node_type = 2
 map_position = Vector2(700, 180)
+local_location_definition = ExtResource("6_city_local")
 
 [sub_resource type="Resource" id="NodeForest"]
 script = ExtResource("2_node")

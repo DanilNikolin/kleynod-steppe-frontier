@@ -41,6 +41,10 @@ var calendar_rules := (
 	CampaignCalendarRules.new()
 )
 
+var time_service := (
+	CampaignTimeService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -157,6 +161,18 @@ func get_current_world_node() -> CampaignWorldNodeDefinition:
 
 	return world_map.get_node(
 		campaign_state.current_world_node_id
+	)
+
+
+func get_current_local_location_definition() -> CampaignLocalLocationDefinition:
+	var current_node := get_current_world_node()
+
+	if current_node == null:
+		return null
+
+	return (
+		current_node
+			.local_location_definition
 	)
 
 
@@ -313,16 +329,6 @@ func travel_to_world_node(
 
 		return false
 
-	if (
-		campaign_state.current_day
-		> 999999999 - travel_days
-	):
-		push_warning(
-			"Campaign calendar cannot advance any further."
-		)
-
-		return false
-
 	var previous_node_id := (
 		campaign_state.current_world_node_id
 	)
@@ -331,17 +337,41 @@ func travel_to_world_node(
 		campaign_state.current_day
 	)
 
+	var previous_minute := (
+		campaign_state.current_minute_of_day
+	)
+
 	campaign_state.current_world_node_id = (
 		destination.node_id
 	)
 
-	campaign_state.current_day += (
+	var travel_minutes := (
 		travel_days
+		* CampaignTimeService.MINUTES_PER_DAY
 	)
 
-	## Маленькая транзакция:
-	## если после изменения CampaignState неожиданно
-	## стал невалидным, возвращаем прежнее состояние.
+	if not time_service.advance_minutes(
+		campaign_state,
+		travel_minutes
+	):
+		campaign_state.current_world_node_id = (
+			previous_node_id
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		push_warning(
+			"Campaign travel time could not be applied."
+		)
+
+		return false
+
 	if not campaign_state.is_valid_state():
 		campaign_state.current_world_node_id = (
 			previous_node_id
@@ -351,8 +381,13 @@ func travel_to_world_node(
 			previous_day
 		)
 
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
 		push_error(
-			"World travel produced an invalid campaign state."
+			"World travel produced "
+			+ "an invalid campaign state."
 		)
 
 		return false
@@ -432,6 +467,70 @@ func get_days_per_season() -> int:
 		campaign_definition.days_per_season,
 		1
 	)
+
+
+func advance_time(
+	minutes: int
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		push_warning(
+			"Cannot advance campaign time "
+			+ "while a battle request is active."
+		)
+
+		return false
+
+	if (
+		campaign_state == null
+		or not campaign_state.is_valid_state()
+	):
+		push_warning(
+			"Cannot advance time with "
+			+ "an invalid campaign state."
+		)
+
+		return false
+
+	if minutes < 0:
+		push_warning(
+			"Campaign time cannot move backwards."
+		)
+
+		return false
+
+	if not time_service.advance_minutes(
+		campaign_state,
+		minutes
+	):
+		push_warning(
+			"Campaign time could not be advanced."
+		)
+
+		return false
+
+	return true
+
+
+func get_current_hour() -> int:
+	return time_service.get_hour(
+		campaign_state
+	)
+
+
+func get_current_minute() -> int:
+	return time_service.get_minute(
+		campaign_state
+	)
+
+
+func get_current_time_text() -> String:
+	return time_service.get_time_text(
+		campaign_state
+	)
+
 
 func get_available_locations() -> Array[CampaignLocationDefinition]:
 	var result: Array[CampaignLocationDefinition] = []

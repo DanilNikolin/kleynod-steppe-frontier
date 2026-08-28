@@ -90,6 +90,7 @@ loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])
 world_map_definition = ExtResource("6_world_map")
 starting_day = 0
+starting_minute_of_day = 480
 days_per_season = 20
 starting_reputation = 0
 starting_materials = 0

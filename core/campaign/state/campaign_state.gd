@@ -32,6 +32,11 @@ var current_world_node_id: StringName = &""
 ## Сезон и год выводятся из этого числа.
 var current_day: int = 0
 
+## Минута внутри текущего игрового дня.
+## 0 = 00:00
+## 1439 = 23:59
+var current_minute_of_day: int = 0
+
 ## Пока одна глобальная репутация.
 var reputation: int = 0
 
@@ -152,6 +157,16 @@ func get_validation_errors() -> PackedStringArray:
 			"Campaign current day cannot be negative."
 		)
 
+	if (
+		current_minute_of_day < 0
+		or current_minute_of_day
+			>= CampaignTimeService.MINUTES_PER_DAY
+	):
+		errors.append(
+			"Campaign minute of day must be "
+			+"between 0 and 1439."
+		)
+		
 	if materials < 0:
 		errors.append(
 			"Campaign materials cannot be negative."

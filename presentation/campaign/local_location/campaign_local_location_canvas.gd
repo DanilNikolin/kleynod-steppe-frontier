@@ -37,6 +37,7 @@ var _content_root: Node2D
 var _camera: Camera2D
 
 var _buttons_by_interaction_id: Dictionary = {}
+var _display_text_overrides: Dictionary = {}
 
 
 func _ready() -> void:
@@ -55,6 +56,7 @@ func bind(
 	_definition = definition
 
 	_selected_interaction_id = &""
+	_display_text_overrides.clear()
 
 	_camera_target_x = 0.0
 	_needs_initial_camera_position = true
@@ -74,6 +76,16 @@ func set_selected_interaction(
 ) -> void:
 	_selected_interaction_id = (
 		interaction_id
+	)
+
+	_refresh_button_texts()
+
+
+func set_interaction_display_overrides(
+	overrides: Dictionary
+) -> void:
+	_display_text_overrides = (
+		overrides.duplicate()
 	)
 
 	_refresh_button_texts()
@@ -399,9 +411,22 @@ func _refresh_button_texts() -> void:
 		):
 			prefix = "→ "
 
+		var display_text := (
+			interaction.display_name
+		)
+
+		if _display_text_overrides.has(
+			interaction.interaction_id
+		):
+			display_text = String(
+				_display_text_overrides[
+					interaction.interaction_id
+				]
+			)
+
 		button.text = (
 			prefix
-			+ interaction.display_name
+			+ display_text
 		)
 
 

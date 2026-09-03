@@ -595,6 +595,12 @@ func _show_local_location_interface() -> void:
 		_on_local_location_exit_requested
 	)
 
+	panel.settlement_build_requested.connect(
+		_on_home_settlement_build_requested.bind(
+			panel
+		)
+	)
+
 	var settlement_definition: CampaignSettlementDefinition
 	var settlement_state: CampaignSettlementState
 
@@ -815,6 +821,33 @@ func _on_world_enter_requested(
 	_is_local_location_open = true
 
 	_rebuild_interface()
+
+
+func _on_home_settlement_build_requested(
+	zone_id: StringName,
+	building_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var constructed := (
+		CampaignRuntime
+			.construct_home_settlement_building(
+				zone_id,
+				building_id
+			)
+	)
+
+	if not constructed:
+		push_warning(
+			"Home settlement construction failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
 
 
 func _on_local_location_exit_requested() -> void:

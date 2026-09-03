@@ -9,6 +9,10 @@ script = ExtResource("2_building")
 building_id = &"blacksmith_workshop"
 display_name = "Кузня"
 description = "Оружие, ремонт, перековка и особые заказы."
+construction_enabled = true
+construction_gold_cost = 200
+construction_material_cost = 10
+construction_minutes = 2880
 max_level = 3
 
 [sub_resource type="Resource" id="Leather"]

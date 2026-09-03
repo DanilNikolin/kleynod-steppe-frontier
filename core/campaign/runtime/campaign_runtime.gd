@@ -45,6 +45,10 @@ var time_service := (
 	CampaignTimeService.new()
 )
 
+var settlement_construction_service := (
+	CampaignSettlementConstructionService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -168,6 +172,226 @@ func get_home_settlement_state() -> CampaignSettlementState:
 		campaign_state
 			.home_settlement_state
 	)
+
+
+func get_home_settlement_construction_error(
+	zone_id: StringName,
+	building_id: StringName
+) -> String:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot construct while a battle request is active."
+		)
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	if settlement_definition == null:
+		return "Home settlement definition is missing."
+
+	if (
+		campaign_state.current_world_node_id
+		!= settlement_definition.world_node_id
+	):
+		return (
+			"Campaign party is not at the home settlement."
+		)
+
+	return (
+		settlement_construction_service
+			.get_construction_error(
+				campaign_state,
+				settlement_definition,
+				zone_id,
+				building_id
+			)
+	)
+
+
+func can_construct_home_settlement_building(
+	zone_id: StringName,
+	building_id: StringName
+) -> bool:
+	return get_home_settlement_construction_error(
+		zone_id,
+		building_id
+	).is_empty()
+
+
+func construct_home_settlement_building(
+	zone_id: StringName,
+	building_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	var construction_error := (
+		get_home_settlement_construction_error(
+			zone_id,
+			building_id
+		)
+	)
+
+	if not construction_error.is_empty():
+		push_warning(
+			"Settlement construction failed: %s"
+			% construction_error
+		)
+
+		return false
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	var settlement_state := (
+		get_home_settlement_state()
+	)
+
+	if (
+		settlement_definition == null
+		or settlement_state == null
+	):
+		return false
+
+	var zone_definition := (
+		settlement_definition.get_zone(
+			zone_id
+		)
+	)
+
+	var zone_state := settlement_state.get_zone(
+		zone_id
+	)
+
+	if (
+		zone_definition == null
+		or zone_state == null
+	):
+		return false
+
+	var building := zone_definition.get_building(
+		building_id
+	)
+
+	if building == null:
+		return false
+
+	var previous_gold := (
+		campaign_state.inventory_state.gold
+	)
+
+	var previous_materials := (
+		campaign_state.materials
+	)
+
+	var previous_day := (
+		campaign_state.current_day
+	)
+
+	var previous_minute := (
+		campaign_state.current_minute_of_day
+	)
+
+	var previous_building_id := (
+		zone_state.building_id
+	)
+
+	var previous_building_level := (
+		zone_state.building_level
+	)
+
+	if not settlement_construction_service.apply_construction(
+		campaign_state,
+		settlement_definition,
+		zone_id,
+		building_id
+	):
+		push_warning(
+			"Settlement construction could not be applied."
+		)
+
+		return false
+
+	## Любая постройка использует общий campaign clock.
+	if not advance_time(
+		building.construction_minutes
+	):
+		campaign_state.inventory_state.gold = (
+			previous_gold
+		)
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		zone_state.building_id = (
+			previous_building_id
+		)
+
+		zone_state.building_level = (
+			previous_building_level
+		)
+
+		push_warning(
+			"Settlement construction time could not be applied."
+		)
+
+		return false
+
+	if (
+		not settlement_state.is_valid_against_definition(
+			settlement_definition
+		)
+		or not campaign_state.is_valid_state()
+	):
+		campaign_state.inventory_state.gold = (
+			previous_gold
+		)
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		zone_state.building_id = (
+			previous_building_id
+		)
+
+		zone_state.building_level = (
+			previous_building_level
+		)
+
+		push_error(
+			"Settlement construction produced "
+			+ "an invalid campaign state."
+		)
+
+		return false
+
+	return true
 
 
 func get_current_world_node() -> CampaignWorldNodeDefinition:

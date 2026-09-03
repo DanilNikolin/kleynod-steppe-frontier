@@ -9,6 +9,11 @@ signal interaction_action_requested(
 	action_label: String
 )
 
+signal settlement_build_requested(
+	zone_id: StringName,
+	building_id: StringName
+)
+
 
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
@@ -22,6 +27,10 @@ var _time_service := (
 	CampaignTimeService.new()
 )
 
+var _construction_service := (
+	CampaignSettlementConstructionService.new()
+)
+
 
 var _canvas: CampaignLocalLocationCanvas
 
@@ -29,6 +38,8 @@ var _camera_navigation: HBoxContainer
 var _camera_left_button: Button
 var _camera_right_button: Button
 var _camera_label: Label
+var _resources_label: Label
+var _time_label: Label
 
 var _interaction_title: Label
 var _interaction_description: Label
@@ -57,7 +68,109 @@ func bind(
 
 	_build_interface()
 	_refresh_camera_navigation()
+	refresh_state()
+
+
+func refresh_state() -> void:
+	_refresh_header_state()
+	_refresh_settlement_visuals()
 	_refresh_interaction_panel()
+
+
+func _refresh_header_state() -> void:
+	if _time_label != null:
+		_time_label.text = (
+			"Время · %s"
+			% _time_service.get_time_text(
+				_state
+			)
+		)
+
+	if _resources_label == null:
+		return
+
+	var gold := 0
+	var materials := 0
+
+	if _state != null:
+		materials = _state.materials
+
+		if _state.inventory_state != null:
+			gold = _state.inventory_state.gold
+
+	_resources_label.text = (
+		"Gold: %d · Materials: %d"
+		% [
+			gold,
+			materials,
+		]
+	)
+
+
+func _refresh_settlement_visuals() -> void:
+	if _canvas == null:
+		return
+
+	var overrides: Dictionary = {}
+
+	if (
+		_settlement_definition == null
+		or _settlement_state == null
+	):
+		_canvas.set_interaction_display_overrides(
+			overrides
+		)
+
+		return
+
+	for zone in _settlement_definition.zones:
+		if (
+			zone == null
+			or zone.local_interaction_id == &""
+		):
+			continue
+
+		var zone_state := (
+			_settlement_state.get_zone(
+				zone.zone_id
+			)
+		)
+
+		if (
+			zone_state == null
+			or zone_state.is_empty()
+		):
+			overrides[
+				zone.local_interaction_id
+			] = zone.display_name
+
+			continue
+
+		var building := zone.get_building(
+			zone_state.building_id
+		)
+
+		var building_name := (
+			building.display_name
+			if building != null
+			else String(
+				zone_state.building_id
+			)
+		)
+
+		overrides[
+			zone.local_interaction_id
+		] = (
+			"%s · ур. %d"
+			% [
+				building_name,
+				zone_state.building_level,
+			]
+		)
+
+	_canvas.set_interaction_display_overrides(
+		overrides
+	)
 
 
 func _build_interface() -> void:
@@ -137,22 +250,26 @@ func _build_interface() -> void:
 		title
 	)
 
-	var time_label := Label.new()
+	_resources_label = Label.new()
 
-	time_label.text = (
-		"Время · %s"
-		% _time_service.get_time_text(
-			_state
-		)
+	_resources_label.add_theme_font_size_override(
+		"font_size",
+		18
 	)
 
-	time_label.add_theme_font_size_override(
+	header.add_child(
+		_resources_label
+	)
+
+	_time_label = Label.new()
+
+	_time_label.add_theme_font_size_override(
 		"font_size",
 		20
 	)
 
 	header.add_child(
-		time_label
+		_time_label
 	)
 
 	var description := Label.new()
@@ -417,25 +534,38 @@ func _refresh_interaction_panel() -> void:
 
 		return
 
-	_interaction_title.text = (
-		interaction.display_name
-	)
-
 	var settlement_zone := (
 		_get_selected_settlement_zone()
 	)
 
 	if settlement_zone != null:
+		_interaction_title.text = (
+			_get_settlement_zone_title(
+				settlement_zone
+			)
+		)
+
 		_interaction_description.text = (
 			_get_settlement_zone_text(
 				settlement_zone
 			)
 		)
 
-	else:
-		_interaction_description.text = (
-			interaction.description
+		_status_label.text = ""
+
+		_create_settlement_zone_actions(
+			settlement_zone
 		)
+
+		return
+
+	_interaction_title.text = (
+		interaction.display_name
+	)
+
+	_interaction_description.text = (
+		interaction.description
+	)
 
 	_status_label.text = ""
 
@@ -455,6 +585,170 @@ func _refresh_interaction_panel() -> void:
 		_actions_row.add_child(
 			button
 		)
+
+
+func _get_settlement_zone_title(
+	zone: CampaignSettlementZoneDefinition
+) -> String:
+	if (
+		zone == null
+		or _settlement_state == null
+	):
+		return "—"
+
+	var zone_state := _settlement_state.get_zone(
+		zone.zone_id
+	)
+
+	if (
+		zone_state == null
+		or zone_state.is_empty()
+	):
+		return zone.display_name
+
+	var building := zone.get_building(
+		zone_state.building_id
+	)
+
+	if building == null:
+		return zone.display_name
+
+	return (
+		"%s · уровень %d"
+		% [
+			building.display_name,
+			zone_state.building_level,
+		]
+	)
+
+
+func _create_settlement_zone_actions(
+	zone: CampaignSettlementZoneDefinition
+) -> void:
+	if (
+		zone == null
+		or _settlement_state == null
+	):
+		return
+
+	var zone_state := _settlement_state.get_zone(
+		zone.zone_id
+	)
+
+	if zone_state == null:
+		return
+
+	if not zone_state.is_empty():
+		var built_button := Button.new()
+
+		built_button.text = (
+			"Услуги постройки · подключим следующим шагом"
+		)
+
+		built_button.disabled = true
+
+		_actions_row.add_child(
+			built_button
+		)
+
+		return
+
+	for building in zone.allowed_buildings:
+		if building == null:
+			continue
+
+		var button := Button.new()
+
+		if not building.construction_enabled:
+			button.text = (
+				"%s · пока недоступно"
+				% building.display_name
+			)
+
+			button.disabled = true
+
+			_actions_row.add_child(
+				button
+			)
+
+			continue
+
+		button.text = (
+			"ПОСТРОИТЬ · %s · %d зол. · %d мат. · %s"
+			% [
+				building.display_name,
+				building.construction_gold_cost,
+				building.construction_material_cost,
+				_get_duration_text(
+					building.construction_minutes
+				),
+			]
+		)
+
+		var construction_error := (
+			_construction_service
+				.get_construction_error(
+					_state,
+					_settlement_definition,
+					zone.zone_id,
+					building.building_id
+				)
+		)
+
+		button.disabled = (
+			not construction_error.is_empty()
+		)
+
+		if button.disabled:
+			button.tooltip_text = (
+				construction_error
+			)
+
+		else:
+			button.pressed.connect(
+				_on_settlement_build_pressed.bind(
+					zone.zone_id,
+					building.building_id
+				)
+			)
+
+		_actions_row.add_child(
+			button
+		)
+
+
+func _get_duration_text(
+	minutes: int
+) -> String:
+	if (
+		minutes > 0
+		and minutes
+			% CampaignTimeService.MINUTES_PER_DAY
+			== 0
+	):
+		return (
+			"%d дн."
+			% (
+				minutes
+				/ CampaignTimeService.MINUTES_PER_DAY
+			)
+		)
+
+	if (
+		minutes > 0
+		and minutes
+			% CampaignTimeService.MINUTES_PER_HOUR
+			== 0
+	):
+		return (
+			"%d ч."
+			% (
+				minutes
+				/ CampaignTimeService.MINUTES_PER_HOUR
+			)
+		)
+
+	return "%d мин." % minutes
 
 
 func _get_selected_settlement_zone() -> CampaignSettlementZoneDefinition:
@@ -613,6 +907,16 @@ func _get_selected_display_name() -> String:
 		return "—"
 
 	return interaction.display_name
+
+
+func _on_settlement_build_pressed(
+	zone_id: StringName,
+	building_id: StringName
+) -> void:
+	settlement_build_requested.emit(
+		zone_id,
+		building_id
+	)
 
 
 func _on_camera_left_pressed() -> void:

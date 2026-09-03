@@ -1,10 +1,12 @@
 class_name CampaignLocalLocationCanvas
-extends Control
+extends SubViewportContainer
 
 
 signal interaction_selected(
 	interaction_id: StringName
 )
+
+signal camera_target_changed
 
 
 const INTERACTION_SIZE := Vector2(
@@ -12,19 +14,35 @@ const INTERACTION_SIZE := Vector2(
 	60.0
 )
 
-const SIDE_PADDING := 40.0
+## За одно нажатие камера проходит примерно
+## 72% видимой области.
+##
+## Поэтому соседние части локации немного
+## перекрываются, а не работают как страницы.
+const PAN_FRACTION: float = 0.72
+
+const CAMERA_SMOOTHING_SPEED: float = 7.0
 
 
 var _definition: CampaignLocalLocationDefinition
+
 var _selected_interaction_id: StringName = &""
 
-var _page_index: int = 0
+var _camera_target_x: float = 0.0
+var _needs_initial_camera_position: bool = true
+
+var _viewport: SubViewport
+var _world_root: Node2D
+var _content_root: Node2D
+var _camera: Camera2D
 
 var _buttons_by_interaction_id: Dictionary = {}
 
 
 func _ready() -> void:
-	clip_contents = true
+	stretch = true
+
+	_ensure_viewport_scene()
 
 	resized.connect(
 		_on_resized
@@ -35,116 +53,268 @@ func bind(
 	definition: CampaignLocalLocationDefinition
 ) -> void:
 	_definition = definition
+
 	_selected_interaction_id = &""
-	_page_index = 0
 
-	_rebuild_buttons()
-	queue_redraw()
+	_camera_target_x = 0.0
+	_needs_initial_camera_position = true
 
+	_ensure_viewport_scene()
+	_rebuild_world()
 
-func get_page_count() -> int:
-	if _definition == null:
-		return 1
+	_sync_viewport_size()
 
-	return _definition.get_view_page_count()
-
-
-func get_page_index() -> int:
-	return _page_index
-
-
-func set_page(
-	page_index: int
-) -> void:
-	var next_page := clampi(
-		page_index,
-		0,
-		maxi(
-			get_page_count() - 1,
-			0
-		)
+	call_deferred(
+		"_sync_viewport_size"
 	)
-
-	if next_page == _page_index:
-		return
-
-	_page_index = next_page
-	_selected_interaction_id = &""
-
-	_refresh_button_texts()
-	_layout_buttons()
-	queue_redraw()
 
 
 func set_selected_interaction(
 	interaction_id: StringName
 ) -> void:
-	_selected_interaction_id = interaction_id
-
-	_refresh_button_texts()
-	queue_redraw()
-
-
-func _draw() -> void:
-	var ground_start_y := (
-		size.y * 0.58
+	_selected_interaction_id = (
+		interaction_id
 	)
 
-	draw_rect(
-		Rect2(
+	_refresh_button_texts()
+
+
+func has_horizontal_pan() -> bool:
+	if (
+		_definition == null
+		or _camera == null
+	):
+		return false
+
+	var visible_world_width := (
+		_get_visible_world_width()
+	)
+
+	return (
+		_definition.reference_size.x
+		> visible_world_width + 1.0
+	)
+
+
+func can_pan_left() -> bool:
+	if not has_horizontal_pan():
+		return false
+
+	return (
+		_camera_target_x
+		> _get_min_camera_x() + 1.0
+	)
+
+
+func can_pan_right() -> bool:
+	if not has_horizontal_pan():
+		return false
+
+	return (
+		_camera_target_x
+		< _get_max_camera_x() - 1.0
+	)
+
+
+func pan_horizontal(
+	direction: int
+) -> bool:
+	if (
+		direction == 0
+		or not has_horizontal_pan()
+	):
+		return false
+
+	var direction_sign := (
+		-1.0
+		if direction < 0
+		else 1.0
+	)
+
+	var distance := (
+		_get_visible_world_width()
+		* PAN_FRACTION
+	)
+
+	var target_x := clampf(
+		_camera_target_x
+			+ distance * direction_sign,
+		_get_min_camera_x(),
+		_get_max_camera_x()
+	)
+
+	if is_equal_approx(
+		target_x,
+		_camera_target_x
+	):
+		return false
+
+	_set_camera_target_x(
+		target_x,
+		false
+	)
+
+	return true
+
+
+func _ensure_viewport_scene() -> void:
+	if _viewport != null:
+		return
+
+	_viewport = SubViewport.new()
+
+	_viewport.name = "LocalLocationViewport"
+
+	_viewport.transparent_bg = true
+	_viewport.gui_disable_input = false
+
+	_viewport.render_target_update_mode = (
+		SubViewport.UPDATE_ALWAYS
+	)
+
+	add_child(
+		_viewport
+	)
+
+	_world_root = Node2D.new()
+	_world_root.name = "World"
+
+	_viewport.add_child(
+		_world_root
+	)
+
+	_content_root = Node2D.new()
+	_content_root.name = "Content"
+
+	_world_root.add_child(
+		_content_root
+	)
+
+	_camera = Camera2D.new()
+	_camera.name = "Camera"
+
+	_camera.position_smoothing_enabled = true
+
+	_camera.position_smoothing_speed = (
+		CAMERA_SMOOTHING_SPEED
+	)
+
+	_world_root.add_child(
+		_camera
+	)
+
+	_camera.make_current()
+
+
+func _rebuild_world() -> void:
+	if (
+		_content_root == null
+		or _camera == null
+	):
+		return
+
+	for child in _content_root.get_children():
+		_content_root.remove_child(
+			child
+		)
+
+		child.queue_free()
+
+	_buttons_by_interaction_id.clear()
+
+	if _definition == null:
+		return
+
+	_create_debug_ground()
+	_create_interaction_buttons()
+
+	_refresh_button_texts()
+
+
+func _create_debug_ground() -> void:
+	if _definition == null:
+		return
+
+	var world_width := (
+		_definition.reference_size.x
+	)
+
+	var world_height := (
+		_definition.reference_size.y
+	)
+
+	var ground_start_y := (
+		world_height * 0.58
+	)
+
+	var ground := Polygon2D.new()
+
+	ground.name = "Ground"
+
+	ground.polygon = PackedVector2Array(
+		[
 			Vector2(
 				0.0,
 				ground_start_y
 			),
 			Vector2(
-				size.x,
-				size.y - ground_start_y
-			)
-		),
-		Color(
-			0.09,
-			0.085,
-			0.075,
-			1.0
-		)
+				world_width,
+				ground_start_y
+			),
+			Vector2(
+				world_width,
+				world_height
+			),
+			Vector2(
+				0.0,
+				world_height
+			),
+		]
 	)
 
-	draw_line(
-		Vector2(
-			0.0,
-			ground_start_y
-		),
-		Vector2(
-			size.x,
-			ground_start_y
-		),
-		Color(
-			0.28,
-			0.25,
-			0.20,
-			1.0
-		),
-		2.0
+	ground.color = Color(
+		0.09,
+		0.085,
+		0.075,
+		1.0
+	)
+
+	_content_root.add_child(
+		ground
+	)
+
+	var ground_line := Line2D.new()
+
+	ground_line.name = "GroundLine"
+
+	ground_line.points = PackedVector2Array(
+		[
+			Vector2(
+				0.0,
+				ground_start_y
+			),
+			Vector2(
+				world_width,
+				ground_start_y
+			),
+		]
+	)
+
+	ground_line.width = 2.0
+
+	ground_line.default_color = Color(
+		0.28,
+		0.25,
+		0.20,
+		1.0
+	)
+
+	_content_root.add_child(
+		ground_line
 	)
 
 
-func _rebuild_buttons() -> void:
-	for button_value in (
-		_buttons_by_interaction_id.values()
-	):
-		var button := button_value as Button
-
-		if button == null:
-			continue
-
-		remove_child(
-			button
-		)
-
-		button.queue_free()
-
-	_buttons_by_interaction_id.clear()
-
+func _create_interaction_buttons() -> void:
 	if _definition == null:
 		return
 
@@ -156,14 +326,31 @@ func _rebuild_buttons() -> void:
 
 		var button := Button.new()
 
+		button.name = (
+			"Interaction_%s"
+			% interaction.interaction_id
+		)
+
 		button.size = INTERACTION_SIZE
+
 		button.custom_minimum_size = (
 			INTERACTION_SIZE
+		)
+
+		button.position = (
+			interaction.local_position
+			- INTERACTION_SIZE * 0.5
 		)
 
 		button.tooltip_text = (
 			interaction.description
 		)
+
+		button.focus_mode = (
+			Control.FOCUS_NONE
+		)
+
+		button.z_index = 10
 
 		button.pressed.connect(
 			_on_interaction_pressed.bind(
@@ -171,16 +358,13 @@ func _rebuild_buttons() -> void:
 			)
 		)
 
-		add_child(
+		_content_root.add_child(
 			button
 		)
 
 		_buttons_by_interaction_id[
 			interaction.interaction_id
 		] = button
-
-	_refresh_button_texts()
-	_layout_buttons()
 
 
 func _refresh_button_texts() -> void:
@@ -221,123 +405,159 @@ func _refresh_button_texts() -> void:
 		)
 
 
-func _layout_buttons() -> void:
-	if _definition == null:
+func _sync_viewport_size() -> void:
+	if (
+		_viewport == null
+		or _camera == null
+		or _definition == null
+	):
 		return
 
 	if (
-		_definition.reference_size.x <= 0.0
-		or _definition.reference_size.y <= 0.0
+		size.x <= 1.0
+		or size.y <= 1.0
+	):
+		return
+
+	_viewport.size = Vector2i(
+		maxi(
+			roundi(size.x),
+			1
+		),
+		maxi(
+			roundi(size.y),
+			1
+		)
+	)
+
+	_update_camera_zoom()
+
+	if _needs_initial_camera_position:
+		_needs_initial_camera_position = false
+
+		_camera_target_x = (
+			_get_min_camera_x()
+		)
+
+	else:
+		_camera_target_x = clampf(
+			_camera_target_x,
+			_get_min_camera_x(),
+			_get_max_camera_x()
+		)
+
+	_set_camera_target_x(
+		_camera_target_x,
+		true
+	)
+
+
+func _update_camera_zoom() -> void:
+	if (
+		_definition == null
+		or _camera == null
+		or _viewport == null
 		or _definition.view_width <= 0.0
 	):
 		return
 
-	var page_start_x := (
-		float(_page_index)
-		* _definition.view_width
+	## view_width — authored ширина кадра.
+	## Например HOME имеет 3000 world units,
+	## но камера одновременно показывает около 1000.
+	var zoom_factor := (
+		float(_viewport.size.x)
+		/ _definition.view_width
 	)
 
-	var page_end_x := minf(
-		page_start_x
-			+ _definition.view_width,
+	zoom_factor = maxf(
+		zoom_factor,
+		0.01
+	)
+
+	_camera.zoom = Vector2(
+		zoom_factor,
+		zoom_factor
+	)
+
+
+func _get_visible_world_width() -> float:
+	if (
+		_viewport == null
+		or _camera == null
+		or _camera.zoom.x <= 0.0
+	):
+		return 1.0
+
+	return (
+		float(_viewport.size.x)
+		/ _camera.zoom.x
+	)
+
+
+func _get_min_camera_x() -> float:
+	if _definition == null:
+		return 0.0
+
+	var world_width := (
 		_definition.reference_size.x
 	)
 
-	var is_last_page := (
-		_page_index
-		== get_page_count() - 1
+	var visible_width := (
+		_get_visible_world_width()
 	)
 
-	for interaction in (
-		_definition.interactions
+	if world_width <= visible_width:
+		return world_width * 0.5
+
+	return visible_width * 0.5
+
+
+func _get_max_camera_x() -> float:
+	if _definition == null:
+		return 0.0
+
+	var world_width := (
+		_definition.reference_size.x
+	)
+
+	var visible_width := (
+		_get_visible_world_width()
+	)
+
+	if world_width <= visible_width:
+		return world_width * 0.5
+
+	return (
+		world_width
+		- visible_width * 0.5
+	)
+
+
+func _set_camera_target_x(
+	target_x: float,
+	snap: bool
+) -> void:
+	if (
+		_definition == null
+		or _camera == null
 	):
-		if (
-			interaction == null
-			or not _buttons_by_interaction_id.has(
-				interaction.interaction_id
-			)
-		):
-			continue
+		return
 
-		var button := (
-			_buttons_by_interaction_id[
-				interaction.interaction_id
-			] as Button
-		)
+	_camera_target_x = clampf(
+		target_x,
+		_get_min_camera_x(),
+		_get_max_camera_x()
+	)
 
-		if button == null:
-			continue
+	_camera.position = Vector2(
+		_camera_target_x,
+		_definition.reference_size.y * 0.5
+	)
 
-		var is_visible := (
-			interaction.local_position.x
-				>= page_start_x
-			and (
-				interaction.local_position.x
-					< page_end_x
-				or (
-					is_last_page
-					and interaction.local_position.x
-						<= page_end_x
-				)
-			)
-		)
+	if snap:
+		_camera.reset_smoothing()
 
-		button.visible = is_visible
-
-		if not is_visible:
-			continue
-
-		var normalized := Vector2(
-			clampf(
-				(
-					interaction.local_position.x
-					- page_start_x
-				)
-				/ _definition.view_width,
-				0.0,
-				1.0
-			),
-			clampf(
-				interaction.local_position.y
-					/ _definition.reference_size.y,
-				0.0,
-				1.0
-			)
-		)
-
-		var half_size := (
-			INTERACTION_SIZE * 0.5
-		)
-
-		var available_width := maxf(
-			size.x
-				- SIDE_PADDING * 2.0
-				- INTERACTION_SIZE.x,
-			0.0
-		)
-
-		var available_height := maxf(
-			size.y
-				- SIDE_PADDING * 2.0
-				- INTERACTION_SIZE.y,
-			0.0
-		)
-
-		var center := Vector2(
-			SIDE_PADDING
-				+ half_size.x
-				+ available_width
-					* normalized.x,
-			SIDE_PADDING
-				+ half_size.y
-				+ available_height
-					* normalized.y
-		)
-
-		button.position = (
-			center
-			- half_size
-		)
+	camera_target_changed.emit()
 
 
 func _on_interaction_pressed(
@@ -353,5 +573,6 @@ func _on_interaction_pressed(
 
 
 func _on_resized() -> void:
-	_layout_buttons()
-	queue_redraw()
+	call_deferred(
+		"_sync_viewport_size"
+	)

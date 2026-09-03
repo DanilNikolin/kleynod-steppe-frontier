@@ -25,10 +25,10 @@ var _time_service := (
 
 var _canvas: CampaignLocalLocationCanvas
 
-var _page_navigation: HBoxContainer
-var _page_left_button: Button
-var _page_right_button: Button
-var _page_label: Label
+var _camera_navigation: HBoxContainer
+var _camera_left_button: Button
+var _camera_right_button: Button
+var _camera_label: Label
 
 var _interaction_title: Label
 var _interaction_description: Label
@@ -45,13 +45,18 @@ func bind(
 	_definition = definition
 	_state = state
 
-	_settlement_definition = settlement_definition
-	_settlement_state = settlement_state
+	_settlement_definition = (
+		settlement_definition
+	)
+
+	_settlement_state = (
+		settlement_state
+	)
 
 	_selected_interaction_id = &""
 
 	_build_interface()
-	_refresh_page_navigation()
+	_refresh_camera_navigation()
 	_refresh_interaction_panel()
 
 
@@ -170,66 +175,74 @@ func _build_interface() -> void:
 		HSeparator.new()
 	)
 
-	_page_navigation = HBoxContainer.new()
+	_camera_navigation = (
+		HBoxContainer.new()
+	)
 
-	_page_navigation.add_theme_constant_override(
+	_camera_navigation.add_theme_constant_override(
 		"separation",
 		12
 	)
 
 	root.add_child(
-		_page_navigation
+		_camera_navigation
 	)
 
-	_page_left_button = Button.new()
-	_page_left_button.text = "←"
+	_camera_left_button = Button.new()
 
-	_page_left_button.custom_minimum_size = Vector2(
+	_camera_left_button.text = "←"
+
+	_camera_left_button.custom_minimum_size = Vector2(
 		90,
 		42
 	)
 
-	_page_left_button.pressed.connect(
-		_on_page_left_pressed
+	_camera_left_button.pressed.connect(
+		_on_camera_left_pressed
 	)
 
-	_page_navigation.add_child(
-		_page_left_button
+	_camera_navigation.add_child(
+		_camera_left_button
 	)
 
-	_page_label = Label.new()
+	_camera_label = Label.new()
 
-	_page_label.horizontal_alignment = (
+	_camera_label.text = (
+		"Обзор локации"
+	)
+
+	_camera_label.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_CENTER
 	)
 
-	_page_label.size_flags_horizontal = (
+	_camera_label.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	_page_label.add_theme_font_size_override(
+	_camera_label.add_theme_font_size_override(
 		"font_size",
 		18
 	)
 
-	_page_navigation.add_child(
-		_page_label
+	_camera_navigation.add_child(
+		_camera_label
 	)
 
-	_page_right_button = Button.new()
-	_page_right_button.text = "→"
+	_camera_right_button = Button.new()
 
-	_page_right_button.custom_minimum_size = Vector2(
+	_camera_right_button.text = "→"
+
+	_camera_right_button.custom_minimum_size = Vector2(
 		90,
 		42
 	)
 
-	_page_right_button.pressed.connect(
-		_on_page_right_pressed
+	_camera_right_button.pressed.connect(
+		_on_camera_right_pressed
 	)
 
-	_page_navigation.add_child(
-		_page_right_button
+	_camera_navigation.add_child(
+		_camera_right_button
 	)
 
 	_canvas = (
@@ -251,6 +264,10 @@ func _build_interface() -> void:
 
 	_canvas.interaction_selected.connect(
 		_on_interaction_selected
+	)
+
+	_canvas.camera_target_changed.connect(
+		_refresh_camera_navigation
 	)
 
 	root.add_child(
@@ -343,39 +360,28 @@ func _build_interface() -> void:
 	)
 
 
-func _refresh_page_navigation() -> void:
+func _refresh_camera_navigation() -> void:
 	if (
 		_canvas == null
-		or _page_navigation == null
+		or _camera_navigation == null
 	):
 		return
 
-	var page_count := (
-		_canvas.get_page_count()
+	var has_pan := (
+		_canvas.has_horizontal_pan()
 	)
 
-	var page_index := (
-		_canvas.get_page_index()
+	_camera_navigation.visible = has_pan
+
+	if not has_pan:
+		return
+
+	_camera_left_button.disabled = (
+		not _canvas.can_pan_left()
 	)
 
-	_page_navigation.visible = (
-		page_count > 1
-	)
-
-	_page_left_button.disabled = (
-		page_index <= 0
-	)
-
-	_page_right_button.disabled = (
-		page_index >= page_count - 1
-	)
-
-	_page_label.text = (
-		"Часть локации %d / %d"
-		% [
-			page_index + 1,
-			page_count,
-		]
+	_camera_right_button.disabled = (
+		not _canvas.can_pan_right()
 	)
 
 
@@ -481,8 +487,10 @@ func _get_settlement_zone_text(
 	var zone_state: CampaignSettlementZoneState
 
 	if _settlement_state != null:
-		zone_state = _settlement_state.get_zone(
-			zone.zone_id
+		zone_state = (
+			_settlement_state.get_zone(
+				zone.zone_id
+			)
 		)
 
 	if zone_state == null:
@@ -499,9 +507,13 @@ func _get_settlement_zone_text(
 			"Состояние: пустой участок."
 		)
 
-		var building_names := PackedStringArray()
+		var building_names := (
+			PackedStringArray()
+		)
 
-		for building in zone.allowed_buildings:
+		for building in (
+			zone.allowed_buildings
+		):
 			if building == null:
 				continue
 
@@ -547,7 +559,9 @@ func _clear_action_buttons() -> void:
 	if _actions_row == null:
 		return
 
-	for child in _actions_row.get_children():
+	for child in (
+		_actions_row.get_children()
+	):
 		_actions_row.remove_child(
 			child
 		)
@@ -601,32 +615,26 @@ func _get_selected_display_name() -> String:
 	return interaction.display_name
 
 
-func _on_page_left_pressed() -> void:
+func _on_camera_left_pressed() -> void:
 	if _canvas == null:
 		return
 
-	_canvas.set_page(
-		_canvas.get_page_index() - 1
+	_canvas.pan_horizontal(
+		-1
 	)
 
-	_selected_interaction_id = &""
-
-	_refresh_page_navigation()
-	_refresh_interaction_panel()
+	_refresh_camera_navigation()
 
 
-func _on_page_right_pressed() -> void:
+func _on_camera_right_pressed() -> void:
 	if _canvas == null:
 		return
 
-	_canvas.set_page(
-		_canvas.get_page_index() + 1
+	_canvas.pan_horizontal(
+		1
 	)
 
-	_selected_interaction_id = &""
-
-	_refresh_page_navigation()
-	_refresh_interaction_panel()
+	_refresh_camera_navigation()
 
 
 func _on_exit_pressed() -> void:

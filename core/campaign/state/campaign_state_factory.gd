@@ -2,6 +2,11 @@ class_name CampaignStateFactory
 extends RefCounted
 
 
+var _settlement_state_factory := (
+	CampaignSettlementStateFactory.new()
+)
+
+
 func create_from_definition(
 	definition: CampaignDefinition
 ) -> CampaignState:
@@ -34,6 +39,16 @@ func create_from_definition(
 	result.materials = (
 		definition.starting_materials
 	)
+
+	result.home_settlement_state = (
+		_settlement_state_factory
+			.create_from_definition(
+				definition.home_settlement_definition
+			)
+	)
+
+	if result.home_settlement_state == null:
+		return null
 
 	result.selected_hero_id = (
 		definition.starting_selected_hero_id

@@ -150,6 +150,26 @@ func get_world_map_definition() -> CampaignWorldMapDefinition:
 	)
 
 
+func get_home_settlement_definition() -> CampaignSettlementDefinition:
+	if campaign_definition == null:
+		return null
+
+	return (
+		campaign_definition
+			.home_settlement_definition
+	)
+
+
+func get_home_settlement_state() -> CampaignSettlementState:
+	if campaign_state == null:
+		return null
+
+	return (
+		campaign_state
+			.home_settlement_state
+	)
+
+
 func get_current_world_node() -> CampaignWorldNodeDefinition:
 	if campaign_state == null:
 		return null

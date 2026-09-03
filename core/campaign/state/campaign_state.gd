@@ -43,6 +43,9 @@ var reputation: int = 0
 ## Универсальный ресурс развития поселения.
 var materials: int = 0
 
+## Persistent состояние собственного поселения.
+var home_settlement_state: CampaignSettlementState
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -171,6 +174,21 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Campaign materials cannot be negative."
 		)
+
+	if home_settlement_state == null:
+		errors.append(
+			"Home settlement state is not assigned."
+		)
+
+	else:
+		for settlement_error in (
+			home_settlement_state
+				.get_validation_errors()
+		):
+			errors.append(
+				"Home settlement state: %s"
+				% settlement_error
+			)
 
 	if heroes.is_empty():
 		errors.append(

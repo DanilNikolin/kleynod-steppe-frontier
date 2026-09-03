@@ -78,6 +78,12 @@ var starting_reputation: int = 0
 var starting_materials: int = 0
 
 
+@export_group("Settlement")
+
+@export
+var home_settlement_definition: CampaignSettlementDefinition
+
+
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -415,6 +421,48 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Campaign starting materials cannot be negative."
 		)
+
+	if home_settlement_definition == null:
+		errors.append(
+			"Home settlement definition is not assigned."
+		)
+
+	else:
+		for settlement_error in (
+			home_settlement_definition
+				.get_validation_errors()
+		):
+			errors.append(
+				"Home settlement: %s"
+				% settlement_error
+			)
+
+		if world_map_definition != null:
+			var settlement_world_node := (
+				world_map_definition.get_node(
+					home_settlement_definition
+						.world_node_id
+				)
+			)
+
+			if settlement_world_node == null:
+				errors.append(
+					"Home settlement references "
+					+ "unknown world node '%s'."
+					% home_settlement_definition
+						.world_node_id
+				)
+
+			elif (
+				settlement_world_node.node_type
+				!= CampaignWorldNodeDefinition
+					.NodeType
+					.HOME_SETTLEMENT
+			):
+				errors.append(
+					"Home settlement world node "
+					+ "must be HOME_SETTLEMENT."
+				)
 
 	return errors
 

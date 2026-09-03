@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 3
+const CURRENT_SAVE_VERSION: int = 4
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -233,6 +233,11 @@ func _encode_campaign(
 
 		"reputation": state.reputation,
 		"materials": state.materials,
+		"home_settlement": (
+			_encode_settlement(
+				state.home_settlement_state
+			)
+		),
 
 		"completed_battle_count": (
 			state.completed_battle_count
@@ -411,6 +416,34 @@ func _encode_battle_result(
 	}
 
 
+func _encode_settlement(
+	settlement: CampaignSettlementState
+) -> Dictionary:
+	var zones: Array = []
+
+	for zone in settlement.zones:
+		zones.append(
+			{
+				"zone_id": String(
+					zone.zone_id
+				),
+				"building_id": String(
+					zone.building_id
+				),
+				"building_level": (
+					zone.building_level
+				),
+			}
+		)
+
+	return {
+		"settlement_id": String(
+			settlement.settlement_id
+		),
+		"zones": zones,
+	}
+
+
 func _decode_campaign(
 	data: Dictionary,
 	definition: CampaignDefinition
@@ -428,6 +461,7 @@ func _decode_campaign(
 			"current_minute_of_day",
 			"reputation",
 			"materials",
+			"home_settlement",
 			"completed_battle_count",
 			"heroes",
 			"inventory",
@@ -575,6 +609,16 @@ func _decode_campaign(
 		999999999
 	)
 
+	state.home_settlement_state = (
+		_decode_settlement(
+			data["home_settlement"],
+			definition.home_settlement_definition
+		)
+	)
+
+	if state.home_settlement_state == null:
+		return null
+
 	state.completed_battle_count = (
 		_int_value(
 			data["completed_battle_count"],
@@ -669,6 +713,147 @@ func _decode_campaign(
 			return null
 
 	return state
+
+
+func _decode_settlement(
+	value: Variant,
+	definition: CampaignSettlementDefinition
+) -> CampaignSettlementState:
+	if definition == null:
+		_fail(
+			"Home settlement definition is missing."
+		)
+
+		return null
+
+	if typeof(
+		value
+	) != TYPE_DICTIONARY:
+		_fail(
+			"home_settlement must be a Dictionary."
+		)
+
+		return null
+
+	var data: Dictionary = value
+
+	if not _has_keys(
+		data,
+		[
+			"settlement_id",
+			"zones",
+		],
+		"home_settlement"
+	):
+		return null
+
+	if typeof(
+		data["zones"]
+	) != TYPE_ARRAY:
+		_fail(
+			"home_settlement.zones must be an Array."
+		)
+
+		return null
+
+	var result := CampaignSettlementState.new()
+
+	result.settlement_id = StringName(
+		_string_value(
+			data["settlement_id"],
+			"home_settlement.settlement_id",
+			false
+		)
+	)
+
+	if _failed():
+		return null
+
+	for zone_index in range(
+		data["zones"].size()
+	):
+		var zone_value: Variant = (
+			data["zones"][zone_index]
+		)
+
+		if typeof(
+			zone_value
+		) != TYPE_DICTIONARY:
+			_fail(
+				"home_settlement.zones[%d] must be a Dictionary."
+				% zone_index
+			)
+
+			return null
+
+		var zone_data: Dictionary = zone_value
+
+		if not _has_keys(
+			zone_data,
+			[
+				"zone_id",
+				"building_id",
+				"building_level",
+			],
+			"home_settlement.zones[%d]"
+			% zone_index
+		):
+			return null
+
+		var zone_state := (
+			CampaignSettlementZoneState.new()
+		)
+
+		zone_state.zone_id = StringName(
+			_string_value(
+				zone_data["zone_id"],
+				"home_settlement.zones[%d].zone_id"
+					% zone_index,
+				false
+			)
+		)
+
+		zone_state.building_id = StringName(
+			_string_value(
+				zone_data["building_id"],
+				"home_settlement.zones[%d].building_id"
+					% zone_index,
+				true
+			)
+		)
+
+		zone_state.building_level = _int_value(
+			zone_data["building_level"],
+			"home_settlement.zones[%d].building_level"
+				% zone_index,
+			0,
+			99
+		)
+
+		if _failed():
+			return null
+
+		result.zones.append(
+			zone_state
+		)
+
+	var validation_errors := (
+		result.get_definition_validation_errors(
+			definition
+		)
+	)
+
+	if not validation_errors.is_empty():
+		_fail(
+			"Loaded home settlement is invalid: %s"
+			% "; ".join(
+				validation_errors
+			)
+		)
+
+		return null
+
+	return result
 
 
 func _decode_inventory(

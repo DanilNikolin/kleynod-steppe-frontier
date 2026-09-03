@@ -1,0 +1,289 @@
+[gd_resource type="Resource" script_class="CampaignSettlementDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_definition.gd" id="1_settlement"]
+[ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_building_definition.gd" id="2_building"]
+[ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_zone_definition.gd" id="3_zone"]
+
+[sub_resource type="Resource" id="Blacksmith"]
+script = ExtResource("2_building")
+building_id = &"blacksmith_workshop"
+display_name = "Кузня"
+description = "Оружие, ремонт, перековка и особые заказы."
+max_level = 3
+
+[sub_resource type="Resource" id="Leather"]
+script = ExtResource("2_building")
+building_id = &"leather_workshop"
+display_name = "Кожум'яцька майстерня"
+description = "Кожаная броня, ремни и походное снаряжение."
+max_level = 3
+
+[sub_resource type="Resource" id="Saddlery"]
+script = ExtResource("2_building")
+building_id = &"saddlery"
+display_name = "Шорна майстерня"
+description = "Сбруя, седла и дорожное снаряжение."
+max_level = 3
+
+[sub_resource type="Resource" id="Bowyer"]
+script = ExtResource("2_building")
+building_id = &"bowyer_workshop"
+display_name = "Зброярська майстерня"
+description = "Луки, копья и древковое оружие."
+max_level = 3
+
+[sub_resource type="Resource" id="Gunsmith"]
+script = ExtResource("2_building")
+building_id = &"gunsmith_workshop"
+display_name = "Рушнична майстерня"
+description = "Огнестрельное оружие и пороховое снаряжение."
+max_level = 3
+
+[sub_resource type="Resource" id="Carpenter"]
+script = ExtResource("2_building")
+building_id = &"carpenter_workshop"
+display_name = "Теслярська майстерня"
+description = "Деревянные конструкции и хозяйственные улучшения."
+max_level = 3
+
+[sub_resource type="Resource" id="FishingCamp"]
+script = ExtResource("2_building")
+building_id = &"fishing_camp"
+display_name = "Рибальський стан"
+description = "Рыбалка, промысел и небольшая торговля."
+max_level = 3
+
+[sub_resource type="Resource" id="RiverPier"]
+script = ExtResource("2_building")
+building_id = &"river_pier"
+display_name = "Причал"
+description = "Речной транспорт и будущие водные маршруты."
+max_level = 3
+
+[sub_resource type="Resource" id="WaterMill"]
+script = ExtResource("2_building")
+building_id = &"water_mill"
+display_name = "Водяний млин"
+description = "Крупный хозяйственный объект у воды."
+max_level = 3
+
+[sub_resource type="Resource" id="HuntingCamp"]
+script = ExtResource("2_building")
+building_id = &"hunting_camp"
+display_name = "Мисливський стан"
+description = "Охота, трофеи и разведка опасных мест."
+max_level = 3
+
+[sub_resource type="Resource" id="WatchKurin"]
+script = ExtResource("2_building")
+building_id = &"watch_kurin"
+display_name = "Дозорний курінь"
+description = "Разведка степи и предупреждение об угрозах."
+max_level = 3
+
+[sub_resource type="Resource" id="HorseCamp"]
+script = ExtResource("2_building")
+building_id = &"horse_camp"
+display_name = "Кінний стан"
+description = "Лошади и возможности дальних путешествий."
+max_level = 3
+
+[sub_resource type="Resource" id="Field"]
+script = ExtResource("2_building")
+building_id = &"field_plot"
+display_name = "Степовий наділ"
+description = "Небольшое хозяйственное поле."
+max_level = 3
+
+[sub_resource type="Resource" id="Apiary"]
+script = ExtResource("2_building")
+building_id = &"apiary"
+display_name = "Пасіка"
+description = "Мёд, торговый товар и будущие расходники."
+max_level = 3
+
+[sub_resource type="Resource" id="Livestock"]
+script = ExtResource("2_building")
+building_id = &"livestock_pen"
+display_name = "Загін для худоби"
+description = "Хозяйство и небольшой пассивный доход."
+max_level = 3
+
+[sub_resource type="Resource" id="Shynok"]
+script = ExtResource("2_building")
+building_id = &"shynok"
+display_name = "Шинок"
+description = "Слухи, события, приезжие и задания."
+max_level = 3
+
+[sub_resource type="Resource" id="Bazaar"]
+script = ExtResource("2_building")
+building_id = &"bazaar"
+display_name = "Торговий ряд"
+description = "Домашняя торговля и меняющийся ассортимент."
+max_level = 3
+
+[sub_resource type="Resource" id="CaravanYard"]
+script = ExtResource("2_building")
+building_id = &"caravan_yard"
+display_name = "Караванний двір"
+description = "Дальние купцы, редкие товары и степные связи."
+max_level = 3
+
+[sub_resource type="Resource" id="KurinCluster"]
+script = ExtResource("2_building")
+building_id = &"kurin_cluster"
+display_name = "Курені"
+description = "Простое постоянное жильё жителей."
+max_level = 3
+
+[sub_resource type="Resource" id="ResidentialYard"]
+script = ExtResource("2_building")
+building_id = &"residential_yard"
+display_name = "Житловий двір"
+description = "Более развитая жилая часть поселения."
+max_level = 3
+
+[sub_resource type="Resource" id="Herbalist"]
+script = ExtResource("2_building")
+building_id = &"herbalist_hut"
+display_name = "Хата травниці"
+description = "Лечение, травы и будущие расходники."
+max_level = 3
+
+[sub_resource type="Resource" id="Bathhouse"]
+script = ExtResource("2_building")
+building_id = &"bathhouse"
+display_name = "Лазня"
+description = "Отдых и восстановление."
+max_level = 3
+
+[sub_resource type="Resource" id="Gate"]
+script = ExtResource("2_building")
+building_id = &"fortified_gate"
+display_name = "Брама"
+description = "Укреплённый вход в поселение."
+max_level = 3
+
+[sub_resource type="Resource" id="Watchtower"]
+script = ExtResource("2_building")
+building_id = &"watchtower"
+display_name = "Дозорна вежа"
+description = "Обзор окрестностей и защита."
+max_level = 3
+
+[sub_resource type="Resource" id="Palisade"]
+script = ExtResource("2_building")
+building_id = &"palisade"
+display_name = "Частокіл"
+description = "Общее укрепление поселения."
+max_level = 3
+
+[sub_resource type="Resource" id="Windmill"]
+script = ExtResource("2_building")
+building_id = &"windmill"
+display_name = "Степовий млин"
+description = "Большой хозяйственный landmark поселения."
+max_level = 3
+
+[sub_resource type="Resource" id="Pottery"]
+script = ExtResource("2_building")
+building_id = &"pottery_kiln"
+display_name = "Гончарна піч"
+description = "Ремесленные товары и хозяйственная экономика."
+max_level = 3
+
+[sub_resource type="Resource" id="SteppeKosh"]
+script = ExtResource("2_building")
+building_id = &"steppe_kosh"
+display_name = "Степовий кош"
+description = "Экспедиции, контакты и связь с дальней степью."
+max_level = 3
+
+[sub_resource type="Resource" id="ZoneWorkshopWest"]
+script = ExtResource("3_zone")
+zone_id = &"workshop_west"
+display_name = "Ремесленный участок I"
+description = "Первый участок под важную мастерскую."
+zone_kind = 0
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Blacksmith"), SubResource("Leather"), SubResource("Saddlery")])
+
+[sub_resource type="Resource" id="ZoneWorkshopEast"]
+script = ExtResource("3_zone")
+zone_id = &"workshop_east"
+display_name = "Ремесленный участок II"
+description = "Второй участок под специализированное ремесло."
+zone_kind = 0
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Bowyer"), SubResource("Gunsmith"), SubResource("Carpenter")])
+
+[sub_resource type="Resource" id="ZoneRiverbank"]
+script = ExtResource("3_zone")
+zone_id = &"riverbank"
+display_name = "Берег"
+description = "Ценный участок непосредственно у воды."
+zone_kind = 1
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("FishingCamp"), SubResource("RiverPier"), SubResource("WaterMill")])
+
+[sub_resource type="Resource" id="ZoneSteppe"]
+script = ExtResource("3_zone")
+zone_id = &"steppe_edge"
+display_name = "Степной край"
+description = "Окраина поселения, выходящая в открытую степь."
+zone_kind = 2
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("HuntingCamp"), SubResource("WatchKurin"), SubResource("HorseCamp")])
+
+[sub_resource type="Resource" id="ZoneHousehold"]
+script = ExtResource("3_zone")
+zone_id = &"household_yard"
+display_name = "Хозяйственный двор"
+description = "Место для мирного хозяйственного промысла."
+zone_kind = 3
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Field"), SubResource("Apiary"), SubResource("Livestock")])
+
+[sub_resource type="Resource" id="ZoneTrade"]
+script = ExtResource("3_zone")
+zone_id = &"trade_yard"
+display_name = "Торговый двор"
+description = "Социальный и торговый центр будущего поселения."
+zone_kind = 4
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Shynok"), SubResource("Bazaar"), SubResource("CaravanYard")])
+
+[sub_resource type="Resource" id="ZoneResidential"]
+script = ExtResource("3_zone")
+zone_id = &"residential_yard"
+display_name = "Жилая часть"
+description = "Участок для постоянного жилья."
+zone_kind = 5
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("KurinCluster"), SubResource("ResidentialYard")])
+
+[sub_resource type="Resource" id="ZoneHealing"]
+script = ExtResource("3_zone")
+zone_id = &"healing_yard"
+display_name = "Лечебный двор"
+description = "Место для восстановления и лечения."
+zone_kind = 6
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Herbalist"), SubResource("Bathhouse")])
+
+[sub_resource type="Resource" id="ZoneDefense"]
+script = ExtResource("3_zone")
+zone_id = &"defense_line"
+display_name = "Оборонительный рубеж"
+description = "Основное укрепление родного поселения."
+zone_kind = 7
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Gate"), SubResource("Watchtower"), SubResource("Palisade")])
+
+[sub_resource type="Resource" id="ZoneLandmark"]
+script = ExtResource("3_zone")
+zone_id = &"landmark_site"
+display_name = "Большой дальний участок"
+description = "Место под крупный объект, заметный издалека."
+zone_kind = 8
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("Windmill"), SubResource("Pottery"), SubResource("SteppeKosh")])
+
+[resource]
+script = ExtResource("1_settlement")
+settlement_id = &"debug_home_settlement"
+display_name = "Родное поселение"
+description = "Собственное поселение игрока на степном рубеже."
+world_node_id = &"debug_home"
+zones = Array[ExtResource("3_zone")]([SubResource("ZoneWorkshopWest"), SubResource("ZoneWorkshopEast"), SubResource("ZoneRiverbank"), SubResource("ZoneSteppe"), SubResource("ZoneHousehold"), SubResource("ZoneTrade"), SubResource("ZoneResidential"), SubResource("ZoneHealing"), SubResource("ZoneDefense"), SubResource("ZoneLandmark")])

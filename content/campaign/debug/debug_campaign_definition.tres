@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://b057wdv6pu3ma" path="res://core/campaign/locations/campaign_location_definition.gd" id="4_location_script"]
 [ext_resource type="Resource" uid="uid://bv4l8i720765u" path="res://content/locations/debug/debug_forest_edge_location.tres" id="5_location"]
 [ext_resource type="Resource" path="res://content/world/debug/debug_world_map.tres" id="6_world_map"]
+[ext_resource type="Resource" path="res://content/settlements/debug/debug_home_settlement.tres" id="7_home_settlement"]
 [ext_resource type="Resource" path="res://content/heroes/bayda/bayda_hero.tres" id="11_bayda"]
 [ext_resource type="Resource" uid="uid://dxpp11ujk3j57" path="res://content/heroes/placeholders/placeholder_plastunka.tres" id="12_plastunka"]
 [ext_resource type="Resource" uid="uid://b07rykw4bm07p" path="res://content/heroes/placeholders/placeholder_powder_markswoman.tres" id="13_markswoman"]
@@ -89,6 +90,7 @@ starting_gold = 0
 loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])
 world_map_definition = ExtResource("6_world_map")
+home_settlement_definition = ExtResource("7_home_settlement")
 starting_day = 0
 starting_minute_of_day = 480
 days_per_season = 20

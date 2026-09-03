@@ -18,10 +18,14 @@ const SIDE_PADDING := 40.0
 var _definition: CampaignLocalLocationDefinition
 var _selected_interaction_id: StringName = &""
 
+var _page_index: int = 0
+
 var _buttons_by_interaction_id: Dictionary = {}
 
 
 func _ready() -> void:
+	clip_contents = true
+
 	resized.connect(
 		_on_resized
 	)
@@ -32,8 +36,43 @@ func bind(
 ) -> void:
 	_definition = definition
 	_selected_interaction_id = &""
+	_page_index = 0
 
 	_rebuild_buttons()
+	queue_redraw()
+
+
+func get_page_count() -> int:
+	if _definition == null:
+		return 1
+
+	return _definition.get_view_page_count()
+
+
+func get_page_index() -> int:
+	return _page_index
+
+
+func set_page(
+	page_index: int
+) -> void:
+	var next_page := clampi(
+		page_index,
+		0,
+		maxi(
+			get_page_count() - 1,
+			0
+		)
+	)
+
+	if next_page == _page_index:
+		return
+
+	_page_index = next_page
+	_selected_interaction_id = &""
+
+	_refresh_button_texts()
+	_layout_buttons()
 	queue_redraw()
 
 
@@ -189,8 +228,25 @@ func _layout_buttons() -> void:
 	if (
 		_definition.reference_size.x <= 0.0
 		or _definition.reference_size.y <= 0.0
+		or _definition.view_width <= 0.0
 	):
 		return
+
+	var page_start_x := (
+		float(_page_index)
+		* _definition.view_width
+	)
+
+	var page_end_x := minf(
+		page_start_x
+			+ _definition.view_width,
+		_definition.reference_size.x
+	)
+
+	var is_last_page := (
+		_page_index
+		== get_page_count() - 1
+	)
 
 	for interaction in (
 		_definition.interactions
@@ -212,11 +268,41 @@ func _layout_buttons() -> void:
 		if button == null:
 			continue
 
-		var normalized := Vector2(
+		var is_visible := (
 			interaction.local_position.x
-				/ _definition.reference_size.x,
-			interaction.local_position.y
-				/ _definition.reference_size.y
+				>= page_start_x
+			and (
+				interaction.local_position.x
+					< page_end_x
+				or (
+					is_last_page
+					and interaction.local_position.x
+						<= page_end_x
+				)
+			)
+		)
+
+		button.visible = is_visible
+
+		if not is_visible:
+			continue
+
+		var normalized := Vector2(
+			clampf(
+				(
+					interaction.local_position.x
+					- page_start_x
+				)
+				/ _definition.view_width,
+				0.0,
+				1.0
+			),
+			clampf(
+				interaction.local_position.y
+					/ _definition.reference_size.y,
+				0.0,
+				1.0
+			)
 		)
 
 		var half_size := (

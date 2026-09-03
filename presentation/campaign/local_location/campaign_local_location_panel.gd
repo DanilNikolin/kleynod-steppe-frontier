@@ -13,6 +13,9 @@ signal interaction_action_requested(
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
 
+var _settlement_definition: CampaignSettlementDefinition
+var _settlement_state: CampaignSettlementState
+
 var _selected_interaction_id: StringName = &""
 
 var _time_service := (
@@ -21,6 +24,12 @@ var _time_service := (
 
 
 var _canvas: CampaignLocalLocationCanvas
+
+var _page_navigation: HBoxContainer
+var _page_left_button: Button
+var _page_right_button: Button
+var _page_label: Label
+
 var _interaction_title: Label
 var _interaction_description: Label
 var _actions_row: HBoxContainer
@@ -29,14 +38,20 @@ var _status_label: Label
 
 func bind(
 	definition: CampaignLocalLocationDefinition,
-	state: CampaignState
+	state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition = null,
+	settlement_state: CampaignSettlementState = null
 ) -> void:
 	_definition = definition
 	_state = state
 
+	_settlement_definition = settlement_definition
+	_settlement_state = settlement_state
+
 	_selected_interaction_id = &""
 
 	_build_interface()
+	_refresh_page_navigation()
 	_refresh_interaction_panel()
 
 
@@ -155,13 +170,75 @@ func _build_interface() -> void:
 		HSeparator.new()
 	)
 
+	_page_navigation = HBoxContainer.new()
+
+	_page_navigation.add_theme_constant_override(
+		"separation",
+		12
+	)
+
+	root.add_child(
+		_page_navigation
+	)
+
+	_page_left_button = Button.new()
+	_page_left_button.text = "←"
+
+	_page_left_button.custom_minimum_size = Vector2(
+		90,
+		42
+	)
+
+	_page_left_button.pressed.connect(
+		_on_page_left_pressed
+	)
+
+	_page_navigation.add_child(
+		_page_left_button
+	)
+
+	_page_label = Label.new()
+
+	_page_label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_CENTER
+	)
+
+	_page_label.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	_page_label.add_theme_font_size_override(
+		"font_size",
+		18
+	)
+
+	_page_navigation.add_child(
+		_page_label
+	)
+
+	_page_right_button = Button.new()
+	_page_right_button.text = "→"
+
+	_page_right_button.custom_minimum_size = Vector2(
+		90,
+		42
+	)
+
+	_page_right_button.pressed.connect(
+		_on_page_right_pressed
+	)
+
+	_page_navigation.add_child(
+		_page_right_button
+	)
+
 	_canvas = (
 		CampaignLocalLocationCanvas.new()
 	)
 
 	_canvas.custom_minimum_size = Vector2(
 		900,
-		460
+		430
 	)
 
 	_canvas.size_flags_horizontal = (
@@ -266,6 +343,42 @@ func _build_interface() -> void:
 	)
 
 
+func _refresh_page_navigation() -> void:
+	if (
+		_canvas == null
+		or _page_navigation == null
+	):
+		return
+
+	var page_count := (
+		_canvas.get_page_count()
+	)
+
+	var page_index := (
+		_canvas.get_page_index()
+	)
+
+	_page_navigation.visible = (
+		page_count > 1
+	)
+
+	_page_left_button.disabled = (
+		page_index <= 0
+	)
+
+	_page_right_button.disabled = (
+		page_index >= page_count - 1
+	)
+
+	_page_label.text = (
+		"Часть локации %d / %d"
+		% [
+			page_index + 1,
+			page_count,
+		]
+	)
+
+
 func _refresh_interaction_panel() -> void:
 	_clear_action_buttons()
 
@@ -302,9 +415,21 @@ func _refresh_interaction_panel() -> void:
 		interaction.display_name
 	)
 
-	_interaction_description.text = (
-		interaction.description
+	var settlement_zone := (
+		_get_selected_settlement_zone()
 	)
+
+	if settlement_zone != null:
+		_interaction_description.text = (
+			_get_settlement_zone_text(
+				settlement_zone
+			)
+		)
+
+	else:
+		_interaction_description.text = (
+			interaction.description
+		)
 
 	_status_label.text = ""
 
@@ -324,6 +449,98 @@ func _refresh_interaction_panel() -> void:
 		_actions_row.add_child(
 			button
 		)
+
+
+func _get_selected_settlement_zone() -> CampaignSettlementZoneDefinition:
+	if (
+		_settlement_definition == null
+		or _selected_interaction_id == &""
+	):
+		return null
+
+	return (
+		_settlement_definition
+			.get_zone_by_local_interaction_id(
+				_selected_interaction_id
+			)
+	)
+
+
+func _get_settlement_zone_text(
+	zone: CampaignSettlementZoneDefinition
+) -> String:
+	if zone == null:
+		return ""
+
+	var lines := PackedStringArray()
+
+	lines.append(
+		zone.description
+	)
+
+	var zone_state: CampaignSettlementZoneState
+
+	if _settlement_state != null:
+		zone_state = _settlement_state.get_zone(
+			zone.zone_id
+		)
+
+	if zone_state == null:
+		lines.append(
+			"Состояние: недоступно."
+		)
+
+		return "\n".join(
+			lines
+		)
+
+	if zone_state.is_empty():
+		lines.append(
+			"Состояние: пустой участок."
+		)
+
+		var building_names := PackedStringArray()
+
+		for building in zone.allowed_buildings:
+			if building == null:
+				continue
+
+			building_names.append(
+				building.display_name
+			)
+
+		if not building_names.is_empty():
+			lines.append(
+				"Возможные постройки: %s"
+				% " / ".join(
+					building_names
+				)
+			)
+
+	else:
+		var building := zone.get_building(
+			zone_state.building_id
+		)
+
+		var building_name := (
+			building.display_name
+			if building != null
+			else String(
+				zone_state.building_id
+			)
+		)
+
+		lines.append(
+			"Построено: %s · уровень %d."
+			% [
+				building_name,
+				zone_state.building_level,
+			]
+		)
+
+	return "\n".join(
+		lines
+	)
 
 
 func _clear_action_buttons() -> void:
@@ -382,6 +599,34 @@ func _get_selected_display_name() -> String:
 		return "—"
 
 	return interaction.display_name
+
+
+func _on_page_left_pressed() -> void:
+	if _canvas == null:
+		return
+
+	_canvas.set_page(
+		_canvas.get_page_index() - 1
+	)
+
+	_selected_interaction_id = &""
+
+	_refresh_page_navigation()
+	_refresh_interaction_panel()
+
+
+func _on_page_right_pressed() -> void:
+	if _canvas == null:
+		return
+
+	_canvas.set_page(
+		_canvas.get_page_index() + 1
+	)
+
+	_selected_interaction_id = &""
+
+	_refresh_page_navigation()
+	_refresh_interaction_panel()
 
 
 func _on_exit_pressed() -> void:

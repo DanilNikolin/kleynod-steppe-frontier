@@ -595,9 +595,38 @@ func _show_local_location_interface() -> void:
 		_on_local_location_exit_requested
 	)
 
+	var settlement_definition: CampaignSettlementDefinition
+	var settlement_state: CampaignSettlementState
+
+	var current_world_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	var home_settlement_definition := (
+		CampaignRuntime
+			.get_home_settlement_definition()
+	)
+
+	if (
+		current_world_node != null
+		and home_settlement_definition != null
+		and current_world_node.node_id
+			== home_settlement_definition.world_node_id
+	):
+		settlement_definition = (
+			home_settlement_definition
+		)
+
+		settlement_state = (
+			CampaignRuntime
+				.get_home_settlement_state()
+		)
+
 	panel.bind(
 		definition,
-		CampaignRuntime.get_campaign_state()
+		CampaignRuntime.get_campaign_state(),
+		settlement_definition,
+		settlement_state
 	)
 
 

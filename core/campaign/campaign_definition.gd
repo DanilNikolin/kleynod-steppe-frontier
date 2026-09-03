@@ -464,6 +464,53 @@ func get_validation_errors() -> PackedStringArray:
 					+ "must be HOME_SETTLEMENT."
 				)
 
+			else:
+				var local_definition := (
+					settlement_world_node
+						.local_location_definition
+				)
+
+				if local_definition == null:
+					errors.append(
+						"Home settlement world node "
+						+ "has no local location."
+					)
+
+				else:
+					for settlement_zone in (
+						home_settlement_definition.zones
+					):
+						if settlement_zone == null:
+							continue
+
+						if (
+							settlement_zone
+								.local_interaction_id
+							== &""
+						):
+							errors.append(
+								"Settlement zone '%s' has no "
+								% settlement_zone.zone_id
+								+ "local interaction mapping."
+							)
+
+							continue
+
+						if (
+							local_definition.get_interaction(
+								settlement_zone
+									.local_interaction_id
+							)
+							== null
+						):
+							errors.append(
+								"Settlement zone '%s' references "
+								% settlement_zone.zone_id
+								+ "unknown local interaction '%s'."
+								% settlement_zone
+									.local_interaction_id
+							)
+
 	return errors
 
 

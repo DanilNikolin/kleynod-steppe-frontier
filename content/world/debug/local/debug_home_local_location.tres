@@ -1,36 +1,109 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
 
+[sub_resource type="Resource" id="Defense"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_defense"
+display_name = "Оборонительный рубеж"
+description = "Пока здесь почти нет настоящих укреплений."
+local_position = Vector2(180, 340)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Steppe"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_steppe_edge"
+display_name = "Степной край"
+description = "Окраина поселения, выходящая прямо в открытую степь."
+local_position = Vector2(420, 320)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Household"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_household"
+display_name = "Хозяйственный двор"
+description = "Пустой участок под будущий хозяйственный промысел."
+local_position = Vector2(690, 360)
+action_labels = PackedStringArray("Осмотреть участок")
+
 [sub_resource type="Resource" id="Campfire"]
 script = ExtResource("2_interaction")
 interaction_id = &"debug_home_campfire"
-display_name = "Костёр"
-description = "Небольшой костёр — пока почти единственный признак обжитого места."
-local_position = Vector2(250, 360)
+display_name = "Центральне вогнище"
+description = "Пока именно костёр остаётся настоящим центром поселения."
+local_position = Vector2(890, 350)
 action_labels = PackedStringArray("Осмотреть", "Отдохнуть")
 
-[sub_resource type="Resource" id="WorkshopSite"]
+[sub_resource type="Resource" id="Residential"]
 script = ExtResource("2_interaction")
-interaction_id = &"debug_home_workshop_site"
-display_name = "Пустой участок"
-description = "Подходящее место для будущей мастерской."
-local_position = Vector2(610, 340)
+interaction_id = &"home_zone_residential"
+display_name = "Жилая часть"
+description = "Место, где со временем появятся постоянные жилища."
+local_position = Vector2(1120, 350)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="WorkshopWest"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_workshop_west"
+display_name = "Ремесленный участок I"
+description = "Первый участок под важную мастерскую."
+local_position = Vector2(1380, 340)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="WorkshopEast"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_workshop_east"
+display_name = "Ремесленный участок II"
+description = "Второй участок под специализированное ремесло."
+local_position = Vector2(1650, 340)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Trade"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_trade"
+display_name = "Торговый двор"
+description = "Пока здесь нет ни шинка, ни торгового ряда, ни караванов."
+local_position = Vector2(1900, 350)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Healing"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_healing"
+display_name = "Лечебный двор"
+description = "Пустое место для будущего лечения и восстановления."
+local_position = Vector2(2120, 350)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Riverbank"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_riverbank"
+display_name = "Берег"
+description = "Ценный свободный участок непосредственно у воды."
+local_position = Vector2(2390, 360)
+action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="Landmark"]
+script = ExtResource("2_interaction")
+interaction_id = &"home_zone_landmark"
+display_name = "Большой дальний участок"
+description = "Здесь когда-нибудь сможет появиться крупный landmark поселения."
+local_position = Vector2(2700, 300)
 action_labels = PackedStringArray("Осмотреть участок")
 
 [sub_resource type="Resource" id="Wagon"]
 script = ExtResource("2_interaction")
 interaction_id = &"debug_home_wagon"
 display_name = "Старая телега"
-description = "Телега с остатками вещей и припасов."
-local_position = Vector2(820, 390)
+description = "Одна из немногих вещей, оставшихся здесь с самого начала."
+local_position = Vector2(2920, 390)
 action_labels = PackedStringArray("Осмотреть", "Проверить припасы")
 
 [resource]
 script = ExtResource("1_location")
 local_location_id = &"debug_home_local"
 display_name = "Родное поселение"
-description = "Пока здесь почти ничего нет. Со временем это место изменится благодаря игроку."
-reference_size = Vector2(1000, 500)
-interactions = Array[ExtResource("2_interaction")]([SubResource("Campfire"), SubResource("WorkshopSite"), SubResource("Wagon")])
+description = "Одна длинная степная локация. Сейчас большая её часть пуста, но именно здесь постепенно вырастет собственное поселение игрока."
+reference_size = Vector2(3000, 500)
+view_width = 1000.0
+interactions = Array[ExtResource("2_interaction")]([SubResource("Defense"), SubResource("Steppe"), SubResource("Household"), SubResource("Campfire"), SubResource("Residential"), SubResource("WorkshopWest"), SubResource("WorkshopEast"), SubResource("Trade"), SubResource("Healing"), SubResource("Riverbank"), SubResource("Landmark"), SubResource("Wagon")])

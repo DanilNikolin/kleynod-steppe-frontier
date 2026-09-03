@@ -45,6 +45,23 @@ func get_zone(
 	return null
 
 
+func get_zone_by_local_interaction_id(
+	interaction_id: StringName
+) -> CampaignSettlementZoneDefinition:
+	if interaction_id == &"":
+		return null
+
+	for zone in zones:
+		if (
+			zone != null
+			and zone.local_interaction_id
+				== interaction_id
+		):
+			return zone
+
+	return null
+
+
 func get_building(
 	building_id: StringName
 ) -> CampaignSettlementBuildingDefinition:
@@ -94,6 +111,7 @@ func get_validation_errors() -> PackedStringArray:
 
 	var used_zone_ids: Dictionary = {}
 	var used_building_ids: Dictionary = {}
+	var used_local_interaction_ids: Dictionary = {}
 
 	for zone_index in range(
 		zones.size()
@@ -133,6 +151,20 @@ func get_validation_errors() -> PackedStringArray:
 			else:
 				used_zone_ids[
 					zone.zone_id
+				] = true
+
+		if zone.local_interaction_id != &"":
+			if used_local_interaction_ids.has(
+				zone.local_interaction_id
+			):
+				errors.append(
+					"Settlement zones share local interaction '%s'."
+					% zone.local_interaction_id
+				)
+
+			else:
+				used_local_interaction_ids[
+					zone.local_interaction_id
 				] = true
 
 		for building in (

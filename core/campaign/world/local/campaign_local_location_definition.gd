@@ -26,6 +26,12 @@ var reference_size: Vector2 = Vector2(
 	500.0
 )
 
+## Ширина одного видимого authored-фрагмента.
+## Если вся локация шире, presentation листает её
+## по таким участкам слева направо.
+@export_range(100.0, 10000.0, 1.0)
+var view_width: float = 1000.0
+
 
 @export_group("Interactions")
 
@@ -48,6 +54,22 @@ func get_interaction(
 			return interaction
 
 	return null
+
+
+func get_view_page_count() -> int:
+	if (
+		reference_size.x <= 0.0
+		or view_width <= 0.0
+	):
+		return 1
+
+	return maxi(
+		ceili(
+			reference_size.x
+			/ view_width
+		),
+		1
+	)
 
 
 func is_valid_definition() -> bool:
@@ -73,6 +95,15 @@ func get_validation_errors() -> PackedStringArray:
 	):
 		errors.append(
 			"Local location reference size must be positive."
+		)
+
+	if (
+		view_width <= 0.0
+		or view_width > reference_size.x
+	):
+		errors.append(
+			"Local location view width must be positive "
+			+ "and cannot exceed reference width."
 		)
 
 	var used_ids: Dictionary = {}

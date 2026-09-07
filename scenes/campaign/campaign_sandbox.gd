@@ -607,6 +607,12 @@ func _show_local_location_interface() -> void:
 		)
 	)
 
+	panel.settlement_upgrade_requested.connect(
+		_on_home_settlement_upgrade_requested.bind(
+			panel
+		)
+	)
+
 	panel.resident_invite_requested.connect(
 		_on_resident_invite_requested.bind(
 			panel
@@ -892,6 +898,35 @@ func _on_home_settlement_demolish_requested(
 		and is_instance_valid(panel)
 	):
 		panel.refresh_state()
+
+
+func _on_home_settlement_upgrade_requested(
+	zone_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var upgraded := (
+		CampaignRuntime
+			.upgrade_home_settlement_building(
+				zone_id
+			)
+	)
+
+	if not upgraded:
+		push_warning(
+			"Home settlement upgrade failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Постройка улучшена."
+		)
 
 
 func _on_resident_invite_requested(

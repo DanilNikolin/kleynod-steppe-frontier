@@ -50,6 +50,30 @@ var active_effects: Array[CampaignSettlementEffectDefinition] = []
 @export_range(1, 99, 1)
 var max_level: int = 3
 
+@export
+var upgrades: Array[CampaignSettlementBuildingUpgradeDefinition] = []
+
+
+func get_upgrade_to_level(
+	target_level: int
+) -> CampaignSettlementBuildingUpgradeDefinition:
+	for upgrade in upgrades:
+		if (
+			upgrade != null
+			and upgrade.target_level == target_level
+		):
+			return upgrade
+
+	return null
+
+
+func get_next_upgrade(
+	current_level: int
+) -> CampaignSettlementBuildingUpgradeDefinition:
+	return get_upgrade_to_level(
+		current_level + 1
+	)
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -140,5 +164,56 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Settlement building max level must be positive."
 		)
+
+	var used_upgrade_levels: Dictionary = {}
+
+	for upgrade_index in range(
+		upgrades.size()
+	):
+		var upgrade := upgrades[
+			upgrade_index
+		]
+
+		if upgrade == null:
+			errors.append(
+				"Building upgrade at index %d is null."
+				% upgrade_index
+			)
+
+			continue
+
+		for upgrade_error in (
+			upgrade.get_validation_errors()
+		):
+			errors.append(
+				"Building upgrade %d: %s"
+				% [
+					upgrade_index,
+					upgrade_error,
+				]
+			)
+
+		if upgrade.target_level > max_level:
+			errors.append(
+				"Building upgrade target level %d exceeds max level %d."
+				% [
+					upgrade.target_level,
+					max_level,
+				]
+			)
+
+		if used_upgrade_levels.has(
+			upgrade.target_level
+		):
+			errors.append(
+				"Duplicate building upgrade target level: %d."
+				% upgrade.target_level
+			)
+
+			continue
+
+		used_upgrade_levels[
+			upgrade.target_level
+		] = true
 
 	return errors

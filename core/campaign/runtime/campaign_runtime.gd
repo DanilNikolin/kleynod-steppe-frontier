@@ -351,7 +351,7 @@ func get_home_resident_commission_error(
 	if has_pending_battle():
 		return (
 			"Cannot use resident services "
-			+ "while a battle request is active."
+			+"while a battle request is active."
 		)
 
 	return (
@@ -534,7 +534,7 @@ func commission_home_resident_item(
 
 		push_error(
 			"Resident commission produced "
-			+ "an invalid campaign state."
+			+"an invalid campaign state."
 		)
 
 		return null
@@ -754,7 +754,7 @@ func construct_home_settlement_building(
 
 		push_error(
 			"Settlement construction produced "
-			+ "an invalid campaign state."
+			+"an invalid campaign state."
 		)
 
 		return false
@@ -850,6 +850,217 @@ func demolish_home_settlement_building(
 	return true
 
 
+func get_home_settlement_upgrade_error(
+	zone_id: StringName
+) -> String:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot upgrade while a battle request is active."
+		)
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	if settlement_definition == null:
+		return (
+			"Home settlement definition is missing."
+		)
+
+	if (
+		campaign_state.current_world_node_id
+		!= settlement_definition.world_node_id
+	):
+		return (
+			"Campaign party is not at the home settlement."
+		)
+
+	return (
+		settlement_construction_service
+			.get_upgrade_error(
+				campaign_state,
+				settlement_definition,
+				zone_id
+			)
+	)
+
+
+func can_upgrade_home_settlement_building(
+	zone_id: StringName
+) -> bool:
+	return (
+		get_home_settlement_upgrade_error(
+			zone_id
+		)
+		.is_empty()
+	)
+
+
+func upgrade_home_settlement_building(
+	zone_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	var upgrade_error := (
+		get_home_settlement_upgrade_error(
+			zone_id
+		)
+	)
+
+	if not upgrade_error.is_empty():
+		push_warning(
+			"Settlement upgrade failed: %s"
+			% upgrade_error
+		)
+
+		return false
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	var settlement_state := (
+		get_home_settlement_state()
+	)
+
+	if (
+		settlement_definition == null
+		or settlement_state == null
+	):
+		return false
+
+	var zone_definition := (
+		settlement_definition.get_zone(
+			zone_id
+		)
+	)
+
+	var zone_state := settlement_state.get_zone(
+		zone_id
+	)
+
+	if (
+		zone_definition == null
+		or zone_state == null
+	):
+		return false
+
+	var building := zone_definition.get_building(
+		zone_state.building_id
+	)
+
+	if building == null:
+		return false
+
+	var upgrade := building.get_upgrade_to_level(
+		zone_state.building_level + 1
+	)
+
+	if upgrade == null:
+		return false
+
+	var previous_gold := (
+		campaign_state.inventory_state.gold
+	)
+
+	var previous_materials := (
+		campaign_state.materials
+	)
+
+	var previous_level := (
+		zone_state.building_level
+	)
+
+	var previous_day := (
+		campaign_state.current_day
+	)
+
+	var previous_minute := (
+		campaign_state.current_minute_of_day
+	)
+
+	if not settlement_construction_service.apply_upgrade(
+		campaign_state,
+		settlement_definition,
+		zone_id
+	):
+		push_warning(
+			"Settlement upgrade could not be applied."
+		)
+
+		return false
+
+	if not advance_time(
+		upgrade.duration_minutes
+	):
+		campaign_state.inventory_state.gold = (
+			previous_gold
+		)
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		zone_state.building_level = (
+			previous_level
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		push_warning(
+			"Settlement upgrade time could not be applied."
+		)
+
+		return false
+
+	if (
+		not settlement_state.is_valid_against_definition(
+			settlement_definition
+		)
+		or not campaign_state.is_valid_state()
+	):
+		campaign_state.inventory_state.gold = (
+			previous_gold
+		)
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		zone_state.building_level = (
+			previous_level
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		push_error(
+			"Settlement upgrade produced "
+			+"an invalid campaign state."
+		)
+
+		return false
+
+	return true
+	
 func get_current_world_node() -> CampaignWorldNodeDefinition:
 	if campaign_state == null:
 		return null
@@ -1087,7 +1298,7 @@ func travel_to_world_node(
 
 		push_error(
 			"World travel produced "
-			+ "an invalid campaign state."
+			+"an invalid campaign state."
 		)
 
 		return false
@@ -1178,7 +1389,7 @@ func advance_time(
 	if has_pending_battle():
 		push_warning(
 			"Cannot advance campaign time "
-			+ "while a battle request is active."
+			+"while a battle request is active."
 		)
 
 		return false
@@ -1189,7 +1400,7 @@ func advance_time(
 	):
 		push_warning(
 			"Cannot advance time with "
-			+ "an invalid campaign state."
+			+"an invalid campaign state."
 		)
 
 		return false

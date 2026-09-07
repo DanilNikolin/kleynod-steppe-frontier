@@ -18,6 +18,10 @@ signal settlement_demolish_requested(
 	zone_id: StringName
 )
 
+signal settlement_upgrade_requested(
+	zone_id: StringName
+)
+
 signal resident_invite_requested(
 	resident_id: StringName
 )
@@ -715,6 +719,90 @@ func _create_settlement_zone_actions(
 			services_button
 		)
 
+		if building != null:
+			if (
+				zone_state.building_level
+				>= building.max_level
+			):
+				var max_level_button := Button.new()
+
+				max_level_button.text = (
+					"%s · максимальный уровень"
+					% building.display_name
+				)
+
+				max_level_button.disabled = true
+
+				_actions_row.add_child(
+					max_level_button
+				)
+
+			else:
+				var target_level := (
+					zone_state.building_level + 1
+				)
+
+				var upgrade := (
+					building.get_upgrade_to_level(
+						target_level
+					)
+				)
+
+				var upgrade_button := Button.new()
+
+				if (
+					upgrade == null
+					or not upgrade.upgrade_enabled
+				):
+					upgrade_button.text = (
+						"УЛУЧШИТЬ ДО УР. %d · пока недоступно"
+						% target_level
+					)
+
+					upgrade_button.disabled = true
+
+				else:
+					upgrade_button.text = (
+						"УЛУЧШИТЬ ДО УР. %d · %d зол. · %d мат. · %s"
+						% [
+							target_level,
+							upgrade.gold_cost,
+							upgrade.material_cost,
+							_get_duration_text(
+								upgrade.duration_minutes
+							),
+						]
+					)
+
+					var upgrade_error := (
+						_construction_service
+							.get_upgrade_error(
+								_state,
+								_settlement_definition,
+								zone.zone_id
+							)
+					)
+
+					upgrade_button.disabled = (
+						not upgrade_error.is_empty()
+					)
+
+					if upgrade_button.disabled:
+						upgrade_button.tooltip_text = (
+							upgrade_error
+						)
+
+					else:
+						upgrade_button.pressed.connect(
+							_on_settlement_upgrade_pressed.bind(
+								zone.zone_id
+							)
+						)
+
+				_actions_row.add_child(
+					upgrade_button
+				)
+
 		var demolish_button := Button.new()
 
 		demolish_button.text = (
@@ -1028,6 +1116,14 @@ func _on_settlement_demolish_pressed(
 	zone_id: StringName
 ) -> void:
 	settlement_demolish_requested.emit(
+		zone_id
+	)
+
+
+func _on_settlement_upgrade_pressed(
+	zone_id: StringName
+) -> void:
+	settlement_upgrade_requested.emit(
 		zone_id
 	)
 

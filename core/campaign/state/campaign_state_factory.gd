@@ -50,6 +50,38 @@ func create_from_definition(
 	if result.home_settlement_state == null:
 		return null
 
+	for resident_definition in (
+		definition.residents
+	):
+		if resident_definition == null:
+			return null
+
+		var resident_state := (
+			CampaignResidentState.new()
+		)
+
+		resident_state.resident_id = (
+			resident_definition.resident_id
+		)
+
+		resident_state.status = (
+			CampaignResidentState
+				.Status
+				.ORIGIN
+		)
+
+		resident_state.recruitment_unlocked = (
+			resident_definition
+				.starting_recruitment_unlocked
+		)
+
+		if not resident_state.is_valid_state():
+			return null
+
+		result.residents.append(
+			resident_state
+		)
+
 	result.selected_hero_id = (
 		definition.starting_selected_hero_id
 	)

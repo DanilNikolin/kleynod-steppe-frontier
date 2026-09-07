@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
@@ -42,6 +42,14 @@ display_name = "Жилая часть"
 description = "Место, где со временем появятся постоянные жилища."
 local_position = Vector2(1120, 350)
 action_labels = PackedStringArray("Осмотреть участок")
+
+[sub_resource type="Resource" id="ResidentBlacksmith"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_home_blacksmith"
+display_name = "Остап Коваль"
+description = "Приглашённый коваль родного поселения."
+local_position = Vector2(1510, 220)
+action_labels = PackedStringArray("Поговорить", "Торговля")
 
 [sub_resource type="Resource" id="WorkshopWest"]
 script = ExtResource("2_interaction")
@@ -106,4 +114,4 @@ display_name = "Родное поселение"
 description = "Одна длинная степная локация. Сейчас большая её часть пуста, но именно здесь постепенно вырастет собственное поселение игрока."
 reference_size = Vector2(3000, 500)
 view_width = 1000.0
-interactions = Array[ExtResource("2_interaction")]([SubResource("Defense"), SubResource("Steppe"), SubResource("Household"), SubResource("Campfire"), SubResource("Residential"), SubResource("WorkshopWest"), SubResource("WorkshopEast"), SubResource("Trade"), SubResource("Healing"), SubResource("Riverbank"), SubResource("Landmark"), SubResource("Wagon")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("Defense"), SubResource("Steppe"), SubResource("Household"), SubResource("Campfire"), SubResource("Residential"), SubResource("ResidentBlacksmith"), SubResource("WorkshopWest"), SubResource("WorkshopEast"), SubResource("Trade"), SubResource("Healing"), SubResource("Riverbank"), SubResource("Landmark"), SubResource("Wagon")])

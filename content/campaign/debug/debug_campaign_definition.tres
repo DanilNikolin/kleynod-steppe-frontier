@@ -21,6 +21,8 @@
 [ext_resource type="Resource" uid="uid://ncbudkbiqhh4" path="res://content/equipment/debug/debug_steppe_armor.tres" id="22_loot_armor"]
 [ext_resource type="Resource" uid="uid://bi323urmthrcs" path="res://content/equipment/debug/debug_traveler_charm.tres" id="23_loot_charm"]
 [ext_resource type="Resource" uid="uid://bydiyoahl710o" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="24_loot_berdysh"]
+[ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="25_resident_script"]
+[ext_resource type="Resource" path="res://content/residents/debug/debug_blacksmith_resident.tres" id="26_blacksmith_resident"]
 
 
 [sub_resource type="Resource" id="HeroBayda"]
@@ -91,8 +93,9 @@ loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])
 world_map_definition = ExtResource("6_world_map")
 home_settlement_definition = ExtResource("7_home_settlement")
+residents = Array[ExtResource("25_resident_script")]([ExtResource("26_blacksmith_resident")])
 starting_day = 0
 starting_minute_of_day = 480
 days_per_season = 20
-starting_reputation = 0
+starting_reputation = 5
 starting_materials = 20

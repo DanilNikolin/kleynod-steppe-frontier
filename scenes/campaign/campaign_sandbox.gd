@@ -607,6 +607,12 @@ func _show_local_location_interface() -> void:
 		)
 	)
 
+	panel.resident_invite_requested.connect(
+		_on_resident_invite_requested.bind(
+			panel
+		)
+	)
+
 	var settlement_definition: CampaignSettlementDefinition
 	var settlement_state: CampaignSettlementState
 
@@ -638,7 +644,8 @@ func _show_local_location_interface() -> void:
 		definition,
 		CampaignRuntime.get_campaign_state(),
 		settlement_definition,
-		settlement_state
+		settlement_state,
+		CampaignRuntime.get_resident_definitions()
 	)
 
 
@@ -870,6 +877,30 @@ func _on_home_settlement_demolish_requested(
 	if not demolished:
 		push_warning(
 			"Home settlement demolition failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+
+func _on_resident_invite_requested(
+	resident_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var recruited := (
+		CampaignRuntime.invite_resident(
+			resident_id
+		)
+	)
+
+	if not recruited:
+		push_warning(
+			"Resident invitation failed."
 		)
 
 		return

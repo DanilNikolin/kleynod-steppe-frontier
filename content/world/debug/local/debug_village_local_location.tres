@@ -14,8 +14,8 @@ action_labels = PackedStringArray("Поговорить", "Торговля", "�
 [sub_resource type="Resource" id="Blacksmith"]
 script = ExtResource("2_interaction")
 interaction_id = &"debug_village_blacksmith"
-display_name = "Кузнец"
-description = "Местный кузнец. Пока это только placeholder будущего персонажа."
+display_name = "Остап Коваль"
+description = "Местный коваль. Пока живёт и работает в Малом селе."
 local_position = Vector2(630, 350)
 action_labels = PackedStringArray("Поговорить", "Осмотреть товары")
 

@@ -53,6 +53,10 @@ var settlement_effect_service := (
 	CampaignSettlementEffectService.new()
 )
 
+var resident_service := (
+	CampaignResidentService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -198,6 +202,135 @@ func has_active_home_settlement_effect(
 				get_home_settlement_state(),
 				effect_id
 			)
+	)
+
+
+func get_resident_definitions() -> Array[CampaignResidentDefinition]:
+	if campaign_definition == null:
+		return []
+
+	return campaign_definition.residents
+
+
+func get_resident_definition(
+	resident_id: StringName
+) -> CampaignResidentDefinition:
+	if campaign_definition == null:
+		return null
+
+	return campaign_definition.get_resident(
+		resident_id
+	)
+
+
+func get_resident_state(
+	resident_id: StringName
+) -> CampaignResidentState:
+	if campaign_state == null:
+		return null
+
+	return campaign_state.get_resident(
+		resident_id
+	)
+
+
+func set_resident_recruitment_unlocked(
+	resident_id: StringName,
+	unlocked: bool
+) -> bool:
+	var state := get_resident_state(
+		resident_id
+	)
+
+	if state == null:
+		return false
+
+	var previous_value := (
+		state.recruitment_unlocked
+	)
+
+	state.recruitment_unlocked = unlocked
+
+	if not campaign_state.is_valid_state():
+		state.recruitment_unlocked = (
+			previous_value
+		)
+
+		return false
+
+	return true
+
+
+func get_resident_recruitment_error(
+	resident_id: StringName
+) -> String:
+	if (
+		campaign_state == null
+		or campaign_definition == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot recruit while a battle request is active."
+		)
+
+	var definition := get_resident_definition(
+		resident_id
+	)
+
+	var state := get_resident_state(
+		resident_id
+	)
+
+	return resident_service.get_recruitment_error(
+		campaign_state,
+		definition,
+		state
+	)
+
+
+func invite_resident(
+	resident_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	var error := get_resident_recruitment_error(
+		resident_id
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Resident recruitment failed: %s"
+			% error
+		)
+
+		return false
+
+	return resident_service.apply_recruitment(
+		campaign_state,
+		get_resident_definition(
+			resident_id
+		),
+		get_resident_state(
+			resident_id
+		)
+	)
+
+
+func is_home_resident_working(
+	resident_id: StringName
+) -> bool:
+	return resident_service.is_workplace_ready(
+		get_resident_definition(
+			resident_id
+		),
+		get_resident_state(
+			resident_id
+		),
+		get_home_settlement_definition(),
+		get_home_settlement_state()
 	)
 
 

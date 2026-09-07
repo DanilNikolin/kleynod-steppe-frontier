@@ -38,6 +38,7 @@ var _camera: Camera2D
 
 var _buttons_by_interaction_id: Dictionary = {}
 var _display_text_overrides: Dictionary = {}
+var _visibility_overrides: Dictionary = {}
 
 
 func _ready() -> void:
@@ -57,6 +58,7 @@ func bind(
 
 	_selected_interaction_id = &""
 	_display_text_overrides.clear()
+	_visibility_overrides.clear()
 
 	_camera_target_x = 0.0
 	_needs_initial_camera_position = true
@@ -85,6 +87,16 @@ func set_interaction_display_overrides(
 	overrides: Dictionary
 ) -> void:
 	_display_text_overrides = (
+		overrides.duplicate()
+	)
+
+	_refresh_button_texts()
+
+
+func set_interaction_visibility_overrides(
+	overrides: Dictionary
+) -> void:
+	_visibility_overrides = (
 		overrides.duplicate()
 	)
 
@@ -401,6 +413,22 @@ func _refresh_button_texts() -> void:
 		)
 
 		if button == null:
+			continue
+
+		var interaction_visible := true
+
+		if _visibility_overrides.has(
+			interaction.interaction_id
+		):
+			interaction_visible = bool(
+				_visibility_overrides[
+					interaction.interaction_id
+				]
+			)
+
+		button.visible = interaction_visible
+
+		if not interaction_visible:
 			continue
 
 		var prefix := ""

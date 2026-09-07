@@ -18,6 +18,10 @@ signal settlement_demolish_requested(
 	zone_id: StringName
 )
 
+signal resident_invite_requested(
+	resident_id: StringName
+)
+
 
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
@@ -33,6 +37,12 @@ var _time_service := (
 
 var _construction_service := (
 	CampaignSettlementConstructionService.new()
+)
+
+var _resident_definitions: Array[CampaignResidentDefinition] = []
+
+var _resident_service := (
+	CampaignResidentService.new()
 )
 
 
@@ -54,8 +64,9 @@ var _status_label: Label
 func bind(
 	definition: CampaignLocalLocationDefinition,
 	state: CampaignState,
-	settlement_definition: CampaignSettlementDefinition = null,
-	settlement_state: CampaignSettlementState = null
+	settlement_definition: CampaignSettlementDefinition,
+	settlement_state: CampaignSettlementState,
+	resident_definitions: Array[CampaignResidentDefinition]
 ) -> void:
 	_definition = definition
 	_state = state
@@ -68,6 +79,10 @@ func bind(
 		settlement_state
 	)
 
+	_resident_definitions = (
+		resident_definitions
+	)
+
 	_selected_interaction_id = &""
 
 	_build_interface()
@@ -78,6 +93,7 @@ func bind(
 func refresh_state() -> void:
 	_refresh_header_state()
 	_refresh_settlement_visuals()
+	_refresh_resident_visibility()
 	_refresh_interaction_panel()
 
 
@@ -538,6 +554,20 @@ func _refresh_interaction_panel() -> void:
 
 		return
 
+	var resident_definition := (
+		_get_resident_for_interaction(
+			_selected_interaction_id
+		)
+	)
+
+	if resident_definition != null:
+		_refresh_resident_panel(
+			interaction,
+			resident_definition
+		)
+
+		return
+
 	var settlement_zone := (
 		_get_selected_settlement_zone()
 	)
@@ -981,6 +1011,251 @@ func _on_settlement_demolish_pressed(
 ) -> void:
 	settlement_demolish_requested.emit(
 		zone_id
+	)
+
+
+func _on_resident_invite_pressed(
+	resident_id: StringName
+) -> void:
+	resident_invite_requested.emit(
+		resident_id
+	)
+
+
+func _refresh_resident_visibility() -> void:
+	if (
+		_canvas == null
+		or _state == null
+	):
+		return
+
+	var overrides: Dictionary = {}
+
+	for definition in (
+		_resident_definitions
+	):
+		if definition == null:
+			continue
+
+		var resident_state := (
+			_state.get_resident(
+				definition.resident_id
+			)
+		)
+
+		if resident_state == null:
+			continue
+
+		overrides[
+			definition.origin_interaction_id
+		] = (
+			_resident_service
+				.is_interaction_present(
+					definition,
+					resident_state,
+					definition.origin_interaction_id
+				)
+		)
+
+		overrides[
+			definition.home_interaction_id
+		] = (
+			_resident_service
+				.is_interaction_present(
+					definition,
+					resident_state,
+					definition.home_interaction_id
+				)
+		)
+
+	_canvas.set_interaction_visibility_overrides(
+		overrides
+	)
+
+	var selected_resident := (
+		_get_resident_for_interaction(
+			_selected_interaction_id
+		)
+	)
+
+	if selected_resident == null:
+		return
+
+	var selected_state := _state.get_resident(
+		selected_resident.resident_id
+	)
+
+	if not _resident_service.is_interaction_present(
+		selected_resident,
+		selected_state,
+		_selected_interaction_id
+	):
+		_selected_interaction_id = &""
+
+		_canvas.set_selected_interaction(
+			&""
+		)
+
+
+func _get_resident_for_interaction(
+	interaction_id: StringName
+) -> CampaignResidentDefinition:
+	if interaction_id == &"":
+		return null
+
+	for definition in (
+		_resident_definitions
+	):
+		if definition == null:
+			continue
+
+		if (
+			interaction_id
+				== definition.origin_interaction_id
+			or interaction_id
+				== definition.home_interaction_id
+		):
+			return definition
+
+	return null
+
+
+func _refresh_resident_panel(
+	interaction: CampaignLocalInteractionDefinition,
+	definition: CampaignResidentDefinition
+) -> void:
+	if (
+		interaction == null
+		or definition == null
+		or _state == null
+	):
+		return
+
+	var resident_state := _state.get_resident(
+		definition.resident_id
+	)
+
+	if resident_state == null:
+		return
+
+	_interaction_title.text = (
+		definition.display_name
+	)
+
+	var lines := PackedStringArray()
+
+	lines.append(
+		definition.description
+	)
+
+	if resident_state.is_at_origin():
+		lines.append(
+			"Статус: находится в Малом селе."
+		)
+
+		lines.append(
+			"Условие приглашения: %s"
+			% (
+				"выполнено"
+				if resident_state.recruitment_unlocked
+				else "не выполнено"
+			)
+		)
+
+		lines.append(
+			"Репутация: %d / %d"
+			% [
+				_state.reputation,
+				definition.required_reputation,
+			]
+		)
+
+	else:
+		var workplace_ready := (
+			_resident_service
+				.is_workplace_ready(
+					definition,
+					resident_state,
+					_settlement_definition,
+					_settlement_state
+				)
+		)
+
+		lines.append(
+			"Статус: живёт в родном поселении."
+		)
+
+		if definition.has_required_workplace():
+			lines.append(
+				"Рабочее место: %s"
+				% (
+					"готово — работает."
+					if workplace_ready
+					else "нет — ждёт мастерскую."
+				)
+			)
+
+	_interaction_description.text = (
+		"\n".join(
+			lines
+		)
+	)
+
+	_status_label.text = ""
+
+	for action_label in (
+		interaction.action_labels
+	):
+		var action_button := Button.new()
+
+		action_button.text = action_label
+
+		action_button.pressed.connect(
+			_on_action_pressed.bind(
+				action_label
+			)
+		)
+
+		_actions_row.add_child(
+			action_button
+		)
+
+	if not resident_state.is_at_origin():
+		return
+
+	var invite_button := Button.new()
+
+	invite_button.text = (
+		"ПРИГЛАСИТЬ В РОДНОЕ ПОСЕЛЕНИЕ"
+	)
+
+	var recruitment_error := (
+		_resident_service
+			.get_recruitment_error(
+				_state,
+				definition,
+				resident_state
+			)
+	)
+
+	invite_button.disabled = (
+		not recruitment_error.is_empty()
+	)
+
+	if invite_button.disabled:
+		invite_button.tooltip_text = (
+			recruitment_error
+		)
+
+	else:
+		invite_button.pressed.connect(
+			_on_resident_invite_pressed.bind(
+				definition.resident_id
+			)
+		)
+
+	_actions_row.add_child(
+		invite_button
 	)
 
 

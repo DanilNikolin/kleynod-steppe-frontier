@@ -46,6 +46,9 @@ var materials: int = 0
 ## Persistent состояние собственного поселения.
 var home_settlement_state: CampaignSettlementState
 
+## Persistent состояния world/resident NPC.
+var residents: Array[CampaignResidentState] = []
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -138,6 +141,23 @@ func get_equipment_owner(
 	return null
 
 
+func get_resident(
+	resident_id: StringName
+) -> CampaignResidentState:
+	if resident_id == &"":
+		return null
+
+	for resident_state in residents:
+		if (
+			resident_state != null
+			and resident_state.resident_id
+				== resident_id
+		):
+			return resident_state
+
+	return null
+
+
 func is_valid_state() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -189,6 +209,51 @@ func get_validation_errors() -> PackedStringArray:
 				"Home settlement state: %s"
 				% settlement_error
 			)
+
+	var used_resident_ids: Dictionary = {}
+
+	for resident_index in range(
+		residents.size()
+	):
+		var resident := residents[
+			resident_index
+		]
+
+		if resident == null:
+			errors.append(
+				"Resident state at index %d is null."
+				% resident_index
+			)
+
+			continue
+
+		for resident_error in (
+			resident.get_validation_errors()
+		):
+			errors.append(
+				"Resident state %d: %s"
+				% [
+					resident_index,
+					resident_error,
+				]
+			)
+
+		if resident.resident_id == &"":
+			continue
+
+		if used_resident_ids.has(
+			resident.resident_id
+		):
+			errors.append(
+				"Duplicate resident state ID: %s."
+				% resident.resident_id
+			)
+
+			continue
+
+		used_resident_ids[
+			resident.resident_id
+		] = true
 
 	if heroes.is_empty():
 		errors.append(

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="1_resident"]
+
+[resource]
+script = ExtResource("1_resident")
+resident_id = &"resident_blacksmith_ostap"
+display_name = "Остап Коваль"
+description = "Коваль из Малого села. Хороший мастер, но не готов бросить привычное место ради первого встречного."
+origin_world_node_id = &"debug_village"
+origin_interaction_id = &"debug_village_blacksmith"
+home_interaction_id = &"debug_home_blacksmith"
+required_reputation = 5
+starting_recruitment_unlocked = true
+required_workplace_zone_id = &"workshop_west"
+required_workplace_building_id = &"blacksmith_workshop"

@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 4
+const CURRENT_SAVE_VERSION: int = 5
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -238,6 +238,9 @@ func _encode_campaign(
 				state.home_settlement_state
 			)
 		),
+		"residents": _encode_residents(
+			state.residents
+		),
 
 		"completed_battle_count": (
 			state.completed_battle_count
@@ -444,6 +447,29 @@ func _encode_settlement(
 	}
 
 
+func _encode_residents(
+	residents: Array[CampaignResidentState]
+) -> Array:
+	var result: Array = []
+
+	for resident in residents:
+		result.append(
+			{
+				"resident_id": String(
+					resident.resident_id
+				),
+				"status": int(
+					resident.status
+				),
+				"recruitment_unlocked": (
+					resident.recruitment_unlocked
+				),
+			}
+		)
+
+	return result
+
+
 func _decode_campaign(
 	data: Dictionary,
 	definition: CampaignDefinition
@@ -462,6 +488,7 @@ func _decode_campaign(
 			"reputation",
 			"materials",
 			"home_settlement",
+			"residents",
 			"completed_battle_count",
 			"heroes",
 			"inventory",
@@ -617,6 +644,13 @@ func _decode_campaign(
 	)
 
 	if state.home_settlement_state == null:
+		return null
+
+	if not _decode_residents(
+		data["residents"],
+		state,
+		definition
+	):
 		return null
 
 	state.completed_battle_count = (
@@ -1687,6 +1721,154 @@ func _int_value(
 		)
 
 	return result
+
+
+func _bool_value(
+	value: Variant,
+	context: String
+) -> bool:
+	if typeof(
+		value
+	) != TYPE_BOOL:
+		_fail(
+			"%s must be a bool."
+			% context
+		)
+
+		return false
+
+	return value
+
+
+func _decode_residents(
+	value: Variant,
+	state: CampaignState,
+	definition: CampaignDefinition
+) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		_fail(
+			"residents must be an Array."
+		)
+
+		return false
+
+	var data: Array = value
+
+	if data.size() != definition.residents.size():
+		_fail(
+			"Saved resident roster does not match "
+			+ "current campaign content."
+		)
+
+		return false
+
+	var seen: Dictionary = {}
+
+	for index in range(
+		data.size()
+	):
+		var resident_value: Variant = (
+			data[index]
+		)
+
+		if typeof(
+			resident_value
+		) != TYPE_DICTIONARY:
+			_fail(
+				"residents[%d] must be a Dictionary."
+				% index
+			)
+
+			return false
+
+		var resident_data: Dictionary = (
+			resident_value
+		)
+
+		if not _has_keys(
+			resident_data,
+			[
+				"resident_id",
+				"status",
+				"recruitment_unlocked",
+			],
+			"resident %d" % index
+		):
+			return false
+
+		var resident_id := StringName(
+			_string_value(
+				resident_data["resident_id"],
+				"resident.resident_id",
+				false
+			)
+		)
+
+		if _failed():
+			return false
+
+		if seen.has(
+			resident_id
+		):
+			_fail(
+				"Duplicate saved resident '%s'."
+				% resident_id
+			)
+
+			return false
+
+		if definition.get_resident(
+			resident_id
+		) == null:
+			_fail(
+				"Unknown saved resident '%s'."
+				% resident_id
+			)
+
+			return false
+
+		var resident_state := state.get_resident(
+			resident_id
+		)
+
+		if resident_state == null:
+			_fail(
+				"Resident state '%s' is missing."
+				% resident_id
+			)
+
+			return false
+
+		resident_state.status = _int_value(
+			resident_data["status"],
+			"resident.status",
+			CampaignResidentState.Status.ORIGIN,
+			CampaignResidentState.Status.HOME_SETTLEMENT
+		)
+
+		resident_state.recruitment_unlocked = (
+			_bool_value(
+				resident_data[
+					"recruitment_unlocked"
+				],
+				"resident.recruitment_unlocked"
+			)
+		)
+
+		if (
+			_failed()
+			or not resident_state.is_valid_state()
+		):
+			return false
+
+		seen[
+			resident_id
+		] = true
+
+	return (
+		seen.size()
+		== state.residents.size()
+	)
 
 
 func _name_array(

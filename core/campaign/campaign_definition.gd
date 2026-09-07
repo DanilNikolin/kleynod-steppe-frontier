@@ -83,6 +83,11 @@ var starting_materials: int = 0
 @export
 var home_settlement_definition: CampaignSettlementDefinition
 
+@export_group("Residents")
+
+@export
+var residents: Array[CampaignResidentDefinition] = []
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -511,6 +516,150 @@ func get_validation_errors() -> PackedStringArray:
 									.local_interaction_id
 							)
 
+	var used_resident_ids: Dictionary = {}
+
+	for resident_index in range(
+		residents.size()
+	):
+		var resident := residents[
+			resident_index
+		]
+
+		if resident == null:
+			errors.append(
+				"Resident at index %d is null."
+				% resident_index
+			)
+
+			continue
+
+		for resident_error in (
+			resident.get_validation_errors()
+		):
+			errors.append(
+				"Resident %d: %s"
+				% [
+					resident_index,
+					resident_error,
+				]
+			)
+
+		if resident.resident_id != &"":
+			if used_resident_ids.has(
+				resident.resident_id
+			):
+				errors.append(
+					"Duplicate resident ID: %s."
+					% resident.resident_id
+				)
+
+			else:
+				used_resident_ids[
+					resident.resident_id
+				] = true
+
+		if world_map_definition != null:
+			var origin_node := (
+				world_map_definition.get_node(
+					resident.origin_world_node_id
+				)
+			)
+
+			if origin_node == null:
+				errors.append(
+					"Resident '%s' references "
+					% resident.resident_id
+					+ "unknown origin world node '%s'."
+					% resident.origin_world_node_id
+				)
+
+			elif (
+				origin_node.local_location_definition
+				== null
+			):
+				errors.append(
+					"Resident '%s' origin has no local location."
+					% resident.resident_id
+				)
+
+			elif (
+				origin_node
+					.local_location_definition
+					.get_interaction(
+						resident.origin_interaction_id
+					)
+				== null
+			):
+				errors.append(
+					"Resident '%s' references "
+					% resident.resident_id
+					+ "unknown origin interaction '%s'."
+					% resident.origin_interaction_id
+				)
+
+		if (
+			home_settlement_definition != null
+			and world_map_definition != null
+		):
+			var home_node := (
+				world_map_definition.get_node(
+					home_settlement_definition
+						.world_node_id
+				)
+			)
+
+			if (
+				home_node != null
+				and home_node.local_location_definition != null
+				and home_node
+					.local_location_definition
+					.get_interaction(
+						resident.home_interaction_id
+					)
+					== null
+			):
+				errors.append(
+					"Resident '%s' references "
+					% resident.resident_id
+					+ "unknown HOME interaction '%s'."
+					% resident.home_interaction_id
+				)
+
+		if (
+			resident.has_required_workplace()
+			and home_settlement_definition != null
+		):
+			var workplace_zone := (
+				home_settlement_definition.get_zone(
+					resident.required_workplace_zone_id
+				)
+			)
+
+			if workplace_zone == null:
+				errors.append(
+					"Resident '%s' references "
+					% resident.resident_id
+					+ "unknown workplace zone '%s'."
+					% resident
+						.required_workplace_zone_id
+				)
+
+			elif (
+				workplace_zone.get_building(
+					resident
+						.required_workplace_building_id
+				)
+				== null
+			):
+				errors.append(
+					"Resident '%s' references "
+					% resident.resident_id
+					+ "building '%s' that is not allowed "
+					% resident
+						.required_workplace_building_id
+					+ "in workplace zone."
+				)
+
 	return errors
 
 
@@ -526,6 +675,23 @@ func get_location(
 			and location.location_id == location_id
 		):
 			return location
+
+	return null
+
+
+func get_resident(
+	resident_id: StringName
+) -> CampaignResidentDefinition:
+	if resident_id == &"":
+		return null
+
+	for resident in residents:
+		if (
+			resident != null
+			and resident.resident_id
+				== resident_id
+		):
+			return resident
 
 	return null
 

@@ -49,6 +49,29 @@ var required_workplace_zone_id: StringName = &""
 var required_workplace_building_id: StringName = &""
 
 
+@export_group("Services")
+
+@export
+var equipment_commissions: Array[CampaignEquipmentCommissionDefinition] = []
+
+
+func get_equipment_commission(
+	commission_id: StringName
+) -> CampaignEquipmentCommissionDefinition:
+	if commission_id == &"":
+		return null
+
+	for commission in equipment_commissions:
+		if (
+			commission != null
+			and commission.commission_id
+				== commission_id
+		):
+			return commission
+
+	return null
+
+
 func has_required_workplace() -> bool:
 	return (
 		required_workplace_zone_id != &""
@@ -104,5 +127,50 @@ func get_validation_errors() -> PackedStringArray:
 			"Resident workplace requires both zone "
 			+"and building IDs."
 		)
+
+	var used_commission_ids: Dictionary = {}
+
+	for commission_index in range(
+		equipment_commissions.size()
+	):
+		var commission := equipment_commissions[
+			commission_index
+		]
+
+		if commission == null:
+			errors.append(
+				"Equipment commission at index %d is null."
+				% commission_index
+			)
+
+			continue
+
+		for commission_error in (
+			commission.get_validation_errors()
+		):
+			errors.append(
+				"Equipment commission %d: %s"
+				% [
+					commission_index,
+					commission_error,
+				]
+			)
+
+		if commission.commission_id == &"":
+			continue
+
+		if used_commission_ids.has(
+			commission.commission_id
+		):
+			errors.append(
+				"Duplicate equipment commission ID: %s."
+				% commission.commission_id
+			)
+
+			continue
+
+		used_commission_ids[
+			commission.commission_id
+		] = true
 
 	return errors

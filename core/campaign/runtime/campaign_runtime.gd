@@ -57,6 +57,10 @@ var resident_service := (
 	CampaignResidentService.new()
 )
 
+var equipment_commission_service := (
+	CampaignEquipmentCommissionService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -332,6 +336,210 @@ func is_home_resident_working(
 		get_home_settlement_definition(),
 		get_home_settlement_state()
 	)
+
+
+func get_home_resident_commission_error(
+	resident_id: StringName,
+	commission_id: StringName
+) -> String:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot use resident services "
+			+ "while a battle request is active."
+		)
+
+	return (
+		equipment_commission_service
+			.get_commission_error(
+				campaign_state,
+				get_resident_definition(
+					resident_id
+				),
+				get_resident_state(
+					resident_id
+				),
+				get_home_settlement_definition(),
+				get_home_settlement_state(),
+				commission_id
+			)
+	)
+
+
+func can_use_home_resident_commission(
+	resident_id: StringName,
+	commission_id: StringName
+) -> bool:
+	return (
+		get_home_resident_commission_error(
+			resident_id,
+			commission_id
+		)
+		.is_empty()
+	)
+
+
+func commission_home_resident_item(
+	resident_id: StringName,
+	commission_id: StringName
+) -> HeroEquipmentItemInstance:
+	if not ensure_campaign_started():
+		return null
+
+	var commission_error := (
+		get_home_resident_commission_error(
+			resident_id,
+			commission_id
+		)
+	)
+
+	if not commission_error.is_empty():
+		push_warning(
+			"Resident commission failed: %s"
+			% commission_error
+		)
+
+		return null
+
+	var resident_definition := (
+		get_resident_definition(
+			resident_id
+		)
+	)
+
+	var resident_state := (
+		get_resident_state(
+			resident_id
+		)
+	)
+
+	if (
+		resident_definition == null
+		or resident_state == null
+	):
+		return null
+
+	var commission := (
+		resident_definition
+			.get_equipment_commission(
+				commission_id
+			)
+	)
+
+	if commission == null:
+		return null
+
+	var inventory := (
+		campaign_state.inventory_state
+	)
+
+	if inventory == null:
+		return null
+
+	var previous_gold := inventory.gold
+
+	var previous_materials := (
+		campaign_state.materials
+	)
+
+	var previous_serial := (
+		inventory.next_generated_item_serial
+	)
+
+	var previous_day := (
+		campaign_state.current_day
+	)
+
+	var previous_minute := (
+		campaign_state.current_minute_of_day
+	)
+
+	var created_item := (
+		equipment_commission_service
+			.apply_commission(
+				campaign_state,
+				resident_definition,
+				resident_state,
+				get_home_settlement_definition(),
+				get_home_settlement_state(),
+				commission_id
+			)
+	)
+
+	if created_item == null:
+		push_warning(
+			"Resident commission could not be applied."
+		)
+
+		return null
+
+	if not advance_time(
+		commission.duration_minutes
+	):
+		inventory.items.erase(
+			created_item
+		)
+
+		inventory.gold = previous_gold
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		inventory.next_generated_item_serial = (
+			previous_serial
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		push_warning(
+			"Resident commission time could not be applied."
+		)
+
+		return null
+
+	if not campaign_state.is_valid_state():
+		inventory.items.erase(
+			created_item
+		)
+
+		inventory.gold = previous_gold
+
+		campaign_state.materials = (
+			previous_materials
+		)
+
+		inventory.next_generated_item_serial = (
+			previous_serial
+		)
+
+		campaign_state.current_day = (
+			previous_day
+		)
+
+		campaign_state.current_minute_of_day = (
+			previous_minute
+		)
+
+		push_error(
+			"Resident commission produced "
+			+ "an invalid campaign state."
+		)
+
+		return null
+
+	return created_item
 
 
 func get_home_settlement_construction_error(

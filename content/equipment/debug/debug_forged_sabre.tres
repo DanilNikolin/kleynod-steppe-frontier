@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="1_item"]
+[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="2_ability_script"]
+[ext_resource type="Resource" path="res://content/abilities/debug/debug_rending_cut.tres" id="3_ability"]
+[ext_resource type="Resource" path="res://content/abilities/debug/debug_sabre_slash.tres" id="4_primary"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"debug_forged_sabre"
+display_name = "Кована шабля"
+description = "Шабля, выкованная Остапом по заказу. Не участвует в обычной добыче и доступна через домашнюю кузню."
+primary_ability = ExtResource("4_primary")
+granted_abilities = Array[ExtResource("2_ability_script")]([ExtResource("3_ability")])

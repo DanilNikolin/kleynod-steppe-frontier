@@ -1,6 +1,18 @@
-[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="1_resident"]
+[ext_resource type="Script" path="res://core/campaign/residents/services/campaign_equipment_commission_definition.gd" id="2_commission"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_forged_sabre.tres" id="3_forged_sabre"]
+
+[sub_resource type="Resource" id="ForgedSabreCommission"]
+script = ExtResource("2_commission")
+commission_id = &"ostap_forged_sabre"
+display_name = "Выковать ковану шаблю"
+description = "Остап выкует отдельную шаблю по заказу."
+output_item_definition = ExtResource("3_forged_sabre")
+gold_cost = 120
+material_cost = 4
+duration_minutes = 360
 
 [resource]
 script = ExtResource("1_resident")
@@ -14,3 +26,4 @@ required_reputation = 5
 starting_recruitment_unlocked = true
 required_workplace_zone_id = &"workshop_west"
 required_workplace_building_id = &"blacksmith_workshop"
+equipment_commissions = Array[ExtResource("2_commission")]([SubResource("ForgedSabreCommission")])

@@ -738,4 +738,34 @@ func get_equipment_item_definition(
 
 		result = item_definition
 
+	for resident in residents:
+		if resident == null:
+			continue
+
+		for commission in (
+			resident.equipment_commissions
+		):
+			if (
+				commission == null
+				or commission.output_item_definition
+					== null
+				or commission
+					.output_item_definition
+					.item_id
+					!= item_id
+			):
+				continue
+
+			if (
+				result != null
+				and result
+					!= commission
+						.output_item_definition
+			):
+				return null
+
+			result = (
+				commission.output_item_definition
+			)
+
 	return result

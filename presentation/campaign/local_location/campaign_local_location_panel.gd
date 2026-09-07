@@ -22,6 +22,11 @@ signal resident_invite_requested(
 	resident_id: StringName
 )
 
+signal resident_commission_requested(
+	resident_id: StringName,
+	commission_id: StringName
+)
+
 
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
@@ -43,6 +48,10 @@ var _resident_definitions: Array[CampaignResidentDefinition] = []
 
 var _resident_service := (
 	CampaignResidentService.new()
+)
+
+var _equipment_commission_service := (
+	CampaignEquipmentCommissionService.new()
 )
 
 
@@ -95,6 +104,15 @@ func refresh_state() -> void:
 	_refresh_settlement_visuals()
 	_refresh_resident_visibility()
 	_refresh_interaction_panel()
+
+
+func show_status_message(
+	message: String
+) -> void:
+	if _status_label == null:
+		return
+
+	_status_label.text = message
 
 
 func _refresh_header_state() -> void:
@@ -1022,6 +1040,16 @@ func _on_resident_invite_pressed(
 	)
 
 
+func _on_resident_commission_pressed(
+	resident_id: StringName,
+	commission_id: StringName
+) -> void:
+	resident_commission_requested.emit(
+		resident_id,
+		commission_id
+	)
+
+
 func _refresh_resident_visibility() -> void:
 	if (
 		_canvas == null
@@ -1142,6 +1170,7 @@ func _refresh_resident_panel(
 		definition.display_name
 	)
 
+	var workplace_ready := false
 	var lines := PackedStringArray()
 
 	lines.append(
@@ -1171,7 +1200,7 @@ func _refresh_resident_panel(
 		)
 
 	else:
-		var workplace_ready := (
+		workplace_ready = (
 			_resident_service
 				.is_workplace_ready(
 					definition,
@@ -1220,43 +1249,99 @@ func _refresh_resident_panel(
 			action_button
 		)
 
-	if not resident_state.is_at_origin():
+	if resident_state.is_at_origin():
+		var invite_button := Button.new()
+
+		invite_button.text = (
+			"ПРИГЛАСИТЬ В РОДНОЕ ПОСЕЛЕНИЕ"
+		)
+
+		var recruitment_error := (
+			_resident_service
+				.get_recruitment_error(
+					_state,
+					definition,
+					resident_state
+				)
+		)
+
+		invite_button.disabled = (
+			not recruitment_error.is_empty()
+		)
+
+		if invite_button.disabled:
+			invite_button.tooltip_text = (
+				recruitment_error
+			)
+
+		else:
+			invite_button.pressed.connect(
+				_on_resident_invite_pressed.bind(
+					definition.resident_id
+				)
+			)
+
+		_actions_row.add_child(
+			invite_button
+		)
+
 		return
 
-	var invite_button := Button.new()
+	if not workplace_ready:
+		return
 
-	invite_button.text = (
-		"ПРИГЛАСИТЬ В РОДНОЕ ПОСЕЛЕНИЕ"
-	)
+	for commission in (
+		definition.equipment_commissions
+	):
+		if commission == null:
+			continue
 
-	var recruitment_error := (
-		_resident_service
-			.get_recruitment_error(
-				_state,
-				definition,
-				resident_state
-			)
-	)
+		var commission_button := Button.new()
 
-	invite_button.disabled = (
-		not recruitment_error.is_empty()
-	)
-
-	if invite_button.disabled:
-		invite_button.tooltip_text = (
-			recruitment_error
+		commission_button.text = (
+			"ЗАКАЗАТЬ · %s · %d зол. · %d мат. · %s"
+			% [
+				commission.display_name,
+				commission.gold_cost,
+				commission.material_cost,
+				_get_duration_text(
+					commission.duration_minutes
+				),
+			]
 		)
 
-	else:
-		invite_button.pressed.connect(
-			_on_resident_invite_pressed.bind(
-				definition.resident_id
-			)
+		var commission_error := (
+			_equipment_commission_service
+				.get_commission_error(
+					_state,
+					definition,
+					resident_state,
+					_settlement_definition,
+					_settlement_state,
+					commission.commission_id
+				)
 		)
 
-	_actions_row.add_child(
-		invite_button
-	)
+		commission_button.disabled = (
+			not commission_error.is_empty()
+		)
+
+		if commission_button.disabled:
+			commission_button.tooltip_text = (
+				commission_error
+			)
+
+		else:
+			commission_button.pressed.connect(
+				_on_resident_commission_pressed.bind(
+					definition.resident_id,
+					commission.commission_id
+				)
+			)
+
+		_actions_row.add_child(
+			commission_button
+		)
 
 
 func _on_camera_left_pressed() -> void:

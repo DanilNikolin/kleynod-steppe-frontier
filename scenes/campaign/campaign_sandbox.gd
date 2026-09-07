@@ -613,6 +613,12 @@ func _show_local_location_interface() -> void:
 		)
 	)
 
+	panel.resident_commission_requested.connect(
+		_on_resident_commission_requested.bind(
+			panel
+		)
+	)
+
 	var settlement_definition: CampaignSettlementDefinition
 	var settlement_state: CampaignSettlementState
 
@@ -910,6 +916,38 @@ func _on_resident_invite_requested(
 		and is_instance_valid(panel)
 	):
 		panel.refresh_state()
+
+
+func _on_resident_commission_requested(
+	resident_id: StringName,
+	commission_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var created_item := (
+		CampaignRuntime
+			.commission_home_resident_item(
+				resident_id,
+				commission_id
+			)
+	)
+
+	if created_item == null:
+		push_warning(
+			"Resident equipment commission failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Заказ выполнен: %s · предмет добавлен в инвентарь."
+			% created_item.definition.display_name
+		)
 
 
 func _on_local_location_exit_requested() -> void:

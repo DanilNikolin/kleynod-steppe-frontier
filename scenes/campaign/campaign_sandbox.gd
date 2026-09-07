@@ -601,6 +601,12 @@ func _show_local_location_interface() -> void:
 		)
 	)
 
+	panel.settlement_demolish_requested.connect(
+		_on_home_settlement_demolish_requested.bind(
+			panel
+		)
+	)
+
 	var settlement_definition: CampaignSettlementDefinition
 	var settlement_state: CampaignSettlementState
 
@@ -839,6 +845,31 @@ func _on_home_settlement_build_requested(
 	if not constructed:
 		push_warning(
 			"Home settlement construction failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+
+func _on_home_settlement_demolish_requested(
+	zone_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var demolished := (
+		CampaignRuntime
+			.demolish_home_settlement_building(
+				zone_id
+			)
+	)
+
+	if not demolished:
+		push_warning(
+			"Home settlement demolition failed."
 		)
 
 		return

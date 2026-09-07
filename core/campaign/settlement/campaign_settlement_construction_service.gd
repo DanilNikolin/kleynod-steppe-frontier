@@ -204,3 +204,138 @@ func apply_construction(
 		return false
 
 	return true
+
+
+func can_demolish(
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	zone_id: StringName
+) -> bool:
+	return get_demolition_error(
+		campaign_state,
+		settlement_definition,
+		zone_id
+	).is_empty()
+
+
+func get_demolition_error(
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	zone_id: StringName
+) -> String:
+	if campaign_state == null:
+		return "Campaign state is missing."
+
+	if settlement_definition == null:
+		return "Settlement definition is missing."
+
+	var settlement_state := (
+		campaign_state.home_settlement_state
+	)
+
+	if settlement_state == null:
+		return "Settlement state is missing."
+
+	if not settlement_state.is_valid_against_definition(
+		settlement_definition
+	):
+		return (
+			"Settlement state does not match its definition."
+		)
+
+	var zone_definition := (
+		settlement_definition.get_zone(
+			zone_id
+		)
+	)
+
+	if zone_definition == null:
+		return (
+			"Unknown settlement zone '%s'."
+			% zone_id
+		)
+
+	var zone_state := settlement_state.get_zone(
+		zone_id
+	)
+
+	if zone_state == null:
+		return (
+			"Settlement zone state '%s' is missing."
+			% zone_id
+		)
+
+	if zone_state.is_empty():
+		return (
+			"Settlement zone '%s' is already empty."
+			% zone_id
+		)
+
+	if (
+		zone_definition.get_building(
+			zone_state.building_id
+		)
+		== null
+	):
+		return (
+			"Settlement zone contains "
+			+ "an unknown building '%s'."
+			% zone_state.building_id
+		)
+
+	return ""
+
+
+func apply_demolition(
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	zone_id: StringName
+) -> bool:
+	if not can_demolish(
+		campaign_state,
+		settlement_definition,
+		zone_id
+	):
+		return false
+
+	var settlement_state := (
+		campaign_state.home_settlement_state
+	)
+
+	var zone_state := settlement_state.get_zone(
+		zone_id
+	)
+
+	if zone_state == null:
+		return false
+
+	var previous_building_id := (
+		zone_state.building_id
+	)
+
+	var previous_building_level := (
+		zone_state.building_level
+	)
+
+	## Demolition intentionally returns
+	## no Gold and no Materials.
+	zone_state.building_id = &""
+	zone_state.building_level = 0
+
+	if (
+		not settlement_state.is_valid_against_definition(
+			settlement_definition
+		)
+		or not campaign_state.is_valid_state()
+	):
+		zone_state.building_id = (
+			previous_building_id
+		)
+
+		zone_state.building_level = (
+			previous_building_level
+		)
+
+		return false
+
+	return true

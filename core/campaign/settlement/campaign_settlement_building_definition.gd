@@ -33,6 +33,17 @@ var construction_material_cost: int = 0
 @export_range(0, 999999999, 1)
 var construction_minutes: int = 0
 
+@export_group("Effects")
+
+## Эффекты активны всё время,
+## пока это здание физически существует.
+##
+## Они не сохраняются отдельно:
+## активный набор всегда выводится
+## из текущего SettlementState.
+@export
+var active_effects: Array[CampaignSettlementEffectDefinition] = []
+
 
 @export_group("Progression")
 
@@ -79,6 +90,51 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Enabled settlement construction requires positive time."
 		)
+
+	var used_effect_ids: Dictionary = {}
+
+	for effect_index in range(
+		active_effects.size()
+	):
+		var effect := active_effects[
+			effect_index
+		]
+
+		if effect == null:
+			errors.append(
+				"Settlement effect at index %d is null."
+				% effect_index
+			)
+
+			continue
+
+		for effect_error in (
+			effect.get_validation_errors()
+		):
+			errors.append(
+				"Settlement effect %d: %s"
+				% [
+					effect_index,
+					effect_error,
+				]
+			)
+
+		if effect.effect_id == &"":
+			continue
+
+		if used_effect_ids.has(
+			effect.effect_id
+		):
+			errors.append(
+				"Duplicate settlement effect ID: %s."
+				% effect.effect_id
+			)
+
+			continue
+
+		used_effect_ids[
+			effect.effect_id
+		] = true
 
 	if max_level <= 0:
 		errors.append(

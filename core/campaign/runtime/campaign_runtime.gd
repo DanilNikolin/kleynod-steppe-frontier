@@ -49,6 +49,10 @@ var settlement_construction_service := (
 	CampaignSettlementConstructionService.new()
 )
 
+var settlement_effect_service := (
+	CampaignSettlementEffectService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -171,6 +175,29 @@ func get_home_settlement_state() -> CampaignSettlementState:
 	return (
 		campaign_state
 			.home_settlement_state
+	)
+
+
+func get_active_home_settlement_effects() -> Array[CampaignSettlementEffectDefinition]:
+	return (
+		settlement_effect_service
+			.get_active_effects(
+				get_home_settlement_definition(),
+				get_home_settlement_state()
+			)
+	)
+
+
+func has_active_home_settlement_effect(
+	effect_id: StringName
+) -> bool:
+	return (
+		settlement_effect_service
+			.has_active_effect(
+				get_home_settlement_definition(),
+				get_home_settlement_state(),
+				effect_id
+			)
 	)
 
 
@@ -387,6 +414,94 @@ func construct_home_settlement_building(
 		push_error(
 			"Settlement construction produced "
 			+ "an invalid campaign state."
+		)
+
+		return false
+
+	return true
+
+
+func get_home_settlement_demolition_error(
+	zone_id: StringName
+) -> String:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot demolish while a battle request is active."
+		)
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	if settlement_definition == null:
+		return "Home settlement definition is missing."
+
+	if (
+		campaign_state.current_world_node_id
+		!= settlement_definition.world_node_id
+	):
+		return (
+			"Campaign party is not at the home settlement."
+		)
+
+	return (
+		settlement_construction_service
+			.get_demolition_error(
+				campaign_state,
+				settlement_definition,
+				zone_id
+			)
+	)
+
+
+func can_demolish_home_settlement_building(
+	zone_id: StringName
+) -> bool:
+	return get_home_settlement_demolition_error(
+		zone_id
+	).is_empty()
+
+
+func demolish_home_settlement_building(
+	zone_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	var demolition_error := (
+		get_home_settlement_demolition_error(
+			zone_id
+		)
+	)
+
+	if not demolition_error.is_empty():
+		push_warning(
+			"Settlement demolition failed: %s"
+			% demolition_error
+		)
+
+		return false
+
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	if settlement_definition == null:
+		return false
+
+	if not settlement_construction_service.apply_demolition(
+		campaign_state,
+		settlement_definition,
+		zone_id
+	):
+		push_warning(
+			"Settlement demolition could not be applied."
 		)
 
 		return false

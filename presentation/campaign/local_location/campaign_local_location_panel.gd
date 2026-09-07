@@ -14,6 +14,10 @@ signal settlement_build_requested(
 	building_id: StringName
 )
 
+signal settlement_demolish_requested(
+	zone_id: StringName
+)
+
 
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
@@ -639,16 +643,45 @@ func _create_settlement_zone_actions(
 		return
 
 	if not zone_state.is_empty():
-		var built_button := Button.new()
+		var building := zone.get_building(
+			zone_state.building_id
+		)
 
-		built_button.text = (
+		var building_name := (
+			building.display_name
+			if building != null
+			else String(
+				zone_state.building_id
+			)
+		)
+
+		var services_button := Button.new()
+
+		services_button.text = (
 			"Услуги постройки · подключим следующим шагом"
 		)
 
-		built_button.disabled = true
+		services_button.disabled = true
 
 		_actions_row.add_child(
-			built_button
+			services_button
+		)
+
+		var demolish_button := Button.new()
+
+		demolish_button.text = (
+			"СНЕСТИ · %s · ресурсы не возвращаются"
+			% building_name
+		)
+
+		demolish_button.pressed.connect(
+			_on_settlement_demolish_pressed.bind(
+				zone.zone_id
+			)
+		)
+
+		_actions_row.add_child(
+			demolish_button
 		)
 
 		return
@@ -844,6 +877,30 @@ func _get_settlement_zone_text(
 			]
 		)
 
+		if (
+			building != null
+			and not building.active_effects.is_empty()
+		):
+			var effect_names := (
+				PackedStringArray()
+			)
+
+			for effect in building.active_effects:
+				if effect == null:
+					continue
+
+				effect_names.append(
+					effect.display_name
+				)
+
+			if not effect_names.is_empty():
+				lines.append(
+					"Активные эффекты: %s"
+					% " / ".join(
+						effect_names
+					)
+				)
+
 	return "\n".join(
 		lines
 	)
@@ -916,6 +973,14 @@ func _on_settlement_build_pressed(
 	settlement_build_requested.emit(
 		zone_id,
 		building_id
+	)
+
+
+func _on_settlement_demolish_pressed(
+	zone_id: StringName
+) -> void:
+	settlement_demolish_requested.emit(
+		zone_id
 	)
 
 

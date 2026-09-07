@@ -3,6 +3,13 @@
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_definition.gd" id="1_settlement"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_building_definition.gd" id="2_building"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_zone_definition.gd" id="3_zone"]
+[ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_effect_definition.gd" id="4_effect"]
+
+[sub_resource type="Resource" id="BlacksmithInfrastructureEffect"]
+script = ExtResource("4_effect")
+effect_id = &"blacksmith_infrastructure"
+display_name = "Кузнечная инфраструктура"
+description = "В родном поселении действует кузня. Конкретный игровой бонус этого эффекта будет определён позже."
 
 [sub_resource type="Resource" id="Blacksmith"]
 script = ExtResource("2_building")
@@ -13,6 +20,7 @@ construction_enabled = true
 construction_gold_cost = 200
 construction_material_cost = 10
 construction_minutes = 2880
+active_effects = Array[ExtResource("4_effect")]([SubResource("BlacksmithInfrastructureEffect")])
 max_level = 3
 
 [sub_resource type="Resource" id="Leather"]

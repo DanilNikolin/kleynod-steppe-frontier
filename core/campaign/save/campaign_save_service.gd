@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 5
+const CURRENT_SAVE_VERSION: int = 6
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -443,6 +443,9 @@ func _encode_settlement(
 		"settlement_id": String(
 			settlement.settlement_id
 		),
+		"uncollected_gold": (
+			settlement.uncollected_gold
+		),
 		"zones": zones,
 	}
 
@@ -775,6 +778,7 @@ func _decode_settlement(
 		data,
 		[
 			"settlement_id",
+			"uncollected_gold",
 			"zones",
 		],
 		"home_settlement"
@@ -798,6 +802,16 @@ func _decode_settlement(
 			"home_settlement.settlement_id",
 			false
 		)
+	)
+
+	if _failed():
+		return null
+
+	result.uncollected_gold = _int_value(
+		data["uncollected_gold"],
+		"home_settlement.uncollected_gold",
+		0,
+		999999999
 	)
 
 	if _failed():

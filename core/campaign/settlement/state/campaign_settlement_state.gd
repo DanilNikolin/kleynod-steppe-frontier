@@ -6,6 +6,13 @@ var settlement_id: StringName = &""
 
 var zones: Array[CampaignSettlementZoneState] = []
 
+## Доход, произведённый поселением,
+## но ещё не переданный в Campaign Inventory.
+##
+## Обычно копится, пока партия находится
+## вне родного поселения.
+var uncollected_gold: int = 0
+
 
 func get_zone(
 	zone_id: StringName
@@ -33,6 +40,15 @@ func get_validation_errors() -> PackedStringArray:
 	if settlement_id == &"":
 		errors.append(
 			"Settlement state ID is empty."
+		)
+
+	if (
+		uncollected_gold < 0
+		or uncollected_gold > 999999999
+	):
+		errors.append(
+			"Settlement uncollected gold must be "
+			+ "between 0 and 999999999."
 		)
 
 	var used_zone_ids: Dictionary = {}

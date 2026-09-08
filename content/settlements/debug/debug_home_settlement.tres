@@ -30,6 +30,7 @@ construction_gold_cost = 200
 construction_material_cost = 10
 construction_minutes = 2880
 active_effects = Array[ExtResource("4_effect")]([SubResource("BlacksmithInfrastructureEffect")])
+seasonal_gold_income_by_level = PackedInt32Array(20, 35)
 max_level = 2
 upgrades = Array[ExtResource("5_upgrade")]([SubResource("BlacksmithUpgradeLevel2")])
 

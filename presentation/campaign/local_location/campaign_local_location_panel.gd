@@ -54,6 +54,10 @@ var _resident_service := (
 	CampaignResidentService.new()
 )
 
+var _economy_service := (
+	CampaignSettlementEconomyService.new()
+)
+
 var _equipment_commission_service := (
 	CampaignEquipmentCommissionService.new()
 )
@@ -147,6 +151,26 @@ func _refresh_header_state() -> void:
 			materials,
 		]
 	)
+
+	if (
+		_settlement_definition != null
+		and _settlement_state != null
+	):
+		var seasonal_income := (
+			_economy_service
+				.get_seasonal_gold_income(
+					_settlement_definition,
+					_settlement_state
+				)
+		)
+
+		_resources_label.text += (
+			" · Доход/сезон: %d · Накоплено: %d"
+			% [
+				seasonal_income,
+				_settlement_state.uncollected_gold,
+			]
+		)
 
 
 func _refresh_settlement_visuals() -> void:
@@ -1012,6 +1036,19 @@ func _get_settlement_zone_text(
 				zone_state.building_level,
 			]
 		)
+
+		if building != null:
+			var seasonal_income := (
+				building.get_seasonal_gold_income(
+					zone_state.building_level
+				)
+			)
+
+			if seasonal_income > 0:
+				lines.append(
+					"Пассивный доход: %d зол. за сезон."
+					% seasonal_income
+				)
 
 		if (
 			building != null

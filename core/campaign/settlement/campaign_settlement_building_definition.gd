@@ -45,6 +45,21 @@ var construction_minutes: int = 0
 var active_effects: Array[CampaignSettlementEffectDefinition] = []
 
 
+@export_group("Economy")
+
+## Пассивный Gold за одну пройденную границу сезона.
+##
+## Индекс 0 = уровень I,
+## индекс 1 = уровень II и т.д.
+##
+## Пустой массив означает отсутствие
+## пассивного дохода.
+@export
+var seasonal_gold_income_by_level: PackedInt32Array = (
+	PackedInt32Array()
+)
+
+
 @export_group("Progression")
 
 @export_range(1, 99, 1)
@@ -72,6 +87,27 @@ func get_next_upgrade(
 ) -> CampaignSettlementBuildingUpgradeDefinition:
 	return get_upgrade_to_level(
 		current_level + 1
+	)
+
+
+func get_seasonal_gold_income(
+	building_level: int
+) -> int:
+	if building_level <= 0:
+		return 0
+
+	var index := building_level - 1
+
+	if (
+		index < 0
+		or index
+			>= seasonal_gold_income_by_level.size()
+	):
+		return 0
+
+	return maxi(
+		seasonal_gold_income_by_level[index],
+		0
 	)
 
 
@@ -215,5 +251,29 @@ func get_validation_errors() -> PackedStringArray:
 		used_upgrade_levels[
 			upgrade.target_level
 		] = true
+
+	if (
+		seasonal_gold_income_by_level.size()
+		> max_level
+	):
+		errors.append(
+			"Seasonal income defines more levels "
+			+ "than the building max level."
+		)
+
+	for income_index in range(
+		seasonal_gold_income_by_level.size()
+	):
+		if (
+			seasonal_gold_income_by_level[
+				income_index
+			]
+			< 0
+		):
+			errors.append(
+				"Seasonal income for building level %d "
+				% (income_index + 1)
+				+ "cannot be negative."
+			)
 
 	return errors

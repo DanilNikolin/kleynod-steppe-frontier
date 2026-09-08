@@ -57,6 +57,10 @@ var resident_service := (
 	CampaignResidentService.new()
 )
 
+var settlement_economy_service := (
+	CampaignSettlementEconomyService.new()
+)
+
 var equipment_commission_service := (
 	CampaignEquipmentCommissionService.new()
 )
@@ -184,6 +188,25 @@ func get_home_settlement_state() -> CampaignSettlementState:
 		campaign_state
 			.home_settlement_state
 	)
+
+
+func get_home_settlement_seasonal_gold_income() -> int:
+	return (
+		settlement_economy_service
+			.get_seasonal_gold_income(
+				get_home_settlement_definition(),
+				get_home_settlement_state()
+			)
+	)
+
+
+func get_home_settlement_uncollected_gold() -> int:
+	var state := get_home_settlement_state()
+
+	if state == null:
+		return 0
+
+	return state.uncollected_gold
 
 
 func get_active_home_settlement_effects() -> Array[CampaignSettlementEffectDefinition]:
@@ -459,6 +482,11 @@ func commission_home_resident_item(
 		campaign_state.current_minute_of_day
 	)
 
+	var previous_uncollected_gold := (
+		get_home_settlement_state()
+			.uncollected_gold
+	)
+
 	var created_item := (
 		equipment_commission_service
 			.apply_commission(
@@ -503,6 +531,10 @@ func commission_home_resident_item(
 			previous_minute
 		)
 
+		get_home_settlement_state().uncollected_gold = (
+			previous_uncollected_gold
+		)
+
 		push_warning(
 			"Resident commission time could not be applied."
 		)
@@ -530,6 +562,10 @@ func commission_home_resident_item(
 
 		campaign_state.current_minute_of_day = (
 			previous_minute
+		)
+
+		get_home_settlement_state().uncollected_gold = (
+			previous_uncollected_gold
 		)
 
 		push_error(
@@ -668,6 +704,10 @@ func construct_home_settlement_building(
 		campaign_state.current_minute_of_day
 	)
 
+	var previous_uncollected_gold := (
+		settlement_state.uncollected_gold
+	)
+
 	var previous_building_id := (
 		zone_state.building_id
 	)
@@ -676,21 +716,22 @@ func construct_home_settlement_building(
 		zone_state.building_level
 	)
 
+	## Пока идёт строительство,
+	## участок всё ещё считается в старом состоянии.
+	if not advance_time(
+		building.construction_minutes
+	):
+		push_warning(
+			"Settlement construction time could not be applied."
+		)
+
+		return false
+
 	if not settlement_construction_service.apply_construction(
 		campaign_state,
 		settlement_definition,
 		zone_id,
 		building_id
-	):
-		push_warning(
-			"Settlement construction could not be applied."
-		)
-
-		return false
-
-	## Любая постройка использует общий campaign clock.
-	if not advance_time(
-		building.construction_minutes
 	):
 		campaign_state.inventory_state.gold = (
 			previous_gold
@@ -708,6 +749,10 @@ func construct_home_settlement_building(
 			previous_minute
 		)
 
+		settlement_state.uncollected_gold = (
+			previous_uncollected_gold
+		)
+
 		zone_state.building_id = (
 			previous_building_id
 		)
@@ -717,7 +762,7 @@ func construct_home_settlement_building(
 		)
 
 		push_warning(
-			"Settlement construction time could not be applied."
+			"Settlement construction could not be applied."
 		)
 
 		return false
@@ -742,6 +787,10 @@ func construct_home_settlement_building(
 
 		campaign_state.current_minute_of_day = (
 			previous_minute
+		)
+
+		settlement_state.uncollected_gold = (
+			previous_uncollected_gold
 		)
 
 		zone_state.building_id = (
@@ -986,19 +1035,24 @@ func upgrade_home_settlement_building(
 		campaign_state.current_minute_of_day
 	)
 
-	if not settlement_construction_service.apply_upgrade(
-		campaign_state,
-		settlement_definition,
-		zone_id
+	var previous_uncollected_gold := (
+		settlement_state.uncollected_gold
+	)
+
+	## Пока идёт улучшение, действует старый уровень.
+	if not advance_time(
+		upgrade.duration_minutes
 	):
 		push_warning(
-			"Settlement upgrade could not be applied."
+			"Settlement upgrade time could not be applied."
 		)
 
 		return false
 
-	if not advance_time(
-		upgrade.duration_minutes
+	if not settlement_construction_service.apply_upgrade(
+		campaign_state,
+		settlement_definition,
+		zone_id
 	):
 		campaign_state.inventory_state.gold = (
 			previous_gold
@@ -1020,8 +1074,12 @@ func upgrade_home_settlement_building(
 			previous_minute
 		)
 
+		settlement_state.uncollected_gold = (
+			previous_uncollected_gold
+		)
+
 		push_warning(
-			"Settlement upgrade time could not be applied."
+			"Settlement upgrade could not be applied."
 		)
 
 		return false
@@ -1050,6 +1108,10 @@ func upgrade_home_settlement_building(
 
 		campaign_state.current_minute_of_day = (
 			previous_minute
+		)
+
+		settlement_state.uncollected_gold = (
+			previous_uncollected_gold
 		)
 
 		push_error(
@@ -1244,14 +1306,6 @@ func travel_to_world_node(
 		campaign_state.current_world_node_id
 	)
 
-	var previous_day := (
-		campaign_state.current_day
-	)
-
-	var previous_minute := (
-		campaign_state.current_minute_of_day
-	)
-
 	campaign_state.current_world_node_id = (
 		destination.node_id
 	)
@@ -1261,20 +1315,11 @@ func travel_to_world_node(
 		* CampaignTimeService.MINUTES_PER_DAY
 	)
 
-	if not time_service.advance_minutes(
-		campaign_state,
+	if not advance_time(
 		travel_minutes
 	):
 		campaign_state.current_world_node_id = (
 			previous_node_id
-		)
-
-		campaign_state.current_day = (
-			previous_day
-		)
-
-		campaign_state.current_minute_of_day = (
-			previous_minute
 		)
 
 		push_warning(
@@ -1286,14 +1331,6 @@ func travel_to_world_node(
 	if not campaign_state.is_valid_state():
 		campaign_state.current_world_node_id = (
 			previous_node_id
-		)
-
-		campaign_state.current_day = (
-			previous_day
-		)
-
-		campaign_state.current_minute_of_day = (
-			previous_minute
 		)
 
 		push_error(
@@ -1389,7 +1426,7 @@ func advance_time(
 	if has_pending_battle():
 		push_warning(
 			"Cannot advance campaign time "
-			+"while a battle request is active."
+			+ "while a battle request is active."
 		)
 
 		return false
@@ -1400,7 +1437,7 @@ func advance_time(
 	):
 		push_warning(
 			"Cannot advance time with "
-			+"an invalid campaign state."
+			+ "an invalid campaign state."
 		)
 
 		return false
@@ -1412,6 +1449,41 @@ func advance_time(
 
 		return false
 
+	var settlement_definition := (
+		get_home_settlement_definition()
+	)
+
+	var settlement_state := (
+		get_home_settlement_state()
+	)
+
+	var inventory := (
+		campaign_state.inventory_state
+	)
+
+	if (
+		settlement_definition == null
+		or settlement_state == null
+		or inventory == null
+	):
+		return false
+
+	var previous_day := (
+		campaign_state.current_day
+	)
+
+	var previous_minute := (
+		campaign_state.current_minute_of_day
+	)
+
+	var previous_uncollected_gold := (
+		settlement_state.uncollected_gold
+	)
+
+	var previous_inventory_gold := (
+		inventory.gold
+	)
+
 	if not time_service.advance_minutes(
 		campaign_state,
 		minutes
@@ -1422,7 +1494,96 @@ func advance_time(
 
 		return false
 
+	if not settlement_economy_service.accrue_crossed_seasons(
+		settlement_definition,
+		settlement_state,
+		previous_day,
+		campaign_state.current_day,
+		get_days_per_season()
+	):
+		_restore_time_economy_snapshot(
+			previous_day,
+			previous_minute,
+			previous_uncollected_gold,
+			previous_inventory_gold
+		)
+
+		push_warning(
+			"Settlement passive income could not be accrued."
+		)
+
+		return false
+
+	## Если партия сейчас HOME,
+	## произведённый ранее доход автоматически
+	## переходит в общий inventory.
+	if (
+		campaign_state.current_world_node_id
+		== settlement_definition.world_node_id
+	):
+		if not (
+			settlement_economy_service
+				.collect_uncollected_gold(
+					settlement_state,
+					inventory
+				)
+		):
+			_restore_time_economy_snapshot(
+				previous_day,
+				previous_minute,
+				previous_uncollected_gold,
+				previous_inventory_gold
+			)
+
+			push_warning(
+				"Settlement passive income could not be collected."
+			)
+
+			return false
+
+	if not campaign_state.is_valid_state():
+		_restore_time_economy_snapshot(
+			previous_day,
+			previous_minute,
+			previous_uncollected_gold,
+			previous_inventory_gold
+		)
+
+		return false
+
 	return true
+
+
+func _restore_time_economy_snapshot(
+	previous_day: int,
+	previous_minute: int,
+	previous_uncollected_gold: int,
+	previous_inventory_gold: int
+) -> void:
+	if campaign_state == null:
+		return
+
+	campaign_state.current_day = (
+		previous_day
+	)
+
+	campaign_state.current_minute_of_day = (
+		previous_minute
+	)
+
+	var settlement_state := (
+		get_home_settlement_state()
+	)
+
+	if settlement_state != null:
+		settlement_state.uncollected_gold = (
+			previous_uncollected_gold
+		)
+
+	if campaign_state.inventory_state != null:
+		campaign_state.inventory_state.gold = (
+			previous_inventory_gold
+		)
 
 
 func get_current_hour() -> int:

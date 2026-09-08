@@ -299,6 +299,76 @@ func apply_turn_in(
 	return false
 
 
+func get_abandon_error(
+	campaign_state: CampaignState,
+	quest_definition: CampaignQuestDefinition,
+	quest_state: CampaignQuestState
+) -> String:
+	if campaign_state == null:
+		return "Campaign state is missing."
+
+	if quest_definition == null:
+		return "Quest definition is missing."
+
+	if quest_state == null:
+		return "Quest state is missing."
+
+	if not quest_state.is_active():
+		return "Only an active quest can be abandoned."
+
+	if not quest_definition.abandon_enabled:
+		return "This quest cannot be abandoned."
+
+	return ""
+
+
+func apply_abandon(
+	campaign_state: CampaignState,
+	quest_definition: CampaignQuestDefinition,
+	quest_state: CampaignQuestState
+) -> bool:
+	if not get_abandon_error(
+		campaign_state,
+		quest_definition,
+		quest_state
+	).is_empty():
+		return false
+
+	var previous_status := (
+		quest_state.status
+	)
+
+	var previous_objective_ids := (
+		quest_state
+			.completed_objective_ids
+			.duplicate()
+	)
+
+	quest_state.status = (
+		CampaignQuestState
+			.Status
+			.NOT_STARTED
+	)
+
+	quest_state.completed_objective_ids.clear()
+
+	if (
+		quest_state.is_valid_against_definition(
+			quest_definition
+		)
+		and campaign_state.is_valid_state()
+	):
+		return true
+
+	quest_state.status = previous_status
+
+	quest_state.completed_objective_ids = (
+		previous_objective_ids
+	)
+
+	return false
+
+
 func _get_resident_world_node_id(
 	definition: CampaignResidentDefinition,
 	state: CampaignResidentState,

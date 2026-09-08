@@ -3,6 +3,7 @@ extends PanelContainer
 
 
 signal exit_requested
+signal quest_journal_requested
 
 signal interaction_action_requested(
 	interaction_id: StringName,
@@ -355,6 +356,18 @@ func _build_interface() -> void:
 
 	header.add_child(
 		_time_label
+	)
+
+	var quest_button := Button.new()
+
+	quest_button.text = "ЗАДАНИЯ"
+
+	quest_button.pressed.connect(
+		_on_quest_journal_pressed
+	)
+
+	header.add_child(
+		quest_button
 	)
 
 	var description := Label.new()
@@ -1722,3 +1735,7 @@ func _on_quest_turn_in_pressed(
 	quest_turn_in_requested.emit(
 		quest_id
 	)
+
+
+func _on_quest_journal_pressed() -> void:
+	quest_journal_requested.emit()

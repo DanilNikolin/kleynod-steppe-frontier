@@ -426,6 +426,69 @@ func turn_in_quest(
 	)
 
 
+func get_quest_abandon_error(
+	quest_id: StringName
+) -> String:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return "Campaign runtime is not ready."
+
+	if has_pending_battle():
+		return (
+			"Cannot abandon a quest "
+			+ "while a battle request is active."
+		)
+
+	return quest_service.get_abandon_error(
+		campaign_state,
+		get_quest_definition(
+			quest_id
+		),
+		get_quest_state(
+			quest_id
+		)
+	)
+
+
+func can_abandon_quest(
+	quest_id: StringName
+) -> bool:
+	return get_quest_abandon_error(
+		quest_id
+	).is_empty()
+
+
+func abandon_quest(
+	quest_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	var error := get_quest_abandon_error(
+		quest_id
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Quest abandon failed: %s"
+			% error
+		)
+
+		return false
+
+	return quest_service.apply_abandon(
+		campaign_state,
+		get_quest_definition(
+			quest_id
+		),
+		get_quest_state(
+			quest_id
+		)
+	)
+
+
 func set_resident_recruitment_unlocked(
 	resident_id: StringName,
 	unlocked: bool

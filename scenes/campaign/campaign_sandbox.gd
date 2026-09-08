@@ -11,6 +11,7 @@ const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
 var _is_preparation_open: bool = false
 var _is_local_location_open: bool = false
 var _save_status_text: String = ""
+var _quest_journal_panel: CampaignQuestJournalPanel
 
 
 func _ready() -> void:
@@ -260,6 +261,21 @@ func _create_header_panel() -> Control:
 		calendar_label
 	)
 
+	var quest_button := Button.new()
+
+	quest_button.text = (
+		"ЗАДАНИЯ (%d)"
+		% _get_active_quest_count()
+	)
+
+	quest_button.pressed.connect(
+		_open_quest_journal
+	)
+
+	content.add_child(
+		quest_button
+	)
+
 	var save_status := Label.new()
 
 	save_status.text = _save_status_text
@@ -310,6 +326,26 @@ func _create_header_panel() -> Control:
 	)
 
 	return panel
+
+
+func _get_active_quest_count() -> int:
+	var state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	if state == null:
+		return 0
+
+	var result := 0
+
+	for quest_state in state.quests:
+		if (
+			quest_state != null
+			and quest_state.is_active()
+		):
+			result += 1
+
+	return result
 
 
 func _create_world_panel() -> Control:
@@ -595,6 +631,10 @@ func _show_local_location_interface() -> void:
 
 	panel.exit_requested.connect(
 		_on_local_location_exit_requested
+	)
+
+	panel.quest_journal_requested.connect(
+		_open_quest_journal
 	)
 
 	panel.settlement_build_requested.connect(
@@ -1190,7 +1230,104 @@ func _show_initialization_error() -> void:
 	)
 
 
+func _open_quest_journal() -> void:
+	if (
+		_quest_journal_panel != null
+		and is_instance_valid(
+			_quest_journal_panel
+		)
+	):
+		return
+
+	var panel := (
+		CampaignQuestJournalPanel.new()
+	)
+
+	_quest_journal_panel = panel
+
+	panel.z_index = 100
+
+	add_child(
+		panel
+	)
+
+	panel.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+
+	panel.close_requested.connect(
+		_on_quest_journal_close_requested
+	)
+
+	panel.abandon_requested.connect(
+		_on_quest_journal_abandon_requested.bind(
+			panel
+		)
+	)
+
+	panel.bind(
+		CampaignRuntime.get_quest_definitions(),
+		CampaignRuntime.get_resident_definitions(),
+		CampaignRuntime.get_campaign_state()
+	)
+
+
+func _on_quest_journal_close_requested() -> void:
+	if (
+		_quest_journal_panel == null
+		or not is_instance_valid(
+			_quest_journal_panel
+		)
+	):
+		_quest_journal_panel = null
+		return
+
+	remove_child(
+		_quest_journal_panel
+	)
+
+	_quest_journal_panel.queue_free()
+	_quest_journal_panel = null
+
+
+func _on_quest_journal_abandon_requested(
+	quest_id: StringName,
+	panel: CampaignQuestJournalPanel
+) -> void:
+	var quest := (
+		CampaignRuntime.get_quest_definition(
+			quest_id
+		)
+	)
+
+	if not CampaignRuntime.abandon_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be abandoned."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Задание отменено: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
+		)
+
+
 func _clear_children() -> void:
+	_quest_journal_panel = null
+
 	for child in get_children():
 		remove_child(
 			child

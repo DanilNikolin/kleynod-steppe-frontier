@@ -21,6 +21,16 @@ var description: String = ""
 var giver_resident_id: StringName = &""
 
 
+@export_group("Lifecycle")
+
+## Можно ли отказаться от уже принятого задания.
+##
+## Будущие сюжетные/ключевые задания
+## смогут запрещать отказ.
+@export
+var abandon_enabled: bool = true
+
+
 @export_group("Objectives")
 
 @export

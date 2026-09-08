@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignTraderDefinition" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="CampaignTraderDefinition" load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_definition.gd" id="1_trader"]
 [ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_stock_entry_definition.gd" id="2_stock"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://content/equipment/debug/debug_steppe_armor.tres" id="4_armor"]
 [ext_resource type="Resource" path="res://content/equipment/debug/debug_traveler_charm.tres" id="5_charm"]
 [ext_resource type="Resource" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="6_berdysh"]
+[ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_reputation_tier_definition.gd" id="7_tier"]
 
 [sub_resource type="Resource" id="StockSabre"]
 script = ExtResource("2_stock")
@@ -16,6 +17,8 @@ quantity = 1
 script = ExtResource("2_stock")
 item_definition = ExtResource("4_armor")
 quantity = 1
+required_reputation = 10
+access_requirement_text = "Степной панцирь доступен при Репутации 10."
 
 [sub_resource type="Resource" id="StockCharm"]
 script = ExtResource("2_stock")
@@ -26,6 +29,22 @@ quantity = 2
 script = ExtResource("2_stock")
 item_definition = ExtResource("6_berdysh")
 quantity = 1
+required_home_settlement_effect_id = &"river_transport_access"
+access_requirement_text = "Тяжёлая бердыш доступна через речные торговые связи. Постройте Причал."
+
+[sub_resource type="Resource" id="ReputationTier10"]
+script = ExtResource("7_tier")
+display_name = "Добрая репутация"
+minimum_reputation = 10
+buy_price_multiplier = 0.9
+sell_price_multiplier = 0.6
+
+[sub_resource type="Resource" id="ReputationTier20"]
+script = ExtResource("7_tier")
+display_name = "Высокая репутация"
+minimum_reputation = 20
+buy_price_multiplier = 0.8
+sell_price_multiplier = 0.7
 
 [resource]
 script = ExtResource("1_trader")
@@ -38,4 +57,5 @@ open_action_label = "Торговля"
 starting_gold = 1000
 buy_price_multiplier = 1.0
 sell_price_multiplier = 0.5
+reputation_pricing_tiers = Array[ExtResource("7_tier")]([SubResource("ReputationTier10"), SubResource("ReputationTier20")])
 starting_stock = Array[ExtResource("2_stock")]([SubResource("StockSabre"), SubResource("StockArmor"), SubResource("StockCharm"), SubResource("StockBerdysh")])

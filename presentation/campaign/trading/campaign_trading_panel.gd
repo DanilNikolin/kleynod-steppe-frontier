@@ -24,6 +24,7 @@ enum SelectionSide {
 var _trader_definition: CampaignTraderDefinition
 var _trader_state: CampaignTraderState
 var _campaign_state: CampaignState
+var _settlement_definition: CampaignSettlementDefinition
 
 var _trading_service := CampaignTradingService.new()
 
@@ -34,6 +35,7 @@ var _status_text: String = ""
 
 
 var _trader_gold_label: Label
+var _trade_terms_label: Label
 var _player_gold_label: Label
 
 var _trader_items: VBoxContainer
@@ -53,11 +55,13 @@ var _status_label: Label
 func bind(
 	trader_definition: CampaignTraderDefinition,
 	trader_state: CampaignTraderState,
-	campaign_state: CampaignState
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition
 ) -> void:
 	_trader_definition = trader_definition
 	_trader_state = trader_state
 	_campaign_state = campaign_state
+	_settlement_definition = settlement_definition
 
 	_selected_side = SelectionSide.TRADER
 	_selected_item_instance_id = &""
@@ -331,6 +335,16 @@ func _create_trader_column() -> Control:
 
 	root.add_child(
 		_trader_gold_label
+	)
+
+	_trade_terms_label = Label.new()
+
+	_trade_terms_label.autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+
+	root.add_child(
+		_trade_terms_label
 	)
 
 	root.add_child(
@@ -636,6 +650,38 @@ func _refresh_header() -> void:
 			)
 		)
 
+	if _trade_terms_label != null:
+		var tier := (
+			_trader_definition
+				.get_reputation_pricing_tier(
+					_campaign_state.reputation
+				)
+			if (
+				_trader_definition != null
+				and _campaign_state != null
+			)
+			else null
+		)
+
+		if tier == null:
+			_trade_terms_label.text = (
+				"Репутация: %d · базовые цены"
+				% (
+					_campaign_state.reputation
+					if _campaign_state != null
+					else 0
+				)
+			)
+
+		else:
+			_trade_terms_label.text = (
+				"Репутация: %d · %s"
+				% [
+					_campaign_state.reputation,
+					tier.display_name,
+				]
+			)
+
 	var player_gold := 0
 
 	if (
@@ -666,22 +712,7 @@ func _rebuild_trader_list() -> void:
 	):
 		return
 
-	if _trader_state.items.is_empty():
-		var empty := Label.new()
-
-		empty.text = (
-			"У торговца больше нет товаров."
-		)
-
-		empty.autowrap_mode = (
-			TextServer.AUTOWRAP_WORD_SMART
-		)
-
-		_trader_items.add_child(
-			empty
-		)
-
-		return
+	var visible_item_count := 0
 
 	for item in _trader_state.items:
 		if (
@@ -690,8 +721,19 @@ func _rebuild_trader_list() -> void:
 		):
 			continue
 
+		if not _trading_service.is_stock_item_available(
+			_campaign_state,
+			_trader_definition,
+			_settlement_definition,
+			item.definition
+		):
+			continue
+
+		visible_item_count += 1
+
 		var price := (
 			_trading_service.get_buy_price(
+				_campaign_state,
 				_trader_definition,
 				item.definition
 			)
@@ -728,6 +770,21 @@ func _rebuild_trader_list() -> void:
 
 		_trader_items.add_child(
 			button
+		)
+
+	if visible_item_count == 0:
+		var empty := Label.new()
+
+		empty.text = (
+			"Сейчас доступных товаров нет."
+		)
+
+		empty.autowrap_mode = (
+			TextServer.AUTOWRAP_WORD_SMART
+		)
+
+		_trader_items.add_child(
+			empty
 		)
 
 
@@ -780,6 +837,7 @@ func _rebuild_player_list() -> void:
 			price_text = (
 				"%d зол."
 				% _trading_service.get_sell_price(
+					_campaign_state,
 					_trader_definition,
 					item.definition
 				)
@@ -941,6 +999,7 @@ func _refresh_action(
 	if _selected_side == SelectionSide.TRADER:
 		var price := (
 			_trading_service.get_buy_price(
+				_campaign_state,
 				_trader_definition,
 				item.definition
 			)
@@ -961,7 +1020,8 @@ func _refresh_action(
 				_campaign_state,
 				_trader_definition,
 				_trader_state,
-				item.instance_id
+				item.instance_id,
+				_settlement_definition
 			)
 		)
 
@@ -981,6 +1041,7 @@ func _refresh_action(
 
 	var sell_price := (
 		_trading_service.get_sell_price(
+			_campaign_state,
 			_trader_definition,
 			item.definition
 		)
@@ -1031,6 +1092,16 @@ func _resolve_selection() -> void:
 		and _trader_state.has_item(
 			_selected_item_instance_id
 		)
+		and _trading_service.is_stock_item_available(
+			_campaign_state,
+			_trader_definition,
+			_settlement_definition,
+			_trader_state
+				.get_item(
+					_selected_item_instance_id
+				)
+				.definition
+		)
 	):
 		return
 
@@ -1080,13 +1151,22 @@ func _resolve_selection() -> void:
 
 	_selected_item_instance_id = &""
 
-	if (
-		_trader_state != null
-		and not _trader_state.items.is_empty()
-	):
-		var item := _trader_state.items[0]
+	if _trader_state != null:
+		for item in _trader_state.items:
+			if (
+				item == null
+				or item.definition == null
+			):
+				continue
 
-		if item != null:
+			if not _trading_service.is_stock_item_available(
+				_campaign_state,
+				_trader_definition,
+				_settlement_definition,
+				item.definition
+			):
+				continue
+
 			_selected_side = (
 				SelectionSide.TRADER
 			)

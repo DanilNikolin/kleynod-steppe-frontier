@@ -4,8 +4,13 @@ extends RefCounted
 
 const MAX_GOLD: int = 999999999
 
+var _settlement_effect_service := (
+	CampaignSettlementEffectService.new()
+)
+
 
 func get_buy_price(
+	campaign_state: CampaignState,
 	trader_definition: CampaignTraderDefinition,
 	item_definition: HeroEquipmentItemDefinition
 ) -> int:
@@ -15,20 +20,37 @@ func get_buy_price(
 		or not item_definition.is_trade_enabled()
 	):
 		return 0
+
+	var multiplier := (
+		trader_definition.buy_price_multiplier
+	)
+
+	if campaign_state != null:
+		var tier := (
+			trader_definition
+				.get_reputation_pricing_tier(
+					campaign_state.reputation
+				)
+		)
+
+		if tier != null:
+			multiplier = (
+				tier.buy_price_multiplier
+			)
 
 	return maxi(
 		ceili(
 			float(
 				item_definition.base_trade_value
 			)
-			* trader_definition
-				.buy_price_multiplier
+			* multiplier
 		),
 		1
 	)
 
 
 func get_sell_price(
+	campaign_state: CampaignState,
 	trader_definition: CampaignTraderDefinition,
 	item_definition: HeroEquipmentItemDefinition
 ) -> int:
@@ -39,23 +61,123 @@ func get_sell_price(
 	):
 		return 0
 
+	var multiplier := (
+		trader_definition.sell_price_multiplier
+	)
+
+	if campaign_state != null:
+		var tier := (
+			trader_definition
+				.get_reputation_pricing_tier(
+					campaign_state.reputation
+				)
+		)
+
+		if tier != null:
+			multiplier = (
+				tier.sell_price_multiplier
+			)
+
 	return maxi(
 		floori(
 			float(
 				item_definition.base_trade_value
 			)
-			* trader_definition
-				.sell_price_multiplier
+			* multiplier
 		),
 		1
 	)
+
+
+func get_stock_access_error(
+	campaign_state: CampaignState,
+	trader_definition: CampaignTraderDefinition,
+	settlement_definition: CampaignSettlementDefinition,
+	item_definition: HeroEquipmentItemDefinition
+) -> String:
+	if campaign_state == null:
+		return "Campaign state is missing."
+
+	if trader_definition == null:
+		return "Trader definition is missing."
+
+	if item_definition == null:
+		return "Item definition is missing."
+
+	var stock_entry := (
+		trader_definition
+			.get_stock_entry_for_item_id(
+				item_definition.item_id
+			)
+	)
+
+	## Не authored starting stock.
+	## Например вещь, которую игрок сам
+	## когда-то продал торговцу.
+	if stock_entry == null:
+		return ""
+
+	if (
+		campaign_state.reputation
+		< stock_entry.required_reputation
+	):
+		if not stock_entry.access_requirement_text.strip_edges().is_empty():
+			return stock_entry.access_requirement_text
+
+		return (
+			"Required reputation: %d."
+			% stock_entry.required_reputation
+		)
+
+	if (
+		stock_entry.required_home_settlement_effect_id
+		!= &""
+	):
+		if (
+			settlement_definition == null
+			or campaign_state.home_settlement_state == null
+		):
+			return (
+				"Home settlement state is unavailable."
+			)
+
+		if not _settlement_effect_service.has_active_effect(
+			settlement_definition,
+			campaign_state.home_settlement_state,
+			stock_entry.required_home_settlement_effect_id
+		):
+			if not stock_entry.access_requirement_text.strip_edges().is_empty():
+				return stock_entry.access_requirement_text
+
+			return (
+				"Required settlement effect: %s."
+				% stock_entry
+					.required_home_settlement_effect_id
+			)
+
+	return ""
+
+
+func is_stock_item_available(
+	campaign_state: CampaignState,
+	trader_definition: CampaignTraderDefinition,
+	settlement_definition: CampaignSettlementDefinition,
+	item_definition: HeroEquipmentItemDefinition
+) -> bool:
+	return get_stock_access_error(
+		campaign_state,
+		trader_definition,
+		settlement_definition,
+		item_definition
+	).is_empty()
 
 
 func get_buy_error(
 	campaign_state: CampaignState,
 	trader_definition: CampaignTraderDefinition,
 	trader_state: CampaignTraderState,
-	item_instance_id: StringName
+	item_instance_id: StringName,
+	settlement_definition: CampaignSettlementDefinition = null
 ) -> String:
 	var shared_error := _get_shared_error(
 		campaign_state,
@@ -86,7 +208,20 @@ func get_buy_error(
 	):
 		return "Item is not tradeable."
 
+	var stock_access_error := (
+		get_stock_access_error(
+			campaign_state,
+			trader_definition,
+			settlement_definition,
+			item.definition
+		)
+	)
+
+	if not stock_access_error.is_empty():
+		return stock_access_error
+
 	var price := get_buy_price(
+		campaign_state,
 		trader_definition,
 		item.definition
 	)
@@ -112,13 +247,15 @@ func apply_buy(
 	campaign_state: CampaignState,
 	trader_definition: CampaignTraderDefinition,
 	trader_state: CampaignTraderState,
-	item_instance_id: StringName
+	item_instance_id: StringName,
+	settlement_definition: CampaignSettlementDefinition = null
 ) -> bool:
 	if not get_buy_error(
 		campaign_state,
 		trader_definition,
 		trader_state,
-		item_instance_id
+		item_instance_id,
+		settlement_definition
 	).is_empty():
 		return false
 
@@ -138,6 +275,7 @@ func apply_buy(
 		return false
 
 	var price := get_buy_price(
+		campaign_state,
 		trader_definition,
 		item.definition
 	)
@@ -243,6 +381,7 @@ func get_sell_error(
 		return "Trader already owns this item instance."
 
 	var price := get_sell_price(
+		campaign_state,
 		trader_definition,
 		item.definition
 	)
@@ -288,6 +427,7 @@ func apply_sell(
 		return false
 
 	var price := get_sell_price(
+		campaign_state,
 		trader_definition,
 		item.definition
 	)

@@ -2677,6 +2677,7 @@ func get_trader_buy_price(
 		return 0
 
 	return trading_service.get_buy_price(
+		campaign_state,
 		definition,
 		item.definition
 	)
@@ -2709,6 +2710,7 @@ func get_trader_sell_price(
 		return 0
 
 	return trading_service.get_sell_price(
+		campaign_state,
 		definition,
 		item.definition
 	)
@@ -2736,7 +2738,8 @@ func buy_from_trader(
 		campaign_state,
 		definition,
 		state,
-		item_instance_id
+		item_instance_id,
+		get_home_settlement_definition()
 	)
 
 	if not error.is_empty():
@@ -2751,7 +2754,8 @@ func buy_from_trader(
 		campaign_state,
 		definition,
 		state,
-		item_instance_id
+		item_instance_id,
+		get_home_settlement_definition()
 	)
 
 

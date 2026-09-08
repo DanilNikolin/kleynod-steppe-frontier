@@ -489,7 +489,8 @@ func _create_trading_panel() -> Control:
 	panel.bind(
 		trader_definition,
 		trader_state,
-		campaign_state
+		campaign_state,
+		CampaignRuntime.get_home_settlement_definition()
 	)
 
 	return panel

@@ -330,6 +330,15 @@ func _create_inventory_item_row(
 		description
 	)
 
+	## Предмет уже надет на текущего героя.
+	## Управление им идёт через верхний equipped slot,
+	## поэтому повторную кнопку Equip не показываем.
+	if (
+		hero_state != null
+		and item_owner == hero_state
+	):
+		return panel
+
 	var button_row := HBoxContainer.new()
 
 	button_row.add_theme_constant_override(
@@ -352,9 +361,9 @@ func _create_inventory_item_row(
 		)
 
 		if (
-			owner != null
+			item_owner != null
 			and hero_state != null
-			and owner != hero_state
+			and item_owner != hero_state
 		):
 			button_text = (
 				"Передать → %s"

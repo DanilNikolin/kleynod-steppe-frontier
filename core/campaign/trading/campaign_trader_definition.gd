@@ -43,6 +43,17 @@ var buy_price_multiplier: float = 1.0
 var sell_price_multiplier: float = 0.5
 
 
+@export_group("Reputation Pricing")
+
+## Выбирается tier с самым высоким
+## minimum_reputation, который игрок выполняет.
+##
+## Если подходящего tier нет,
+## используются базовые multipliers торговца.
+@export
+var reputation_pricing_tiers: Array[CampaignTraderReputationTierDefinition] = []
+
+
 @export_group("Starting Stock")
 
 @export
@@ -102,6 +113,46 @@ func get_validation_errors() -> PackedStringArray:
 			+"buy multiplier."
 		)
 
+	var used_reputation_thresholds: Dictionary = {}
+
+	for tier_index in range(
+		reputation_pricing_tiers.size()
+	):
+		var tier := reputation_pricing_tiers[
+			tier_index
+		]
+
+		if tier == null:
+			errors.append(
+				"Trader reputation tier at index %d is null."
+				% tier_index
+			)
+
+			continue
+
+		for tier_error in tier.get_validation_errors():
+			errors.append(
+				"Trader reputation tier %d: %s"
+				% [
+					tier_index,
+					tier_error,
+				]
+			)
+
+		if used_reputation_thresholds.has(
+			tier.minimum_reputation
+		):
+			errors.append(
+				"Duplicate trader reputation threshold: %d."
+					% tier.minimum_reputation
+			)
+
+			continue
+
+		used_reputation_thresholds[
+			tier.minimum_reputation
+		] = true
+
 	var used_item_ids: Dictionary = {}
 
 	for stock_index in range(
@@ -155,3 +206,42 @@ func get_validation_errors() -> PackedStringArray:
 		] = true
 
 	return errors
+
+
+func get_reputation_pricing_tier(
+	reputation: int
+) -> CampaignTraderReputationTierDefinition:
+	var result: CampaignTraderReputationTierDefinition
+	var best_threshold := -2147483648
+
+	for tier in reputation_pricing_tiers:
+		if tier == null:
+			continue
+
+		if (
+			reputation >= tier.minimum_reputation
+			and tier.minimum_reputation
+				> best_threshold
+		):
+			result = tier
+			best_threshold = tier.minimum_reputation
+
+	return result
+
+
+func get_stock_entry_for_item_id(
+	item_id: StringName
+) -> CampaignTraderStockEntryDefinition:
+	if item_id == &"":
+		return null
+
+	for stock_entry in starting_stock:
+		if (
+			stock_entry != null
+			and stock_entry.item_definition != null
+			and stock_entry.item_definition.item_id
+				== item_id
+		):
+			return stock_entry
+
+	return null

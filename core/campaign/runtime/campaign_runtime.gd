@@ -73,6 +73,12 @@ var quest_service := (
 	CampaignQuestService.new()
 )
 
+var adventure_service := (
+	CampaignAdventureService.new()
+)
+
+var _return_adventure_area_id: StringName = &""
+
 var _battle_request_counter: int = 0
 
 
@@ -123,6 +129,7 @@ func start_new_campaign() -> bool:
 
 	pending_battle_request = null
 	_battle_request_counter = 0
+	_return_adventure_area_id = &""
 
 	return true
 
@@ -196,6 +203,36 @@ func get_home_settlement_state() -> CampaignSettlementState:
 		campaign_state
 			.home_settlement_state
 	)
+
+
+func get_adventure_area_definition(
+	area_id: StringName
+) -> CampaignAdventureAreaDefinition:
+	if campaign_definition == null:
+		return null
+
+	return campaign_definition.get_adventure_area(
+		area_id
+	)
+
+
+func get_adventure_area_state(
+	area_id: StringName
+) -> CampaignAdventureAreaState:
+	if campaign_state == null:
+		return null
+
+	return campaign_state.get_adventure_area(
+		area_id
+	)
+
+
+func consume_return_adventure_area_id() -> StringName:
+	var result := _return_adventure_area_id
+
+	_return_adventure_area_id = &""
+
+	return result
 
 
 func get_home_settlement_seasonal_gold_income() -> int:
@@ -2020,6 +2057,7 @@ func load_campaign() -> CampaignSaveResult:
 	campaign_state = result.campaign_state
 
 	pending_battle_request = null
+	_return_adventure_area_id = &""
 
 	## Battle request ID — transient data,
 	## но после reload лучше продолжать счётчик,
@@ -2030,6 +2068,89 @@ func load_campaign() -> CampaignSaveResult:
 	)
 
 	return result
+
+
+func start_adventure_site(
+	area_id: StringName,
+	site_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var current_node := (
+		get_current_world_node()
+	)
+
+	if (
+		current_node == null
+		or current_node.adventure_area_id
+			!= area_id
+	):
+		push_warning(
+			"Campaign party is not inside adventure area '%s'."
+				% area_id
+		)
+
+		return false
+
+	var area_definition := (
+		get_adventure_area_definition(
+			area_id
+		)
+	)
+
+	var area_state := (
+		get_adventure_area_state(
+			area_id
+		)
+	)
+
+	var error := (
+		adventure_service
+			.get_battle_site_error(
+				area_definition,
+				area_state,
+				site_id
+			)
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Adventure site could not start: %s"
+				% error
+		)
+
+		return false
+
+	var site_definition := (
+		area_definition.get_site(
+			site_id
+		)
+	)
+
+	if site_definition == null:
+		return false
+
+	if not start_location(
+		site_definition.campaign_location_id
+	):
+		return false
+
+	if pending_battle_request == null:
+		return false
+
+	pending_battle_request.adventure_area_id = (
+		area_id
+	)
+
+	pending_battle_request.adventure_site_id = (
+		site_id
+	)
+
+	return true
 
 
 func start_current_world_adventure() -> bool:
@@ -2046,6 +2167,13 @@ func start_current_world_adventure() -> bool:
 	if current_node == null:
 		push_warning(
 			"Current world node does not exist."
+		)
+
+		return false
+
+	if current_node.adventure_area_id != &"":
+		push_warning(
+			"Current world node uses an Adventure Area."
 		)
 
 		return false
@@ -2408,6 +2536,46 @@ func complete_pending_battle_and_return(
 	)
 
 	campaign_state.completed_battle_count += 1
+
+	if (
+		pending_battle_request.adventure_area_id
+			!= &""
+		and pending_battle_request.adventure_site_id
+			!= &""
+	):
+		var area_id := (
+			pending_battle_request
+				.adventure_area_id
+		)
+
+		var site_id := (
+			pending_battle_request
+				.adventure_site_id
+		)
+
+		var adventure_progress_applied := (
+			adventure_service
+				.apply_battle_result(
+					get_adventure_area_definition(
+						area_id
+					),
+					get_adventure_area_state(
+						area_id
+					),
+					site_id,
+					result
+				)
+		)
+
+		if not adventure_progress_applied:
+			push_error(
+				"Battle completed, but adventure "
+				+"site progress could not be applied."
+			)
+
+		_return_adventure_area_id = (
+			area_id
+		)
 
 	var quest_progress_applied := (
 		quest_service.apply_battle_result(

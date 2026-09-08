@@ -6,6 +6,10 @@ var _settlement_state_factory := (
 	CampaignSettlementStateFactory.new()
 )
 
+var _adventure_area_state_factory := (
+	CampaignAdventureAreaStateFactory.new()
+)
+
 
 func create_from_definition(
 	definition: CampaignDefinition
@@ -49,6 +53,23 @@ func create_from_definition(
 
 	if result.home_settlement_state == null:
 		return null
+
+	for area_definition in (
+		definition.adventure_areas
+	):
+		var area_state := (
+			_adventure_area_state_factory
+				.create_from_definition(
+					area_definition
+				)
+		)
+
+		if area_state == null:
+			return null
+
+		result.adventure_areas.append(
+			area_state
+		)
 
 	for resident_definition in (
 		definition.residents

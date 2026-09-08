@@ -48,6 +48,38 @@ func get_start_error(
 	):
 		return "Campaign party is not at the quest giver."
 
+	for unlock in (
+		quest_definition
+			.start_adventure_site_unlocks
+	):
+		if unlock == null:
+			return (
+				"Quest adventure unlock is missing."
+			)
+
+		var area_state := (
+			campaign_state.get_adventure_area(
+				unlock.area_id
+			)
+		)
+
+		if area_state == null:
+			return (
+				"Quest adventure area state is missing: %s."
+				% unlock.area_id
+			)
+
+		if area_state.get_site(
+			unlock.site_id
+		) == null:
+			return (
+				"Quest adventure site state is missing: %s/%s."
+				% [
+					unlock.area_id,
+					unlock.site_id,
+				]
+			)
+
 	return ""
 
 
@@ -69,11 +101,63 @@ func apply_start(
 	).is_empty():
 		return false
 
+	var previous_status := (
+		quest_state.status
+	)
+
+	var previous_site_statuses: Dictionary = {}
+
+	for unlock in (
+		quest_definition
+			.start_adventure_site_unlocks
+	):
+		var area_state := (
+			campaign_state.get_adventure_area(
+				unlock.area_id
+			)
+		)
+
+		var site_state := area_state.get_site(
+			unlock.site_id
+		)
+
+		var key := (
+			"%s::%s"
+			% [
+				unlock.area_id,
+				unlock.site_id,
+			]
+		)
+
+		previous_site_statuses[
+			key
+		] = int(
+			site_state.status
+		)
+
+		if site_state.is_hidden():
+			site_state.status = (
+				CampaignAdventureSiteState
+					.Status
+					.AVAILABLE
+			)
+
 	quest_state.status = (
 		CampaignQuestState.Status.ACTIVE
 	)
 
-	return campaign_state.is_valid_state()
+	if campaign_state.is_valid_state():
+		return true
+
+	quest_state.status = previous_status
+
+	_restore_adventure_unlock_statuses(
+		campaign_state,
+		quest_definition,
+		previous_site_statuses
+	)
+
+	return false
 
 
 func apply_battle_result(
@@ -344,6 +428,57 @@ func apply_abandon(
 			.duplicate()
 	)
 
+	var previous_site_statuses: Dictionary = {}
+
+	for unlock in (
+		quest_definition
+			.start_adventure_site_unlocks
+	):
+		if unlock == null:
+			continue
+
+		var area_state := (
+			campaign_state.get_adventure_area(
+				unlock.area_id
+			)
+		)
+
+		if area_state == null:
+			continue
+
+		var site_state := area_state.get_site(
+			unlock.site_id
+		)
+
+		if site_state == null:
+			continue
+
+		var key := (
+			"%s::%s"
+			% [
+				unlock.area_id,
+				unlock.site_id,
+			]
+		)
+
+		previous_site_statuses[
+			key
+		] = int(
+			site_state.status
+		)
+
+		## Если quest-owned encounter уже был
+		## зачищен, отказ делает его снова доступным.
+		##
+		## HIDDEN не возвращаем:
+		## место уже было обнаружено.
+		if site_state.is_cleared():
+			site_state.status = (
+				CampaignAdventureSiteState
+					.Status
+					.AVAILABLE
+			)
+
 	quest_state.status = (
 		CampaignQuestState
 			.Status
@@ -366,7 +501,64 @@ func apply_abandon(
 		previous_objective_ids
 	)
 
+	_restore_adventure_unlock_statuses(
+		campaign_state,
+		quest_definition,
+		previous_site_statuses
+	)
+
 	return false
+
+
+func _restore_adventure_unlock_statuses(
+	campaign_state: CampaignState,
+	quest_definition: CampaignQuestDefinition,
+	previous_statuses: Dictionary
+) -> void:
+	for unlock in (
+		quest_definition
+			.start_adventure_site_unlocks
+	):
+		if unlock == null:
+			continue
+
+		var area_state := (
+			campaign_state.get_adventure_area(
+				unlock.area_id
+			)
+		)
+
+		if area_state == null:
+			continue
+
+		var site_state := area_state.get_site(
+			unlock.site_id
+		)
+
+		if site_state == null:
+			continue
+
+		var key := (
+			"%s::%s"
+			% [
+				unlock.area_id,
+				unlock.site_id,
+			]
+		)
+
+		if not previous_statuses.has(
+			key
+		):
+			continue
+
+		site_state.status = (
+			int(
+				previous_statuses[
+					key
+				]
+			)
+			as CampaignAdventureSiteState.Status
+		)
 
 
 func _get_resident_world_node_id(

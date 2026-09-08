@@ -13,6 +13,7 @@ enum View {
 	PARTY,
 	QUEST_JOURNAL,
 	LOCAL_LOCATION,
+	ADVENTURE_AREA,
 	HERO_PREPARATION,
 }
 
@@ -35,9 +36,29 @@ func _ready() -> void:
 
 	_build_shell()
 
-	_show_view(
-		View.WORLD_MAP
+	var return_area_id := (
+		CampaignRuntime
+			.consume_return_adventure_area_id()
 	)
+
+	var current_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	if (
+		return_area_id != &""
+		and current_node != null
+		and current_node.adventure_area_id
+			== return_area_id
+	):
+		_show_view(
+			View.ADVENTURE_AREA
+		)
+
+	else:
+		_show_view(
+			View.WORLD_MAP
+		)
 
 
 func _build_shell() -> void:
@@ -100,6 +121,11 @@ func _show_view(
 
 		View.LOCAL_LOCATION:
 			content = _create_local_location_panel()
+
+		View.ADVENTURE_AREA:
+			content = (
+				_create_adventure_area_panel()
+			)
 
 		View.HERO_PREPARATION:
 			content = _create_hero_preparation_panel()
@@ -215,6 +241,65 @@ func _go_back() -> void:
 	_show_view(
 		previous_view as View
 	)
+
+
+func _create_adventure_area_panel() -> Control:
+	var current_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	if (
+		current_node == null
+		or current_node.adventure_area_id == &""
+	):
+		return null
+
+	var area_definition := (
+		CampaignRuntime
+			.get_adventure_area_definition(
+				current_node.adventure_area_id
+			)
+	)
+
+	var area_state := (
+		CampaignRuntime
+			.get_adventure_area_state(
+				current_node.adventure_area_id
+			)
+	)
+
+	if (
+		area_definition == null
+		or area_state == null
+	):
+		return null
+
+	var panel := (
+		CampaignAdventureAreaPanel.new()
+	)
+
+	panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	panel.exit_requested.connect(
+		_on_adventure_area_exit_requested
+	)
+
+	panel.battle_site_requested.connect(
+		_on_adventure_site_battle_requested
+	)
+
+	panel.bind(
+		area_definition,
+		area_state
+	)
+
+	return panel
 
 
 func _create_world_map_panel() -> Control:
@@ -694,6 +779,21 @@ func _on_world_enter_requested(
 
 
 func _on_world_adventure_requested() -> void:
+	var current_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	if current_node == null:
+		return
+
+	if current_node.adventure_area_id != &"":
+		_show_view(
+			View.ADVENTURE_AREA,
+			true
+		)
+
+		return
+
 	var started := (
 		CampaignRuntime
 			.start_current_world_adventure()
@@ -702,6 +802,27 @@ func _on_world_adventure_requested() -> void:
 	if not started:
 		push_warning(
 			"Campaign world adventure could not be started."
+		)
+
+
+func _on_adventure_area_exit_requested() -> void:
+	_go_back()
+
+
+func _on_adventure_site_battle_requested(
+	area_id: StringName,
+	site_id: StringName
+) -> void:
+	var started := (
+		CampaignRuntime.start_adventure_site(
+			area_id,
+			site_id
+		)
+	)
+
+	if not started:
+		push_warning(
+			"Adventure site battle could not be started."
 		)
 
 

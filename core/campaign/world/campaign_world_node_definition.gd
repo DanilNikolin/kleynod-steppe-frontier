@@ -56,6 +56,13 @@ var local_location_definition: CampaignLocalLocationDefinition
 @export
 var campaign_location_id: StringName = &""
 
+## Внутренняя authored-карта adventure-региона.
+##
+## World node может иметь либо direct battle location,
+## либо adventure area, но не оба одновременно.
+@export
+var adventure_area_id: StringName = &""
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -76,11 +83,24 @@ func get_validation_errors() -> PackedStringArray:
 
 	if (
 		node_type != NodeType.ADVENTURE
-		and campaign_location_id != &""
+		and (
+			campaign_location_id != &""
+			or adventure_area_id != &""
+		)
 	):
 		errors.append(
 			"Only an adventure world node may reference "
-			+"a campaign location."
+			+"campaign adventure content."
+		)
+
+	if (
+		campaign_location_id != &""
+		and adventure_area_id != &""
+	):
+		errors.append(
+			"Adventure world node cannot reference "
+			+"both a direct campaign location "
+			+"and an adventure area."
 		)
 	if local_location_definition != null:
 		for local_error in (

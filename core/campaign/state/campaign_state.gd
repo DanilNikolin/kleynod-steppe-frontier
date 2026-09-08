@@ -52,6 +52,8 @@ var residents: Array[CampaignResidentState] = []
 ## Persistent campaign quest progression.
 var quests: Array[CampaignQuestState] = []
 
+var adventure_areas: Array[CampaignAdventureAreaState] = []
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -173,6 +175,22 @@ func get_quest(
 			and quest_state.quest_id == quest_id
 		):
 			return quest_state
+
+	return null
+
+
+func get_adventure_area(
+	area_id: StringName
+) -> CampaignAdventureAreaState:
+	if area_id == &"":
+		return null
+
+	for area_state in adventure_areas:
+		if (
+			area_state != null
+			and area_state.area_id == area_id
+		):
+			return area_state
 
 	return null
 
@@ -317,6 +335,45 @@ func get_validation_errors() -> PackedStringArray:
 
 		used_quest_ids[
 			quest.quest_id
+		] = true
+
+	var used_adventure_area_ids: Dictionary = {}
+
+	for area_index in range(
+		adventure_areas.size()
+	):
+		var area := adventure_areas[
+			area_index
+		]
+
+		if area == null:
+			errors.append(
+				"Adventure area state at index %d is null."
+				% area_index
+			)
+
+			continue
+
+		if not area.is_valid_state():
+			errors.append(
+				"Adventure area state '%s' is invalid."
+				% area.area_id
+			)
+
+			continue
+
+		if used_adventure_area_ids.has(
+			area.area_id
+		):
+			errors.append(
+				"Duplicate adventure area state ID: %s."
+				% area.area_id
+			)
+
+			continue
+
+		used_adventure_area_ids[
+			area.area_id
 		] = true
 
 	if heroes.is_empty():

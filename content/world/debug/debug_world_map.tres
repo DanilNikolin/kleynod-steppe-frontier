@@ -37,11 +37,11 @@ local_location_definition = ExtResource("6_city_local")
 [sub_resource type="Resource" id="NodeForest"]
 script = ExtResource("2_node")
 node_id = &"debug_forest_edge_node"
-display_name = "Лесная окраина"
-description = "Опасная точка за пределами поселений."
+display_name = "Лес"
+description = "Большой лесной регион за пределами поселений."
 node_type = 3
 map_position = Vector2(430, 500)
-campaign_location_id = &"debug_forest_edge"
+adventure_area_id = &"debug_forest_area"
 
 [sub_resource type="Resource" id="RouteHomeVillage"]
 script = ExtResource("3_route")

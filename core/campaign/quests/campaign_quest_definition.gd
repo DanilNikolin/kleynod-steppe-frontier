@@ -31,6 +31,14 @@ var giver_resident_id: StringName = &""
 var abandon_enabled: bool = true
 
 
+@export_group("Adventure")
+
+## Adventure sites, которые становятся AVAILABLE
+## в момент принятия задания.
+@export
+var start_adventure_site_unlocks: Array[CampaignAdventureSiteReferenceDefinition] = []
+
+
 @export_group("Objectives")
 
 @export
@@ -161,6 +169,50 @@ func get_validation_errors() -> PackedStringArray:
 
 		used_unlock_ids[
 			resident_id
+		] = true
+
+	var used_adventure_unlocks: Dictionary = {}
+
+	for unlock_index in range(
+		start_adventure_site_unlocks.size()
+	):
+		var unlock := (
+			start_adventure_site_unlocks[
+				unlock_index
+			]
+		)
+
+		if (
+			unlock == null
+			or not unlock.is_valid_definition()
+		):
+			errors.append(
+				"Quest adventure unlock at index %d is invalid."
+					% unlock_index
+			)
+
+			continue
+
+		var key := (
+			"%s::%s"
+			% [
+				unlock.area_id,
+				unlock.site_id,
+			]
+		)
+
+		if used_adventure_unlocks.has(
+			key
+		):
+			errors.append(
+				"Duplicate quest adventure unlock: %s."
+					% key
+			)
+
+			continue
+
+		used_adventure_unlocks[
+			key
 		] = true
 
 	return errors

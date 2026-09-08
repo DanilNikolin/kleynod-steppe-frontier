@@ -281,8 +281,22 @@ func _refresh_selection() -> void:
 
 	_adventure_button.visible = (
 		current_node.campaign_location_id
-		!= &""
+			!= &""
+		or current_node.adventure_area_id
+			!= &""
 	)
+
+	if _adventure_button.visible:
+		if current_node.adventure_area_id != &"":
+			_adventure_button.text = (
+				"ВОЙТИ В РЕГИОН · %s"
+				% current_node.display_name
+			)
+
+		else:
+			_adventure_button.text = (
+				"НАЧАТЬ ПРИКЛЮЧЕНИЕ"
+			)
 
 	var selected_node := (
 		_world_map.get_node(

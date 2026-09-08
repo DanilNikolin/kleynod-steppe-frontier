@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 7
+const CURRENT_SAVE_VERSION: int = 8
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -243,6 +243,11 @@ func _encode_campaign(
 		),
 		"quests": _encode_quests(
 			state.quests
+		),
+		"adventure_areas": (
+			_encode_adventure_areas(
+				state.adventure_areas
+			)
 		),
 
 		"completed_battle_count": (
@@ -501,6 +506,38 @@ func _encode_quests(
 	return result
 
 
+func _encode_adventure_areas(
+	areas: Array[CampaignAdventureAreaState]
+) -> Array:
+	var result: Array = []
+
+	for area in areas:
+		var sites: Array = []
+
+		for site in area.sites:
+			sites.append(
+				{
+					"site_id": String(
+						site.site_id
+					),
+					"status": int(
+						site.status
+					),
+				}
+			)
+
+		result.append(
+			{
+				"area_id": String(
+					area.area_id
+				),
+				"sites": sites,
+			}
+		)
+
+	return result
+
+
 func _decode_campaign(
 	data: Dictionary,
 	definition: CampaignDefinition
@@ -519,6 +556,7 @@ func _decode_campaign(
 			"reputation",
 			"materials",
 			"home_settlement",
+			"adventure_areas",
 			"residents",
 			"quests",
 			"completed_battle_count",
@@ -676,6 +714,13 @@ func _decode_campaign(
 	)
 
 	if state.home_settlement_state == null:
+		return null
+
+	if not _decode_adventure_areas(
+		data["adventure_areas"],
+		state,
+		definition
+	):
 		return null
 
 	if not _decode_residents(
@@ -1790,6 +1835,251 @@ func _bool_value(
 		return false
 
 	return value
+
+
+func _decode_adventure_areas(
+	value: Variant,
+	state: CampaignState,
+	definition: CampaignDefinition
+) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		_fail(
+			"adventure_areas must be an Array."
+		)
+
+		return false
+
+	var data: Array = value
+
+	if (
+		data.size()
+		!= definition.adventure_areas.size()
+	):
+		_fail(
+			"Saved adventure area roster does not match "
+			+"current campaign content."
+		)
+
+		return false
+
+	var seen_areas: Dictionary = {}
+
+	for area_index in range(
+		data.size()
+	):
+		var area_value: Variant = (
+			data[area_index]
+		)
+
+		if typeof(
+			area_value
+		) != TYPE_DICTIONARY:
+			_fail(
+				"adventure_areas[%d] must be a Dictionary."
+				% area_index
+			)
+
+			return false
+
+		var area_data: Dictionary = (
+			area_value
+		)
+
+		if not _has_keys(
+			area_data,
+			[
+				"area_id",
+				"sites",
+			],
+			"adventure area %d"
+				% area_index
+		):
+			return false
+
+		var area_id := StringName(
+			_string_value(
+				area_data["area_id"],
+				"adventure_area.area_id",
+				false
+			)
+		)
+
+		if _failed():
+			return false
+
+		if seen_areas.has(
+			area_id
+		):
+			_fail(
+				"Duplicate saved adventure area '%s'."
+					% area_id
+			)
+
+			return false
+
+		var area_definition := (
+			definition.get_adventure_area(
+				area_id
+			)
+		)
+
+		var area_state := (
+			state.get_adventure_area(
+				area_id
+			)
+		)
+
+		if (
+			area_definition == null
+			or area_state == null
+		):
+			_fail(
+				"Unknown saved adventure area '%s'."
+					% area_id
+			)
+
+			return false
+
+		if typeof(
+			area_data["sites"]
+		) != TYPE_ARRAY:
+			_fail(
+				"Adventure area sites must be an Array."
+			)
+
+			return false
+
+		var sites_data: Array = (
+			area_data["sites"]
+		)
+
+		if (
+			sites_data.size()
+			!= area_definition.sites.size()
+		):
+			_fail(
+				"Adventure area '%s' site roster mismatch."
+					% area_id
+			)
+
+			return false
+
+		var seen_sites: Dictionary = {}
+
+		for site_index in range(
+			sites_data.size()
+		):
+			var site_value: Variant = (
+				sites_data[
+					site_index
+				]
+			)
+
+			if typeof(
+				site_value
+			) != TYPE_DICTIONARY:
+				_fail(
+					"Adventure site must be a Dictionary."
+				)
+
+				return false
+
+			var site_data: Dictionary = (
+				site_value
+			)
+
+			if not _has_keys(
+				site_data,
+				[
+					"site_id",
+					"status",
+				],
+				"adventure site %d"
+					% site_index
+			):
+				return false
+
+			var site_id := StringName(
+				_string_value(
+					site_data["site_id"],
+					"adventure_site.site_id",
+					false
+				)
+			)
+
+			if _failed():
+				return false
+
+			if seen_sites.has(
+				site_id
+			):
+				_fail(
+					"Duplicate saved adventure site '%s'."
+						% site_id
+				)
+
+				return false
+
+			if area_definition.get_site(
+				site_id
+			) == null:
+				_fail(
+					"Unknown saved adventure site '%s/%s'."
+						% [
+							area_id,
+							site_id,
+						]
+				)
+
+				return false
+
+			var site_state := (
+				area_state.get_site(
+					site_id
+				)
+			)
+
+			if site_state == null:
+				return false
+
+			site_state.status = (
+				_int_value(
+					site_data["status"],
+					"adventure_site.status",
+					CampaignAdventureSiteState.Status.HIDDEN,
+					CampaignAdventureSiteState.Status.CLEARED
+				)
+				as CampaignAdventureSiteState.Status
+			)
+
+			if (
+				_failed()
+				or not site_state.is_valid_state()
+			):
+				return false
+
+			seen_sites[
+				site_id
+			] = true
+
+		if not area_state.is_valid_against_definition(
+			area_definition
+		):
+			_fail(
+				"Loaded adventure area '%s' is invalid."
+					% area_id
+			)
+
+			return false
+
+		seen_areas[
+			area_id
+		] = true
+
+	return (
+		seen_areas.size()
+		== state.adventure_areas.size()
+	)
 
 
 func _decode_residents(

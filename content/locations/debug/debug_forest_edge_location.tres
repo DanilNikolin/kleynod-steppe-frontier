@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_location")
 location_id = &"debug_forest_edge"
-display_name = "Лесная окраина"
-description = "Отладочная локация для похода партии размером от одного до трёх героев."
+display_name = "Разбойничий лагерь"
+description = "Боевая локация разбойничьего лагеря внутри лесного региона."
 encounter_definition = ExtResource("2_encounter")
 party_spawn_instance_ids = Array[StringName]([&"party_slot_1", &"party_slot_2", &"party_slot_3"])

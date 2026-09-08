@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="CampaignQuestDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CampaignQuestDefinition" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_definition.gd" id="1_quest"]
 [ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_objective_definition.gd" id="2_objective"]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_reference_definition.gd" id="3_site_ref"]
 
 [sub_resource type="Resource" id="BanditObjective"]
 script = ExtResource("2_objective")
@@ -10,12 +11,18 @@ display_name = "Разгромить разбойников"
 objective_type = 0
 target_location_id = &"debug_forest_edge"
 
+[sub_resource type="Resource" id="BanditCampUnlock"]
+script = ExtResource("3_site_ref")
+area_id = &"debug_forest_area"
+site_id = &"bandit_camp"
+
 [resource]
 script = ExtResource("1_quest")
 quest_id = &"ostap_forest_bandits"
 display_name = "Долг кузнеца"
 description = "Остап просит разобраться с разбойниками, обосновавшимися у лесной дороги."
 giver_resident_id = &"resident_blacksmith_ostap"
+start_adventure_site_unlocks = Array[ExtResource("3_site_ref")]([SubResource("BanditCampUnlock")])
 objectives = Array[ExtResource("2_objective")]([SubResource("BanditObjective")])
 reputation_reward = 5
 recruitment_unlock_resident_ids = Array[StringName]([&"resident_blacksmith_ostap"])

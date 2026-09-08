@@ -50,6 +50,13 @@ var loot_catalog: Array[HeroEquipmentItemDefinition] = []
 @export
 var locations: Array[CampaignLocationDefinition] = []
 
+
+@export_group("Adventure Areas")
+
+@export
+var adventure_areas: Array[CampaignAdventureAreaDefinition] = []
+
+
 @export_group("World")
 
 @export
@@ -372,6 +379,71 @@ func get_validation_errors() -> PackedStringArray:
 			location.location_id
 		] = true
 
+	var used_adventure_area_ids: Dictionary = {}
+
+	for area_index in range(
+		adventure_areas.size()
+	):
+		var area := adventure_areas[
+			area_index
+		]
+
+		if area == null:
+			errors.append(
+				"Adventure area at index %d is null."
+				% area_index
+			)
+
+			continue
+
+		for area_error in (
+			area.get_validation_errors()
+		):
+			errors.append(
+				"Adventure area %d: %s"
+				% [
+					area_index,
+					area_error,
+				]
+			)
+
+		if area.area_id != &"":
+			if used_adventure_area_ids.has(
+				area.area_id
+			):
+				errors.append(
+					"Duplicate adventure area ID: %s."
+					% area.area_id
+				)
+
+			else:
+				used_adventure_area_ids[
+					area.area_id
+				] = true
+
+		for site in area.sites:
+			if site == null:
+				continue
+
+			if (
+				site.site_type
+				== CampaignAdventureSiteDefinition
+					.SiteType
+					.BATTLE
+				and get_location(
+					site.campaign_location_id
+				) == null
+			):
+				errors.append(
+					"Adventure area '%s' site '%s' "
+					% [
+						area.area_id,
+						site.site_id,
+					]
+					+"references unknown campaign location '%s'."
+					% site.campaign_location_id
+				)
+
 	if world_map_definition == null:
 		errors.append(
 			"Campaign world map is not assigned."
@@ -405,6 +477,21 @@ func get_validation_errors() -> PackedStringArray:
 					% world_node.node_id
 					+"unknown campaign location '%s'."
 					% world_node.campaign_location_id
+				)
+
+			if (
+				world_node != null
+				and world_node.adventure_area_id
+					!= &""
+				and get_adventure_area(
+					world_node.adventure_area_id
+				) == null
+			):
+				errors.append(
+					"World node '%s' references "
+					% world_node.node_id
+					+"unknown adventure area '%s'."
+					% world_node.adventure_area_id
 				)
 
 	if starting_day < 0:
@@ -753,6 +840,39 @@ func get_validation_errors() -> PackedStringArray:
 					% unlock_resident_id
 				)
 
+		for unlock in (
+			quest.start_adventure_site_unlocks
+		):
+			if unlock == null:
+				continue
+
+			var area := get_adventure_area(
+				unlock.area_id
+			)
+
+			if area == null:
+				errors.append(
+					"Quest '%s' references "
+					% quest.quest_id
+					+"unknown adventure area '%s'."
+					% unlock.area_id
+				)
+
+				continue
+
+			if area.get_site(
+				unlock.site_id
+			) == null:
+				errors.append(
+					"Quest '%s' references "
+					% quest.quest_id
+					+"unknown adventure site '%s/%s'."
+					% [
+						unlock.area_id,
+						unlock.site_id,
+					]
+				)
+
 	return errors
 
 
@@ -876,5 +996,21 @@ func get_quest(
 			and quest.quest_id == quest_id
 		):
 			return quest
+
+	return null
+
+
+func get_adventure_area(
+	area_id: StringName
+) -> CampaignAdventureAreaDefinition:
+	if area_id == &"":
+		return null
+
+	for area in adventure_areas:
+		if (
+			area != null
+			and area.area_id == area_id
+		):
+			return area
 
 	return null

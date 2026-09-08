@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="1_area"]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_definition.gd" id="2_site"]
+
+[sub_resource type="Resource" id="ForestRoad"]
+script = ExtResource("2_site")
+site_id = &"forest_road"
+display_name = "Лесная дорога"
+description = "Старая дорога уходит глубже в лес. Отсюда расходятся несколько троп."
+map_position = Vector2(190, 260)
+connected_site_ids = Array[StringName]([&"bandit_camp", &"old_grove"])
+starting_available = true
+site_type = 0
+
+[sub_resource type="Resource" id="BanditCamp"]
+script = ExtResource("2_site")
+site_id = &"bandit_camp"
+display_name = "Разбойничий лагерь"
+description = "Укреплённая стоянка разбойников среди деревьев."
+map_position = Vector2(520, 160)
+starting_available = false
+site_type = 1
+campaign_location_id = &"debug_forest_edge"
+clear_on_victory = true
+
+[sub_resource type="Resource" id="OldGrove"]
+script = ExtResource("2_site")
+site_id = &"old_grove"
+display_name = "Старая роща"
+description = "Тихая старая роща. Пока здесь нет доступного действия."
+map_position = Vector2(650, 360)
+starting_available = true
+site_type = 0
+
+[resource]
+script = ExtResource("1_area")
+area_id = &"debug_forest_area"
+display_name = "Лес"
+description = "Большой лесной регион у поселений. Внутри него находятся отдельные дороги, лагеря и другие места."
+sites = Array[ExtResource("2_site")]([SubResource("ForestRoad"), SubResource("BanditCamp"), SubResource("OldGrove")])

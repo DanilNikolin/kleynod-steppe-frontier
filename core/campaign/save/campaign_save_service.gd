@@ -1489,11 +1489,13 @@ func _decode_battle_result(
 		)
 	)
 
-	result.outcome = _int_value(
-		data["outcome"],
-		"battle.outcome",
-		CampaignBattleResult.Outcome.VICTORY,
-		CampaignBattleResult.Outcome.DRAW
+	result.outcome = (
+		_int_value(
+			data["outcome"],
+			"battle.outcome",
+			CampaignBattleResult.Outcome.VICTORY,
+			CampaignBattleResult.Outcome.DRAW
+		) as CampaignBattleResult.Outcome
 	)
 
 	result.defeated_enemy_experience_pool = (
@@ -1894,7 +1896,7 @@ func _decode_residents(
 			"resident.status",
 			CampaignResidentState.Status.ORIGIN,
 			CampaignResidentState.Status.HOME_SETTLEMENT
-		)
+		) as CampaignResidentState.Status
 
 		resident_state.recruitment_unlocked = (
 			_bool_value(
@@ -2022,11 +2024,13 @@ func _decode_quests(
 
 			return false
 
-		quest_state.status = _int_value(
-			quest_data["status"],
-			"quest.status",
-			CampaignQuestState.Status.NOT_STARTED,
-			CampaignQuestState.Status.COMPLETED
+		quest_state.status = (
+			_int_value(
+				quest_data["status"],
+				"quest.status",
+				CampaignQuestState.Status.NOT_STARTED,
+				CampaignQuestState.Status.COMPLETED
+			) as CampaignQuestState.Status
 		)
 
 		quest_state.completed_objective_ids = (

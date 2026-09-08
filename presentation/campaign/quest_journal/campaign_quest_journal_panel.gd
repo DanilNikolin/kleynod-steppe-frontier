@@ -19,6 +19,8 @@ var _selected_quest_id: StringName = &""
 ## Первый клик на abandon только включает подтверждение.
 var _abandon_confirmation_quest_id: StringName = &""
 
+var _show_close_button: bool = true
+
 
 var _quest_list: VBoxContainer
 
@@ -36,11 +38,14 @@ var _status_label: Label
 func bind(
 	quest_definitions: Array[CampaignQuestDefinition],
 	resident_definitions: Array[CampaignResidentDefinition],
-	state: CampaignState
+	state: CampaignState,
+	show_close_button: bool = true
 ) -> void:
 	_quest_definitions = quest_definitions
 	_resident_definitions = resident_definitions
 	_state = state
+
+	_show_close_button = show_close_button
 
 	_selected_quest_id = &""
 	_abandon_confirmation_quest_id = &""
@@ -168,22 +173,23 @@ func _build_interface() -> void:
 		title
 	)
 
-	var close_button := Button.new()
+	if _show_close_button:
+		var close_button := Button.new()
 
-	close_button.text = "ЗАКРЫТЬ"
+		close_button.text = "ЗАКРЫТЬ"
 
-	close_button.custom_minimum_size = Vector2(
-		140,
-		44
-	)
+		close_button.custom_minimum_size = Vector2(
+			140,
+			44
+		)
 
-	close_button.pressed.connect(
-		_on_close_pressed
-	)
+		close_button.pressed.connect(
+			_on_close_pressed
+		)
 
-	header.add_child(
-		close_button
-	)
+		header.add_child(
+			close_button
+		)
 
 	root.add_child(
 		HSeparator.new()

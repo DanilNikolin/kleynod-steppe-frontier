@@ -66,11 +66,13 @@ func get_crossed_season_count(
 	):
 		return 0
 
+	@warning_ignore("integer_division")
 	var previous_season_index := (
 		previous_day
 		/ days_per_season
 	)
 
+	@warning_ignore("integer_division")
 	var current_season_index := (
 		current_day
 		/ days_per_season

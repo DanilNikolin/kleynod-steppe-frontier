@@ -794,7 +794,7 @@ func get_equipment_item_definition(
 	if item_id == &"":
 		return null
 
-	var result: HeroEquipmentItemDefinition
+	var result: HeroEquipmentItemDefinition = null
 
 	for item_instance in starting_inventory_items:
 		if (

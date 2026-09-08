@@ -48,6 +48,7 @@ var _settlement_definition: CampaignSettlementDefinition
 var _settlement_state: CampaignSettlementState
 
 var _selected_interaction_id: StringName = &""
+var _embedded_in_shell: bool = false
 
 var _time_service := (
 	CampaignTimeService.new()
@@ -99,7 +100,8 @@ func bind(
 	settlement_definition: CampaignSettlementDefinition,
 	settlement_state: CampaignSettlementState,
 	resident_definitions: Array[CampaignResidentDefinition],
-	quest_definitions: Array[CampaignQuestDefinition]
+	quest_definitions: Array[CampaignQuestDefinition],
+	embedded_in_shell: bool = false
 ) -> void:
 	_definition = definition
 	_state = state
@@ -118,6 +120,10 @@ func bind(
 
 	_quest_definitions = (
 		quest_definitions
+	)
+
+	_embedded_in_shell = (
+		embedded_in_shell
 	)
 
 	_selected_interaction_id = &""
@@ -336,39 +342,43 @@ func _build_interface() -> void:
 		title
 	)
 
-	_resources_label = Label.new()
+	_resources_label = null
+	_time_label = null
 
-	_resources_label.add_theme_font_size_override(
-		"font_size",
-		18
-	)
+	if not _embedded_in_shell:
+		_resources_label = Label.new()
 
-	header.add_child(
-		_resources_label
-	)
+		_resources_label.add_theme_font_size_override(
+			"font_size",
+			18
+		)
 
-	_time_label = Label.new()
+		header.add_child(
+			_resources_label
+		)
 
-	_time_label.add_theme_font_size_override(
-		"font_size",
-		20
-	)
+		_time_label = Label.new()
 
-	header.add_child(
-		_time_label
-	)
+		_time_label.add_theme_font_size_override(
+			"font_size",
+			20
+		)
 
-	var quest_button := Button.new()
+		header.add_child(
+			_time_label
+		)
 
-	quest_button.text = "ЗАДАНИЯ"
+		var quest_button := Button.new()
 
-	quest_button.pressed.connect(
-		_on_quest_journal_pressed
-	)
+		quest_button.text = "ЗАДАНИЯ"
 
-	header.add_child(
-		quest_button
-	)
+		quest_button.pressed.connect(
+			_on_quest_journal_pressed
+		)
+
+		header.add_child(
+			quest_button
+		)
 
 	var description := Label.new()
 
@@ -951,13 +961,13 @@ func _get_duration_text(
 			% CampaignTimeService.MINUTES_PER_DAY
 			== 0
 	):
-		return (
-			"%d дн."
-			% (
-				minutes
-				/ CampaignTimeService.MINUTES_PER_DAY
-			)
+		@warning_ignore("integer_division")
+		var days := (
+			minutes
+			/ CampaignTimeService.MINUTES_PER_DAY
 		)
+
+		return "%d дн." % days
 
 	if (
 		minutes > 0
@@ -965,13 +975,13 @@ func _get_duration_text(
 			% CampaignTimeService.MINUTES_PER_HOUR
 			== 0
 	):
-		return (
-			"%d ч."
-			% (
-				minutes
-				/ CampaignTimeService.MINUTES_PER_HOUR
-			)
+		@warning_ignore("integer_division")
+		var hours := (
+			minutes
+			/ CampaignTimeService.MINUTES_PER_HOUR
 		)
+
+		return "%d ч." % hours
 
 	return "%d мин." % minutes
 

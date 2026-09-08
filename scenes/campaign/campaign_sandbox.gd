@@ -8,10 +8,24 @@ const HERO_PREPARATION_PANEL_SCENE: PackedScene = preload(
 )
 
 
-var _is_preparation_open: bool = false
-var _is_local_location_open: bool = false
+enum View {
+	WORLD_MAP,
+	PARTY,
+	QUEST_JOURNAL,
+	LOCAL_LOCATION,
+	HERO_PREPARATION,
+}
+
+
+var _shell: CampaignShell
+
+var _current_view: View = View.WORLD_MAP
+
+var _view_stack: Array[int] = []
+
 var _save_status_text: String = ""
-var _quest_journal_panel: CampaignQuestJournalPanel
+
+var _current_menu_panel: CampaignMenuPanel
 
 
 func _ready() -> void:
@@ -19,337 +33,200 @@ func _ready() -> void:
 		_show_initialization_error()
 		return
 
-	_rebuild_interface()
+	_build_shell()
+
+	_show_view(
+		View.WORLD_MAP
+	)
 
 
-func _rebuild_interface() -> void:
-	_clear_children()
+func _build_shell() -> void:
+	for child in get_children():
+		remove_child(
+			child
+		)
 
-	if _is_local_location_open:
-		_show_local_location_interface()
-		return
+		child.queue_free()
 
-	if _is_preparation_open:
-		_show_preparation_interface()
-		return
+	_shell = CampaignShell.new()
 
-	var background := ColorRect.new()
+	add_child(
+		_shell
+	)
 
-	background.set_anchors_and_offsets_preset(
+	_shell.set_anchors_and_offsets_preset(
 		Control.PRESET_FULL_RECT
 	)
 
-	background.color = Color(
-		0.055,
-		0.06,
-		0.07,
-		1.0
+	_shell.section_requested.connect(
+		_on_shell_section_requested
 	)
 
-	add_child(
-		background
+	_shell.back_requested.connect(
+		_on_shell_back_requested
 	)
 
-	var margin := MarginContainer.new()
-
-	margin.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
-	)
-
-	margin.add_theme_constant_override(
-		"margin_left",
-		48
-	)
-
-	margin.add_theme_constant_override(
-		"margin_top",
-		36
-	)
-
-	margin.add_theme_constant_override(
-		"margin_right",
-		48
-	)
-
-	margin.add_theme_constant_override(
-		"margin_bottom",
-		36
-	)
-
-	add_child(
-		margin
-	)
-
-	var root_column := VBoxContainer.new()
-
-	root_column.add_theme_constant_override(
-		"separation",
-		20
-	)
-
-	margin.add_child(
-		root_column
-	)
-
-	root_column.add_child(
-		_create_header_panel()
-	)
-
-	var body_row := HBoxContainer.new()
-
-	body_row.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	body_row.add_theme_constant_override(
-		"separation",
-		20
-	)
-
-	root_column.add_child(
-		body_row
-	)
-
-	var party_panel := CampaignPartyPanel.new()
-
-	party_panel.custom_minimum_size = Vector2(
-		920,
-		0
-	)
-
-	party_panel.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	party_panel.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	party_panel.state_changed.connect(
-		_on_party_state_changed
-	)
-
-	party_panel.preparation_requested.connect(
-		_on_preparation_requested
-	)
-
-	body_row.add_child(
-		party_panel
-	)
-
-	party_panel.bind(
-		CampaignRuntime.get_campaign_state()
-	)
-
-	var world_panel := _create_world_panel()
-
-	world_panel.custom_minimum_size = Vector2(
-		540,
-		0
-	)
-
-	world_panel.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	world_panel.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	body_row.add_child(
-		world_panel
-	)
-
-	root_column.add_child(
-		_create_result_panel()
+	_shell.menu_requested.connect(
+		_on_shell_menu_requested
 	)
 
 
-func _create_header_panel() -> Control:
-	var panel := PanelContainer.new()
-	var content := HBoxContainer.new()
+func _show_view(
+	view: View,
+	push_current: bool = false
+) -> void:
+	if _shell == null:
+		return
 
-	content.add_theme_constant_override(
-		"separation",
-		12
-	)
+	if (
+		push_current
+		and view != _current_view
+	):
+		_push_current_view()
 
-	panel.add_child(
+	_current_view = view
+
+	var content: Control
+
+	match view:
+		View.WORLD_MAP:
+			content = _create_world_map_panel()
+
+		View.PARTY:
+			content = _create_party_panel()
+
+		View.QUEST_JOURNAL:
+			content = _create_quest_journal_panel()
+
+		View.LOCAL_LOCATION:
+			content = _create_local_location_panel()
+
+		View.HERO_PREPARATION:
+			content = _create_hero_preparation_panel()
+
+	if content == null:
+		push_warning(
+			"Campaign view could not be created."
+		)
+
+		_view_stack.clear()
+
+		_current_view = (
+			View.WORLD_MAP
+		)
+
+		content = _create_world_map_panel()
+
+	_shell.set_content(
 		content
 	)
 
-	var title := Label.new()
+	_refresh_shell()
 
-	title.text = "ЛАГЕРЬ · CAMPAIGN FLOW SANDBOX"
 
-	title.add_theme_font_size_override(
-		"font_size",
-		28
+func _refresh_current_view() -> void:
+	_show_view(
+		_current_view,
+		false
 	)
 
-	title.size_flags_horizontal = (
+
+func _refresh_shell() -> void:
+	if _shell == null:
+		return
+
+	var state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	var current_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	var location_text := (
+		current_node.display_name
+		if current_node != null
+		else "Неизвестная местность"
+	)
+
+	_shell.refresh_hud(
+		state,
+		location_text,
+		_get_calendar_display_text(),
+		_get_active_section_id(),
+		not _view_stack.is_empty()
+	)
+
+
+func _get_active_section_id() -> StringName:
+	match _current_view:
+		View.WORLD_MAP:
+			return (
+				CampaignShell.SECTION_WORLD_MAP
+			)
+
+		View.PARTY:
+			return (
+				CampaignShell.SECTION_PARTY
+			)
+
+		View.HERO_PREPARATION:
+			return (
+				CampaignShell.SECTION_PARTY
+			)
+
+		View.QUEST_JOURNAL:
+			return (
+				CampaignShell.SECTION_QUESTS
+			)
+
+	return &""
+
+
+func _push_current_view() -> void:
+	var current_value := int(
+		_current_view
+	)
+
+	if (
+		not _view_stack.is_empty()
+		and _view_stack.back()
+			== current_value
+	):
+		return
+
+	_view_stack.append(
+		current_value
+	)
+
+
+func _go_back() -> void:
+	if _view_stack.is_empty():
+		_show_view(
+			View.WORLD_MAP
+		)
+
+		return
+
+	var previous_view := int(
+		_view_stack.pop_back()
+	)
+
+	_show_view(
+		previous_view as View
+	)
+
+
+func _create_world_map_panel() -> Control:
+	var panel := CampaignWorldMapPanel.new()
+
+	panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	content.add_child(
-		title
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
 	)
-
-	var inventory := (
-		CampaignRuntime.get_inventory_state()
-	)
-
-	var gold_label := Label.new()
-
-	gold_label.text = (
-		"Золото: %d"
-		% (
-			inventory.gold
-			if inventory != null
-			else 0
-		)
-	)
-
-	gold_label.add_theme_font_size_override(
-		"font_size",
-		18
-	)
-
-	content.add_child(
-		gold_label
-	)
-
-	var state := (
-		CampaignRuntime.get_campaign_state()
-	)
-
-	var world_resources_label := Label.new()
-
-	world_resources_label.text = (
-		"Материалы: %d · Репутация: %d"
-		% [
-			state.materials
-			if state != null
-			else 0,
-			state.reputation
-			if state != null
-			else 0,
-		]
-	)
-
-	world_resources_label.add_theme_font_size_override(
-		"font_size",
-		16
-	)
-
-	content.add_child(
-		world_resources_label
-	)
-
-	var calendar_label := Label.new()
-
-	calendar_label.text = (
-		_get_calendar_display_text()
-	)
-
-	calendar_label.add_theme_font_size_override(
-		"font_size",
-		16
-	)
-
-	content.add_child(
-		calendar_label
-	)
-
-	var quest_button := Button.new()
-
-	quest_button.text = (
-		"ЗАДАНИЯ (%d)"
-		% _get_active_quest_count()
-	)
-
-	quest_button.pressed.connect(
-		_open_quest_journal
-	)
-
-	content.add_child(
-		quest_button
-	)
-
-	var save_status := Label.new()
-
-	save_status.text = _save_status_text
-
-	save_status.custom_minimum_size = Vector2(
-		170,
-		0
-	)
-
-	content.add_child(
-		save_status
-	)
-
-	var save_button := Button.new()
-
-	save_button.text = "СОХРАНИТЬ"
-
-	save_button.pressed.connect(
-		_on_save_campaign_pressed
-	)
-
-	content.add_child(
-		save_button
-	)
-
-	var load_button := Button.new()
-
-	load_button.text = "ЗАГРУЗИТЬ"
-
-	load_button.pressed.connect(
-		_on_load_campaign_pressed
-	)
-
-	content.add_child(
-		load_button
-	)
-
-	var reset_button := Button.new()
-
-	reset_button.text = "Новая debug-кампания"
-
-	reset_button.pressed.connect(
-		_on_reset_campaign_pressed
-	)
-
-	content.add_child(
-		reset_button
-	)
-
-	return panel
-
-
-func _get_active_quest_count() -> int:
-	var state := (
-		CampaignRuntime.get_campaign_state()
-	)
-
-	if state == null:
-		return 0
-
-	var result := 0
-
-	for quest_state in state.quests:
-		if (
-			quest_state != null
-			and quest_state.is_active()
-		):
-			result += 1
-
-	return result
-
-
-func _create_world_panel() -> Control:
-	var panel := CampaignWorldMapPanel.new()
 
 	panel.travel_requested.connect(
 		_on_world_travel_requested
@@ -373,268 +250,125 @@ func _create_world_panel() -> Control:
 	return panel
 
 
-func _create_result_panel() -> Control:
-	var panel := PanelContainer.new()
-	var content := HBoxContainer.new()
+func _create_party_panel() -> Control:
+	var panel := CampaignPartyPanel.new()
 
-	content.add_theme_constant_override(
-		"separation",
-		12
-	)
-
-	panel.add_child(
-		content
-	)
-
-	var state := CampaignRuntime.get_campaign_state()
-
-	var title := Label.new()
-
-	title.text = "ПОСЛЕДНИЙ ПОХОД"
-
-	title.custom_minimum_size = Vector2(
-		220,
-		0
-	)
-
-	content.add_child(
-		title
-	)
-
-	var result_label := Label.new()
-
-	result_label.size_flags_horizontal = (
+	panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	if (
-		state == null
-		or state.last_battle_result == null
-	):
-		result_label.text = (
-			"Походов ещё не было."
-		)
-
-	else:
-		var location := CampaignRuntime.get_location(
-			state.last_battle_result.location_id
-		)
-
-		var location_name := (
-			location.display_name
-			if location != null
-			else String(
-				state.last_battle_result.location_id
-			)
-		)
-
-		var battle_party_names := (
-			_get_hero_names(
-				state
-					.last_battle_result
-					.party_member_hero_ids
-			)
-		)
-
-		var experience_text := (
-			"опыт: +%d каждому (%d всего)"
-			% [
-				state
-					.last_battle_result
-					.experience_per_party_member,
-				state
-					.last_battle_result
-					.defeated_enemy_experience_pool,
-			]
-		)
-
-		var loot_text := (
-			_get_battle_loot_text(
-				state.last_battle_result
-			)
-		)
-
-		result_label.text = (
-			"%s · %s · отряд: %s · %s · %s · завершено боёв: %d"
-			% [
-				location_name,
-				state
-					.last_battle_result
-					.get_outcome_display_name(),
-				battle_party_names,
-				experience_text,
-				loot_text,
-				state.completed_battle_count,
-			]
-		)
-
-		if (
-			state
-				.last_battle_result
-				.has_level_ups()
-		):
-			var level_up_names := PackedStringArray()
-
-			for hero_id_value in (
-				state
-					.last_battle_result
-					.level_ups_by_hero_id
-					.keys()
-			):
-				var hero_id := StringName(
-					hero_id_value
-				)
-
-				var hero_state := state.get_hero(
-					hero_id
-				)
-
-				var hero_name := (
-					hero_state.get_display_name()
-					if hero_state != null
-					else String(hero_id)
-				)
-
-				var gained_levels := (
-					state
-						.last_battle_result
-						.get_level_ups_for_hero(
-							hero_id
-						)
-				)
-
-				level_up_names.append(
-					"%s +%d ур."
-					% [
-						hero_name,
-						gained_levels,
-					]
-				)
-
-			if not level_up_names.is_empty():
-				result_label.text += (
-					" · LEVEL UP: %s"
-					% ", ".join(
-						level_up_names
-					)
-				)
-
-	result_label.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD_SMART
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
 	)
 
-	content.add_child(
-		result_label
+	panel.state_changed.connect(
+		_on_party_state_changed
+	)
+
+	panel.preparation_requested.connect(
+		_on_preparation_requested
+	)
+
+	panel.bind(
+		CampaignRuntime.get_campaign_state()
 	)
 
 	return panel
 
 
-func _get_battle_loot_text(
-	result: CampaignBattleResult
-) -> String:
-	if result == null:
-		return "добыча: —"
+func _create_quest_journal_panel() -> Control:
+	var panel := (
+		CampaignQuestJournalPanel.new()
+	)
 
-	if (
-		result.outcome
-		!= CampaignBattleResult
-			.Outcome
-			.VICTORY
-	):
-		return "добыча: —"
+	panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
 
-	var parts := PackedStringArray()
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
 
-	for item_name in (
-		result.loot_item_display_names
-	):
-		parts.append(
-			item_name
-		)
+	panel.close_requested.connect(
+		_on_shell_back_requested
+	)
 
-	if result.gold_reward > 0:
-		parts.append(
-			"%d зол."
-			% result.gold_reward
-		)
-
-	if parts.is_empty():
-		return "добыча: ничего"
-
-	return (
-		"добыча: %s"
-		% " + ".join(
-			parts
+	panel.abandon_requested.connect(
+		_on_quest_journal_abandon_requested.bind(
+			panel
 		)
 	)
 
+	panel.bind(
+		CampaignRuntime.get_quest_definitions(),
+		CampaignRuntime.get_resident_definitions(),
+		CampaignRuntime.get_campaign_state(),
+		false
+	)
 
-func _show_preparation_interface() -> void:
+	return panel
+
+
+func _create_hero_preparation_panel() -> Control:
 	var panel := (
 		HERO_PREPARATION_PANEL_SCENE.instantiate()
 		as HeroPreparationPanel
 	)
-	
-	if panel == null:
-		_is_preparation_open = false
-		_show_initialization_error()
-		return
 
-	add_child(
-		panel
+	if panel == null:
+		return null
+
+	panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
 	)
 
-	panel.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
 	)
 
 	panel.close_requested.connect(
 		_on_preparation_closed
 	)
 
-	panel.bind_campaign(
-		CampaignRuntime.get_campaign_state()
+	panel.hero_state_changed.connect(
+		_refresh_shell
 	)
 
+	panel.bind_campaign(
+		CampaignRuntime.get_campaign_state(),
+		"← К ОТРЯДУ"
+	)
 
-func _show_local_location_interface() -> void:
+	return panel
+
+
+func _create_local_location_panel() -> Control:
 	var definition := (
 		CampaignRuntime
 			.get_current_local_location_definition()
 	)
 
 	if definition == null:
-		_is_local_location_open = false
-
 		push_warning(
 			"Current world node has no local location."
 		)
 
-		call_deferred(
-			"_rebuild_interface"
-		)
-
-		return
+		return null
 
 	var panel := (
 		CampaignLocalLocationPanel.new()
 	)
 
-	add_child(
-		panel
+	panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
 	)
 
-	panel.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
 	)
 
 	panel.exit_requested.connect(
 		_on_local_location_exit_requested
-	)
-
-	panel.quest_journal_requested.connect(
-		_open_quest_journal
 	)
 
 	panel.settlement_build_requested.connect(
@@ -712,8 +446,577 @@ func _show_local_location_interface() -> void:
 		settlement_definition,
 		settlement_state,
 		CampaignRuntime.get_resident_definitions(),
-		CampaignRuntime.get_quest_definitions()
+		CampaignRuntime.get_quest_definitions(),
+		true
 	)
+
+	return panel
+
+
+func _on_shell_section_requested(
+	section_id: StringName
+) -> void:
+	var target_view: View
+
+	match section_id:
+		CampaignShell.SECTION_WORLD_MAP:
+			target_view = View.WORLD_MAP
+
+		CampaignShell.SECTION_PARTY:
+			target_view = View.PARTY
+
+		CampaignShell.SECTION_QUESTS:
+			target_view = View.QUEST_JOURNAL
+
+		_:
+			return
+
+	if target_view == _current_view:
+		return
+
+	## Локальная локация — contextual view.
+	## Если из неё открыли глобальную вкладку,
+	## можно вернуться назад ровно в неё.
+	if _current_view == View.LOCAL_LOCATION:
+		_push_current_view()
+
+	else:
+		## Между обычными глобальными вкладками
+		## back-history не накапливаем.
+		_view_stack.clear()
+
+	_show_view(
+		target_view
+	)
+
+
+func _on_shell_back_requested() -> void:
+	_go_back()
+
+
+func _on_shell_menu_requested() -> void:
+	if (
+		_shell == null
+		or _shell.has_modal()
+	):
+		return
+
+	var panel := CampaignMenuPanel.new()
+
+	_current_menu_panel = panel
+
+	panel.close_requested.connect(
+		_on_menu_close_requested
+	)
+
+	panel.save_requested.connect(
+		_on_menu_save_requested.bind(
+			panel
+		)
+	)
+
+	panel.load_requested.connect(
+		_on_menu_load_requested.bind(
+			panel
+		)
+	)
+
+	panel.new_debug_requested.connect(
+		_on_menu_new_debug_requested
+	)
+
+	panel.bind(
+		_save_status_text
+	)
+
+	_shell.show_modal(
+		panel
+	)
+
+
+func _on_menu_close_requested() -> void:
+	if _shell != null:
+		_shell.clear_modal()
+
+	_current_menu_panel = null
+
+
+func _on_menu_save_requested(
+	panel: CampaignMenuPanel
+) -> void:
+	var result := (
+		CampaignRuntime.save_campaign()
+	)
+
+	_apply_save_result(
+		result
+	)
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.set_status_message(
+			_save_status_text
+		)
+
+	_refresh_shell()
+
+
+func _on_menu_load_requested(
+	panel: CampaignMenuPanel
+) -> void:
+	var result := (
+		CampaignRuntime.load_campaign()
+	)
+
+	_apply_save_result(
+		result
+	)
+
+	if not result.is_successful:
+		if (
+			panel != null
+			and is_instance_valid(panel)
+		):
+			panel.set_status_message(
+				_save_status_text
+			)
+
+		return
+
+	_view_stack.clear()
+
+	if _shell != null:
+		_shell.clear_modal()
+
+	_current_menu_panel = null
+
+	_show_view(
+		View.WORLD_MAP
+	)
+
+
+func _on_menu_new_debug_requested() -> void:
+	_save_status_text = ""
+
+	if not CampaignRuntime.start_new_campaign():
+		push_warning(
+			"Campaign could not be reset."
+		)
+
+		return
+
+	_view_stack.clear()
+
+	if _shell != null:
+		_shell.clear_modal()
+
+	_current_menu_panel = null
+
+	_show_view(
+		View.WORLD_MAP
+	)
+
+
+func _on_party_state_changed() -> void:
+	_refresh_current_view()
+
+
+func _on_preparation_requested(
+	_hero_id: StringName
+) -> void:
+	_show_view(
+		View.HERO_PREPARATION,
+		true
+	)
+
+
+func _on_preparation_closed() -> void:
+	_go_back()
+
+
+func _on_world_travel_requested(
+	destination_node_id: StringName
+) -> void:
+	var travelled := (
+		CampaignRuntime.travel_to_world_node(
+			destination_node_id
+		)
+	)
+
+	if not travelled:
+		push_warning(
+			"Campaign world travel failed."
+		)
+
+		return
+
+	## После реального travel нельзя Back-нуться
+	## в старую локальную локацию.
+	_view_stack.clear()
+
+	_show_view(
+		View.WORLD_MAP
+	)
+
+
+func _on_world_enter_requested(
+	node_id: StringName
+) -> void:
+	var state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	if (
+		state == null
+		or node_id == &""
+		or node_id
+			!= state.current_world_node_id
+	):
+		push_warning(
+			"Cannot enter a world node "
+			+"where the party is not located."
+		)
+
+		return
+
+	var local_definition := (
+		CampaignRuntime
+			.get_current_local_location_definition()
+	)
+
+	if local_definition == null:
+		push_warning(
+			"Current world node is not enterable."
+		)
+
+		return
+
+	_show_view(
+		View.LOCAL_LOCATION,
+		true
+	)
+
+
+func _on_world_adventure_requested() -> void:
+	var started := (
+		CampaignRuntime
+			.start_current_world_adventure()
+	)
+
+	if not started:
+		push_warning(
+			"Campaign world adventure could not be started."
+		)
+
+
+func _on_local_location_exit_requested() -> void:
+	_go_back()
+
+
+func _on_home_settlement_build_requested(
+	zone_id: StringName,
+	building_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var constructed := (
+		CampaignRuntime
+			.construct_home_settlement_building(
+				zone_id,
+				building_id
+			)
+	)
+
+	if not constructed:
+		push_warning(
+			"Home settlement construction failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+	_refresh_shell()
+
+
+func _on_home_settlement_demolish_requested(
+	zone_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var demolished := (
+		CampaignRuntime
+			.demolish_home_settlement_building(
+				zone_id
+			)
+	)
+
+	if not demolished:
+		push_warning(
+			"Home settlement demolition failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+	_refresh_shell()
+
+
+func _on_home_settlement_upgrade_requested(
+	zone_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var upgraded := (
+		CampaignRuntime
+			.upgrade_home_settlement_building(
+				zone_id
+			)
+	)
+
+	if not upgraded:
+		push_warning(
+			"Home settlement upgrade failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Постройка улучшена."
+		)
+
+	_refresh_shell()
+
+
+func _on_resident_invite_requested(
+	resident_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var recruited := (
+		CampaignRuntime.invite_resident(
+			resident_id
+		)
+	)
+
+	if not recruited:
+		push_warning(
+			"Resident invitation failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+	_refresh_shell()
+
+
+func _on_resident_commission_requested(
+	resident_id: StringName,
+	commission_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var created_item := (
+		CampaignRuntime
+			.commission_home_resident_item(
+				resident_id,
+				commission_id
+			)
+	)
+
+	if created_item == null:
+		push_warning(
+			"Resident equipment commission failed."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Заказ выполнен: %s · предмет добавлен в инвентарь."
+			% created_item.definition.display_name
+		)
+
+	_refresh_shell()
+
+
+func _on_quest_start_requested(
+	quest_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	if not CampaignRuntime.start_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be started."
+		)
+
+		return
+
+	var quest := (
+		CampaignRuntime.get_quest_definition(
+			quest_id
+		)
+	)
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Задание принято: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
+		)
+
+	_refresh_shell()
+
+
+func _on_quest_turn_in_requested(
+	quest_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var quest := (
+		CampaignRuntime.get_quest_definition(
+			quest_id
+		)
+	)
+
+	if not CampaignRuntime.turn_in_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be turned in."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Задание завершено: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
+		)
+
+	_refresh_shell()
+
+
+func _on_quest_journal_abandon_requested(
+	quest_id: StringName,
+	panel: CampaignQuestJournalPanel
+) -> void:
+	var quest := (
+		CampaignRuntime.get_quest_definition(
+			quest_id
+		)
+	)
+
+	if not CampaignRuntime.abandon_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be abandoned."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Задание отменено: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
+		)
+
+	_refresh_shell()
+
+
+func _apply_save_result(
+	result: CampaignSaveResult
+) -> void:
+	if result == null:
+		_save_status_text = (
+			"Ошибка Save / Load"
+		)
+
+		return
+
+	match result.status_code:
+		CampaignSaveService.STATUS_SAVED:
+			_save_status_text = "Сохранено"
+
+		CampaignSaveService.STATUS_LOADED:
+			_save_status_text = "Загружено"
+
+		CampaignSaveService.STATUS_NO_SAVE:
+			_save_status_text = "Сохранения нет"
+
+		CampaignSaveService.STATUS_SAVE_ERROR:
+			_save_status_text = (
+				"Ошибка сохранения"
+			)
+
+		CampaignSaveService.STATUS_LOAD_ERROR:
+			_save_status_text = (
+				"Ошибка загрузки"
+			)
+
+		_:
+			_save_status_text = (
+				"Ошибка Save / Load"
+			)
+
+	if (
+		not result.is_successful
+		and result.status_code
+			!= CampaignSaveService.STATUS_NO_SAVE
+	):
+		push_warning(
+			"Campaign Save / Load: %s"
+			% result.message
+		)
 
 
 func _get_calendar_display_text() -> String:
@@ -758,459 +1061,6 @@ func _get_season_display_name(
 		_:
 			return "Неизвестный сезон"
 
-func _get_party_names() -> String:
-	var state := CampaignRuntime.get_campaign_state()
-
-	if state == null:
-		return "—"
-
-	var lines := PackedStringArray()
-
-	for party_index in range(
-		state.party_member_hero_ids.size()
-	):
-		var hero_state := state.get_hero(
-			state.party_member_hero_ids[
-				party_index
-			]
-		)
-
-		if hero_state == null:
-			continue
-
-		lines.append(
-			"%d. %s"
-			% [
-				party_index + 1,
-				hero_state.get_display_name(),
-			]
-		)
-
-	if lines.is_empty():
-		return "—"
-
-	return "\n".join(
-		lines
-	)
-
-
-func _get_hero_names(
-	hero_ids: Array[StringName]
-) -> String:
-	var state := CampaignRuntime.get_campaign_state()
-	var names := PackedStringArray()
-
-	if state == null:
-		return "—"
-
-	for hero_id in hero_ids:
-		var hero_state := state.get_hero(
-			hero_id
-		)
-
-		if hero_state == null:
-			names.append(
-				String(hero_id)
-			)
-
-		else:
-			names.append(
-				hero_state.get_display_name()
-			)
-
-	if names.is_empty():
-		return "—"
-
-	return ", ".join(
-		names
-	)
-
-
-func _on_party_state_changed() -> void:
-	call_deferred(
-		"_rebuild_interface"
-	)
-
-
-func _on_preparation_requested(
-	_hero_id: StringName
-) -> void:
-	_is_preparation_open = true
-
-	_rebuild_interface()
-
-
-func _on_preparation_closed() -> void:
-	_is_preparation_open = false
-
-	_rebuild_interface()
-
-
-func _on_world_travel_requested(
-	destination_node_id: StringName
-) -> void:
-	var travelled := (
-		CampaignRuntime.travel_to_world_node(
-			destination_node_id
-		)
-	)
-
-	if not travelled:
-		push_warning(
-			"Campaign world travel failed."
-		)
-
-		return
-
-	_rebuild_interface()
-
-
-func _on_world_enter_requested(
-	node_id: StringName
-) -> void:
-	var state := (
-		CampaignRuntime.get_campaign_state()
-	)
-
-	if (
-		state == null
-		or node_id == &""
-		or node_id
-			!= state.current_world_node_id
-	):
-		push_warning(
-			"Cannot enter a world node "
-			+ "where the party is not located."
-		)
-
-		return
-
-	var local_definition := (
-		CampaignRuntime
-			.get_current_local_location_definition()
-	)
-
-	if local_definition == null:
-		push_warning(
-			"Current world node is not enterable."
-		)
-
-		return
-
-	_is_preparation_open = false
-	_is_local_location_open = true
-
-	_rebuild_interface()
-
-
-func _on_home_settlement_build_requested(
-	zone_id: StringName,
-	building_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var constructed := (
-		CampaignRuntime
-			.construct_home_settlement_building(
-				zone_id,
-				building_id
-			)
-	)
-
-	if not constructed:
-		push_warning(
-			"Home settlement construction failed."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-
-func _on_home_settlement_demolish_requested(
-	zone_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var demolished := (
-		CampaignRuntime
-			.demolish_home_settlement_building(
-				zone_id
-			)
-	)
-
-	if not demolished:
-		push_warning(
-			"Home settlement demolition failed."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-
-func _on_home_settlement_upgrade_requested(
-	zone_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var upgraded := (
-		CampaignRuntime
-			.upgrade_home_settlement_building(
-				zone_id
-			)
-	)
-
-	if not upgraded:
-		push_warning(
-			"Home settlement upgrade failed."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-		panel.show_status_message(
-			"Постройка улучшена."
-		)
-
-
-func _on_resident_invite_requested(
-	resident_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var recruited := (
-		CampaignRuntime.invite_resident(
-			resident_id
-		)
-	)
-
-	if not recruited:
-		push_warning(
-			"Resident invitation failed."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-
-func _on_resident_commission_requested(
-	resident_id: StringName,
-	commission_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var created_item := (
-		CampaignRuntime
-			.commission_home_resident_item(
-				resident_id,
-				commission_id
-			)
-	)
-
-	if created_item == null:
-		push_warning(
-			"Resident equipment commission failed."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-		panel.show_status_message(
-			"Заказ выполнен: %s · предмет добавлен в инвентарь."
-			% created_item.definition.display_name
-		)
-
-
-func _on_quest_start_requested(
-	quest_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	if not CampaignRuntime.start_quest(
-		quest_id
-	):
-		push_warning(
-			"Quest could not be started."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-		var quest := (
-			CampaignRuntime.get_quest_definition(
-				quest_id
-			)
-		)
-
-		panel.show_status_message(
-			"Задание принято: %s."
-			% (
-				quest.display_name
-				if quest != null
-				else String(quest_id)
-			)
-		)
-
-
-func _on_quest_turn_in_requested(
-	quest_id: StringName,
-	panel: CampaignLocalLocationPanel
-) -> void:
-	var quest := (
-		CampaignRuntime.get_quest_definition(
-			quest_id
-		)
-	)
-
-	if not CampaignRuntime.turn_in_quest(
-		quest_id
-	):
-		push_warning(
-			"Quest could not be turned in."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-		panel.show_status_message(
-			"Задание завершено: %s."
-			% (
-				quest.display_name
-				if quest != null
-				else String(quest_id)
-			)
-		)
-
-
-func _on_local_location_exit_requested() -> void:
-	_is_local_location_open = false
-
-	_rebuild_interface()
-
-
-func _on_world_adventure_requested() -> void:
-	var started := (
-		CampaignRuntime
-			.start_current_world_adventure()
-	)
-
-	if not started:
-		push_warning(
-			"Campaign world adventure could not be started."
-		)
-
-func _on_save_campaign_pressed() -> void:
-	var result := (
-		CampaignRuntime.save_campaign()
-	)
-
-	_apply_save_result(
-		result
-	)
-
-	_rebuild_interface()
-
-
-func _on_load_campaign_pressed() -> void:
-	var result := (
-		CampaignRuntime.load_campaign()
-	)
-
-	if result.is_successful:
-		_is_preparation_open = false
-		_is_local_location_open = false
-
-	_apply_save_result(
-		result
-	)
-
-	_rebuild_interface()
-
-
-func _apply_save_result(
-	result: CampaignSaveResult
-) -> void:
-	if result == null:
-		_save_status_text = (
-			"Ошибка Save / Load"
-		)
-
-		return
-
-	match result.status_code:
-		CampaignSaveService.STATUS_SAVED:
-			_save_status_text = "Сохранено"
-
-		CampaignSaveService.STATUS_LOADED:
-			_save_status_text = "Загружено"
-
-		CampaignSaveService.STATUS_NO_SAVE:
-			_save_status_text = "Сохранения нет"
-
-		CampaignSaveService.STATUS_SAVE_ERROR:
-			_save_status_text = "Ошибка сохранения"
-
-		CampaignSaveService.STATUS_LOAD_ERROR:
-			_save_status_text = "Ошибка загрузки"
-
-		_:
-			_save_status_text = (
-				"Ошибка Save / Load"
-			)
-
-	if (
-		not result.is_successful
-		and result.status_code
-			!= CampaignSaveService.STATUS_NO_SAVE
-	):
-		push_warning(
-			"Campaign Save / Load: %s"
-			% result.message
-		)
-
-
-func _on_reset_campaign_pressed() -> void:
-	_is_preparation_open = false
-	_is_local_location_open = false
-	_save_status_text = ""
-
-	if not CampaignRuntime.start_new_campaign():
-		push_warning(
-			"Campaign could not be reset."
-		)
-
-		return
-
-	_rebuild_interface()
-
 
 func _show_initialization_error() -> void:
 	var label := Label.new()
@@ -1228,109 +1078,3 @@ func _show_initialization_error() -> void:
 	add_child(
 		label
 	)
-
-
-func _open_quest_journal() -> void:
-	if (
-		_quest_journal_panel != null
-		and is_instance_valid(
-			_quest_journal_panel
-		)
-	):
-		return
-
-	var panel := (
-		CampaignQuestJournalPanel.new()
-	)
-
-	_quest_journal_panel = panel
-
-	panel.z_index = 100
-
-	add_child(
-		panel
-	)
-
-	panel.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
-	)
-
-	panel.close_requested.connect(
-		_on_quest_journal_close_requested
-	)
-
-	panel.abandon_requested.connect(
-		_on_quest_journal_abandon_requested.bind(
-			panel
-		)
-	)
-
-	panel.bind(
-		CampaignRuntime.get_quest_definitions(),
-		CampaignRuntime.get_resident_definitions(),
-		CampaignRuntime.get_campaign_state()
-	)
-
-
-func _on_quest_journal_close_requested() -> void:
-	if (
-		_quest_journal_panel == null
-		or not is_instance_valid(
-			_quest_journal_panel
-		)
-	):
-		_quest_journal_panel = null
-		return
-
-	remove_child(
-		_quest_journal_panel
-	)
-
-	_quest_journal_panel.queue_free()
-	_quest_journal_panel = null
-
-
-func _on_quest_journal_abandon_requested(
-	quest_id: StringName,
-	panel: CampaignQuestJournalPanel
-) -> void:
-	var quest := (
-		CampaignRuntime.get_quest_definition(
-			quest_id
-		)
-	)
-
-	if not CampaignRuntime.abandon_quest(
-		quest_id
-	):
-		push_warning(
-			"Quest could not be abandoned."
-		)
-
-		return
-
-	if (
-		panel != null
-		and is_instance_valid(panel)
-	):
-		panel.refresh_state()
-
-		panel.show_status_message(
-			"Задание отменено: %s."
-			% (
-				quest.display_name
-				if quest != null
-				else String(quest_id)
-			)
-		)
-
-
-func _clear_children() -> void:
-	_quest_journal_panel = null
-
-	for child in get_children():
-		remove_child(
-			child
-		)
-
-		child.queue_free()

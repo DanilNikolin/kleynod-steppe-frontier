@@ -82,6 +82,35 @@ func create_from_definition(
 			resident_state
 		)
 
+	for quest_definition in (
+		definition.quests
+	):
+		if quest_definition == null:
+			return null
+
+		var quest_state := (
+			CampaignQuestState.new()
+		)
+
+		quest_state.quest_id = (
+			quest_definition.quest_id
+		)
+
+		quest_state.status = (
+			CampaignQuestState
+				.Status
+				.NOT_STARTED
+		)
+
+		if not quest_state.is_valid_against_definition(
+			quest_definition
+		):
+			return null
+
+		result.quests.append(
+			quest_state
+		)
+
 	result.selected_hero_id = (
 		definition.starting_selected_hero_id
 	)

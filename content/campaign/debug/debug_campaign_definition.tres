@@ -23,6 +23,8 @@
 [ext_resource type="Resource" uid="uid://bydiyoahl710o" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="24_loot_berdysh"]
 [ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="25_resident_script"]
 [ext_resource type="Resource" path="res://content/residents/debug/debug_blacksmith_resident.tres" id="26_blacksmith_resident"]
+[ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_definition.gd" id="27_quest_script"]
+[ext_resource type="Resource" path="res://content/quests/debug/debug_ostap_bandits_quest.tres" id="28_ostap_quest"]
 
 
 [sub_resource type="Resource" id="HeroBayda"]
@@ -94,6 +96,7 @@ locations = Array[ExtResource("4_location_script")]([ExtResource("5_location")])
 world_map_definition = ExtResource("6_world_map")
 home_settlement_definition = ExtResource("7_home_settlement")
 residents = Array[ExtResource("25_resident_script")]([ExtResource("26_blacksmith_resident")])
+quests = Array[ExtResource("27_quest_script")]([ExtResource("28_ostap_quest")])
 starting_day = 0
 starting_minute_of_day = 480
 days_per_season = 20

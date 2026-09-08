@@ -49,6 +49,9 @@ var home_settlement_state: CampaignSettlementState
 ## Persistent состояния world/resident NPC.
 var residents: Array[CampaignResidentState] = []
 
+## Persistent campaign quest progression.
+var quests: Array[CampaignQuestState] = []
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -158,6 +161,22 @@ func get_resident(
 	return null
 
 
+func get_quest(
+	quest_id: StringName
+) -> CampaignQuestState:
+	if quest_id == &"":
+		return null
+
+	for quest_state in quests:
+		if (
+			quest_state != null
+			and quest_state.quest_id == quest_id
+		):
+			return quest_state
+
+	return null
+
+
 func is_valid_state() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -253,6 +272,51 @@ func get_validation_errors() -> PackedStringArray:
 
 		used_resident_ids[
 			resident.resident_id
+		] = true
+
+	var used_quest_ids: Dictionary = {}
+
+	for quest_index in range(
+		quests.size()
+	):
+		var quest := quests[
+			quest_index
+		]
+
+		if quest == null:
+			errors.append(
+				"Quest state at index %d is null."
+				% quest_index
+			)
+
+			continue
+
+		for quest_error in (
+			quest.get_validation_errors()
+		):
+			errors.append(
+				"Quest state %d: %s"
+				% [
+					quest_index,
+					quest_error,
+				]
+			)
+
+		if quest.quest_id == &"":
+			continue
+
+		if used_quest_ids.has(
+			quest.quest_id
+		):
+			errors.append(
+				"Duplicate quest state ID: %s."
+				% quest.quest_id
+			)
+
+			continue
+
+		used_quest_ids[
+			quest.quest_id
 		] = true
 
 	if heroes.is_empty():

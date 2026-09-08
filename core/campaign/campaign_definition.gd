@@ -88,6 +88,11 @@ var home_settlement_definition: CampaignSettlementDefinition
 @export
 var residents: Array[CampaignResidentDefinition] = []
 
+@export_group("Quests")
+
+@export
+var quests: Array[CampaignQuestDefinition] = []
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -660,6 +665,94 @@ func get_validation_errors() -> PackedStringArray:
 					+ "in workplace zone."
 				)
 
+	var used_quest_ids: Dictionary = {}
+
+	for quest_index in range(
+		quests.size()
+	):
+		var quest := quests[
+			quest_index
+		]
+
+		if quest == null:
+			errors.append(
+				"Quest at index %d is null."
+				% quest_index
+			)
+
+			continue
+
+		for quest_error in (
+			quest.get_validation_errors()
+		):
+			errors.append(
+				"Quest %d: %s"
+				% [
+					quest_index,
+					quest_error,
+				]
+			)
+
+		if quest.quest_id != &"":
+			if used_quest_ids.has(
+				quest.quest_id
+			):
+				errors.append(
+					"Duplicate quest ID: %s."
+					% quest.quest_id
+				)
+
+			else:
+				used_quest_ids[
+					quest.quest_id
+				] = true
+
+		if get_resident(
+			quest.giver_resident_id
+		) == null:
+			errors.append(
+				"Quest '%s' references "
+				% quest.quest_id
+				+ "unknown giver resident '%s'."
+				% quest.giver_resident_id
+			)
+
+		for objective in quest.objectives:
+			if objective == null:
+				continue
+
+			if (
+				objective.objective_type
+				== CampaignQuestObjectiveDefinition
+					.ObjectiveType
+					.WIN_LOCATION_BATTLE
+				and get_location(
+					objective.target_location_id
+				) == null
+			):
+				errors.append(
+					"Quest '%s' objective '%s' "
+					% [
+						quest.quest_id,
+						objective.objective_id,
+					]
+					+ "references unknown location '%s'."
+					% objective.target_location_id
+				)
+
+		for unlock_resident_id in (
+			quest.recruitment_unlock_resident_ids
+		):
+			if get_resident(
+				unlock_resident_id
+			) == null:
+				errors.append(
+					"Quest '%s' recruitment reward "
+					% quest.quest_id
+					+ "references unknown resident '%s'."
+					% unlock_resident_id
+				)
+
 	return errors
 
 
@@ -769,3 +862,19 @@ func get_equipment_item_definition(
 			)
 
 	return result
+
+
+func get_quest(
+	quest_id: StringName
+) -> CampaignQuestDefinition:
+	if quest_id == &"":
+		return null
+
+	for quest in quests:
+		if (
+			quest != null
+			and quest.quest_id == quest_id
+		):
+			return quest
+
+	return null

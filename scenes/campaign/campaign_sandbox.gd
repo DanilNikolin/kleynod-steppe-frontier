@@ -627,6 +627,18 @@ func _show_local_location_interface() -> void:
 		)
 	)
 
+	panel.quest_start_requested.connect(
+		_on_quest_start_requested.bind(
+			panel
+		)
+	)
+
+	panel.quest_turn_in_requested.connect(
+		_on_quest_turn_in_requested.bind(
+			panel
+		)
+	)
+
 	var settlement_definition: CampaignSettlementDefinition
 	var settlement_state: CampaignSettlementState
 
@@ -659,7 +671,8 @@ func _show_local_location_interface() -> void:
 		CampaignRuntime.get_campaign_state(),
 		settlement_definition,
 		settlement_state,
-		CampaignRuntime.get_resident_definitions()
+		CampaignRuntime.get_resident_definitions(),
+		CampaignRuntime.get_quest_definitions()
 	)
 
 
@@ -984,6 +997,76 @@ func _on_resident_commission_requested(
 		panel.show_status_message(
 			"Заказ выполнен: %s · предмет добавлен в инвентарь."
 			% created_item.definition.display_name
+		)
+
+
+func _on_quest_start_requested(
+	quest_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	if not CampaignRuntime.start_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be started."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		var quest := (
+			CampaignRuntime.get_quest_definition(
+				quest_id
+			)
+		)
+
+		panel.show_status_message(
+			"Задание принято: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
+		)
+
+
+func _on_quest_turn_in_requested(
+	quest_id: StringName,
+	panel: CampaignLocalLocationPanel
+) -> void:
+	var quest := (
+		CampaignRuntime.get_quest_definition(
+			quest_id
+		)
+	)
+
+	if not CampaignRuntime.turn_in_quest(
+		quest_id
+	):
+		push_warning(
+			"Quest could not be turned in."
+		)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Задание завершено: %s."
+			% (
+				quest.display_name
+				if quest != null
+				else String(quest_id)
+			)
 		)
 
 

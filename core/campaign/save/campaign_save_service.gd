@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 6
+const CURRENT_SAVE_VERSION: int = 7
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -241,6 +241,9 @@ func _encode_campaign(
 		"residents": _encode_residents(
 			state.residents
 		),
+		"quests": _encode_quests(
+			state.quests
+		),
 
 		"completed_battle_count": (
 			state.completed_battle_count
@@ -473,6 +476,31 @@ func _encode_residents(
 	return result
 
 
+func _encode_quests(
+	quests: Array[CampaignQuestState]
+) -> Array:
+	var result: Array = []
+
+	for quest in quests:
+		result.append(
+			{
+				"quest_id": String(
+					quest.quest_id
+				),
+				"status": int(
+					quest.status
+				),
+				"completed_objective_ids": (
+					_names_to_array(
+						quest.completed_objective_ids
+					)
+				),
+			}
+		)
+
+	return result
+
+
 func _decode_campaign(
 	data: Dictionary,
 	definition: CampaignDefinition
@@ -492,6 +520,7 @@ func _decode_campaign(
 			"materials",
 			"home_settlement",
 			"residents",
+			"quests",
 			"completed_battle_count",
 			"heroes",
 			"inventory",
@@ -651,6 +680,13 @@ func _decode_campaign(
 
 	if not _decode_residents(
 		data["residents"],
+		state,
+		definition
+	):
+		return null
+
+	if not _decode_quests(
+		data["quests"],
 		state,
 		definition
 	):
@@ -1882,6 +1918,147 @@ func _decode_residents(
 	return (
 		seen.size()
 		== state.residents.size()
+	)
+
+
+func _decode_quests(
+	value: Variant,
+	state: CampaignState,
+	definition: CampaignDefinition
+) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		_fail(
+			"quests must be an Array."
+		)
+
+		return false
+
+	var data: Array = value
+
+	if data.size() != definition.quests.size():
+		_fail(
+			"Saved quest roster does not match "
+			+ "current campaign content."
+		)
+
+		return false
+
+	var seen: Dictionary = {}
+
+	for index in range(
+		data.size()
+	):
+		var quest_value: Variant = data[index]
+
+		if typeof(
+			quest_value
+		) != TYPE_DICTIONARY:
+			_fail(
+				"quests[%d] must be a Dictionary."
+				% index
+			)
+
+			return false
+
+		var quest_data: Dictionary = (
+			quest_value
+		)
+
+		if not _has_keys(
+			quest_data,
+			[
+				"quest_id",
+				"status",
+				"completed_objective_ids",
+			],
+			"quest %d" % index
+		):
+			return false
+
+		var quest_id := StringName(
+			_string_value(
+				quest_data["quest_id"],
+				"quest.quest_id",
+				false
+			)
+		)
+
+		if _failed():
+			return false
+
+		if seen.has(
+			quest_id
+		):
+			_fail(
+				"Duplicate saved quest '%s'."
+				% quest_id
+			)
+
+			return false
+
+		var quest_definition := (
+			definition.get_quest(
+				quest_id
+			)
+		)
+
+		if quest_definition == null:
+			_fail(
+				"Unknown saved quest '%s'."
+				% quest_id
+			)
+
+			return false
+
+		var quest_state := state.get_quest(
+			quest_id
+		)
+
+		if quest_state == null:
+			_fail(
+				"Quest state '%s' is missing."
+				% quest_id
+			)
+
+			return false
+
+		quest_state.status = _int_value(
+			quest_data["status"],
+			"quest.status",
+			CampaignQuestState.Status.NOT_STARTED,
+			CampaignQuestState.Status.COMPLETED
+		)
+
+		quest_state.completed_objective_ids = (
+			_name_array(
+				quest_data[
+					"completed_objective_ids"
+				],
+				"quest.completed_objective_ids"
+			)
+		)
+
+		if (
+			_failed()
+			or not quest_state
+				.is_valid_against_definition(
+					quest_definition
+				)
+		):
+			_fail(
+				"Saved quest '%s' is invalid."
+				% quest_id
+			)
+
+			return false
+
+		seen[
+			quest_id
+		] = true
+
+	return (
+		seen.size()
+		== state.quests.size()
 	)
 
 

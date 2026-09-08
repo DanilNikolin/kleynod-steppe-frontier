@@ -69,6 +69,10 @@ var equipment_commission_service := (
 	CampaignEquipmentCommissionService.new()
 )
 
+var quest_service := (
+	CampaignQuestService.new()
+)
+
 var _battle_request_counter: int = 0
 
 
@@ -262,6 +266,163 @@ func get_resident_state(
 
 	return campaign_state.get_resident(
 		resident_id
+	)
+
+
+func get_quest_definitions() -> Array[CampaignQuestDefinition]:
+	if campaign_definition == null:
+		return []
+
+	return campaign_definition.quests
+
+
+func get_quest_definition(
+	quest_id: StringName
+) -> CampaignQuestDefinition:
+	if campaign_definition == null:
+		return null
+
+	return campaign_definition.get_quest(
+		quest_id
+	)
+
+
+func get_quest_state(
+	quest_id: StringName
+) -> CampaignQuestState:
+	if campaign_state == null:
+		return null
+
+	return campaign_state.get_quest(
+		quest_id
+	)
+
+
+func start_quest(
+	quest_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var quest_definition := (
+		get_quest_definition(
+			quest_id
+		)
+	)
+
+	var quest_state := get_quest_state(
+		quest_id
+	)
+
+	if (
+		quest_definition == null
+		or quest_state == null
+	):
+		return false
+
+	var giver_definition := (
+		get_resident_definition(
+			quest_definition.giver_resident_id
+		)
+	)
+
+	var giver_state := (
+		get_resident_state(
+			quest_definition.giver_resident_id
+		)
+	)
+
+	var error := quest_service.get_start_error(
+		campaign_state,
+		quest_definition,
+		quest_state,
+		giver_definition,
+		giver_state,
+		get_home_settlement_definition()
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Quest start failed: %s"
+			% error
+		)
+
+		return false
+
+	return quest_service.apply_start(
+		campaign_state,
+		quest_definition,
+		quest_state,
+		giver_definition,
+		giver_state,
+		get_home_settlement_definition()
+	)
+
+
+func turn_in_quest(
+	quest_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var quest_definition := (
+		get_quest_definition(
+			quest_id
+		)
+	)
+
+	var quest_state := get_quest_state(
+		quest_id
+	)
+
+	if (
+		quest_definition == null
+		or quest_state == null
+	):
+		return false
+
+	var giver_definition := (
+		get_resident_definition(
+			quest_definition.giver_resident_id
+		)
+	)
+
+	var giver_state := (
+		get_resident_state(
+			quest_definition.giver_resident_id
+		)
+	)
+
+	var error := quest_service.get_turn_in_error(
+		campaign_state,
+		quest_definition,
+		quest_state,
+		giver_definition,
+		giver_state,
+		get_home_settlement_definition()
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Quest turn-in failed: %s"
+			% error
+		)
+
+		return false
+
+	return quest_service.apply_turn_in(
+		campaign_state,
+		quest_definition,
+		quest_state,
+		giver_definition,
+		giver_state,
+		get_home_settlement_definition()
 	)
 
 
@@ -2184,6 +2345,20 @@ func complete_pending_battle_and_return(
 	)
 
 	campaign_state.completed_battle_count += 1
+
+	var quest_progress_applied := (
+		quest_service.apply_battle_result(
+			campaign_definition.quests,
+			campaign_state,
+			result
+		)
+	)
+
+	if not quest_progress_applied:
+		push_error(
+			"Battle completed, but quest progress "
+			+ "could not be applied."
+		)
 
 	pending_battle_request = null
 

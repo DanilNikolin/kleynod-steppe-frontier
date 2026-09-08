@@ -31,6 +31,14 @@ signal resident_commission_requested(
 	commission_id: StringName
 )
 
+signal quest_start_requested(
+	quest_id: StringName
+)
+
+signal quest_turn_in_requested(
+	quest_id: StringName
+)
+
 
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
@@ -62,6 +70,12 @@ var _equipment_commission_service := (
 	CampaignEquipmentCommissionService.new()
 )
 
+var _quest_definitions: Array[CampaignQuestDefinition] = []
+
+var _quest_service := (
+	CampaignQuestService.new()
+)
+
 
 var _canvas: CampaignLocalLocationCanvas
 
@@ -83,7 +97,8 @@ func bind(
 	state: CampaignState,
 	settlement_definition: CampaignSettlementDefinition,
 	settlement_state: CampaignSettlementState,
-	resident_definitions: Array[CampaignResidentDefinition]
+	resident_definitions: Array[CampaignResidentDefinition],
+	quest_definitions: Array[CampaignQuestDefinition]
 ) -> void:
 	_definition = definition
 	_state = state
@@ -98,6 +113,10 @@ func bind(
 
 	_resident_definitions = (
 		resident_definitions
+	)
+
+	_quest_definitions = (
+		quest_definitions
 	)
 
 	_selected_interaction_id = &""
@@ -1357,6 +1376,58 @@ func _refresh_resident_panel(
 				)
 			)
 
+	for quest in _get_quests_for_giver(
+		definition.resident_id
+	):
+		var quest_state := _state.get_quest(
+			quest.quest_id
+		)
+
+		if quest_state == null:
+			continue
+
+		if quest_state.is_not_started():
+			lines.append(
+				"Задание доступно: %s."
+				% quest.display_name
+			)
+
+		elif quest_state.is_completed():
+			lines.append(
+				"Задание завершено: %s."
+				% quest.display_name
+			)
+
+		elif quest_state.is_ready_to_turn_in(
+			quest
+		):
+			lines.append(
+				"Задание: %s · можно сдать."
+				% quest.display_name
+			)
+
+		else:
+			for objective in quest.objectives:
+				if objective == null:
+					continue
+
+				var marker := (
+					"✓"
+					if quest_state
+						.is_objective_completed(
+							objective.objective_id
+						)
+					else "○"
+				)
+
+				lines.append(
+					"%s %s"
+					% [
+						marker,
+						objective.display_name,
+					]
+				)
+
 	_interaction_description.text = (
 		"\n".join(
 			lines
@@ -1381,6 +1452,11 @@ func _refresh_resident_panel(
 		_actions_row.add_child(
 			action_button
 		)
+
+	_create_resident_quest_actions(
+		definition,
+		resident_state
+	)
 
 	if resident_state.is_at_origin():
 		var invite_button := Button.new()
@@ -1501,3 +1577,148 @@ func _on_camera_right_pressed() -> void:
 
 func _on_exit_pressed() -> void:
 	exit_requested.emit()
+
+
+func _get_quests_for_giver(
+	resident_id: StringName
+) -> Array[CampaignQuestDefinition]:
+	var result: Array[CampaignQuestDefinition] = []
+
+	if resident_id == &"":
+		return result
+
+	for quest in _quest_definitions:
+		if (
+			quest != null
+			and quest.giver_resident_id
+				== resident_id
+		):
+			result.append(
+				quest
+			)
+
+	return result
+
+
+func _create_resident_quest_actions(
+	resident_definition: CampaignResidentDefinition,
+	resident_state: CampaignResidentState
+) -> void:
+	if (
+		resident_definition == null
+		or resident_state == null
+		or _state == null
+	):
+		return
+
+	for quest in _get_quests_for_giver(
+		resident_definition.resident_id
+	):
+		var quest_state := _state.get_quest(
+			quest.quest_id
+		)
+
+		if quest_state == null:
+			continue
+
+		var button := Button.new()
+
+		if quest_state.is_not_started():
+			button.text = (
+				"ВЗЯТЬ ЗАДАНИЕ · %s"
+				% quest.display_name
+			)
+
+			var start_error := (
+				_quest_service.get_start_error(
+					_state,
+					quest,
+					quest_state,
+					resident_definition,
+					resident_state,
+					_settlement_definition
+				)
+			)
+
+			button.disabled = (
+				not start_error.is_empty()
+			)
+
+			if button.disabled:
+				button.tooltip_text = (
+					start_error
+				)
+
+			else:
+				button.pressed.connect(
+					_on_quest_start_pressed.bind(
+						quest.quest_id
+					)
+				)
+
+		elif quest_state.is_ready_to_turn_in(
+			quest
+		):
+			button.text = (
+				"СДАТЬ ЗАДАНИЕ · %s"
+				% quest.display_name
+			)
+
+			var turn_in_error := (
+				_quest_service
+					.get_turn_in_error(
+						_state,
+						quest,
+						quest_state,
+						resident_definition,
+						resident_state,
+						_settlement_definition
+					)
+			)
+
+			button.disabled = (
+				not turn_in_error.is_empty()
+			)
+
+			if button.disabled:
+				button.tooltip_text = (
+					turn_in_error
+				)
+
+			else:
+				button.pressed.connect(
+					_on_quest_turn_in_pressed.bind(
+						quest.quest_id
+					)
+				)
+
+		elif quest_state.is_active():
+			button.text = (
+				"ЗАДАНИЕ · %s · в процессе"
+				% quest.display_name
+			)
+
+			button.disabled = true
+
+		else:
+			continue
+
+		_actions_row.add_child(
+			button
+		)
+
+
+func _on_quest_start_pressed(
+	quest_id: StringName
+) -> void:
+	quest_start_requested.emit(
+		quest_id
+	)
+
+
+func _on_quest_turn_in_pressed(
+	quest_id: StringName
+) -> void:
+	quest_turn_in_requested.emit(
+		quest_id
+	)

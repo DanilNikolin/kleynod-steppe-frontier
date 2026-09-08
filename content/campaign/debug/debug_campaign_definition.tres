@@ -27,6 +27,8 @@
 [ext_resource type="Resource" path="res://content/quests/debug/debug_ostap_bandits_quest.tres" id="28_ostap_quest"]
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="29_adventure_area_script"]
 [ext_resource type="Resource" path="res://content/adventure/debug/debug_forest_adventure_area.tres" id="30_forest_area"]
+[ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_definition.gd" id="31_trader_script"]
+[ext_resource type="Resource" path="res://content/traders/debug/debug_village_innkeeper_trader.tres" id="32_innkeeper_trader"]
 
 
 [sub_resource type="Resource" id="HeroBayda"]
@@ -99,6 +101,7 @@ adventure_areas = Array[ExtResource("29_adventure_area_script")]([ExtResource("3
 world_map_definition = ExtResource("6_world_map")
 home_settlement_definition = ExtResource("7_home_settlement")
 residents = Array[ExtResource("25_resident_script")]([ExtResource("26_blacksmith_resident")])
+traders = Array[ExtResource("31_trader_script")]([ExtResource("32_innkeeper_trader")])
 quests = Array[ExtResource("27_quest_script")]([ExtResource("28_ostap_quest")])
 starting_day = 0
 starting_minute_of_day = 480

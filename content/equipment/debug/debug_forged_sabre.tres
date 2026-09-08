@@ -12,3 +12,4 @@ display_name = "Кована шабля"
 description = "Шабля, выкованная Остапом по заказу. Не участвует в обычной добыче и доступна через домашнюю кузню."
 primary_ability = ExtResource("4_primary")
 granted_abilities = Array[ExtResource("2_ability_script")]([ExtResource("3_ability")])
+base_trade_value = 160

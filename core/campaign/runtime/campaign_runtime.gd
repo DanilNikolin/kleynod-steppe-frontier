@@ -77,6 +77,10 @@ var adventure_service := (
 	CampaignAdventureService.new()
 )
 
+var trading_service := (
+	CampaignTradingService.new()
+)
+
 var _return_adventure_area_id: StringName = &""
 
 var _battle_request_counter: int = 0
@@ -2598,6 +2602,198 @@ func complete_pending_battle_and_return(
 	)
 
 	return true
+
+
+func get_trader_definitions() -> Array[CampaignTraderDefinition]:
+	if campaign_definition == null:
+		return []
+
+	return campaign_definition.traders
+
+
+func get_trader_definition(
+	trader_id: StringName
+) -> CampaignTraderDefinition:
+	if campaign_definition == null:
+		return null
+
+	return campaign_definition.get_trader(
+		trader_id
+	)
+
+
+func get_trader_state(
+	trader_id: StringName
+) -> CampaignTraderState:
+	if campaign_state == null:
+		return null
+
+	return campaign_state.get_trader(
+		trader_id
+	)
+
+
+func get_trader_for_interaction(
+	interaction_id: StringName
+) -> CampaignTraderDefinition:
+	if (
+		campaign_definition == null
+		or campaign_state == null
+	):
+		return null
+
+	return (
+		campaign_definition
+			.get_trader_for_interaction(
+				campaign_state.current_world_node_id,
+				interaction_id
+			)
+	)
+
+
+func get_trader_buy_price(
+	trader_id: StringName,
+	item_instance_id: StringName
+) -> int:
+	var definition := get_trader_definition(
+		trader_id
+	)
+
+	var state := get_trader_state(
+		trader_id
+	)
+
+	if (
+		definition == null
+		or state == null
+	):
+		return 0
+
+	var item := state.get_item(
+		item_instance_id
+	)
+
+	if item == null:
+		return 0
+
+	return trading_service.get_buy_price(
+		definition,
+		item.definition
+	)
+
+
+func get_trader_sell_price(
+	trader_id: StringName,
+	item_instance_id: StringName
+) -> int:
+	var definition := get_trader_definition(
+		trader_id
+	)
+
+	if (
+		definition == null
+		or campaign_state == null
+		or campaign_state.inventory_state == null
+	):
+		return 0
+
+	var item := (
+		campaign_state
+			.inventory_state
+			.get_item(
+				item_instance_id
+			)
+	)
+
+	if item == null:
+		return 0
+
+	return trading_service.get_sell_price(
+		definition,
+		item.definition
+	)
+
+
+func buy_from_trader(
+	trader_id: StringName,
+	item_instance_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var definition := get_trader_definition(
+		trader_id
+	)
+
+	var state := get_trader_state(
+		trader_id
+	)
+
+	var error := trading_service.get_buy_error(
+		campaign_state,
+		definition,
+		state,
+		item_instance_id
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Trader purchase failed: %s"
+			% error
+		)
+
+		return false
+
+	return trading_service.apply_buy(
+		campaign_state,
+		definition,
+		state,
+		item_instance_id
+	)
+
+
+func sell_to_trader(
+	trader_id: StringName,
+	item_instance_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var definition := get_trader_definition(
+		trader_id
+	)
+
+	var state := get_trader_state(
+		trader_id
+	)
+
+	var error := trading_service.get_sell_error(
+		campaign_state,
+		definition,
+		state,
+		item_instance_id
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Trader sale failed: %s"
+			% error
+		)
+
+		return false
+
+	return trading_service.apply_sell(
+		campaign_state,
+		definition,
+		state,
+		item_instance_id
+	)
 
 
 func _apply_experience_reward(

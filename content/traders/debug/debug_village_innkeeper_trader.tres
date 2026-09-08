@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="CampaignTraderDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_definition.gd" id="1_trader"]
+[ext_resource type="Script" path="res://core/campaign/trading/campaign_trader_stock_entry_definition.gd" id="2_stock"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_old_sabre.tres" id="3_sabre"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_steppe_armor.tres" id="4_armor"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_traveler_charm.tres" id="5_charm"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="6_berdysh"]
+
+[sub_resource type="Resource" id="StockSabre"]
+script = ExtResource("2_stock")
+item_definition = ExtResource("3_sabre")
+quantity = 1
+
+[sub_resource type="Resource" id="StockArmor"]
+script = ExtResource("2_stock")
+item_definition = ExtResource("4_armor")
+quantity = 1
+
+[sub_resource type="Resource" id="StockCharm"]
+script = ExtResource("2_stock")
+item_definition = ExtResource("5_charm")
+quantity = 2
+
+[sub_resource type="Resource" id="StockBerdysh"]
+script = ExtResource("2_stock")
+item_definition = ExtResource("6_berdysh")
+quantity = 1
+
+[resource]
+script = ExtResource("1_trader")
+trader_id = &"debug_village_innkeeper_trader"
+display_name = "Трактирщик"
+description = "Местный трактирщик держит небольшой запас оружия, снаряжения и дорожных вещей."
+world_node_id = &"debug_village"
+local_interaction_id = &"debug_village_innkeeper"
+open_action_label = "Торговля"
+starting_gold = 1000
+buy_price_multiplier = 1.0
+sell_price_multiplier = 0.5
+starting_stock = Array[ExtResource("2_stock")]([SubResource("StockSabre"), SubResource("StockArmor"), SubResource("StockCharm"), SubResource("StockBerdysh")])

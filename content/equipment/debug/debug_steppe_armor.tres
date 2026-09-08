@@ -15,6 +15,7 @@ display_name = "Степной панцирь"
 description = "Тяжёлый панцирь: +2 Max Health и +1 Armor."
 category = 2
 stat_bonuses = SubResource("Bonuses_armor")
+base_trade_value = 180
 loot_value = 55
 loot_tier = 2
 loot_weight = 100

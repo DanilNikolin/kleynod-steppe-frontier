@@ -15,6 +15,7 @@ display_name = "Оберег путника"
 description = "Небольшой оберег: +1 Start Stamina."
 category = 5
 stat_bonuses = SubResource("Bonuses_charm")
+base_trade_value = 70
 loot_value = 25
 loot_tier = 1
 loot_weight = 80

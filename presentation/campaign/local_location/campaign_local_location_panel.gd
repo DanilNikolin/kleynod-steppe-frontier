@@ -1151,13 +1151,7 @@ func _on_action_pressed(
 	if _selected_interaction_id == &"":
 		return
 
-	_status_label.text = (
-		"%s → %s · механика будет подключена позже."
-		% [
-			_get_selected_display_name(),
-			action_label,
-		]
-	)
+	_status_label.text = ""
 
 	interaction_action_requested.emit(
 		_selected_interaction_id,

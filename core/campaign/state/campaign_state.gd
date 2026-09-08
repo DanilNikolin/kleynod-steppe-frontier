@@ -54,6 +54,9 @@ var quests: Array[CampaignQuestState] = []
 
 var adventure_areas: Array[CampaignAdventureAreaState] = []
 
+## Persistent inventories и деньги торговцев.
+var traders: Array[CampaignTraderState] = []
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -191,6 +194,23 @@ func get_adventure_area(
 			and area_state.area_id == area_id
 		):
 			return area_state
+
+	return null
+
+
+func get_trader(
+	trader_id: StringName
+) -> CampaignTraderState:
+	if trader_id == &"":
+		return null
+
+	for trader_state in traders:
+		if (
+			trader_state != null
+			and trader_state.trader_id
+				== trader_id
+		):
+			return trader_state
 
 	return null
 
@@ -375,6 +395,79 @@ func get_validation_errors() -> PackedStringArray:
 		used_adventure_area_ids[
 			area.area_id
 		] = true
+
+	var used_trader_ids: Dictionary = {}
+	var trader_item_owners: Dictionary = {}
+
+	for trader_index in range(
+		traders.size()
+	):
+		var trader: CampaignTraderState = traders[
+			trader_index
+		]
+
+		if trader == null:
+			errors.append(
+				"Trader state at index %d is null."
+				% trader_index
+			)
+
+			continue
+
+		for trader_error in (
+			trader.get_validation_errors()
+		):
+			errors.append(
+				"Trader state %d: %s"
+				% [
+					trader_index,
+					trader_error,
+				]
+			)
+
+		if trader.trader_id != &"":
+			if used_trader_ids.has(
+				trader.trader_id
+			):
+				errors.append(
+					"Duplicate trader state ID: %s."
+					% trader.trader_id
+				)
+
+			else:
+				used_trader_ids[
+					trader.trader_id
+				] = true
+
+		for item in trader.items:
+			if item == null:
+				continue
+
+			if (
+				inventory_state != null
+				and inventory_state.has_item(
+					item.instance_id
+				)
+			):
+				errors.append(
+					"Item instance '%s' exists in both "
+					% item.instance_id
+					+"player and trader inventory."
+				)
+
+			if trader_item_owners.has(
+				item.instance_id
+			):
+				errors.append(
+					"Item instance '%s' exists "
+					% item.instance_id
+					+"in multiple trader inventories."
+				)
+
+			else:
+				trader_item_owners[
+					item.instance_id
+				] = trader.trader_id
 
 	if heroes.is_empty():
 		errors.append(

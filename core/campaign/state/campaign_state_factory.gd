@@ -10,6 +10,10 @@ var _adventure_area_state_factory := (
 	CampaignAdventureAreaStateFactory.new()
 )
 
+var _trader_state_factory := (
+	CampaignTraderStateFactory.new()
+)
+
 
 func create_from_definition(
 	definition: CampaignDefinition
@@ -69,6 +73,23 @@ func create_from_definition(
 
 		result.adventure_areas.append(
 			area_state
+		)
+
+	for trader_definition in (
+		definition.traders
+	):
+		var trader_state := (
+			_trader_state_factory
+				.create_from_definition(
+					trader_definition
+				)
+		)
+
+		if trader_state == null:
+			return null
+
+		result.traders.append(
+			trader_state
 		)
 
 	for resident_definition in (

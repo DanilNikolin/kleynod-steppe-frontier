@@ -95,6 +95,11 @@ var home_settlement_definition: CampaignSettlementDefinition
 @export
 var residents: Array[CampaignResidentDefinition] = []
 
+@export_group("Trading")
+
+@export
+var traders: Array[CampaignTraderDefinition] = []
+
 @export_group("Quests")
 
 @export
@@ -752,6 +757,91 @@ func get_validation_errors() -> PackedStringArray:
 					+ "in workplace zone."
 				)
 
+	var used_trader_ids: Dictionary = {}
+
+	for trader_index in range(
+		traders.size()
+	):
+		var trader: CampaignTraderDefinition = (
+			traders[trader_index]
+		)
+
+		if trader == null:
+			errors.append(
+				"Trader at index %d is null."
+				% trader_index
+			)
+
+			continue
+
+		for trader_error in (
+			trader.get_validation_errors()
+		):
+			errors.append(
+				"Trader %d: %s"
+				% [
+					trader_index,
+					trader_error,
+				]
+			)
+
+		if trader.trader_id != &"":
+			if used_trader_ids.has(
+				trader.trader_id
+			):
+				errors.append(
+					"Duplicate trader ID: %s."
+					% trader.trader_id
+				)
+
+			else:
+				used_trader_ids[
+					trader.trader_id
+				] = true
+
+		if world_map_definition == null:
+			continue
+
+		var trader_node := (
+			world_map_definition.get_node(
+				trader.world_node_id
+			)
+		)
+
+		if trader_node == null:
+			errors.append(
+				"Trader '%s' references unknown "
+				% trader.trader_id
+				+"world node '%s'."
+				% trader.world_node_id
+			)
+
+			continue
+
+		if trader_node.local_location_definition == null:
+			errors.append(
+				"Trader '%s' world node "
+				% trader.trader_id
+				+"has no local location."
+			)
+
+			continue
+
+		if (
+			trader_node
+				.local_location_definition
+				.get_interaction(
+					trader.local_interaction_id
+				)
+			== null
+		):
+			errors.append(
+				"Trader '%s' references unknown "
+				% trader.trader_id
+				+"local interaction '%s'."
+				% trader.local_interaction_id
+			)
+
 	var used_quest_ids: Dictionary = {}
 
 	for quest_index in range(
@@ -981,7 +1071,69 @@ func get_equipment_item_definition(
 				commission.output_item_definition
 			)
 
+	for trader in traders:
+		if trader == null:
+			continue
+
+		for stock_entry in trader.starting_stock:
+			if (
+				stock_entry == null
+				or stock_entry.item_definition == null
+				or stock_entry.item_definition.item_id
+					!= item_id
+			):
+				continue
+
+			if (
+				result != null
+				and result
+					!= stock_entry.item_definition
+			):
+				return null
+
+			result = (
+				stock_entry.item_definition
+			)
+
 	return result
+
+
+func get_trader(
+	trader_id: StringName
+) -> CampaignTraderDefinition:
+	if trader_id == &"":
+		return null
+
+	for trader in traders:
+		if (
+			trader != null
+			and trader.trader_id == trader_id
+		):
+			return trader
+
+	return null
+
+
+func get_trader_for_interaction(
+	world_node_id: StringName,
+	interaction_id: StringName
+) -> CampaignTraderDefinition:
+	if (
+		world_node_id == &""
+		or interaction_id == &""
+	):
+		return null
+
+	for trader in traders:
+		if (
+			trader != null
+			and trader.world_node_id == world_node_id
+			and trader.local_interaction_id
+				== interaction_id
+		):
+			return trader
+
+	return null
 
 
 func get_quest(

@@ -14,6 +14,7 @@ enum View {
 	QUEST_JOURNAL,
 	LOCAL_LOCATION,
 	ADVENTURE_AREA,
+	TRADING,
 	HERO_PREPARATION,
 }
 
@@ -27,6 +28,8 @@ var _view_stack: Array[int] = []
 var _save_status_text: String = ""
 
 var _current_menu_panel: CampaignMenuPanel
+
+var _active_trader_id: StringName = &""
 
 
 func _ready() -> void:
@@ -126,6 +129,9 @@ func _show_view(
 			content = (
 				_create_adventure_area_panel()
 			)
+
+		View.TRADING:
+			content = _create_trading_panel()
 
 		View.HERO_PREPARATION:
 			content = _create_hero_preparation_panel()
@@ -427,6 +433,68 @@ func _create_hero_preparation_panel() -> Control:
 	return panel
 
 
+func _create_trading_panel() -> Control:
+	if _active_trader_id == &"":
+		return null
+
+	var trader_definition := (
+		CampaignRuntime.get_trader_definition(
+			_active_trader_id
+		)
+	)
+
+	var trader_state := (
+		CampaignRuntime.get_trader_state(
+			_active_trader_id
+		)
+	)
+
+	var campaign_state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	if (
+		trader_definition == null
+		or trader_state == null
+		or campaign_state == null
+	):
+		return null
+
+	var panel := CampaignTradingPanel.new()
+
+	panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	panel.size_flags_vertical = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	panel.close_requested.connect(
+		_on_trading_close_requested
+	)
+
+	panel.buy_requested.connect(
+		_on_trading_buy_requested.bind(
+			panel
+		)
+	)
+
+	panel.sell_requested.connect(
+		_on_trading_sell_requested.bind(
+			panel
+		)
+	)
+
+	panel.bind(
+		trader_definition,
+		trader_state,
+		campaign_state
+	)
+
+	return panel
+
+
 func _create_local_location_panel() -> Control:
 	var definition := (
 		CampaignRuntime
@@ -454,6 +522,12 @@ func _create_local_location_panel() -> Control:
 
 	panel.exit_requested.connect(
 		_on_local_location_exit_requested
+	)
+
+	panel.interaction_action_requested.connect(
+		_on_local_interaction_action_requested.bind(
+			panel
+		)
 	)
 
 	panel.settlement_build_requested.connect(
@@ -671,6 +745,8 @@ func _on_menu_load_requested(
 
 	_current_menu_panel = null
 
+	_active_trader_id = &""
+
 	_show_view(
 		View.WORLD_MAP
 	)
@@ -692,6 +768,8 @@ func _on_menu_new_debug_requested() -> void:
 		_shell.clear_modal()
 
 	_current_menu_panel = null
+
+	_active_trader_id = &""
 
 	_show_view(
 		View.WORLD_MAP
@@ -734,6 +812,8 @@ func _on_world_travel_requested(
 	## После реального travel нельзя Back-нуться
 	## в старую локальную локацию.
 	_view_stack.clear()
+
+	_active_trader_id = &""
 
 	_show_view(
 		View.WORLD_MAP
@@ -1086,6 +1166,170 @@ func _on_quest_journal_abandon_requested(
 		)
 
 	_refresh_shell()
+
+
+func _on_local_interaction_action_requested(
+	interaction_id: StringName,
+	action_label: String,
+	_panel: CampaignLocalLocationPanel
+) -> void:
+	var trader := (
+		CampaignRuntime.get_trader_for_interaction(
+			interaction_id
+		)
+	)
+
+	if trader == null:
+		return
+
+	if action_label != trader.open_action_label:
+		return
+
+	_active_trader_id = trader.trader_id
+
+	_show_view(
+		View.TRADING,
+		true
+	)
+
+
+func _on_trading_buy_requested(
+	trader_id: StringName,
+	item_instance_id: StringName,
+	panel: CampaignTradingPanel
+) -> void:
+	var trader_state := (
+		CampaignRuntime.get_trader_state(
+			trader_id
+		)
+	)
+
+	var item := (
+		trader_state.get_item(
+			item_instance_id
+		)
+		if trader_state != null
+		else null
+	)
+
+	var item_name := (
+		item.definition.display_name
+		if (
+			item != null
+			and item.definition != null
+		)
+		else String(item_instance_id)
+	)
+
+	var price := (
+		CampaignRuntime.get_trader_buy_price(
+			trader_id,
+			item_instance_id
+		)
+	)
+
+	if not CampaignRuntime.buy_from_trader(
+		trader_id,
+		item_instance_id
+	):
+		if (
+			panel != null
+			and is_instance_valid(panel)
+		):
+			panel.show_status_message(
+				"Покупка не выполнена."
+			)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Куплено: %s за %d зол."
+			% [
+				item_name,
+				price,
+			]
+		)
+
+	_refresh_shell()
+
+
+func _on_trading_sell_requested(
+	trader_id: StringName,
+	item_instance_id: StringName,
+	panel: CampaignTradingPanel
+) -> void:
+	var campaign_state := (
+		CampaignRuntime.get_campaign_state()
+	)
+
+	var item := (
+		campaign_state
+			.inventory_state
+			.get_item(
+				item_instance_id
+			)
+		if (
+			campaign_state != null
+			and campaign_state.inventory_state != null
+		)
+		else null
+	)
+
+	var item_name := (
+		item.definition.display_name
+		if (
+			item != null
+			and item.definition != null
+		)
+		else String(item_instance_id)
+	)
+
+	var price := (
+		CampaignRuntime.get_trader_sell_price(
+			trader_id,
+			item_instance_id
+		)
+	)
+
+	if not CampaignRuntime.sell_to_trader(
+		trader_id,
+		item_instance_id
+	):
+		if (
+			panel != null
+			and is_instance_valid(panel)
+		):
+			panel.show_status_message(
+				"Продажа не выполнена."
+			)
+
+		return
+
+	if (
+		panel != null
+		and is_instance_valid(panel)
+	):
+		panel.refresh_state()
+
+		panel.show_status_message(
+			"Продано: %s за %d зол."
+			% [
+				item_name,
+				price,
+			]
+		)
+
+	_refresh_shell()
+
+
+func _on_trading_close_requested() -> void:
+	_go_back()
 
 
 func _apply_save_result(

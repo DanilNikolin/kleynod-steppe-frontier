@@ -59,6 +59,20 @@ var primary_ability: AbilityDefinition
 var granted_abilities: Array[AbilityDefinition] = []
 
 
+@export_group("Trading")
+
+## Базовая рыночная стоимость предмета.
+##
+## 0 = предмет нельзя покупать/продавать
+## через обычную Trading систему.
+@export_range(0, 999999999, 1)
+var base_trade_value: int = 0
+
+
+func is_trade_enabled() -> bool:
+	return base_trade_value > 0
+
+
 @export_group("Loot")
 
 ## Сколько reward budget поглощает предмет.

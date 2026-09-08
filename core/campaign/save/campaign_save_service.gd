@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 8
+const CURRENT_SAVE_VERSION: int = 9
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -248,6 +248,9 @@ func _encode_campaign(
 			_encode_adventure_areas(
 				state.adventure_areas
 			)
+		),
+		"traders": _encode_traders(
+			state.traders
 		),
 
 		"completed_battle_count": (
@@ -538,6 +541,39 @@ func _encode_adventure_areas(
 	return result
 
 
+func _encode_traders(
+	traders: Array[CampaignTraderState]
+) -> Array:
+	var result: Array = []
+
+	for trader in traders:
+		var items: Array = []
+
+		for item in trader.items:
+			items.append(
+				{
+					"instance_id": String(
+						item.instance_id
+					),
+					"item_id": String(
+						item.definition.item_id
+					),
+				}
+			)
+
+		result.append(
+			{
+				"trader_id": String(
+					trader.trader_id
+				),
+				"gold": trader.gold,
+				"items": items,
+			}
+		)
+
+	return result
+
+
 func _decode_campaign(
 	data: Dictionary,
 	definition: CampaignDefinition
@@ -557,6 +593,7 @@ func _decode_campaign(
 			"materials",
 			"home_settlement",
 			"adventure_areas",
+			"traders",
 			"residents",
 			"quests",
 			"completed_battle_count",
@@ -718,6 +755,13 @@ func _decode_campaign(
 
 	if not _decode_adventure_areas(
 		data["adventure_areas"],
+		state,
+		definition
+	):
+		return null
+
+	if not _decode_traders(
+		data["traders"],
 		state,
 		definition
 	):
@@ -2079,6 +2123,234 @@ func _decode_adventure_areas(
 	return (
 		seen_areas.size()
 		== state.adventure_areas.size()
+	)
+
+
+func _decode_traders(
+	value: Variant,
+	state: CampaignState,
+	definition: CampaignDefinition
+) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		_fail(
+			"traders must be an Array."
+		)
+
+		return false
+
+	var data: Array = value
+
+	if data.size() != definition.traders.size():
+		_fail(
+			"Saved trader roster does not match "
+			+"current campaign content."
+		)
+
+		return false
+
+	var seen_traders: Dictionary = {}
+
+	for trader_index in range(
+		data.size()
+	):
+		var trader_value: Variant = (
+			data[trader_index]
+		)
+
+		if typeof(
+			trader_value
+		) != TYPE_DICTIONARY:
+			_fail(
+				"traders[%d] must be a Dictionary."
+				% trader_index
+			)
+
+			return false
+
+		var trader_data: Dictionary = (
+			trader_value
+		)
+
+		if not _has_keys(
+			trader_data,
+			[
+				"trader_id",
+				"gold",
+				"items",
+			],
+			"trader %d"
+			% trader_index
+		):
+			return false
+
+		var trader_id := StringName(
+			_string_value(
+				trader_data["trader_id"],
+				"trader.trader_id",
+				false
+			)
+		)
+
+		if _failed():
+			return false
+
+		if seen_traders.has(
+			trader_id
+		):
+			_fail(
+				"Duplicate saved trader '%s'."
+				% trader_id
+			)
+
+			return false
+
+		if definition.get_trader(
+			trader_id
+		) == null:
+			_fail(
+				"Unknown saved trader '%s'."
+				% trader_id
+			)
+
+			return false
+
+		var trader_state: CampaignTraderState = state.get_trader(
+			trader_id
+		)
+
+		if trader_state == null:
+			_fail(
+				"Trader state '%s' is missing."
+				% trader_id
+			)
+
+			return false
+
+		trader_state.gold = _int_value(
+			trader_data["gold"],
+			"trader.gold",
+			0,
+			999999999
+		)
+
+		if typeof(
+			trader_data["items"]
+		) != TYPE_ARRAY:
+			_fail(
+				"trader.items must be an Array."
+			)
+
+			return false
+
+		trader_state.items.clear()
+
+		var item_values: Array = (
+			trader_data["items"]
+		)
+
+		for item_index in range(
+			item_values.size()
+		):
+			var item_value: Variant = (
+				item_values[item_index]
+			)
+
+			if typeof(
+				item_value
+			) != TYPE_DICTIONARY:
+				_fail(
+					"trader.items[%d] must be a Dictionary."
+					% item_index
+				)
+
+				return false
+
+			var item_data: Dictionary = (
+				item_value
+			)
+
+			if not _has_keys(
+				item_data,
+				[
+					"instance_id",
+					"item_id",
+				],
+				"trader item %d"
+				% item_index
+			):
+				return false
+
+			var instance_id := StringName(
+				_string_value(
+					item_data["instance_id"],
+					"trader item instance_id",
+					false
+				)
+			)
+
+			var item_id := StringName(
+				_string_value(
+					item_data["item_id"],
+					"trader item item_id",
+					false
+				)
+			)
+
+			if _failed():
+				return false
+
+			var item_definition := (
+				definition
+					.get_equipment_item_definition(
+						item_id
+					)
+			)
+
+			if item_definition == null:
+				_fail(
+					"Unknown trader equipment definition '%s'."
+					% item_id
+				)
+
+				return false
+
+			var item := (
+				HeroEquipmentItemInstance.new()
+			)
+
+			item.instance_id = instance_id
+			item.definition = item_definition
+
+			if not item.is_valid_instance():
+				_fail(
+					"Trader item '%s' is invalid."
+					% instance_id
+				)
+
+				return false
+
+			trader_state.items.append(
+				item
+			)
+
+		if (
+			_failed()
+			or not trader_state.is_valid_state()
+		):
+			_fail(
+				"Saved trader '%s' is invalid."
+				% trader_id
+			)
+
+			return false
+
+		seen_traders[
+			trader_id
+		] = true
+
+	return (
+		seen_traders.size()
+		== state.traders.size()
 	)
 
 

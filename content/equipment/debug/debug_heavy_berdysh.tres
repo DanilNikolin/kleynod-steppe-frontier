@@ -11,6 +11,7 @@ display_name = "Тяжёлая бердыш"
 description = "Двуручное оружие, занимающее оба оружейных слота."
 is_two_handed = true
 primary_ability = ExtResource("3_ability")
+base_trade_value = 220
 loot_value = 70
 loot_tier = 2
 loot_weight = 60

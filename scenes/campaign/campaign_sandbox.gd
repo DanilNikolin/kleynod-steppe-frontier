@@ -474,19 +474,13 @@ func _on_shell_section_requested(
 	if target_view == _current_view:
 		return
 
-	## Локальная локация — contextual view.
-	## Если из неё открыли глобальную вкладку,
-	## можно вернуться назад ровно в неё.
-	if _current_view == View.LOCAL_LOCATION:
-		_push_current_view()
-
-	else:
-		## Между обычными глобальными вкладками
-		## back-history не накапливаем.
-		_view_stack.clear()
-
+	## Верхняя навигация не уничтожает контекст.
+	## Текущий экран становится предыдущим,
+	## поэтому игрок может пройти назад
+	## ровно по той цепочке, по которой пришёл.
 	_show_view(
-		target_view
+		target_view,
+		true
 	)
 
 

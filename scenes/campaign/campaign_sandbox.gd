@@ -329,7 +329,9 @@ func _create_world_panel() -> Control:
 
 	panel.bind(
 		CampaignRuntime.get_world_map_definition(),
-		CampaignRuntime.get_campaign_state()
+		CampaignRuntime.get_campaign_state(),
+		CampaignRuntime.get_home_settlement_definition(),
+		CampaignRuntime.get_home_settlement_state()
 	)
 
 	return panel

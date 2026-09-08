@@ -16,10 +16,17 @@ signal enter_requested(
 var _world_map: CampaignWorldMapDefinition
 var _state: CampaignState
 
+var _settlement_definition: CampaignSettlementDefinition
+var _settlement_state: CampaignSettlementState
+
 var _selected_node_id: StringName = &""
 
 var _travel_service := (
 	CampaignTravelService.new()
+)
+
+var _route_access_service := (
+	CampaignWorldRouteAccessService.new()
 )
 
 
@@ -33,10 +40,20 @@ var _adventure_button: Button
 
 func bind(
 	world_map: CampaignWorldMapDefinition,
-	state: CampaignState
+	state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	settlement_state: CampaignSettlementState
 ) -> void:
 	_world_map = world_map
 	_state = state
+
+	_settlement_definition = (
+		settlement_definition
+	)
+
+	_settlement_state = (
+		settlement_state
+	)
 
 	_selected_node_id = (
 		state.current_world_node_id
@@ -147,7 +164,9 @@ func _build_interface() -> void:
 
 	_map_canvas.bind(
 		_world_map,
-		_state
+		_state,
+		_settlement_definition,
+		_settlement_state
 	)
 
 	content.add_child(
@@ -293,6 +312,43 @@ func _refresh_selection() -> void:
 
 		return
 
+	var route := _world_map.get_route_between(
+		current_node.node_id,
+		selected_node.node_id
+	)
+
+	if route == null:
+		_selection_label.text = (
+			"%s · Прямого маршрута отсюда нет."
+			% selected_node.display_name
+		)
+
+		_travel_button.disabled = true
+
+		return
+
+	var route_access_error := (
+		_route_access_service
+			.get_route_access_error(
+				route,
+				_settlement_definition,
+				_settlement_state
+			)
+	)
+
+	if not route_access_error.is_empty():
+		_selection_label.text = (
+			"%s · %s"
+			% [
+				selected_node.display_name,
+				route_access_error,
+			]
+		)
+
+		_travel_button.disabled = true
+
+		return
+
 	var travel_days := (
 		_travel_service.get_travel_days(
 			_world_map,
@@ -316,9 +372,10 @@ func _refresh_selection() -> void:
 		return
 
 	_selection_label.text = (
-		"%s · Путь: %d дн."
+		"%s · %s: %d дн."
 		% [
 			selected_node.display_name,
+			route.get_travel_mode_display_name(),
 			travel_days,
 		]
 	)

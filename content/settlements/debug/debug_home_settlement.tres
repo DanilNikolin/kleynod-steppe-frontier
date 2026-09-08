@@ -12,6 +12,12 @@ effect_id = &"blacksmith_infrastructure"
 display_name = "Кузнечная инфраструктура"
 description = "В родном поселении действует кузня. Конкретный игровой бонус этого эффекта будет определён позже."
 
+[sub_resource type="Resource" id="RiverTransportAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"river_transport_access"
+display_name = "Доступ к речному транспорту"
+description = "Причал соединяет родное поселение с доступными речными маршрутами."
+
 [sub_resource type="Resource" id="BlacksmithUpgradeLevel2"]
 script = ExtResource("5_upgrade")
 target_level = 2
@@ -80,7 +86,12 @@ max_level = 3
 script = ExtResource("2_building")
 building_id = &"river_pier"
 display_name = "Причал"
-description = "Речной транспорт и будущие водные маршруты."
+description = "Речной транспорт, дальние водные маршруты и будущие торговые связи."
+construction_enabled = true
+construction_gold_cost = 150
+construction_material_cost = 5
+construction_minutes = 1440
+active_effects = Array[ExtResource("4_effect")]([SubResource("RiverTransportAccessEffect")])
 max_level = 3
 
 [sub_resource type="Resource" id="WaterMill"]

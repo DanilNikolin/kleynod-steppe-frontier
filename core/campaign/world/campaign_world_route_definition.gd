@@ -3,6 +3,12 @@ class_name CampaignWorldRouteDefinition
 extends Resource
 
 
+enum TravelMode {
+	LAND,
+	RIVER,
+}
+
+
 @export_group("Identity")
 
 @export
@@ -21,6 +27,12 @@ var node_a_id: StringName = &""
 var node_b_id: StringName = &""
 
 
+@export_group("Mode")
+
+@export
+var travel_mode: TravelMode = TravelMode.LAND
+
+
 @export_group("Travel")
 
 ## Модификатор автоматически рассчитанного времени.
@@ -35,6 +47,28 @@ var travel_multiplier: float = 1.0
 ## автоматический расчёт для особого маршрута.
 @export
 var travel_days_override: int = -1
+
+
+@export_group("Access")
+
+## Если задано, маршрут существует в authored world,
+## но становится доступен только пока данный
+## HOME settlement effect активен.
+@export
+var required_home_settlement_effect_id: StringName = &""
+
+## Человекочитаемое объяснение для UI.
+@export_multiline
+var access_requirement_text: String = ""
+
+
+func get_travel_mode_display_name() -> String:
+	match travel_mode:
+		TravelMode.RIVER:
+			return "Речной путь"
+
+		_:
+			return "Сухопутный путь"
 
 
 func connects(

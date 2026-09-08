@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_map_definition.gd" id="1_map"]
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_node_definition.gd" id="2_node"]
@@ -31,7 +31,7 @@ node_id = &"debug_city"
 display_name = "Большой город"
 description = "Крупный торговый и городской центр."
 node_type = 2
-map_position = Vector2(700, 180)
+map_position = Vector2(700, 340)
 local_location_definition = ExtResource("6_city_local")
 
 [sub_resource type="Resource" id="NodeForest"]
@@ -59,6 +59,16 @@ node_b_id = &"debug_city"
 travel_multiplier = 0.9
 travel_days_override = -1
 
+[sub_resource type="Resource" id="RouteHomeCityRiver"]
+script = ExtResource("3_route")
+route_id = &"debug_route_home_city_river"
+node_a_id = &"debug_home"
+node_b_id = &"debug_city"
+travel_mode = 1
+travel_days_override = 2
+required_home_settlement_effect_id = &"river_transport_access"
+access_requirement_text = "Речной маршрут недоступен. Постройте Причал в родном поселении."
+
 [sub_resource type="Resource" id="RouteVillageForest"]
 script = ExtResource("3_route")
 route_id = &"debug_route_village_forest"
@@ -80,4 +90,4 @@ script = ExtResource("1_map")
 map_units_per_day = 120.0
 starting_node_id = &"debug_home"
 nodes = Array[ExtResource("2_node")]([SubResource("NodeHome"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
-routes = Array[ExtResource("3_route")]([SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])
+routes = Array[ExtResource("3_route")]([SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])

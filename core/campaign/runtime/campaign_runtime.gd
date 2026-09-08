@@ -37,6 +37,10 @@ var travel_service := (
 	CampaignTravelService.new()
 )
 
+var world_route_access_service := (
+	CampaignWorldRouteAccessService.new()
+)
+
 var calendar_rules := (
 	CampaignCalendarRules.new()
 )
@@ -1173,15 +1177,24 @@ func get_connected_world_nodes() -> Array[CampaignWorldNodeDefinition]:
 	if world_map == null:
 		return result
 
-	var connected_ids := (
-		world_map.get_connected_node_ids(
+	for route in world_map.routes:
+		if route == null:
+			continue
+
+		var other_node_id := route.get_other_node_id(
 			campaign_state.current_world_node_id
 		)
-	)
 
-	for node_id in connected_ids:
+		if other_node_id == &"":
+			continue
+
+		if not is_world_route_available(
+			route
+		):
+			continue
+
 		var node := world_map.get_node(
-			node_id
+			other_node_id
 		)
 
 		if node == null:
@@ -1192,6 +1205,19 @@ func get_connected_world_nodes() -> Array[CampaignWorldNodeDefinition]:
 		)
 
 	return result
+
+
+func is_world_route_available(
+	route: CampaignWorldRouteDefinition
+) -> bool:
+	return (
+		world_route_access_service
+			.is_route_available(
+				route,
+				get_home_settlement_definition(),
+				get_home_settlement_state()
+			)
+	)
 
 
 func get_travel_days_to(
@@ -1206,6 +1232,22 @@ func get_travel_days_to(
 	var world_map := get_world_map_definition()
 
 	if world_map == null:
+		return (
+			CampaignTravelService
+				.INVALID_TRAVEL_DAYS
+		)
+
+	var route := world_map.get_route_between(
+		campaign_state.current_world_node_id,
+		destination_node_id
+	)
+
+	if (
+		route == null
+		or not is_world_route_available(
+			route
+		)
+	):
 		return (
 			CampaignTravelService
 				.INVALID_TRAVEL_DAYS
@@ -1279,6 +1321,39 @@ func travel_to_world_node(
 		push_warning(
 			"Unknown world destination '%s'."
 			% destination_node_id
+		)
+
+		return false
+
+	var route := world_map.get_route_between(
+		campaign_state.current_world_node_id,
+		destination_node_id
+	)
+
+	if route == null:
+		push_warning(
+			"No direct route from '%s' to '%s'."
+			% [
+				campaign_state.current_world_node_id,
+				destination_node_id,
+			]
+		)
+
+		return false
+
+	var route_access_error := (
+		world_route_access_service
+			.get_route_access_error(
+				route,
+				get_home_settlement_definition(),
+				get_home_settlement_state()
+			)
+	)
+
+	if not route_access_error.is_empty():
+		push_warning(
+			"World route is locked: %s"
+			% route_access_error
 		)
 
 		return false

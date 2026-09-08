@@ -21,6 +21,13 @@ const MAP_PADDING := Vector2(
 var _world_map: CampaignWorldMapDefinition
 var _state: CampaignState
 
+var _settlement_definition: CampaignSettlementDefinition
+var _settlement_state: CampaignSettlementState
+
+var _route_access_service := (
+	CampaignWorldRouteAccessService.new()
+)
+
 var _selected_node_id: StringName = &""
 
 var _buttons_by_node_id: Dictionary = {}
@@ -34,10 +41,20 @@ func _ready() -> void:
 
 func bind(
 	world_map: CampaignWorldMapDefinition,
-	state: CampaignState
+	state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	settlement_state: CampaignSettlementState
 ) -> void:
 	_world_map = world_map
 	_state = state
+
+	_settlement_definition = (
+		settlement_definition
+	)
+
+	_settlement_state = (
+		settlement_state
+	)
 
 	_selected_node_id = (
 		state.current_world_node_id
@@ -69,6 +86,16 @@ func _draw() -> void:
 
 	for route in _world_map.routes:
 		if route == null:
+			continue
+
+		if not (
+			_route_access_service
+				.is_route_available(
+					route,
+					_settlement_definition,
+					_settlement_state
+				)
+		):
 			continue
 
 		var node_a := _world_map.get_node(

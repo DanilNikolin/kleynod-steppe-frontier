@@ -751,15 +751,10 @@ func _get_settlement_zone_title(
 	if building == null:
 		return zone.display_name
 
-	if building.max_level <= 1:
-		return building.display_name
-
 	return (
-		"%s · уровень %d"
-		% [
-			building.display_name,
-			zone_state.building_level,
-		]
+		building.get_display_name_for_level(
+			zone_state.building_level
+		)
 	)
 
 
@@ -785,7 +780,9 @@ func _create_settlement_zone_actions(
 		)
 
 		var building_name := (
-			building.display_name
+			building.get_display_name_for_level(
+				zone_state.building_level
+			)
 			if building != null
 			else String(
 				zone_state.building_id
@@ -826,22 +823,37 @@ func _create_settlement_zone_actions(
 
 				var upgrade_button := Button.new()
 
+				var upgrade_name := (
+					upgrade.display_name
+					if (
+						upgrade != null
+						and not upgrade
+							.display_name
+							.strip_edges()
+							.is_empty()
+					)
+					else (
+						"уровень %d"
+						% target_level
+					)
+				)
+
 				if (
 					upgrade == null
 					or not upgrade.upgrade_enabled
 				):
 					upgrade_button.text = (
-						"УЛУЧШИТЬ ДО УР. %d · пока недоступно"
-						% target_level
+						"УЛУЧШИТЬ → %s · пока недоступно"
+						% upgrade_name
 					)
 
 					upgrade_button.disabled = true
 
 				else:
 					upgrade_button.text = (
-						"УЛУЧШИТЬ ДО УР. %d · %d гр. · %d мат. · %s"
+						"УЛУЧШИТЬ → %s · %d гр. · %d мат. · %s"
 						% [
-							target_level,
+							upgrade_name,
 							upgrade.gold_cost,
 							upgrade.material_cost,
 							_get_duration_text(
@@ -873,6 +885,24 @@ func _create_settlement_zone_actions(
 							_on_settlement_upgrade_pressed.bind(
 								zone.zone_id
 							)
+						)
+
+				if (
+					upgrade != null
+					and not upgrade
+						.description
+						.strip_edges()
+						.is_empty()
+				):
+					if upgrade_button.tooltip_text.is_empty():
+						upgrade_button.tooltip_text = (
+							upgrade.description
+						)
+
+					else:
+						upgrade_button.tooltip_text += (
+							"\n\n%s"
+							% upgrade.description
 						)
 
 				_actions_row.add_child(
@@ -1078,30 +1108,31 @@ func _get_settlement_zone_text(
 		)
 
 		var building_name := (
-			building.display_name
+			building.get_display_name_for_level(
+				zone_state.building_level
+			)
 			if building != null
 			else String(
 				zone_state.building_id
 			)
 		)
 
-		if (
-			building != null
-			and building.max_level <= 1
-		):
-			lines.append(
-				"Построено: %s."
-				% building_name
+		lines.append(
+			"Построено: %s."
+			% building_name
+		)
+
+		if building != null:
+			var stage_description := (
+				building.get_description_for_level(
+					zone_state.building_level
+				)
 			)
 
-		else:
-			lines.append(
-				"Построено: %s · уровень %d."
-				% [
-					building_name,
-					zone_state.building_level,
-				]
-			)
+			if not stage_description.strip_edges().is_empty():
+				lines.append(
+					stage_description
+				)
 
 		if building != null:
 			var seasonal_income := (
@@ -1116,15 +1147,18 @@ func _get_settlement_zone_text(
 					% seasonal_income
 				)
 
-		if (
-			building != null
-			and not building.active_effects.is_empty()
-		):
+		if building != null:
+			var active_effects := (
+				building.get_active_effects_for_level(
+					zone_state.building_level
+				)
+			)
+
 			var effect_names := (
 				PackedStringArray()
 			)
 
-			for effect in building.active_effects:
+			for effect in active_effects:
 				if effect == null:
 					continue
 
@@ -1134,11 +1168,40 @@ func _get_settlement_zone_text(
 
 			if not effect_names.is_empty():
 				lines.append(
-					"Активные эффекты: %s"
+					"Активные возможности: %s"
 					% " / ".join(
 						effect_names
 					)
 				)
+
+			var next_upgrade := (
+				building.get_next_upgrade(
+					zone_state.building_level
+				)
+			)
+
+			if next_upgrade != null:
+				var next_name := (
+					next_upgrade.display_name
+					if not next_upgrade
+						.display_name
+						.strip_edges()
+						.is_empty()
+					else (
+						"уровень %d"
+						% next_upgrade.target_level
+					)
+				)
+
+				lines.append(
+					"Следующее развитие: %s."
+					% next_name
+				)
+
+				if not next_upgrade.description.strip_edges().is_empty():
+					lines.append(
+						next_upgrade.description
+					)
 
 	return "\n".join(
 		lines

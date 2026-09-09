@@ -9,6 +9,11 @@ signal battle_site_requested(
 	site_id: StringName
 )
 
+signal landmark_site_requested(
+	area_id: StringName,
+	site_id: StringName
+)
+
 
 var _definition: CampaignAdventureAreaDefinition
 var _state: CampaignAdventureAreaState
@@ -274,13 +279,27 @@ func _refresh_details() -> void:
 	)
 
 	if site_state.is_cleared():
-		_site_status.text = (
-			"Состояние: зачищено."
-		)
-
 		_action_button.visible = true
 		_action_button.disabled = true
-		_action_button.text = "ЗАЧИЩЕНО"
+
+		if (
+			site_definition.site_type
+			== CampaignAdventureSiteDefinition
+				.SiteType
+				.BATTLE
+		):
+			_site_status.text = (
+				"Состояние: зачищено."
+			)
+
+			_action_button.text = "ЗАЧИЩЕНО"
+
+		else:
+			_site_status.text = (
+				"Состояние: исследовано."
+			)
+
+			_action_button.text = "ИССЛЕДОВАНО"
 
 		return
 
@@ -304,11 +323,26 @@ func _refresh_details() -> void:
 		)
 
 	else:
-		_action_button.disabled = true
+		if site_definition.exploration_enabled:
+			_action_button.disabled = false
 
-		_action_button.text = (
-			"ДЕЙСТВИЙ ПОКА НЕТ"
-		)
+			_action_button.text = (
+				site_definition
+					.exploration_action_label
+			)
+
+			if site_definition.material_reward > 0:
+				_action_button.text += (
+					" · +%d мат."
+					% site_definition.material_reward
+				)
+
+		else:
+			_action_button.disabled = true
+
+			_action_button.text = (
+				"ДЕЙСТВИЙ ПОКА НЕТ"
+			)
 
 
 func _get_first_visible_site_id() -> StringName:
@@ -369,17 +403,24 @@ func _on_action_pressed() -> void:
 		site_definition == null
 		or site_state == null
 		or not site_state.is_available()
-		or site_definition.site_type
-			!= CampaignAdventureSiteDefinition
-				.SiteType
-				.BATTLE
 	):
 		return
 
-	battle_site_requested.emit(
-		_definition.area_id,
-		_selected_site_id
-	)
+	match site_definition.site_type:
+		CampaignAdventureSiteDefinition.SiteType.BATTLE:
+			battle_site_requested.emit(
+				_definition.area_id,
+				_selected_site_id
+			)
+
+		CampaignAdventureSiteDefinition.SiteType.LANDMARK:
+			if not site_definition.exploration_enabled:
+				return
+
+			landmark_site_requested.emit(
+				_definition.area_id,
+				_selected_site_id
+			)
 
 
 func _on_exit_pressed() -> void:

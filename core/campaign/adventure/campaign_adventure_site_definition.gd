@@ -52,6 +52,23 @@ var campaign_location_id: StringName = &""
 var clear_on_victory: bool = false
 
 
+@export_group("Exploration")
+
+## LANDMARK может иметь одноразовое authored-действие
+## без запуска tactical battle.
+@export
+var exploration_enabled: bool = false
+
+@export
+var exploration_action_label: String = "ИССЛЕДОВАТЬ"
+
+## Пока поддерживаем только нужный сейчас
+## простой reward. Более общий reward model
+## добавим только когда реально понадобится.
+@export_range(0, 999999999, 1)
+var material_reward: int = 0
+
+
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
 
@@ -82,11 +99,39 @@ func get_validation_errors() -> PackedStringArray:
 					"LANDMARK site cannot clear on victory."
 				)
 
+			if (
+				exploration_enabled
+				and exploration_action_label
+					.strip_edges()
+					.is_empty()
+			):
+				errors.append(
+					"Enabled LANDMARK exploration requires an action label."
+				)
+
+			if (
+				material_reward > 0
+				and not exploration_enabled
+			):
+				errors.append(
+					"LANDMARK material reward requires exploration."
+				)
+
 		SiteType.BATTLE:
 			if campaign_location_id == &"":
 				errors.append(
 					"BATTLE site requires "
 					+"a campaign location ID."
+				)
+
+			if exploration_enabled:
+				errors.append(
+					"BATTLE site cannot use LANDMARK exploration."
+				)
+
+			if material_reward != 0:
+				errors.append(
+					"BATTLE site cannot use LANDMARK material reward."
 				)
 
 	var used_connection_ids: Dictionary = {}

@@ -46,7 +46,11 @@ func get_active_effects(
 		if building == null:
 			continue
 
-		for effect in building.active_effects:
+		for effect in (
+			building.get_active_effects_for_level(
+				zone_state.building_level
+			)
+		):
 			if (
 				effect == null
 				or effect.effect_id == &""

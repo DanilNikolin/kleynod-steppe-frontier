@@ -24,17 +24,143 @@ effect_id = &"primitive_camp_established"
 display_name = "Обжитый лагерь"
 description = "На месте будущего поселения организован первый постоянный лагерь."
 
+[sub_resource type="Resource" id="HomeMeetingAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"home_meeting_access"
+display_name = "Домашние встречи"
+description = "Центральное место HOME достаточно обжито для встреч жителей и небольших домашних событий."
+
+[sub_resource type="Resource" id="SettlementBoardAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"settlement_board_access"
+display_name = "Центральный двор"
+description = "Центральный двор способен поддерживать более крупные события и будущую домашнюю доску."
+
 [sub_resource type="Resource" id="PartyManagementAccessEffect"]
 script = ExtResource("4_effect")
 effect_id = &"party_management_access"
 display_name = "Место отряда"
 description = "В HOME есть постоянное место, где можно формировать боевой отряд."
 
+[sub_resource type="Resource" id="PartyRespecAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"party_respec_access"
+display_name = "Пересборка навыков"
+description = "Постоянное жильё отряда позволяет в HOME полностью пересобирать Skill Grid героев."
+
+[sub_resource type="Resource" id="CatchUpTrainingAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"catch_up_training_access"
+display_name = "Подготовка отстающих героев"
+description = "Развитый дом отряда поддерживает будущую catch-up training систему."
+
 [sub_resource type="Resource" id="TemporaryGuestAccessEffect"]
 script = ExtResource("4_effect")
 effect_id = &"temporary_guest_access"
 display_name = "Место для временного гостя"
 description = "В лагере есть место, где временно может остановиться приглашённый человек."
+
+[sub_resource type="Resource" id="MaterialSupplyAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"material_supply_access"
+display_name = "Поставка материалов"
+description = "Нормальный склад позволяет в будущем заказывать базовые строительные материалы через внешние связи."
+
+[sub_resource type="Resource" id="HouseholdSupportAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"household_support_access"
+display_name = "Организованное хозяйство"
+description = "Развитый хозяйственный двор способен поддерживать будущего хозяйственника и постоянное бытовое снабжение HOME."
+
+
+[sub_resource type="Resource" id="CampfireUpgrade2"]
+script = ExtResource("5_upgrade")
+display_name = "Обжитое костровище"
+description = "Появляются нормальные места вокруг огня, простой стол и укрытие. Открывает домашние встречи. DEV: стоимость, срок и финальные требования временные; перед production-реализацией стадии будут отдельно утверждены."
+target_level = 2
+upgrade_enabled = true
+gold_cost = 40
+material_cost = 8
+duration_minutes = 480
+active_effects = Array[ExtResource("4_effect")]([SubResource("HomeMeetingAccessEffect")])
+
+[sub_resource type="Resource" id="CampfireUpgrade3"]
+script = ExtResource("5_upgrade")
+display_name = "Центральный двор"
+description = "Костровище превращается в общественный центр настоящего поселения. DEV: стоимость, срок и конкретный gameplay домашней доски пока временные."
+target_level = 3
+upgrade_enabled = true
+gold_cost = 100
+material_cost = 18
+duration_minutes = 1440
+active_effects = Array[ExtResource("4_effect")]([SubResource("SettlementBoardAccessEffect")])
+
+[sub_resource type="Resource" id="CampfireUpgrade4"]
+script = ExtResource("5_upgrade")
+display_name = "Рада"
+description = "Поздняя форма центрального места HOME. Конкретная новая gameplay-функция сознательно оставлена TBD. DEV: текущие стоимость и срок временные."
+target_level = 4
+upgrade_enabled = true
+gold_cost = 180
+material_cost = 30
+duration_minutes = 2880
+
+
+[sub_resource type="Resource" id="PartyShelterUpgrade2"]
+script = ExtResource("5_upgrade")
+display_name = "Постоянный курень"
+description = "Стены, крыша и нормальные спальные места. Открывает бесплатный respec Skill Grid в HOME. DEV: стоимость, срок и будущие требования плотника/знаний/рабочих пока временные."
+target_level = 2
+upgrade_enabled = true
+gold_cost = 60
+material_cost = 12
+duration_minutes = 720
+active_effects = Array[ExtResource("4_effect")]([SubResource("PartyRespecAccessEffect")])
+
+[sub_resource type="Resource" id="PartyShelterUpgrade3"]
+script = ExtResource("5_upgrade")
+display_name = "Развитый дом отряда"
+description = "Появляется полноценное место подготовки, карты, стойки и трофеи. Открывает будущую catch-up training систему. DEV: текущие стоимость и требования временные."
+target_level = 3
+upgrade_enabled = true
+gold_cost = 140
+material_cost = 24
+duration_minutes = 2160
+active_effects = Array[ExtResource("4_effect")]([SubResource("CatchUpTrainingAccessEffect")])
+
+[sub_resource type="Resource" id="PartyShelterUpgrade4"]
+script = ExtResource("5_upgrade")
+display_name = "Штаб отряда"
+description = "Поздняя серьёзная версия дома отряда. Конкретная дополнительная gameplay-функция сознательно оставлена TBD. DEV: текущие стоимость и срок временные."
+target_level = 4
+upgrade_enabled = true
+gold_cost = 240
+material_cost = 36
+duration_minutes = 4320
+
+
+[sub_resource type="Resource" id="CommonShelterUpgrade2"]
+script = ExtResource("5_upgrade")
+display_name = "Общий склад"
+description = "Нормально организованное хранение и хозяйственная инфраструктура. Открывает будущую закупку и доставку базовых Materials. DEV: стоимость, срок и финальные requirements временные."
+target_level = 2
+upgrade_enabled = true
+gold_cost = 50
+material_cost = 10
+duration_minutes = 720
+active_effects = Array[ExtResource("4_effect")]([SubResource("MaterialSupplyAccessEffect")])
+
+[sub_resource type="Resource" id="CommonShelterUpgrade3"]
+script = ExtResource("5_upgrade")
+display_name = "Хозяйственный двор"
+description = "Полноценная хозяйственная часть HOME. В будущем здесь сможет работать конкретный resident-хозяйственник и организовывать небольшой постоянный приток Materials. DEV: текущий баланс временный."
+target_level = 3
+upgrade_enabled = true
+gold_cost = 120
+material_cost = 20
+duration_minutes = 2160
+active_effects = Array[ExtResource("4_effect")]([SubResource("HouseholdSupportAccessEffect")])
+
 
 [sub_resource type="Resource" id="PrimitiveCampfire"]
 script = ExtResource("2_building")
@@ -47,7 +173,8 @@ construction_material_cost = 0
 construction_minutes = 30
 demolition_enabled = false
 active_effects = Array[ExtResource("4_effect")]([SubResource("PrimitiveCampEstablishedEffect")])
-max_level = 1
+max_level = 4
+upgrades = Array[ExtResource("5_upgrade")]([SubResource("CampfireUpgrade2"), SubResource("CampfireUpgrade3"), SubResource("CampfireUpgrade4")])
 
 [sub_resource type="Resource" id="TemporaryPartyShelter"]
 script = ExtResource("2_building")
@@ -61,7 +188,8 @@ construction_minutes = 120
 demolition_enabled = false
 required_effect_ids = Array[StringName]([&"primitive_camp_established"])
 active_effects = Array[ExtResource("4_effect")]([SubResource("PartyManagementAccessEffect")])
-max_level = 1
+max_level = 4
+upgrades = Array[ExtResource("5_upgrade")]([SubResource("PartyShelterUpgrade2"), SubResource("PartyShelterUpgrade3"), SubResource("PartyShelterUpgrade4")])
 
 [sub_resource type="Resource" id="PrimitiveCommonShelter"]
 script = ExtResource("2_building")
@@ -75,7 +203,8 @@ construction_minutes = 60
 demolition_enabled = false
 required_effect_ids = Array[StringName]([&"primitive_camp_established"])
 active_effects = Array[ExtResource("4_effect")]([SubResource("TemporaryGuestAccessEffect")])
-max_level = 1
+max_level = 3
+upgrades = Array[ExtResource("5_upgrade")]([SubResource("CommonShelterUpgrade2"), SubResource("CommonShelterUpgrade3")])
 
 [sub_resource type="Resource" id="BlacksmithUpgradeLevel2"]
 script = ExtResource("5_upgrade")

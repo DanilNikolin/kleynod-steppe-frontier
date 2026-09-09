@@ -387,6 +387,10 @@ func _create_adventure_area_panel() -> Control:
 		_on_adventure_site_battle_requested
 	)
 
+	panel.landmark_site_requested.connect(
+		_on_adventure_site_landmark_requested
+	)
+
 	panel.bind(
 		area_definition,
 		area_state
@@ -1232,6 +1236,27 @@ func _on_adventure_site_battle_requested(
 		push_warning(
 			"Adventure site battle could not be started."
 		)
+
+
+func _on_adventure_site_landmark_requested(
+	area_id: StringName,
+	site_id: StringName
+) -> void:
+	var explored := (
+		CampaignRuntime.explore_adventure_site(
+			area_id,
+			site_id
+		)
+	)
+
+	if not explored:
+		push_warning(
+			"Adventure landmark could not be explored."
+		)
+
+		return
+
+	_refresh_current_view()
 
 
 func _on_local_location_exit_requested() -> void:

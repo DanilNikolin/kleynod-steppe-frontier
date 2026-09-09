@@ -106,7 +106,109 @@ func get_next_upgrade(
 		current_level + 1
 	)
 
+func get_display_name_for_level(
+	building_level: int
+) -> String:
+	if building_level <= 1:
+		return display_name
 
+	var upgrade := get_upgrade_to_level(
+		building_level
+	)
+
+	if (
+		upgrade != null
+		and not upgrade
+			.display_name
+			.strip_edges()
+			.is_empty()
+	):
+		return upgrade.display_name
+
+	return (
+		"%s · уровень %d"
+		% [
+			display_name,
+			building_level,
+		]
+	)
+
+
+func get_description_for_level(
+	building_level: int
+) -> String:
+	if building_level <= 1:
+		return description
+
+	var upgrade := get_upgrade_to_level(
+		building_level
+	)
+
+	if (
+		upgrade != null
+		and not upgrade
+			.description
+			.strip_edges()
+			.is_empty()
+	):
+		return upgrade.description
+
+	return description
+
+
+func get_active_effects_for_level(
+	building_level: int
+) -> Array[CampaignSettlementEffectDefinition]:
+	var result: Array[CampaignSettlementEffectDefinition] = []
+
+	var used_effect_ids: Dictionary = {}
+
+	for effect in active_effects:
+		if (
+			effect == null
+			or effect.effect_id == &""
+			or used_effect_ids.has(
+				effect.effect_id
+			)
+		):
+			continue
+
+		used_effect_ids[
+			effect.effect_id
+		] = true
+
+		result.append(
+			effect
+		)
+
+	for upgrade in upgrades:
+		if (
+			upgrade == null
+			or upgrade.target_level
+				> building_level
+		):
+			continue
+
+		for effect in upgrade.active_effects:
+			if (
+				effect == null
+				or effect.effect_id == &""
+				or used_effect_ids.has(
+					effect.effect_id
+				)
+			):
+				continue
+
+			used_effect_ids[
+				effect.effect_id
+			] = true
+
+			result.append(
+				effect
+			)
+
+	return result
+	
 func get_seasonal_gold_income(
 	building_level: int
 ) -> int:
@@ -299,7 +401,7 @@ func get_validation_errors() -> PackedStringArray:
 	):
 		errors.append(
 			"Seasonal income defines more levels "
-			+ "than the building max level."
+			+"than the building max level."
 		)
 
 	for income_index in range(
@@ -314,7 +416,7 @@ func get_validation_errors() -> PackedStringArray:
 			errors.append(
 				"Seasonal income for building level %d "
 				% (income_index + 1)
-				+ "cannot be negative."
+				+"cannot be negative."
 			)
 
 	return errors

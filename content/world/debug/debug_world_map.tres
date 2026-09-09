@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=17 format=3]
+[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_map_definition.gd" id="1_map"]
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_node_definition.gd" id="2_node"]
@@ -16,6 +16,15 @@ description = "Пока почти пустое родное поселение.
 node_type = 0
 map_position = Vector2(120, 300)
 local_location_definition = ExtResource("4_home_local")
+
+[sub_resource type="Resource" id="NodeHomeMaterials"]
+script = ExtResource("2_node")
+node_id = &"debug_home_materials_node"
+display_name = "Ближняя роща"
+description = "Небольшая роща недалеко от HOME. Здесь можно найти материал для первого обустройства лагеря."
+node_type = 3
+map_position = Vector2(210, 390)
+adventure_area_id = &"debug_home_outskirts_materials_area"
 
 [sub_resource type="Resource" id="NodeVillage"]
 script = ExtResource("2_node")
@@ -51,6 +60,15 @@ node_a_id = &"debug_home"
 node_b_id = &"debug_village"
 travel_multiplier = 1.0
 travel_days_override = -1
+
+[sub_resource type="Resource" id="RouteHomeMaterials"]
+script = ExtResource("3_route")
+route_id = &"debug_route_home_materials"
+node_a_id = &"debug_home"
+node_b_id = &"debug_home_materials_node"
+travel_days_override = 1
+required_home_settlement_effect_id = &"primitive_camp_established"
+access_requirement_text = "Сначала обустройте первое костровище в HOME."
 
 [sub_resource type="Resource" id="RouteVillageCity"]
 script = ExtResource("3_route")
@@ -91,5 +109,5 @@ travel_days_override = -1
 script = ExtResource("1_map")
 map_units_per_day = 120.0
 starting_node_id = &"debug_home"
-nodes = Array[ExtResource("2_node")]([SubResource("NodeHome"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
-routes = Array[ExtResource("3_route")]([SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])
+nodes = Array[ExtResource("2_node")]([SubResource("NodeHome"), SubResource("NodeHomeMaterials"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
+routes = Array[ExtResource("3_route")]([SubResource("RouteHomeMaterials"), SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])

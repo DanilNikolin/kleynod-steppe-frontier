@@ -2513,6 +2513,76 @@ func load_campaign() -> CampaignSaveResult:
 	return result
 
 
+func explore_adventure_site(
+	area_id: StringName,
+	site_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		return false
+
+	if has_pending_travel():
+		return false
+
+	var current_node := (
+		get_current_world_node()
+	)
+
+	if (
+		current_node == null
+		or current_node.adventure_area_id
+			!= area_id
+	):
+		push_warning(
+			"Campaign party is not inside adventure area '%s'."
+			% area_id
+		)
+
+		return false
+
+	var area_definition := (
+		get_adventure_area_definition(
+			area_id
+		)
+	)
+
+	var area_state := (
+		get_adventure_area_state(
+			area_id
+		)
+	)
+
+	var error := (
+		adventure_service
+			.get_landmark_exploration_error(
+				campaign_state,
+				area_definition,
+				area_state,
+				site_id
+			)
+	)
+
+	if not error.is_empty():
+		push_warning(
+			"Adventure landmark exploration failed: %s"
+			% error
+		)
+
+		return false
+
+	return (
+		adventure_service
+			.apply_landmark_exploration(
+				campaign_state,
+				area_definition,
+				area_state,
+				site_id
+			)
+	)
+
+
 func start_adventure_site(
 	area_id: StringName,
 	site_id: StringName

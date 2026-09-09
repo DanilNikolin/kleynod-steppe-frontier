@@ -25,6 +25,13 @@ var description: String = ""
 var local_position: Vector2 = Vector2.ZERO
 
 
+@export_group("Dialogue")
+
+## For stationary NPCs/objects; moving residents own their dialogue instead.
+@export
+var dialogue: CampaignDialogueDefinition
+
+
 @export_group("Actions")
 
 ## Пока это presentation-заглушки действий.
@@ -51,7 +58,7 @@ func get_validation_errors() -> PackedStringArray:
 			"Local interaction display name is empty."
 		)
 
-	if action_labels.is_empty():
+	if action_labels.is_empty() and dialogue == null:
 		errors.append(
 			"Local interaction has no actions."
 		)
@@ -86,5 +93,8 @@ func get_validation_errors() -> PackedStringArray:
 		used_labels[
 			action_label
 		] = true
+
+	if dialogue != null:
+		errors.append_array(dialogue.get_validation_errors())
 
 	return errors

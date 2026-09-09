@@ -1,0 +1,131 @@
+class_name CampaignDialogueSession
+extends RefCounted
+
+
+## Transient conversation. No authored resources or save data are mutated here.
+var definition: CampaignDialogueDefinition
+var node: CampaignDialogueNode
+var revision: int = 0
+var closed: bool = true
+var _runtime: CampaignRuntimeService
+var _state: CampaignState
+var _campaign: CampaignDefinition
+var _world_node_id: StringName
+var _interaction_id: StringName
+
+
+func begin(runtime: CampaignRuntimeService, interaction_id: StringName) -> bool:
+	close()
+	_runtime = runtime
+	_state = runtime.get_campaign_state()
+	_campaign = runtime.campaign_definition
+	_interaction_id = interaction_id
+	definition = runtime.get_dialogue_for_interaction(interaction_id)
+	if _state == null or definition == null or runtime.has_pending_battle():
+		return false
+	if not definition.get_validation_errors().is_empty() or not definition.get_reference_errors(_campaign).is_empty():
+		return false
+	_world_node_id = _state.current_world_node_id
+	node = definition.get_entry(_state, _campaign)
+	closed = node == null
+	return not closed
+
+
+func close() -> void:
+	closed = true
+	revision += 1
+
+
+func get_context_error() -> String:
+	if closed or not is_instance_valid(_runtime):
+		return "Разговор завершён."
+	if _runtime.get_campaign_state() != _state or _runtime.campaign_definition != _campaign:
+		return "Кампания изменилась. Начните разговор заново."
+	if _runtime.has_pending_battle() or _state.current_world_node_id != _world_node_id:
+		return "Сейчас нельзя продолжить разговор."
+	if _runtime.get_dialogue_for_interaction(_interaction_id) != definition:
+		return "Собеседник больше недоступен здесь."
+	return ""
+
+
+func get_choice_error(choice: CampaignDialogueChoice) -> String:
+	var error := get_context_error()
+	if not error.is_empty():
+		return error
+	if node == null or choice == null or node.get_choice(choice.choice_id) != choice:
+		return "Ответ больше недоступен."
+	if not node.is_available(_state, _campaign):
+		return "Обстоятельства изменились. Начните разговор заново."
+	for condition in choice.conditions:
+		if not condition.matches(_state, _campaign):
+			return condition.unavailable_text
+	if choice.action == CampaignDialogueChoice.Action.NONE and choice.next_node_id != &"":
+		var destination := definition.get_node(choice.next_node_id)
+		if destination == null or not destination.is_available(_state, _campaign):
+			return "Эта тема сейчас недоступна."
+	return _get_action_error(choice)
+
+
+func choose(choice_id: StringName, expected_revision: int) -> String:
+	if expected_revision != revision:
+		return "Этот ответ уже обработан."
+	var choice: CampaignDialogueChoice = node.get_choice(choice_id) if node != null else null
+	var error := get_choice_error(choice)
+	if not error.is_empty():
+		return error
+	# Consume the displayed revision before invoking any gameplay action.
+	revision += 1
+	var applied := true
+	match choice.action:
+		CampaignDialogueChoice.Action.START_QUEST:
+			applied = _runtime.start_quest(choice.target_id)
+		CampaignDialogueChoice.Action.TURN_IN_QUEST:
+			applied = _runtime.turn_in_quest(choice.target_id)
+		CampaignDialogueChoice.Action.INVITE_RESIDENT:
+			applied = _runtime.invite_resident(choice.target_id)
+	if not applied:
+		return "Не удалось выполнить действие. Мир не подтвердил результат."
+	if choice.next_node_id == &"":
+		close()
+	else:
+		node = definition.get_node(choice.next_node_id)
+	return ""
+
+
+func _get_action_error(choice: CampaignDialogueChoice) -> String:
+	if choice.action == CampaignDialogueChoice.Action.NONE:
+		return ""
+	var resident := _runtime.get_resident_for_local_interaction(_interaction_id)
+	if resident == null:
+		return "Это действие требует разговора с нужным персонажем."
+	if choice.action == CampaignDialogueChoice.Action.INVITE_RESIDENT:
+		if choice.target_id != resident.resident_id:
+			return "Приглашение адресовано другому персонажу."
+		var resident_state := _state.get_resident(choice.target_id)
+		if resident_state == null or not resident_state.is_at_origin():
+			return "Этот персонаж уже переселился."
+		if not resident_state.recruitment_unlocked:
+			return "Сначала заслужите доверие собеседника."
+		if _state.reputation < resident.required_reputation:
+			return "Нужна репутация: %d." % resident.required_reputation
+		if not _runtime.get_resident_recruitment_error(choice.target_id).is_empty():
+			return "Сейчас нельзя пригласить этого персонажа."
+		return ""
+	var quest := _campaign.get_quest(choice.target_id)
+	var quest_state := _state.get_quest(choice.target_id)
+	if quest == null or quest_state == null or quest.giver_resident_id != resident.resident_id:
+		return "Это задание нужно обсудить с его поручителем."
+	var error: String
+	if choice.action == CampaignDialogueChoice.Action.START_QUEST:
+		error = _runtime.quest_service.get_start_error(
+			_state, quest, quest_state, resident, _state.get_resident(resident.resident_id),
+			_runtime.get_home_settlement_definition()
+		)
+		return "" if error.is_empty() else "Сейчас нельзя принять это задание."
+	if choice.action == CampaignDialogueChoice.Action.TURN_IN_QUEST:
+		error = _runtime.quest_service.get_turn_in_error(
+			_state, quest, quest_state, resident, _state.get_resident(resident.resident_id),
+			_runtime.get_home_settlement_definition()
+		)
+		return "" if error.is_empty() else "Задание сейчас нельзя сдать."
+	return "Неизвестное действие разговора."

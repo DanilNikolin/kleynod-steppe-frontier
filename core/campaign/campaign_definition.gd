@@ -963,6 +963,17 @@ func get_validation_errors() -> PackedStringArray:
 					]
 				)
 
+	# Resolve dialogue references against this campaign, after content validation.
+	for resident in residents:
+		if resident != null and resident.dialogue != null:
+			errors.append_array(resident.dialogue.get_reference_errors(self))
+	if world_map_definition != null:
+		for world_node in world_map_definition.nodes:
+			if world_node == null or world_node.local_location_definition == null:
+				continue
+			for interaction in world_node.local_location_definition.interactions:
+				if interaction != null and interaction.dialogue != null:
+					errors.append_array(interaction.dialogue.get_reference_errors(self))
 	return errors
 
 

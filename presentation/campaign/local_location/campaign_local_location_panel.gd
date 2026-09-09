@@ -2,6 +2,8 @@ class_name CampaignLocalLocationPanel
 extends PanelContainer
 
 
+signal dialogue_requested(interaction_id: StringName)
+
 signal exit_requested
 signal quest_journal_requested
 
@@ -690,6 +692,9 @@ func _refresh_interaction_panel() -> void:
 	)
 
 	_status_label.text = ""
+
+	if interaction.dialogue != null:
+		_create_dialogue_button()
 
 	for action_label in (
 		interaction.action_labels
@@ -1453,65 +1458,70 @@ func _refresh_resident_panel(
 
 	_status_label.text = ""
 
-	for action_label in (
-		interaction.action_labels
-	):
-		var action_button := Button.new()
+	if definition.dialogue != null:
+		_create_dialogue_button()
+		if resident_state.is_at_origin():
+			return
+	else:
+		for action_label in (
+			interaction.action_labels
+		):
+			var action_button := Button.new()
 
-		action_button.text = action_label
+			action_button.text = action_label
 
-		action_button.pressed.connect(
-			_on_action_pressed.bind(
-				action_label
-			)
-		)
-
-		_actions_row.add_child(
-			action_button
-		)
-
-	_create_resident_quest_actions(
-		definition,
-		resident_state
-	)
-
-	if resident_state.is_at_origin():
-		var invite_button := Button.new()
-
-		invite_button.text = (
-			"ПРИГЛАСИТЬ В РОДНОЕ ПОСЕЛЕНИЕ"
-		)
-
-		var recruitment_error := (
-			_resident_service
-				.get_recruitment_error(
-					_state,
-					definition,
-					resident_state
-				)
-		)
-
-		invite_button.disabled = (
-			not recruitment_error.is_empty()
-		)
-
-		if invite_button.disabled:
-			invite_button.tooltip_text = (
-				recruitment_error
-			)
-
-		else:
-			invite_button.pressed.connect(
-				_on_resident_invite_pressed.bind(
-					definition.resident_id
+			action_button.pressed.connect(
+				_on_action_pressed.bind(
+					action_label
 				)
 			)
 
-		_actions_row.add_child(
-			invite_button
+			_actions_row.add_child(
+				action_button
+			)
+
+		_create_resident_quest_actions(
+			definition,
+			resident_state
 		)
 
-		return
+		if resident_state.is_at_origin():
+			var invite_button := Button.new()
+
+			invite_button.text = (
+				"ПРИГЛАСИТЬ В РОДНОЕ ПОСЕЛЕНИЕ"
+			)
+
+			var recruitment_error := (
+				_resident_service
+					.get_recruitment_error(
+						_state,
+						definition,
+						resident_state
+					)
+			)
+
+			invite_button.disabled = (
+				not recruitment_error.is_empty()
+			)
+
+			if invite_button.disabled:
+				invite_button.tooltip_text = (
+					recruitment_error
+				)
+
+			else:
+				invite_button.pressed.connect(
+					_on_resident_invite_pressed.bind(
+						definition.resident_id
+					)
+				)
+
+			_actions_row.add_child(
+				invite_button
+			)
+
+			return
 
 	if not workplace_ready:
 		return
@@ -1743,3 +1753,9 @@ func _on_quest_turn_in_pressed(
 
 func _on_quest_journal_pressed() -> void:
 	quest_journal_requested.emit()
+
+func _create_dialogue_button() -> void:
+	var button := Button.new()
+	button.text = "ПОГОВОРИТЬ"
+	button.pressed.connect(func() -> void: dialogue_requested.emit(_selected_interaction_id))
+	_actions_row.add_child(button)

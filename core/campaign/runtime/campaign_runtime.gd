@@ -2882,3 +2882,38 @@ func _change_to_campaign_scene() -> void:
 		push_error(
 			"Failed to return to campaign scene."
 		)
+
+
+## Resolve residents by both current world node and their live interaction.
+func get_resident_for_local_interaction(interaction_id: StringName) -> CampaignResidentDefinition:
+	if campaign_state == null or campaign_definition == null:
+		return null
+	var local_definition := get_current_local_location_definition()
+	if local_definition == null or local_definition.get_interaction(interaction_id) == null:
+		return null
+	for resident in campaign_definition.residents:
+		if resident == null:
+			continue
+		var state := get_resident_state(resident.resident_id)
+		if state == null or not resident_service.is_interaction_present(resident, state, interaction_id):
+			continue
+		var world_id := resident.origin_world_node_id
+		if state.is_at_home():
+			var home := get_home_settlement_definition()
+			if home == null:
+				continue
+			world_id = home.world_node_id
+		if campaign_state.current_world_node_id == world_id:
+			return resident
+	return null
+
+
+func get_dialogue_for_interaction(interaction_id: StringName) -> CampaignDialogueDefinition:
+	var resident := get_resident_for_local_interaction(interaction_id)
+	if resident != null:
+		return resident.dialogue
+	var local_definition := get_current_local_location_definition()
+	if local_definition == null:
+		return null
+	var interaction := local_definition.get_interaction(interaction_id)
+	return interaction.dialogue if interaction != null else null

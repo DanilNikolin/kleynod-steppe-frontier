@@ -45,6 +45,7 @@ func _ready() -> void:
 	stretch = true
 
 	_ensure_viewport_scene()
+	_camera.make_current()
 
 	resized.connect(
 		_on_resized
@@ -227,7 +228,7 @@ func _ensure_viewport_scene() -> void:
 		_camera
 	)
 
-	_camera.make_current()
+
 
 
 func _rebuild_world() -> void:
@@ -472,16 +473,18 @@ func _sync_viewport_size() -> void:
 	):
 		return
 
-	_viewport.size = Vector2i(
-		maxi(
-			roundi(size.x),
-			1
-		),
-		maxi(
-			roundi(size.y),
-			1
+	# With stretch enabled the container owns the viewport size.
+	if not stretch:
+		_viewport.size = Vector2i(
+			maxi(
+				roundi(size.x),
+				1
+			),
+			maxi(
+				roundi(size.y),
+				1
+			)
 		)
-	)
 
 	_update_camera_zoom()
 

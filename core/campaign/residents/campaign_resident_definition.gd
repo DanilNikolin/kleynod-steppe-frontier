@@ -15,6 +15,12 @@ var display_name: String = "Unnamed Resident"
 var description: String = ""
 
 
+@export_group("Dialogue")
+
+@export
+var dialogue: CampaignDialogueDefinition
+
+
 @export_group("Recruitment")
 
 ## Где NPC находится до приглашения.
@@ -172,5 +178,8 @@ func get_validation_errors() -> PackedStringArray:
 		used_commission_ids[
 			commission.commission_id
 		] = true
+
+	if dialogue != null:
+		errors.append_array(dialogue.get_validation_errors())
 
 	return errors

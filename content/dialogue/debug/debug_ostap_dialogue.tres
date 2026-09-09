@@ -1,0 +1,206 @@
+[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=35 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_definition.gd" id="dialogue"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_node.gd" id="node"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_choice.gd" id="choice"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_condition.gd" id="condition"]
+
+[sub_resource type="Resource" id="condition_not_started"]
+script = ExtResource("condition")
+kind = 0
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="condition_active"]
+script = ExtResource("condition")
+kind = 1
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="condition_ready"]
+script = ExtResource("condition")
+kind = 2
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="condition_completed"]
+script = ExtResource("condition")
+kind = 3
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="condition_home"]
+script = ExtResource("condition")
+kind = 4
+target_id = &"resident_blacksmith_ostap"
+
+[sub_resource type="Resource" id="choice_leave"]
+script = ExtResource("choice")
+choice_id = &"leave"
+text = "Мне пора."
+next_node_id = &""
+
+[sub_resource type="Resource" id="choice_details"]
+script = ExtResource("choice")
+choice_id = &"details"
+text = "Расскажи подробнее."
+next_node_id = &"details"
+
+[sub_resource type="Resource" id="choice_accept"]
+script = ExtResource("choice")
+choice_id = &"accept"
+text = "Я разберусь с разбойниками."
+next_node_id = &"accepted"
+conditions = Array[ExtResource("condition")]([SubResource("condition_not_started")])
+action = 1
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="choice_back_offer"]
+script = ExtResource("choice")
+choice_id = &"back_offer"
+text = "Теперь понятно."
+next_node_id = &"offer"
+
+[sub_resource type="Resource" id="choice_remind"]
+script = ExtResource("choice")
+choice_id = &"remind"
+text = "Напомни, где их искать."
+next_node_id = &"reminder"
+
+[sub_resource type="Resource" id="choice_back_active"]
+script = ExtResource("choice")
+choice_id = &"back_active"
+text = "Хорошо, я вернусь."
+next_node_id = &"active"
+
+[sub_resource type="Resource" id="choice_turn_in"]
+script = ExtResource("choice")
+choice_id = &"turn_in"
+text = "С разбойниками покончено. Дорога свободна."
+next_node_id = &"thanks"
+conditions = Array[ExtResource("condition")]([SubResource("condition_ready")])
+action = 2
+target_id = &"ostap_forest_bandits"
+
+[sub_resource type="Resource" id="choice_invite"]
+script = ExtResource("choice")
+choice_id = &"invite"
+text = "Поехали в моё поселение. Нам нужен такой мастер."
+next_node_id = &"recruited"
+conditions = Array[ExtResource("condition")]([SubResource("condition_completed")])
+hide_when_unavailable = false
+action = 3
+target_id = &"resident_blacksmith_ostap"
+
+[sub_resource type="Resource" id="choice_settlement"]
+script = ExtResource("choice")
+choice_id = &"settlement"
+text = "Что тебе понадобится на новом месте?"
+next_node_id = &"settlement"
+conditions = Array[ExtResource("condition")]([SubResource("condition_completed")])
+
+[sub_resource type="Resource" id="choice_back_completed"]
+script = ExtResource("choice")
+choice_id = &"back_completed"
+text = "Понятно."
+next_node_id = &"completed"
+conditions = Array[ExtResource("condition")]([SubResource("condition_completed")])
+
+[sub_resource type="Resource" id="choice_home_work"]
+script = ExtResource("choice")
+choice_id = &"home_work"
+text = "Как нам наладить работу?"
+next_node_id = &"home_work"
+conditions = Array[ExtResource("condition")]([SubResource("condition_home")])
+
+[sub_resource type="Resource" id="choice_back_home"]
+script = ExtResource("choice")
+choice_id = &"back_home"
+text = "Будем обустраиваться."
+next_node_id = &"home"
+conditions = Array[ExtResource("condition")]([SubResource("condition_home")])
+
+[sub_resource type="Resource" id="node_home"]
+script = ExtResource("node")
+node_id = &"home"
+text = "Осваиваюсь понемногу. Теперь и мне есть о чём здесь заботиться. Заходи — дело для хорошего кузнеца всегда найдётся."
+conditions = Array[ExtResource("condition")]([SubResource("condition_home")])
+choices = Array[ExtResource("choice")]([SubResource("choice_home_work"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_ready"]
+script = ExtResource("node")
+node_id = &"ready"
+text = "Вернулся! Что у лесной дороги? Можно людям идти спокойно?"
+conditions = Array[ExtResource("condition")]([SubResource("condition_ready")])
+choices = Array[ExtResource("choice")]([SubResource("choice_turn_in"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_completed"]
+script = ExtResource("node")
+node_id = &"completed"
+text = "Ты слово сдержал. Такое я помню. Если ещё хотел что-то обсудить — говори."
+conditions = Array[ExtResource("condition")]([SubResource("condition_completed")])
+choices = Array[ExtResource("choice")]([SubResource("choice_settlement"), SubResource("choice_invite"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_active"]
+script = ExtResource("node")
+node_id = &"active"
+text = "Я помню наш разговор. Пока разбойники у дороги, людям там прохода нет. Береги себя."
+conditions = Array[ExtResource("condition")]([SubResource("condition_active")])
+choices = Array[ExtResource("choice")]([SubResource("choice_remind"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_offer"]
+script = ExtResource("node")
+node_id = &"offer"
+text = "Есть у меня забота. У лесной дороги засели разбойники: ни пройти спокойно, ни товар провезти. Поможешь с ними разобраться?"
+conditions = Array[ExtResource("condition")]([SubResource("condition_not_started")])
+choices = Array[ExtResource("choice")]([SubResource("choice_details"), SubResource("choice_accept"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_fallback"]
+script = ExtResource("node")
+node_id = &"fallback"
+text = "Здравствуй. Рад тебя видеть."
+choices = Array[ExtResource("choice")]([SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_details"]
+script = ExtResource("node")
+node_id = &"details"
+text = "Лагерь у них в лесу, неподалёку от дороги. Возьмёшься — отмечу место, чтобы не пришлось блуждать. Разберёшься с ними, возвращайся ко мне."
+choices = Array[ExtResource("choice")]([SubResource("choice_accept"), SubResource("choice_back_offer"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_accepted"]
+script = ExtResource("node")
+node_id = &"accepted"
+text = "Договорились. Я отметил их лагерь в лесу. Подготовь людей перед дорогой — и возвращайся живым."
+choices = Array[ExtResource("choice")]([SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_reminder"]
+script = ExtResource("node")
+node_id = &"reminder"
+text = "В лесу ищи лагерь разбойников — место уже отмечено. Одной разведкой тут не обойтись: нужно разбить их отряд."
+choices = Array[ExtResource("choice")]([SubResource("choice_back_active"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_thanks"]
+script = ExtResource("node")
+node_id = &"thanks"
+text = "Вот и хорошо. Ты помог и мне, и тем, кто ходит этой дорогой. За такую помощь я готов ответить делом."
+choices = Array[ExtResource("choice")]([SubResource("choice_settlement"), SubResource("choice_invite"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_settlement"]
+script = ExtResource("node")
+node_id = &"settlement"
+text = "Место для жизни и кузнечная мастерская. Переселиться я могу и прежде, чем она будет готова, но заказы без рабочего места не возьму."
+choices = Array[ExtResource("choice")]([SubResource("choice_invite"), SubResource("choice_back_completed"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_recruited"]
+script = ExtResource("node")
+node_id = &"recruited"
+text = "Договорились. Переберусь в твоё поселение. Встретимся уже там — вместе и наладим работу."
+
+[sub_resource type="Resource" id="node_home_work"]
+script = ExtResource("node")
+node_id = &"home_work"
+text = "Для кузнечных заказов нужна моя мастерская. Когда она готова, выбирай заказ у моего рабочего места: там указаны цена, материалы и время работы."
+choices = Array[ExtResource("choice")]([SubResource("choice_back_home"), SubResource("choice_leave")])
+
+[resource]
+script = ExtResource("dialogue")
+dialogue_id = &"ostap_conversation"
+speaker_name = "Остап Коваль"
+entry_node_ids = Array[StringName]([&"home", &"ready", &"completed", &"active", &"offer", &"fallback"])
+nodes = Array[ExtResource("node")]([SubResource("node_home"), SubResource("node_ready"), SubResource("node_completed"), SubResource("node_active"), SubResource("node_offer"), SubResource("node_fallback"), SubResource("node_details"), SubResource("node_accepted"), SubResource("node_reminder"), SubResource("node_thanks"), SubResource("node_settlement"), SubResource("node_recruited"), SubResource("node_home_work")])

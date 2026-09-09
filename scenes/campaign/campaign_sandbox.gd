@@ -31,6 +31,9 @@ var _current_menu_panel: CampaignMenuPanel
 
 var _active_trader_id: StringName = &""
 
+var _dialogue_session: CampaignDialogueSession
+var _dialogue_panel: CampaignDialoguePanel
+
 
 func _ready() -> void:
 	if not CampaignRuntime.ensure_campaign_started():
@@ -525,6 +528,8 @@ func _create_local_location_panel() -> Control:
 		_on_local_location_exit_requested
 	)
 
+	panel.dialogue_requested.connect(_on_dialogue_requested.bind(panel))
+
 	panel.interaction_action_requested.connect(
 		_on_local_interaction_action_requested.bind(
 			panel
@@ -616,6 +621,8 @@ func _create_local_location_panel() -> Control:
 func _on_shell_section_requested(
 	section_id: StringName
 ) -> void:
+	if _shell.has_modal():
+		return
 	var target_view: View
 
 	match section_id:
@@ -645,6 +652,8 @@ func _on_shell_section_requested(
 
 
 func _on_shell_back_requested() -> void:
+	if _shell.has_modal():
+		return
 	_go_back()
 
 
@@ -1438,3 +1447,39 @@ func _show_initialization_error() -> void:
 	add_child(
 		label
 	)
+
+func _on_dialogue_requested(interaction_id: StringName, local_panel: CampaignLocalLocationPanel) -> void:
+	if _shell.has_modal():
+		return
+	var session := CampaignDialogueSession.new()
+	if not session.begin(CampaignRuntime, interaction_id):
+		local_panel.show_status_message("Сейчас не удаётся начать разговор.")
+		return
+	_dialogue_session = session
+	_dialogue_panel = CampaignDialoguePanel.new()
+	_dialogue_panel.close_requested.connect(_on_dialogue_closed.bind(local_panel))
+	_dialogue_panel.choice_requested.connect(_on_dialogue_choice.bind(local_panel))
+	_shell.show_modal(_dialogue_panel)
+	_dialogue_panel.show_session(session)
+
+
+func _on_dialogue_choice(choice_id: StringName, revision: int, local_panel: CampaignLocalLocationPanel) -> void:
+	if _dialogue_session == null:
+		return
+	var error := _dialogue_session.choose(choice_id, revision)
+	_refresh_shell()
+	if _dialogue_session.closed:
+		_on_dialogue_closed(local_panel)
+	else:
+		_dialogue_panel.show_session(_dialogue_session, error)
+
+
+func _on_dialogue_closed(local_panel: CampaignLocalLocationPanel) -> void:
+	if _dialogue_session != null:
+		_dialogue_session.close()
+	_dialogue_session = null
+	_dialogue_panel = null
+	_shell.clear_modal()
+	if is_instance_valid(local_panel):
+		local_panel.refresh_state()
+	_refresh_shell()

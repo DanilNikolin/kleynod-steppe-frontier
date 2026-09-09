@@ -50,6 +50,8 @@ var _detail_price: Label
 
 var _action_button: Button
 var _status_label: Label
+var _close_button: Button
+var _return_to_dialogue: bool = false
 
 
 func bind(
@@ -181,6 +183,7 @@ func _build_interface() -> void:
 	)
 
 	var close_button := Button.new()
+	_close_button = close_button
 
 	close_button.text = "← НАЗАД"
 
@@ -1374,3 +1377,26 @@ func _on_action_pressed() -> void:
 
 func _on_close_pressed() -> void:
 	close_requested.emit()
+
+func set_return_to_dialogue(enabled: bool) -> void:
+	_return_to_dialogue = enabled
+	_close_button.text = "← К РАЗГОВОРУ · Esc" if enabled else "← НАЗАД"
+	if enabled:
+		# In a modal the local scene remains behind us; cover it completely.
+		var background := StyleBoxFlat.new()
+		background.bg_color = Color("14181c")
+		add_theme_stylebox_override("panel", background)
+		_focus_return_button.call_deferred()
+	else:
+		remove_theme_stylebox_override("panel")
+
+
+func _focus_return_button() -> void:
+	if is_inside_tree():
+		_close_button.grab_focus()
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if _return_to_dialogue and event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		close_requested.emit()

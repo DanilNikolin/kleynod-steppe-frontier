@@ -3,7 +3,7 @@ class_name CampaignDialogueChoice
 extends Resource
 
 
-enum Action { NONE, START_QUEST, TURN_IN_QUEST, INVITE_RESIDENT }
+enum Action { NONE, START_QUEST, TURN_IN_QUEST, INVITE_RESIDENT, OPEN_TRADING }
 
 @export var choice_id: StringName = &""
 @export_multiline var text: String = ""
@@ -25,6 +25,8 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append("Dialogue action target is empty.")
 	if action == Action.NONE and target_id != &"":
 		errors.append("A dialogue choice without an action cannot have a target.")
+	if action == Action.OPEN_TRADING and next_node_id == &"":
+		errors.append("Trading choice needs a return node.")
 	for condition in conditions:
 		if condition == null:
 			errors.append("Null dialogue choice condition.")

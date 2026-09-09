@@ -33,6 +33,7 @@ var _active_trader_id: StringName = &""
 
 var _dialogue_session: CampaignDialogueSession
 var _dialogue_panel: CampaignDialoguePanel
+var _dialogue_local_panel: CampaignLocalLocationPanel
 
 
 func _ready() -> void:
@@ -1339,6 +1340,18 @@ func _on_trading_sell_requested(
 
 
 func _on_trading_close_requested() -> void:
+	if _dialogue_session != null and _dialogue_session.pending_trader_id != &"":
+		var error := _dialogue_session.resume_from_trading()
+		_active_trader_id = &""
+		if not error.is_empty():
+			var local_panel := _dialogue_local_panel
+			_on_dialogue_closed(local_panel)
+			if is_instance_valid(local_panel):
+				local_panel.show_status_message(error)
+		else:
+			_show_dialogue_panel()
+		_refresh_shell()
+		return
 	_go_back()
 
 
@@ -1456,11 +1469,17 @@ func _on_dialogue_requested(interaction_id: StringName, local_panel: CampaignLoc
 		local_panel.show_status_message("Сейчас не удаётся начать разговор.")
 		return
 	_dialogue_session = session
+	_dialogue_local_panel = local_panel
+	_show_dialogue_panel()
+
+
+func _show_dialogue_panel(error: String = "") -> void:
+	var local_panel := _dialogue_local_panel
 	_dialogue_panel = CampaignDialoguePanel.new()
 	_dialogue_panel.close_requested.connect(_on_dialogue_closed.bind(local_panel))
 	_dialogue_panel.choice_requested.connect(_on_dialogue_choice.bind(local_panel))
 	_shell.show_modal(_dialogue_panel)
-	_dialogue_panel.show_session(session)
+	_dialogue_panel.show_session(_dialogue_session, error)
 
 
 func _on_dialogue_choice(choice_id: StringName, revision: int, local_panel: CampaignLocalLocationPanel) -> void:
@@ -1470,6 +1489,16 @@ func _on_dialogue_choice(choice_id: StringName, revision: int, local_panel: Camp
 	_refresh_shell()
 	if _dialogue_session.closed:
 		_on_dialogue_closed(local_panel)
+	elif _dialogue_session.pending_trader_id != &"":
+		_active_trader_id = _dialogue_session.pending_trader_id
+		var trading_panel := _create_trading_panel() as CampaignTradingPanel
+		if trading_panel == null:
+			_dialogue_session.resume_from_trading()
+			_dialogue_panel.show_session(_dialogue_session, "Торговлю открыть не удалось.")
+			return
+		_dialogue_panel = null
+		trading_panel.set_return_to_dialogue(true)
+		_shell.show_modal(trading_panel)
 	else:
 		_dialogue_panel.show_session(_dialogue_session, error)
 
@@ -1479,6 +1508,7 @@ func _on_dialogue_closed(local_panel: CampaignLocalLocationPanel) -> void:
 		_dialogue_session.close()
 	_dialogue_session = null
 	_dialogue_panel = null
+	_dialogue_local_panel = null
 	_shell.clear_modal()
 	if is_instance_valid(local_panel):
 		local_panel.refresh_state()

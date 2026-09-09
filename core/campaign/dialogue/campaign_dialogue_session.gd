@@ -7,6 +7,8 @@ var definition: CampaignDialogueDefinition
 var node: CampaignDialogueNode
 var revision: int = 0
 var closed: bool = true
+## A service pauses choices until the UI returns to the conversation.
+var pending_trader_id: StringName = &""
 var _runtime: CampaignRuntimeService
 var _state: CampaignState
 var _campaign: CampaignDefinition
@@ -33,6 +35,7 @@ func begin(runtime: CampaignRuntimeService, interaction_id: StringName) -> bool:
 
 func close() -> void:
 	closed = true
+	pending_trader_id = &""
 	revision += 1
 
 
@@ -52,6 +55,8 @@ func get_choice_error(choice: CampaignDialogueChoice) -> String:
 	var error := get_context_error()
 	if not error.is_empty():
 		return error
+	if pending_trader_id != &"":
+		return "Сначала завершите торговлю."
 	if node == null or choice == null or node.get_choice(choice.choice_id) != choice:
 		return "Ответ больше недоступен."
 	if not node.is_available(_state, _campaign):
@@ -77,6 +82,8 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 	revision += 1
 	var applied := true
 	match choice.action:
+		CampaignDialogueChoice.Action.OPEN_TRADING:
+			pending_trader_id = choice.target_id
 		CampaignDialogueChoice.Action.START_QUEST:
 			applied = _runtime.start_quest(choice.target_id)
 		CampaignDialogueChoice.Action.TURN_IN_QUEST:
@@ -94,6 +101,14 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 
 func _get_action_error(choice: CampaignDialogueChoice) -> String:
 	if choice.action == CampaignDialogueChoice.Action.NONE:
+		return ""
+	if choice.action == CampaignDialogueChoice.Action.OPEN_TRADING:
+		var trader := _runtime.get_trader_for_interaction(_interaction_id)
+		if trader == null or trader.trader_id != choice.target_id:
+			return "У собеседника нет такой торговли."
+		var trader_state := _runtime.get_trader_state(choice.target_id)
+		if trader_state == null or not trader_state.is_valid_state():
+			return "Торговля сейчас недоступна."
 		return ""
 	var resident := _runtime.get_resident_for_local_interaction(_interaction_id)
 	if resident == null:
@@ -129,3 +144,15 @@ func _get_action_error(choice: CampaignDialogueChoice) -> String:
 		)
 		return "" if error.is_empty() else "Задание сейчас нельзя сдать."
 	return "Неизвестное действие разговора."
+
+
+func resume_from_trading() -> String:
+	if pending_trader_id == &"":
+		return "Разговор не ожидает возвращения из торговли."
+	var error := get_context_error()
+	pending_trader_id = &""
+	revision += 1
+	if not error.is_empty():
+		close()
+		return error
+	return ""

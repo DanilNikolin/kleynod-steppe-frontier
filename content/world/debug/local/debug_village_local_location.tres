@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
+
+[ext_resource type="Resource" path="res://content/dialogue/debug/debug_innkeeper_dialogue.tres" id="3_dialogue"]
 
 [sub_resource type="Resource" id="Innkeeper"]
 script = ExtResource("2_interaction")
@@ -9,7 +11,7 @@ interaction_id = &"debug_village_innkeeper"
 display_name = "Трактирщик"
 description = "Хозяин местного трактира. Знает большую часть местных слухов."
 local_position = Vector2(270, 350)
-action_labels = PackedStringArray("Поговорить", "Торговля", "Спросить о слухах")
+dialogue = ExtResource("3_dialogue")
 
 [sub_resource type="Resource" id="Blacksmith"]
 script = ExtResource("2_interaction")

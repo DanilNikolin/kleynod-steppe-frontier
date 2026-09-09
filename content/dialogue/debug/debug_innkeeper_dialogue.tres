@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_definition.gd" id="dialogue"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_node.gd" id="node"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_choice.gd" id="choice"]
+
+[sub_resource type="Resource" id="trade"]
+script = ExtResource("choice")
+choice_id = &"trade"
+text = "Покажи, чем торгуешь."
+next_node_id = &"welcome"
+action = 4
+target_id = &"debug_village_innkeeper_trader"
+
+[sub_resource type="Resource" id="village"]
+script = ExtResource("choice")
+choice_id = &"village"
+text = "Расскажи о селе."
+next_node_id = &"village"
+
+[sub_resource type="Resource" id="terms"]
+script = ExtResource("choice")
+choice_id = &"terms"
+text = "Как у тебя с ценами и товарами?"
+next_node_id = &"terms"
+
+[sub_resource type="Resource" id="back"]
+script = ExtResource("choice")
+choice_id = &"back"
+text = "У меня другой вопрос."
+next_node_id = &"welcome"
+
+[sub_resource type="Resource" id="leave"]
+script = ExtResource("choice")
+choice_id = &"leave"
+text = "Благодарю. Мне пора."
+next_node_id = &""
+
+[sub_resource type="Resource" id="node_welcome"]
+script = ExtResource("node")
+node_id = &"welcome"
+text = "Заходи, путник. Если собираешься в дорогу — посмотри, что у меня есть. А если хочешь узнать о селе, спрашивай."
+choices = Array[ExtResource("choice")]([SubResource("trade"), SubResource("village"), SubResource("terms"), SubResource("leave")])
+
+[sub_resource type="Resource" id="node_village"]
+script = ExtResource("node")
+node_id = &"village"
+text = "Село у нас небольшое: кто с поля, кто с дороги — все сюда заходят. Остап Коваль неподалёку, у него своя забота с лесной дорогой. А просьбы жители оставляют на доске объявлений."
+choices = Array[ExtResource("choice")]([SubResource("trade"), SubResource("back"), SubResource("leave")])
+
+[sub_resource type="Resource" id="node_terms"]
+script = ExtResource("node")
+node_id = &"terms"
+text = "Людям с добрым именем я уступаю охотнее. Из того, что на прилавке, выбирай; запас у меня не бесконечный. Наладятся речные связи — появятся и привозные вещи."
+choices = Array[ExtResource("choice")]([SubResource("trade"), SubResource("back"), SubResource("leave")])
+
+[resource]
+script = ExtResource("dialogue")
+dialogue_id = &"village_innkeeper_conversation"
+speaker_name = "Трактирщик"
+entry_node_ids = Array[StringName]([&"welcome"])
+nodes = Array[ExtResource("node")]([SubResource("node_welcome"), SubResource("node_village"), SubResource("node_terms")])

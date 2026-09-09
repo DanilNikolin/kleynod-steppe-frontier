@@ -82,6 +82,9 @@ func get_reference_errors(campaign: CampaignDefinition) -> PackedStringArray:
 				CampaignDialogueChoice.Action.START_QUEST, CampaignDialogueChoice.Action.TURN_IN_QUEST:
 					if campaign.get_quest(choice.target_id) == null:
 						errors.append("Unknown dialogue action quest: %s." % choice.target_id)
+				CampaignDialogueChoice.Action.OPEN_TRADING:
+					if campaign.get_trader(choice.target_id) == null:
+						errors.append("Unknown dialogue trader: %s." % choice.target_id)
 				CampaignDialogueChoice.Action.INVITE_RESIDENT:
 					if campaign.get_resident(choice.target_id) == null:
 						errors.append("Unknown dialogue action resident: %s." % choice.target_id)

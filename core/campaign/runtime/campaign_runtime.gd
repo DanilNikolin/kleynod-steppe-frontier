@@ -2645,6 +2645,45 @@ func start_current_world_adventure() -> bool:
 	)
 
 
+func start_travel_event_battle(
+	location_id: StringName
+) -> bool:
+	if (
+		pending_travel == null
+		or not pending_travel.has_reached_event()
+		or pending_travel.event_definition == null
+	):
+		push_warning(
+			"Travel event battle requires "
+			+ "a reached unresolved event."
+		)
+
+		return false
+
+	if has_pending_battle():
+		return false
+
+	var event_id := (
+		pending_travel
+			.event_definition
+			.event_id
+	)
+
+	if not start_location(
+		location_id
+	):
+		return false
+
+	if pending_battle_request == null:
+		return false
+
+	pending_battle_request.travel_event_id = (
+		event_id
+	)
+
+	return true
+
+
 func start_location(
 	location_id: StringName
 ) -> bool:
@@ -2884,6 +2923,46 @@ func start_location(
 	return true
 
 
+func apply_travel_event_battle_outcome(
+	travel_event_id: StringName,
+	outcome: CampaignBattleResult.Outcome
+) -> bool:
+	if (
+		travel_event_id == &""
+		or pending_travel == null
+		or pending_travel.event_definition == null
+		or not pending_travel.has_reached_event()
+	):
+		return false
+
+	if (
+		pending_travel
+			.event_definition
+			.event_id
+		!= travel_event_id
+	):
+		return false
+
+	match outcome:
+		CampaignBattleResult.Outcome.VICTORY:
+			return (
+				resolve_pending_travel_event()
+			)
+
+		CampaignBattleResult.Outcome.DEFEAT, \
+		CampaignBattleResult.Outcome.DRAW:
+			if campaign_state != null:
+				campaign_state.current_world_node_id = (
+					pending_travel.from_node_id
+				)
+
+			pending_travel = null
+
+			return true
+
+	return false
+
+
 func complete_pending_battle_and_return(
 	winning_team_id: StringName,
 	defeated_enemy_experience_pool: int = 0,
@@ -3033,6 +3112,28 @@ func complete_pending_battle_and_return(
 			"Battle completed, but quest progress "
 			+"could not be applied."
 		)
+
+	if (
+		pending_battle_request.travel_event_id
+		!= &""
+	):
+		var travel_event_result_applied := (
+			apply_travel_event_battle_outcome(
+				pending_battle_request
+					.travel_event_id,
+				result.outcome
+			)
+		)
+
+		if not travel_event_result_applied:
+			push_error(
+				"Battle completed, but travel event "
+				+ "continuation could not be applied."
+			)
+
+			# Не оставляем кампанию навечно
+			# заблокированной broken pending travel.
+			pending_travel = null
 
 	pending_battle_request = null
 

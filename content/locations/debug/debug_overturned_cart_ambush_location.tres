@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CampaignLocationDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/campaign/locations/campaign_location_definition.gd" id="1_location"]
+[ext_resource type="Resource" path="res://content/encounters/debug/debug_campaign_party_encounter.tres" id="2_encounter"]
+
+[resource]
+script = ExtResource("1_location")
+location_id = &"debug_overturned_cart_ambush"
+display_name = "Засада у перевёрнутого воза"
+description = "Налётчики использовали перевёрнутый воз как приманку для путников."
+encounter_definition = ExtResource("2_encounter")
+party_spawn_instance_ids = Array[StringName]([&"party_slot_1", &"party_slot_2", &"party_slot_3"])

@@ -28,6 +28,13 @@ action = 2
 next_node_id = &"paid"
 gold_cost = 80
 
+[sub_resource type="Resource" id="ChoiceFight"]
+script = ExtResource("3_choice")
+choice_id = &"fight"
+text = "Сражаться."
+action = 4
+battle_location_id = &"debug_overturned_cart_ambush"
+
 [sub_resource type="Resource" id="ChoiceContinueEscaped"]
 script = ExtResource("3_choice")
 choice_id = &"continue_escaped"
@@ -50,7 +57,7 @@ choices = Array[ExtResource("3_choice")]([SubResource("ChoiceInspect"), SubResou
 script = ExtResource("2_node")
 node_id = &"ambush"
 text = "Из-за деревьев выходят вооружённые люди. Воз оказался приманкой. Они требуют золото за право продолжить путь."
-choices = Array[ExtResource("3_choice")]([SubResource("ChoiceBribe")])
+choices = Array[ExtResource("3_choice")]([SubResource("ChoiceFight"), SubResource("ChoiceBribe")])
 
 [sub_resource type="Resource" id="NodeEscaped"]
 script = ExtResource("2_node")

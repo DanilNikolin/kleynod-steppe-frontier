@@ -16,3 +16,8 @@ var encounter_definition: BattleEncounterDefinition
 var adventure_area_id: StringName = &""
 
 var adventure_site_id: StringName = &""
+
+## Не сохраняется.
+## Event ID, если battle был начат
+## из случайного события путешествия.
+var travel_event_id: StringName = &""

@@ -8,6 +8,7 @@ enum Action {
 	CHANCE,
 	PAY_GOLD,
 	RESOLVE_EVENT,
+	START_BATTLE,
 }
 
 
@@ -51,6 +52,14 @@ var failure_node_id: StringName = &""
 ## Используется только PAY_GOLD.
 @export_range(1, 999999999, 1)
 var gold_cost: int = 1
+
+
+@export_group("Battle")
+
+## CampaignLocationDefinition.location_id.
+## Используется только START_BATTLE.
+@export
+var battle_location_id: StringName = &""
 
 
 func is_valid_definition() -> bool:
@@ -115,5 +124,12 @@ func get_validation_errors() -> PackedStringArray:
 
 		Action.RESOLVE_EVENT:
 			pass
+
+		Action.START_BATTLE:
+			if battle_location_id == &"":
+				errors.append(
+					"START_BATTLE travel event choice "
+					+"requires battle location ID."
+				)
 
 	return errors

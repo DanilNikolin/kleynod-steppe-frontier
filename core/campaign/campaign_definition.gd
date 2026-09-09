@@ -499,6 +499,54 @@ func get_validation_errors() -> PackedStringArray:
 					% world_node.adventure_area_id
 				)
 
+		for route in (
+			world_map_definition.routes
+		):
+			if (
+				route == null
+				or route.travel_event_profile == null
+			):
+				continue
+
+			for entry in (
+				route.travel_event_profile.entries
+			):
+				if (
+					entry == null
+					or entry.event == null
+				):
+					continue
+
+				for event_node in (
+					entry.event.nodes
+				):
+					if event_node == null:
+						continue
+
+					for choice in event_node.choices:
+						if (
+							choice == null
+							or choice.action
+								!= CampaignTravelEventChoice
+									.Action
+									.START_BATTLE
+						):
+							continue
+
+						if get_location(
+							choice.battle_location_id
+						) == null:
+							errors.append(
+								"Travel event '%s' choice '%s' "
+								% [
+									entry.event.event_id,
+									choice.choice_id,
+								]
+								+ "references unknown campaign "
+								+ "location '%s'."
+								% choice.battle_location_id
+							)
+
 	if starting_day < 0:
 		errors.append(
 			"Campaign starting day cannot be negative."

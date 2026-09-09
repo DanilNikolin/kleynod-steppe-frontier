@@ -214,6 +214,9 @@ func get_validation_errors() -> PackedStringArray:
 				CampaignTravelEventChoice.Action.RESOLVE_EVENT:
 					pass
 
+				CampaignTravelEventChoice.Action.START_BATTLE:
+					pass
+
 	return errors
 
 

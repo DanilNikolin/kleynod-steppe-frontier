@@ -151,6 +151,19 @@ func get_choice_error(
 					% choice.gold_cost
 				)
 
+		CampaignTravelEventChoice.Action.START_BATTLE:
+			if _runtime.has_pending_battle():
+				return (
+					"Бой уже ожидает запуска."
+				)
+
+			if _runtime.get_location(
+				choice.battle_location_id
+			) == null:
+				return (
+					"Боевая ситуация недоступна."
+				)
+
 	return ""
 
 
@@ -258,6 +271,20 @@ func choose(
 			):
 				return (
 					"Не удалось завершить событие."
+				)
+
+			close()
+
+			return ""
+
+		CampaignTravelEventChoice.Action.START_BATTLE:
+			if not (
+				_runtime.start_travel_event_battle(
+					choice.battle_location_id
+				)
+			):
+				return (
+					"Не удалось начать бой."
 				)
 
 			close()

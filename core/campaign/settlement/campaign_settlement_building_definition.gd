@@ -33,6 +33,23 @@ var construction_material_cost: int = 0
 @export_range(0, 999999999, 1)
 var construction_minutes: int = 0
 
+## Core / сюжетные объекты могут быть постоянной
+## частью HOME и не подлежать демонтажу.
+@export
+var demolition_enabled: bool = true
+
+
+@export_group("Requirements")
+
+## Derived HOME effects, которые должны быть активны
+## до начала строительства.
+##
+## Например временное укрытие требует сначала
+## организовать базовый лагерь.
+@export
+var required_effect_ids: Array[StringName] = []
+
+
 @export_group("Effects")
 
 ## Эффекты активны всё время,
@@ -150,6 +167,30 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Enabled settlement construction requires positive time."
 		)
+
+	var used_required_effect_ids: Dictionary = {}
+
+	for required_effect_id in required_effect_ids:
+		if required_effect_id == &"":
+			errors.append(
+				"Settlement building requirement contains an empty effect ID."
+			)
+
+			continue
+
+		if used_required_effect_ids.has(
+			required_effect_id
+		):
+			errors.append(
+				"Duplicate settlement building required effect: %s."
+				% required_effect_id
+			)
+
+			continue
+
+		used_required_effect_ids[
+			required_effect_id
+		] = true
 
 	var used_effect_ids: Dictionary = {}
 

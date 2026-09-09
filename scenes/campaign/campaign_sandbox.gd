@@ -238,7 +238,42 @@ func _refresh_shell() -> void:
 		location_text,
 		_get_calendar_display_text(),
 		_get_active_section_id(),
-		not _view_stack.is_empty()
+		not _view_stack.is_empty(),
+		_is_party_management_available()
+	)
+
+
+func _is_party_management_available() -> bool:
+	if not CampaignRuntime.has_active_home_settlement_effect(
+		&"party_management_access"
+	):
+		return false
+
+	var current_node := (
+		CampaignRuntime.get_current_world_node()
+	)
+
+	var home_definition := (
+		CampaignRuntime.get_home_settlement_definition()
+	)
+
+	if (
+		current_node == null
+		or home_definition == null
+		or current_node.node_id
+			!= home_definition.world_node_id
+	):
+		return false
+
+	## Управление отрядом физически привязано
+	## к месту отряда внутри HOME.
+	##
+	## PARTY / HERO_PREPARATION оставляем true,
+	## чтобы уже открытый контекст не ломал сам себя.
+	return (
+		_current_view == View.LOCAL_LOCATION
+		or _current_view == View.PARTY
+		or _current_view == View.HERO_PREPARATION
 	)
 
 
@@ -691,6 +726,9 @@ func _on_shell_section_requested(
 			target_view = View.WORLD_MAP
 
 		CampaignShell.SECTION_PARTY:
+			if not _is_party_management_available():
+				return
+
 			target_view = View.PARTY
 
 		CampaignShell.SECTION_QUESTS:
@@ -1539,7 +1577,7 @@ func _on_trading_buy_requested(
 		panel.refresh_state()
 
 		panel.show_status_message(
-			"Куплено: %s за %d зол."
+			"Куплено: %s за %d гр."
 			% [
 				item_name,
 				price,
@@ -1608,7 +1646,7 @@ func _on_trading_sell_requested(
 		panel.refresh_state()
 
 		panel.show_status_message(
-			"Продано: %s за %d зол."
+			"Продано: %s за %d гр."
 			% [
 				item_name,
 				price,

@@ -173,7 +173,7 @@ func _refresh_header_state() -> void:
 			gold = _state.inventory_state.gold
 
 	_resources_label.text = (
-		"Gold: %d · Materials: %d"
+		"Гроші: %d · Материалы: %d"
 		% [
 			gold,
 			materials,
@@ -193,7 +193,7 @@ func _refresh_header_state() -> void:
 		)
 
 		_resources_label.text += (
-			" · Доход/сезон: %d · Накоплено: %d"
+			" · Доход/сезон: %d гр. · Накоплено: %d гр."
 			% [
 				seasonal_income,
 				_settlement_state.uncollected_gold,
@@ -252,15 +252,24 @@ func _refresh_settlement_visuals() -> void:
 			)
 		)
 
-		overrides[
-			zone.local_interaction_id
-		] = (
-			"%s · ур. %d"
-			% [
-				building_name,
-				zone_state.building_level,
-			]
-		)
+		if (
+			building != null
+			and building.max_level <= 1
+		):
+			overrides[
+				zone.local_interaction_id
+			] = building_name
+
+		else:
+			overrides[
+				zone.local_interaction_id
+			] = (
+				"%s · ур. %d"
+				% [
+					building_name,
+					zone_state.building_level,
+				]
+			)
 
 	_canvas.set_interaction_display_overrides(
 		overrides
@@ -742,6 +751,9 @@ func _get_settlement_zone_title(
 	if building == null:
 		return zone.display_name
 
+	if building.max_level <= 1:
+		return building.display_name
+
 	return (
 		"%s · уровень %d"
 		% [
@@ -780,19 +792,10 @@ func _create_settlement_zone_actions(
 			)
 		)
 
-		var services_button := Button.new()
-
-		services_button.text = (
-			"Услуги постройки · подключим следующим шагом"
-		)
-
-		services_button.disabled = true
-
-		_actions_row.add_child(
-			services_button
-		)
-
-		if building != null:
+		if (
+			building != null
+			and building.max_level > 1
+		):
 			if (
 				zone_state.building_level
 				>= building.max_level
@@ -836,7 +839,7 @@ func _create_settlement_zone_actions(
 
 				else:
 					upgrade_button.text = (
-						"УЛУЧШИТЬ ДО УР. %d · %d зол. · %d мат. · %s"
+						"УЛУЧШИТЬ ДО УР. %d · %d гр. · %d мат. · %s"
 						% [
 							target_level,
 							upgrade.gold_cost,
@@ -876,22 +879,26 @@ func _create_settlement_zone_actions(
 					upgrade_button
 				)
 
-		var demolish_button := Button.new()
+		if (
+			building != null
+			and building.demolition_enabled
+		):
+			var demolish_button := Button.new()
 
-		demolish_button.text = (
-			"СНЕСТИ · %s · ресурсы не возвращаются"
-			% building_name
-		)
-
-		demolish_button.pressed.connect(
-			_on_settlement_demolish_pressed.bind(
-				zone.zone_id
+			demolish_button.text = (
+				"СНЕСТИ · %s · ресурсы не возвращаются"
+				% building_name
 			)
-		)
 
-		_actions_row.add_child(
-			demolish_button
-		)
+			demolish_button.pressed.connect(
+				_on_settlement_demolish_pressed.bind(
+					zone.zone_id
+				)
+			)
+
+			_actions_row.add_child(
+				demolish_button
+			)
 
 		return
 
@@ -916,7 +923,7 @@ func _create_settlement_zone_actions(
 			continue
 
 		button.text = (
-			"ПОСТРОИТЬ · %s · %d зол. · %d мат. · %s"
+			"ПОСТРОИТЬ · %s · %d гр. · %d мат. · %s"
 			% [
 				building.display_name,
 				building.construction_gold_cost,
@@ -1078,13 +1085,23 @@ func _get_settlement_zone_text(
 			)
 		)
 
-		lines.append(
-			"Построено: %s · уровень %d."
-			% [
-				building_name,
-				zone_state.building_level,
-			]
-		)
+		if (
+			building != null
+			and building.max_level <= 1
+		):
+			lines.append(
+				"Построено: %s."
+				% building_name
+			)
+
+		else:
+			lines.append(
+				"Построено: %s · уровень %d."
+				% [
+					building_name,
+					zone_state.building_level,
+				]
+			)
 
 		if building != null:
 			var seasonal_income := (
@@ -1095,7 +1112,7 @@ func _get_settlement_zone_text(
 
 			if seasonal_income > 0:
 				lines.append(
-					"Пассивный доход: %d зол. за сезон."
+					"Пассивный доход: %d гр. за сезон."
 					% seasonal_income
 				)
 
@@ -1537,7 +1554,7 @@ func _refresh_resident_panel(
 		var commission_button := Button.new()
 
 		commission_button.text = (
-			"ЗАКАЗАТЬ · %s · %d зол. · %d мат. · %s"
+			"ЗАКАЗАТЬ · %s · %d гр. · %d мат. · %s"
 			% [
 				commission.display_name,
 				commission.gold_cost,

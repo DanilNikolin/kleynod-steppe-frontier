@@ -130,11 +130,84 @@ func _rebuild_interface() -> void:
 		if hero_state == null:
 			continue
 
+		if hero_state.is_placeholder_content:
+			roster_content.add_child(
+				_create_locked_roster_row()
+			)
+
+			continue
+
 		roster_content.add_child(
 			_create_roster_row(
 				hero_state
 			)
 		)
+
+
+func _create_locked_roster_row() -> Control:
+	var panel := PanelContainer.new()
+	var row := HBoxContainer.new()
+
+	row.add_theme_constant_override(
+		"separation",
+		14
+	)
+
+	panel.add_child(
+		row
+	)
+
+	var silhouette := Label.new()
+
+	silhouette.text = "◼"
+	silhouette.custom_minimum_size = Vector2(
+		48,
+		0
+	)
+
+	silhouette.add_theme_font_size_override(
+		"font_size",
+		28
+	)
+
+	row.add_child(
+		silhouette
+	)
+
+	var text_column := VBoxContainer.new()
+
+	text_column.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+
+	row.add_child(
+		text_column
+	)
+
+	var hero_name := Label.new()
+
+	hero_name.text = "???"
+
+	hero_name.add_theme_font_size_override(
+		"font_size",
+		18
+	)
+
+	text_column.add_child(
+		hero_name
+	)
+
+	var hint := Label.new()
+
+	hint.text = (
+		"Неизвестный герой · ещё не присоединился"
+	)
+
+	text_column.add_child(
+		hint
+	)
+
+	return panel
 
 
 func _create_party_slot_row(

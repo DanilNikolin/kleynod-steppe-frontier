@@ -2,6 +2,11 @@ class_name CampaignSettlementConstructionService
 extends RefCounted
 
 
+var _effect_service := (
+	CampaignSettlementEffectService.new()
+)
+
+
 func can_construct(
 	campaign_state: CampaignState,
 	settlement_definition: CampaignSettlementDefinition,
@@ -89,6 +94,19 @@ func get_construction_error(
 			"Building '%s' is not available for construction yet."
 			% building_id
 		)
+
+	for required_effect_id in (
+		building.required_effect_ids
+	):
+		if not _effect_service.has_active_effect(
+			settlement_definition,
+			settlement_state,
+			required_effect_id
+		):
+			return (
+				"Required settlement effect '%s' is missing."
+				% required_effect_id
+			)
 
 	if (
 		campaign_state.inventory_state.gold
@@ -271,16 +289,21 @@ func get_demolition_error(
 			% zone_id
 		)
 
-	if (
-		zone_definition.get_building(
-			zone_state.building_id
-		)
-		== null
-	):
+	var building := zone_definition.get_building(
+		zone_state.building_id
+	)
+
+	if building == null:
 		return (
 			"Settlement zone contains "
 			+"an unknown building '%s'."
 			% zone_state.building_id
+		)
+
+	if not building.demolition_enabled:
+		return (
+			"Settlement building '%s' cannot be demolished."
+			% building.building_id
 		)
 
 	return ""

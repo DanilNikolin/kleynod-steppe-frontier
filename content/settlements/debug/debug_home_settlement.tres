@@ -18,6 +18,65 @@ effect_id = &"river_transport_access"
 display_name = "Доступ к речному транспорту"
 description = "Причал соединяет родное поселение с доступными речными маршрутами."
 
+[sub_resource type="Resource" id="PrimitiveCampEstablishedEffect"]
+script = ExtResource("4_effect")
+effect_id = &"primitive_camp_established"
+display_name = "Обжитый лагерь"
+description = "На месте будущего поселения организован первый постоянный лагерь."
+
+[sub_resource type="Resource" id="PartyManagementAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"party_management_access"
+display_name = "Место отряда"
+description = "В HOME есть постоянное место, где можно формировать боевой отряд."
+
+[sub_resource type="Resource" id="TemporaryGuestAccessEffect"]
+script = ExtResource("4_effect")
+effect_id = &"temporary_guest_access"
+display_name = "Место для временного гостя"
+description = "В лагере есть место, где временно может остановиться приглашённый человек."
+
+[sub_resource type="Resource" id="PrimitiveCampfire"]
+script = ExtResource("2_building")
+building_id = &"primitive_campfire"
+display_name = "Костровище"
+description = "Первое постоянное место HOME. Отсюда начинается будущий центр поселения."
+construction_enabled = true
+construction_gold_cost = 0
+construction_material_cost = 0
+construction_minutes = 30
+demolition_enabled = false
+active_effects = Array[ExtResource("4_effect")]([SubResource("PrimitiveCampEstablishedEffect")])
+max_level = 1
+
+[sub_resource type="Resource" id="TemporaryPartyShelter"]
+script = ExtResource("2_building")
+building_id = &"temporary_party_shelter"
+display_name = "Временное укрытие отряда"
+description = "Примитивный навес и место отдыха отряда. Открывает управление составом группы."
+construction_enabled = true
+construction_gold_cost = 0
+construction_material_cost = 5
+construction_minutes = 120
+demolition_enabled = false
+required_effect_ids = Array[StringName]([&"primitive_camp_established"])
+active_effects = Array[ExtResource("4_effect")]([SubResource("PartyManagementAccessEffect")])
+max_level = 1
+
+[sub_resource type="Resource" id="PrimitiveCommonShelter"]
+script = ExtResource("2_building")
+building_id = &"primitive_common_shelter"
+display_name = "Общий походный навес"
+description = "Общее укрытие с домашним запасом и местом для первого временного гостя."
+construction_enabled = true
+construction_gold_cost = 0
+construction_material_cost = 3
+construction_minutes = 60
+demolition_enabled = false
+required_effect_ids = Array[StringName]([&"primitive_camp_established"])
+active_effects = Array[ExtResource("4_effect")]([SubResource("TemporaryGuestAccessEffect")])
+max_level = 1
+
 [sub_resource type="Resource" id="BlacksmithUpgradeLevel2"]
 script = ExtResource("5_upgrade")
 target_level = 2
@@ -240,7 +299,7 @@ zone_id = &"workshop_west"
 display_name = "Ремесленный участок I"
 description = "Первый участок под важную мастерскую."
 zone_kind = 0
-local_interaction_id = &"home_zone_workshop_west"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("Blacksmith"), SubResource("Leather"), SubResource("Saddlery")])
 
 [sub_resource type="Resource" id="ZoneWorkshopEast"]
@@ -249,7 +308,7 @@ zone_id = &"workshop_east"
 display_name = "Ремесленный участок II"
 description = "Второй участок под специализированное ремесло."
 zone_kind = 0
-local_interaction_id = &"home_zone_workshop_east"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("Bowyer"), SubResource("Gunsmith"), SubResource("Carpenter")])
 
 [sub_resource type="Resource" id="ZoneRiverbank"]
@@ -258,7 +317,7 @@ zone_id = &"riverbank"
 display_name = "Берег"
 description = "Ценный участок непосредственно у воды."
 zone_kind = 1
-local_interaction_id = &"home_zone_riverbank"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("FishingCamp"), SubResource("RiverPier"), SubResource("WaterMill")])
 
 [sub_resource type="Resource" id="ZoneSteppe"]
@@ -267,35 +326,35 @@ zone_id = &"steppe_edge"
 display_name = "Степной край"
 description = "Окраина поселения, выходящая в открытую степь."
 zone_kind = 2
-local_interaction_id = &"home_zone_steppe_edge"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("HuntingCamp"), SubResource("WatchKurin"), SubResource("HorseCamp")])
 
 [sub_resource type="Resource" id="ZoneHousehold"]
 script = ExtResource("3_zone")
 zone_id = &"household_yard"
-display_name = "Хозяйственный двор"
-description = "Место для мирного хозяйственного промысла."
+display_name = "Общее место лагеря"
+description = "Пока здесь пусто. После обустройства появится общий походный навес."
 zone_kind = 3
-local_interaction_id = &"home_zone_household"
-allowed_buildings = Array[ExtResource("2_building")]([SubResource("Field"), SubResource("Apiary"), SubResource("Livestock")])
+local_interaction_id = &"home_zone_common_shelter"
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("PrimitiveCommonShelter")])
 
 [sub_resource type="Resource" id="ZoneTrade"]
 script = ExtResource("3_zone")
 zone_id = &"trade_yard"
-display_name = "Торговый двор"
-description = "Социальный и торговый центр будущего поселения."
+display_name = "Центральное место"
+description = "Пустое место в центре будущего HOME. Здесь можно развести первое постоянное костровище."
 zone_kind = 4
-local_interaction_id = &"home_zone_trade"
-allowed_buildings = Array[ExtResource("2_building")]([SubResource("Shynok"), SubResource("Bazaar"), SubResource("CaravanYard")])
+local_interaction_id = &"home_zone_central_camp"
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("PrimitiveCampfire")])
 
 [sub_resource type="Resource" id="ZoneResidential"]
 script = ExtResource("3_zone")
 zone_id = &"residential_yard"
-display_name = "Жилая часть"
-description = "Участок для постоянного жилья."
+display_name = "Место отряда"
+description = "Пустое место рядом с центральным лагерем. Здесь появится первое укрытие отряда."
 zone_kind = 5
-local_interaction_id = &"home_zone_residential"
-allowed_buildings = Array[ExtResource("2_building")]([SubResource("KurinCluster"), SubResource("ResidentialYard")])
+local_interaction_id = &"home_zone_party_shelter"
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("TemporaryPartyShelter")])
 
 [sub_resource type="Resource" id="ZoneHealing"]
 script = ExtResource("3_zone")
@@ -303,7 +362,7 @@ zone_id = &"healing_yard"
 display_name = "Лечебный двор"
 description = "Место для восстановления и лечения."
 zone_kind = 6
-local_interaction_id = &"home_zone_healing"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("Herbalist"), SubResource("Bathhouse")])
 
 [sub_resource type="Resource" id="ZoneDefense"]
@@ -312,7 +371,7 @@ zone_id = &"defense_line"
 display_name = "Оборонительный рубеж"
 description = "Основное укрепление родного поселения."
 zone_kind = 7
-local_interaction_id = &"home_zone_defense"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("Gate"), SubResource("Watchtower"), SubResource("Palisade")])
 
 [sub_resource type="Resource" id="ZoneLandmark"]
@@ -321,7 +380,7 @@ zone_id = &"landmark_site"
 display_name = "Большой дальний участок"
 description = "Место под крупный объект, заметный издалека."
 zone_kind = 8
-local_interaction_id = &"home_zone_landmark"
+local_interaction_id = &""
 allowed_buildings = Array[ExtResource("2_building")]([SubResource("Windmill"), SubResource("Pottery"), SubResource("SteppeKosh")])
 
 [resource]

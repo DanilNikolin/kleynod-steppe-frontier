@@ -633,17 +633,15 @@ func get_validation_errors() -> PackedStringArray:
 						if settlement_zone == null:
 							continue
 
+						## Settlement definition может заранее
+						## содержать будущие content-зоны,
+						## которые ещё не представлены
+						## отдельной интерактивной точкой HOME.
 						if (
 							settlement_zone
 								.local_interaction_id
 							== &""
 						):
-							errors.append(
-								"Settlement zone '%s' has no "
-								% settlement_zone.zone_id
-								+ "local interaction mapping."
-							)
-
 							continue
 
 						if (

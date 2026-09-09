@@ -37,7 +37,8 @@ func refresh_hud(
 	location_text: String,
 	calendar_text: String,
 	active_section_id: StringName,
-	can_go_back: bool
+	can_go_back: bool,
+	can_access_party: bool
 ) -> void:
 	_ensure_interface()
 
@@ -77,7 +78,7 @@ func refresh_hud(
 				active_quest_count += 1
 
 	_resources_label.text = (
-		"Золото: %d · Материалы: %d · Репутация: %d"
+		"Гроші: %d · Материалы: %d · Репутация: %d"
 		% [
 			gold,
 			materials,
@@ -87,7 +88,7 @@ func refresh_hud(
 
 	if uncollected_gold > 0:
 		_resources_label.text += (
-			" · В поселении накоплено: %d"
+			" · В поселении накоплено: %d гр."
 			% uncollected_gold
 		)
 
@@ -104,8 +105,16 @@ func refresh_hud(
 	)
 
 	_party_button.disabled = (
-		active_section_id
-		== SECTION_PARTY
+		not can_access_party
+		or active_section_id
+			== SECTION_PARTY
+	)
+
+	_party_button.tooltip_text = (
+		"Управление отрядом доступно "
+		+ "в HOME после обустройства места отряда."
+		if not can_access_party
+		else ""
 	)
 
 	_quests_button.disabled = (

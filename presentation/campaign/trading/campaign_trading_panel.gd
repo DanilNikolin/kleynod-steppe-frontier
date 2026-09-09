@@ -645,7 +645,7 @@ func _create_detail_column() -> Control:
 func _refresh_header() -> void:
 	if _trader_gold_label != null:
 		_trader_gold_label.text = (
-			"Золото торговца: %d"
+			"Гроші торговца: %d"
 			% (
 				_trader_state.gold
 				if _trader_state != null
@@ -699,7 +699,7 @@ func _refresh_header() -> void:
 
 	if _player_gold_label != null:
 		_player_gold_label.text = (
-			"Ваше золото: %d"
+			"Ваші гроші: %d"
 			% player_gold
 		)
 
@@ -752,7 +752,7 @@ func _rebuild_trader_list() -> void:
 		var button := Button.new()
 
 		button.text = (
-			"%s%s · %d зол."
+			"%s%s · %d гр."
 			% [
 				"→ " if selected else "",
 				item.definition.display_name,
@@ -838,7 +838,7 @@ func _rebuild_player_list() -> void:
 
 		if item.definition.is_trade_enabled():
 			price_text = (
-				"%d зол."
+				"%d гр."
 				% _trading_service.get_sell_price(
 					_campaign_state,
 					_trader_definition,
@@ -1009,12 +1009,12 @@ func _refresh_action(
 		)
 
 		_detail_price.text = (
-			"Цена покупки: %d зол."
+			"Цена покупки: %d гр."
 			% price
 		)
 
 		_action_button.text = (
-			"КУПИТЬ · %d ЗОЛ."
+			"КУПИТЬ · %d ГР."
 			% price
 		)
 
@@ -1051,14 +1051,14 @@ func _refresh_action(
 	)
 
 	_detail_price.text = (
-		"Цена продажи: %d зол."
+		"Цена продажи: %d гр."
 		% sell_price
 		if sell_price > 0
 		else "Этот предмет нельзя продать."
 	)
 
 	_action_button.text = (
-		"ПРОДАТЬ · %d ЗОЛ."
+		"ПРОДАТЬ · %d ГР."
 		% sell_price
 		if sell_price > 0
 		else "ПРОДАТЬ"
@@ -1301,10 +1301,10 @@ func _get_error_display_text(
 			return ""
 
 		"Not enough gold.":
-			return "Недостаточно золота."
+			return "Недостаточно грошей."
 
 		"Trader does not have enough gold.":
-			return "У торговца недостаточно золота."
+			return "У торговца недостаточно грошей."
 
 		"Equipped items cannot be sold.":
 			return (

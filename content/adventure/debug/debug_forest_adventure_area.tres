@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="1_area"]
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_definition.gd" id="2_site"]
@@ -33,9 +33,21 @@ map_position = Vector2(650, 360)
 starting_available = true
 site_type = 0
 
+[sub_resource type="Resource" id="AbandonedCart"]
+script = ExtResource("2_site")
+site_id = &"abandoned_cart"
+display_name = "Разграбленный воз"
+description = "Брошенный торговый воз у старой рощи. Поблизости замечены вооружённые налётчики."
+map_position = Vector2(830, 300)
+connected_site_ids = Array[StringName]([&"old_grove"])
+starting_available = false
+site_type = 1
+campaign_location_id = &"debug_abandoned_cart"
+clear_on_victory = true
+
 [resource]
 script = ExtResource("1_area")
 area_id = &"debug_forest_area"
 display_name = "Лес"
 description = "Большой лесной регион у поселений. Внутри него находятся отдельные дороги, лагеря и другие места."
-sites = Array[ExtResource("2_site")]([SubResource("ForestRoad"), SubResource("BanditCamp"), SubResource("OldGrove")])
+sites = Array[ExtResource("2_site")]([SubResource("ForestRoad"), SubResource("BanditCamp"), SubResource("OldGrove"), SubResource("AbandonedCart")])

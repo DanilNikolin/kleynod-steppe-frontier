@@ -99,50 +99,203 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 	return ""
 
 
-func _get_action_error(choice: CampaignDialogueChoice) -> String:
+func _get_action_error(
+	choice: CampaignDialogueChoice
+) -> String:
 	if choice.action == CampaignDialogueChoice.Action.NONE:
 		return ""
+
 	if choice.action == CampaignDialogueChoice.Action.OPEN_TRADING:
-		var trader := _runtime.get_trader_for_interaction(_interaction_id)
-		if trader == null or trader.trader_id != choice.target_id:
+		var trader := (
+			_runtime.get_trader_for_interaction(
+				_interaction_id
+			)
+		)
+
+		if (
+			trader == null
+			or trader.trader_id != choice.target_id
+		):
 			return "У собеседника нет такой торговли."
-		var trader_state := _runtime.get_trader_state(choice.target_id)
-		if trader_state == null or not trader_state.is_valid_state():
+
+		var trader_state := (
+			_runtime.get_trader_state(
+				choice.target_id
+			)
+		)
+
+		if (
+			trader_state == null
+			or not trader_state.is_valid_state()
+		):
 			return "Торговля сейчас недоступна."
+
 		return ""
-	var resident := _runtime.get_resident_for_local_interaction(_interaction_id)
-	if resident == null:
-		return "Это действие требует разговора с нужным персонажем."
-	if choice.action == CampaignDialogueChoice.Action.INVITE_RESIDENT:
+
+	var resident := (
+		_runtime.get_resident_for_local_interaction(
+			_interaction_id
+		)
+	)
+
+	if (
+		choice.action
+		== CampaignDialogueChoice.Action.INVITE_RESIDENT
+	):
+		if resident == null:
+			return (
+				"Это действие требует разговора "
+				+ "с нужным персонажем."
+			)
+
 		if choice.target_id != resident.resident_id:
-			return "Приглашение адресовано другому персонажу."
-		var resident_state := _state.get_resident(choice.target_id)
-		if resident_state == null or not resident_state.is_at_origin():
+			return (
+				"Приглашение адресовано "
+				+ "другому персонажу."
+			)
+
+		var resident_state := (
+			_state.get_resident(
+				choice.target_id
+			)
+		)
+
+		if (
+			resident_state == null
+			or not resident_state.is_at_origin()
+		):
 			return "Этот персонаж уже переселился."
+
 		if not resident_state.recruitment_unlocked:
-			return "Сначала заслужите доверие собеседника."
-		if _state.reputation < resident.required_reputation:
-			return "Нужна репутация: %d." % resident.required_reputation
-		if not _runtime.get_resident_recruitment_error(choice.target_id).is_empty():
-			return "Сейчас нельзя пригласить этого персонажа."
+			return (
+				"Сначала заслужите доверие собеседника."
+			)
+
+		if (
+			_state.reputation
+			< resident.required_reputation
+		):
+			return (
+				"Нужна репутация: %d."
+				% resident.required_reputation
+			)
+
+		if not (
+			_runtime
+				.get_resident_recruitment_error(
+					choice.target_id
+				)
+				.is_empty()
+		):
+			return (
+				"Сейчас нельзя пригласить "
+				+ "этого персонажа."
+			)
+
 		return ""
-	var quest := _campaign.get_quest(choice.target_id)
-	var quest_state := _state.get_quest(choice.target_id)
-	if quest == null or quest_state == null or quest.giver_resident_id != resident.resident_id:
-		return "Это задание нужно обсудить с его поручителем."
+
+	var quest := (
+		_campaign.get_quest(
+			choice.target_id
+		)
+	)
+
+	var quest_state := (
+		_state.get_quest(
+			choice.target_id
+		)
+	)
+
+	if (
+		quest == null
+		or quest_state == null
+	):
+		return "Задание недоступно."
+
+	var giver_definition: CampaignResidentDefinition = null
+	var giver_state: CampaignResidentState = null
+
+	if quest.uses_resident_giver():
+		if (
+			resident == null
+			or quest.giver_resident_id
+				!= resident.resident_id
+		):
+			return (
+				"Это задание нужно обсудить "
+				+ "с его поручителем."
+			)
+
+		giver_definition = resident
+
+		giver_state = (
+			_state.get_resident(
+				resident.resident_id
+			)
+		)
+
+		if giver_state == null:
+			return "Поручитель задания недоступен."
+
+	elif quest.uses_local_interaction_giver():
+		if (
+			quest.giver_world_node_id
+				!= _world_node_id
+			or quest.giver_local_interaction_id
+				!= _interaction_id
+		):
+			return (
+				"Это задание нужно получить "
+				+ "в другом месте."
+			)
+
+	else:
+		return "Источник задания недоступен."
+
 	var error: String
-	if choice.action == CampaignDialogueChoice.Action.START_QUEST:
-		error = _runtime.quest_service.get_start_error(
-			_state, quest, quest_state, resident, _state.get_resident(resident.resident_id),
-			_runtime.get_home_settlement_definition()
+
+	if (
+		choice.action
+		== CampaignDialogueChoice.Action.START_QUEST
+	):
+		error = (
+			_runtime.quest_service.get_start_error(
+				_state,
+				quest,
+				quest_state,
+				giver_definition,
+				giver_state,
+				_runtime.get_home_settlement_definition()
+			)
 		)
-		return "" if error.is_empty() else "Сейчас нельзя принять это задание."
-	if choice.action == CampaignDialogueChoice.Action.TURN_IN_QUEST:
-		error = _runtime.quest_service.get_turn_in_error(
-			_state, quest, quest_state, resident, _state.get_resident(resident.resident_id),
-			_runtime.get_home_settlement_definition()
+
+		return (
+			""
+			if error.is_empty()
+			else "Сейчас нельзя принять это задание."
 		)
-		return "" if error.is_empty() else "Задание сейчас нельзя сдать."
+
+	if (
+		choice.action
+		== CampaignDialogueChoice.Action.TURN_IN_QUEST
+	):
+		error = (
+			_runtime.quest_service.get_turn_in_error(
+				_state,
+				quest,
+				quest_state,
+				giver_definition,
+				giver_state,
+				_runtime.get_home_settlement_definition()
+			)
+		)
+
+		return (
+			""
+			if error.is_empty()
+			else "Задание сейчас нельзя сдать."
+		)
+
 	return "Неизвестное действие разговора."
 
 

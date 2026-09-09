@@ -31,6 +31,13 @@ var local_position: Vector2 = Vector2.ZERO
 @export
 var dialogue: CampaignDialogueDefinition
 
+## Текст кнопки, открывающей dialogue у stationary interaction.
+## NPC обычно используют "ПОГОВОРИТЬ",
+## но объект может задать своё действие:
+## например, доска объявлений — "ПОСМОТРЕТЬ ОБЪЯВЛЕНИЯ".
+@export
+var dialogue_action_label: String = "ПОГОВОРИТЬ"
+
 
 @export_group("Actions")
 
@@ -95,6 +102,13 @@ func get_validation_errors() -> PackedStringArray:
 		] = true
 
 	if dialogue != null:
-		errors.append_array(dialogue.get_validation_errors())
+		if dialogue_action_label.strip_edges().is_empty():
+			errors.append(
+				"Dialogue action label is empty."
+			)
+
+		errors.append_array(
+			dialogue.get_validation_errors()
+		)
 
 	return errors

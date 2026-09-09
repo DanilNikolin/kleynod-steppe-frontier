@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CampaignQuestDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_definition.gd" id="1_quest"]
+[ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_objective_definition.gd" id="2_objective"]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_reference_definition.gd" id="3_site_ref"]
+
+[sub_resource type="Resource" id="Objective"]
+script = ExtResource("2_objective")
+objective_id = &"clear_abandoned_cart"
+display_name = "Разобраться с налётчиками у разграбленного воза"
+objective_type = 0
+target_location_id = &"debug_abandoned_cart"
+
+[sub_resource type="Resource" id="SiteUnlock"]
+script = ExtResource("3_site_ref")
+area_id = &"debug_forest_area"
+site_id = &"abandoned_cart"
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = &"village_board_abandoned_cart"
+display_name = "Разграбленный воз"
+description = "На доске объявлений просят очистить дорогу у старой рощи. Торговый воз разграблен, а налётчики всё ещё держатся поблизости."
+giver_kind = 1
+giver_world_node_id = &"debug_village"
+giver_local_interaction_id = &"debug_village_notice_board"
+start_adventure_site_unlocks = Array[ExtResource("3_site_ref")]([SubResource("SiteUnlock")])
+objectives = Array[ExtResource("2_objective")]([SubResource("Objective")])
+reputation_reward = 2

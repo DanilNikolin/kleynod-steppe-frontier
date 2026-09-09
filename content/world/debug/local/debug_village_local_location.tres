@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
 
 [ext_resource type="Resource" path="res://content/dialogue/debug/debug_innkeeper_dialogue.tres" id="3_dialogue"]
+[ext_resource type="Resource" path="res://content/dialogue/debug/debug_village_notice_board_dialogue.tres" id="4_notice_board_dialogue"]
 
 [sub_resource type="Resource" id="Innkeeper"]
 script = ExtResource("2_interaction")
@@ -27,7 +28,8 @@ interaction_id = &"debug_village_notice_board"
 display_name = "Доска объявлений"
 description = "Здесь жители оставляют просьбы, объявления и слухи."
 local_position = Vector2(850, 310)
-action_labels = PackedStringArray("Посмотреть объявления")
+dialogue = ExtResource("4_notice_board_dialogue")
+dialogue_action_label = "ПОСМОТРЕТЬ ОБЪЯВЛЕНИЯ"
 
 [resource]
 script = ExtResource("1_location")

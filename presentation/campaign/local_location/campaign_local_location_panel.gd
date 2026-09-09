@@ -694,7 +694,9 @@ func _refresh_interaction_panel() -> void:
 	_status_label.text = ""
 
 	if interaction.dialogue != null:
-		_create_dialogue_button()
+		_create_dialogue_button(
+			interaction.dialogue_action_label
+		)
 
 	for action_label in (
 		interaction.action_labels
@@ -1754,8 +1756,20 @@ func _on_quest_turn_in_pressed(
 func _on_quest_journal_pressed() -> void:
 	quest_journal_requested.emit()
 
-func _create_dialogue_button() -> void:
+func _create_dialogue_button(
+	action_label: String = "ПОГОВОРИТЬ"
+) -> void:
 	var button := Button.new()
-	button.text = "ПОГОВОРИТЬ"
-	button.pressed.connect(func() -> void: dialogue_requested.emit(_selected_interaction_id))
-	_actions_row.add_child(button)
+
+	button.text = action_label
+
+	button.pressed.connect(
+		func() -> void:
+			dialogue_requested.emit(
+				_selected_interaction_id
+			)
+	)
+
+	_actions_row.add_child(
+		button
+	)

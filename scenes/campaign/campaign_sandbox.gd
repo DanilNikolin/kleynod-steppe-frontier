@@ -35,6 +35,14 @@ var _dialogue_session: CampaignDialogueSession
 var _dialogue_panel: CampaignDialoguePanel
 var _dialogue_local_panel: CampaignLocalLocationPanel
 
+var _world_map_panel: CampaignWorldMapPanel
+
+var _travel_event_session: CampaignTravelEventSession
+
+var _travel_event_panel: CampaignTravelEventPanel
+
+var _travel_animation_active: bool = false
+
 
 func _ready() -> void:
 	if not CampaignRuntime.ensure_campaign_started():
@@ -65,6 +73,11 @@ func _ready() -> void:
 	else:
 		_show_view(
 			View.WORLD_MAP
+		)
+
+	if CampaignRuntime.has_pending_travel():
+		call_deferred(
+			"_resume_or_present_pending_travel"
 		)
 
 
@@ -184,6 +197,41 @@ func _refresh_shell() -> void:
 		if current_node != null
 		else "Неизвестная местность"
 	)
+
+	var pending := (
+		CampaignRuntime.get_pending_travel()
+	)
+
+	if pending != null:
+		var world_map := (
+			CampaignRuntime
+				.get_world_map_definition()
+		)
+
+		if world_map != null:
+			var origin := (
+				world_map.get_node(
+					pending.from_node_id
+				)
+			)
+
+			var destination := (
+				world_map.get_node(
+					pending.destination_node_id
+				)
+			)
+
+			if (
+				origin != null
+				and destination != null
+			):
+				location_text = (
+					"В пути: %s → %s"
+					% [
+						origin.display_name,
+						destination.display_name,
+					]
+				)
 
 	_shell.refresh_hud(
 		state,
@@ -315,6 +363,8 @@ func _create_adventure_area_panel() -> Control:
 func _create_world_map_panel() -> Control:
 	var panel := CampaignWorldMapPanel.new()
 
+	_world_map_panel = panel
+
 	panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
@@ -325,6 +375,10 @@ func _create_world_map_panel() -> Control:
 
 	panel.travel_requested.connect(
 		_on_world_travel_requested
+	)
+
+	panel.travel_animation_finished.connect(
+		_on_world_travel_animation_finished
 	)
 
 	panel.enter_requested.connect(
@@ -339,7 +393,8 @@ func _create_world_map_panel() -> Control:
 		CampaignRuntime.get_world_map_definition(),
 		CampaignRuntime.get_campaign_state(),
 		CampaignRuntime.get_home_settlement_definition(),
-		CampaignRuntime.get_home_settlement_state()
+		CampaignRuntime.get_home_settlement_state(),
+		CampaignRuntime.get_pending_travel()
 	)
 
 	return panel
@@ -622,8 +677,13 @@ func _create_local_location_panel() -> Control:
 func _on_shell_section_requested(
 	section_id: StringName
 ) -> void:
-	if _shell.has_modal():
+	if (
+		_shell.has_modal()
+		or _travel_animation_active
+		or CampaignRuntime.has_pending_travel()
+	):
 		return
+
 	var target_view: View
 
 	match section_id:
@@ -653,8 +713,13 @@ func _on_shell_section_requested(
 
 
 func _on_shell_back_requested() -> void:
-	if _shell.has_modal():
+	if (
+		_shell.has_modal()
+		or _travel_animation_active
+		or CampaignRuntime.has_pending_travel()
+	):
 		return
+
 	_go_back()
 
 
@@ -662,6 +727,8 @@ func _on_shell_menu_requested() -> void:
 	if (
 		_shell == null
 		or _shell.has_modal()
+		or _travel_animation_active
+		or CampaignRuntime.has_pending_travel()
 	):
 		return
 
@@ -807,21 +874,27 @@ func _on_preparation_closed() -> void:
 func _on_world_travel_requested(
 	destination_node_id: StringName
 ) -> void:
-	var travelled := (
-		CampaignRuntime.travel_to_world_node(
+	if (
+		_travel_animation_active
+		or CampaignRuntime.has_pending_travel()
+	):
+		return
+
+	var started := (
+		CampaignRuntime.begin_travel(
 			destination_node_id
 		)
 	)
 
-	if not travelled:
+	if not started:
 		push_warning(
-			"Campaign world travel failed."
+			"Campaign world travel could not begin."
 		)
 
 		return
 
-	## После реального travel нельзя Back-нуться
-	## в старую локальную локацию.
+	## После начала настоящего travel нельзя
+	## Back-нуться в старую local location.
 	_view_stack.clear()
 
 	_active_trader_id = &""
@@ -829,6 +902,212 @@ func _on_world_travel_requested(
 	_show_view(
 		View.WORLD_MAP
 	)
+
+	call_deferred(
+		"_animate_pending_travel"
+	)
+
+
+func _resume_or_present_pending_travel() -> void:
+	var pending := (
+		CampaignRuntime.get_pending_travel()
+	)
+
+	if pending == null:
+		return
+
+	if pending.has_reached_event():
+		_show_travel_event()
+		return
+
+	_animate_pending_travel()
+
+
+func _animate_pending_travel() -> void:
+	if _travel_animation_active:
+		return
+
+	var pending := (
+		CampaignRuntime.get_pending_travel()
+	)
+
+	if (
+		pending == null
+		or _world_map_panel == null
+		or not is_instance_valid(
+			_world_map_panel
+		)
+	):
+		return
+
+	_world_map_panel.sync_pending_travel(
+		pending
+	)
+
+	_travel_animation_active = true
+
+	if not (
+		_world_map_panel
+			.animate_pending_travel_to_next_stop()
+	):
+		_travel_animation_active = false
+
+		push_warning(
+			"Pending travel animation "
+			+ "could not start."
+		)
+
+
+func _on_world_travel_animation_finished() -> void:
+	if not _travel_animation_active:
+		return
+
+	_travel_animation_active = false
+
+	if not (
+		CampaignRuntime
+			.advance_pending_travel_to_next_stop()
+	):
+		push_warning(
+			"Campaign pending travel "
+			+ "could not advance."
+		)
+
+		return
+
+	_refresh_shell()
+
+	var pending := (
+		CampaignRuntime.get_pending_travel()
+	)
+
+	if pending == null:
+		# Destination reached.
+		_show_view(
+			View.WORLD_MAP
+		)
+
+		return
+
+	if (
+		_world_map_panel != null
+		and is_instance_valid(
+			_world_map_panel
+		)
+	):
+		_world_map_panel.sync_pending_travel(
+			pending
+		)
+
+	if pending.has_reached_event():
+		_show_travel_event()
+		return
+
+	call_deferred(
+		"_animate_pending_travel"
+	)
+
+
+func _show_travel_event(
+	error: String = ""
+) -> void:
+	if (
+		_shell == null
+		or _shell.has_modal()
+	):
+		return
+
+	var session := (
+		CampaignTravelEventSession.new()
+	)
+
+	if not session.begin(
+		CampaignRuntime
+	):
+		push_warning(
+			"Travel event session could not begin."
+		)
+
+		return
+
+	_travel_event_session = session
+
+	_travel_event_panel = (
+		CampaignTravelEventPanel.new()
+	)
+
+	_travel_event_panel.choice_requested.connect(
+		_on_travel_event_choice
+	)
+
+	_shell.show_modal(
+		_travel_event_panel
+	)
+
+	_travel_event_panel.show_session(
+		_travel_event_session,
+		error
+	)
+
+
+func _on_travel_event_choice(
+	choice_id: StringName,
+	revision: int
+) -> void:
+	if _travel_event_session == null:
+		return
+
+	var error := (
+		_travel_event_session.choose(
+			choice_id,
+			revision
+		)
+	)
+
+	_refresh_shell()
+
+	# START_BATTLE уже инициировал смену сцены.
+	if CampaignRuntime.has_pending_battle():
+		return
+
+	if _travel_event_session.closed:
+		_travel_event_session = null
+		_travel_event_panel = null
+
+		if _shell != null:
+			_shell.clear_modal()
+
+		var pending := (
+			CampaignRuntime.get_pending_travel()
+		)
+
+		if (
+			pending != null
+			and _world_map_panel != null
+			and is_instance_valid(
+				_world_map_panel
+			)
+		):
+			_world_map_panel.sync_pending_travel(
+				pending
+			)
+
+		call_deferred(
+			"_animate_pending_travel"
+		)
+
+		return
+
+	if (
+		_travel_event_panel != null
+		and is_instance_valid(
+			_travel_event_panel
+		)
+	):
+		_travel_event_panel.show_session(
+			_travel_event_session,
+			error
+		)
 
 
 func _on_world_enter_requested(

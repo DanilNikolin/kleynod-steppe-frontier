@@ -32,21 +32,40 @@ var _selected_node_id: StringName = &""
 
 var _buttons_by_node_id: Dictionary = {}
 
+var _pending_travel: CampaignPendingTravel
+
+var _travel_display_progress: float = -1.0
+
+var _party_marker: Label
+
+var _event_marker: Button
+
 
 func _ready() -> void:
 	resized.connect(
 		_on_resized
 	)
 
+	_build_travel_markers()
+
 
 func bind(
 	world_map: CampaignWorldMapDefinition,
 	state: CampaignState,
 	settlement_definition: CampaignSettlementDefinition,
-	settlement_state: CampaignSettlementState
+	settlement_state: CampaignSettlementState,
+	pending_travel: CampaignPendingTravel = null
 ) -> void:
 	_world_map = world_map
 	_state = state
+
+	_pending_travel = pending_travel
+
+	_travel_display_progress = (
+		pending_travel.progress
+		if pending_travel != null
+		else -1.0
+	)
 
 	_settlement_definition = (
 		settlement_definition
@@ -57,12 +76,18 @@ func bind(
 	)
 
 	_selected_node_id = (
-		state.current_world_node_id
-		if state != null
-		else &""
+		pending_travel.destination_node_id
+		if pending_travel != null
+		else (
+			state.current_world_node_id
+			if state != null
+			else &""
+		)
 	)
 
 	_rebuild_node_buttons()
+
+	_refresh_travel_markers()
 
 	queue_redraw()
 
@@ -133,7 +158,10 @@ func _draw() -> void:
 			true
 		)
 
-	if _state == null:
+	if (
+		_state == null
+		or _pending_travel != null
+	):
 		return
 
 	var current_node := _world_map.get_node(
@@ -234,6 +262,10 @@ func _refresh_button_texts() -> void:
 
 		if button == null:
 			continue
+
+		button.disabled = (
+			_pending_travel != null
+		)
 
 		var prefix := ""
 
@@ -400,6 +432,228 @@ func _map_position_to_canvas(
 	)
 
 
+func set_pending_travel(
+	pending_travel: CampaignPendingTravel
+) -> void:
+	_pending_travel = pending_travel
+
+	if pending_travel == null:
+		_travel_display_progress = -1.0
+
+	else:
+		_travel_display_progress = (
+			pending_travel.progress
+		)
+
+	_refresh_button_texts()
+	_refresh_travel_markers()
+
+	queue_redraw()
+
+
+func set_travel_display_progress(
+	progress: float
+) -> void:
+	if _pending_travel == null:
+		return
+
+	_travel_display_progress = clampf(
+		progress,
+		0.0,
+		1.0
+	)
+
+	_refresh_travel_markers()
+
+
+func set_event_marker_visible(
+	target_visible: bool
+) -> void:
+	if _event_marker == null:
+		return
+
+	_event_marker.visible = (
+		target_visible
+		and _pending_travel != null
+		and _pending_travel.has_unresolved_event()
+	)
+
+	if _event_marker.visible:
+		_layout_event_marker()
+
+
+func _build_travel_markers() -> void:
+	_party_marker = Label.new()
+
+	_party_marker.text = "● ОТРЯД"
+
+	_party_marker.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
+	)
+
+	_party_marker.add_theme_font_size_override(
+		"font_size",
+		18
+	)
+
+	_party_marker.z_index = 20
+
+	_party_marker.visible = false
+
+	add_child(
+		_party_marker
+	)
+
+	_event_marker = Button.new()
+
+	_event_marker.text = "⚠ СОБЫТИЕ"
+
+	_event_marker.disabled = true
+
+	_event_marker.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
+	)
+
+	_event_marker.custom_minimum_size = (
+		Vector2(
+			120,
+			42
+		)
+	)
+
+	_event_marker.size = (
+		Vector2(
+			120,
+			42
+		)
+	)
+
+	_event_marker.z_index = 19
+
+	_event_marker.visible = false
+
+	add_child(
+		_event_marker
+	)
+
+
+func _refresh_travel_markers() -> void:
+	if (
+		_party_marker == null
+		or _event_marker == null
+	):
+		return
+
+	if (
+		_pending_travel == null
+		or _world_map == null
+	):
+		_party_marker.visible = false
+		_event_marker.visible = false
+		return
+
+	var origin := (
+		_world_map.get_node(
+			_pending_travel.from_node_id
+		)
+	)
+
+	var destination := (
+		_world_map.get_node(
+			_pending_travel.destination_node_id
+		)
+	)
+
+	if (
+		origin == null
+		or destination == null
+	):
+		_party_marker.visible = false
+		_event_marker.visible = false
+		return
+
+	_party_marker.visible = true
+
+	var map_position := (
+		origin.map_position.lerp(
+			destination.map_position,
+			clampf(
+				_travel_display_progress,
+				0.0,
+				1.0
+			)
+		)
+	)
+
+	var canvas_position := (
+		_map_position_to_canvas(
+			map_position
+		)
+	)
+
+	_party_marker.reset_size()
+
+	_party_marker.position = (
+		canvas_position
+		- Vector2(
+			_party_marker.size.x * 0.5,
+			_party_marker.size.y * 0.5
+		)
+	)
+
+	if _event_marker.visible:
+		_layout_event_marker()
+
+
+func _layout_event_marker() -> void:
+	if (
+		_event_marker == null
+		or _pending_travel == null
+		or _world_map == null
+		or not _pending_travel.has_event()
+	):
+		return
+
+	var origin := (
+		_world_map.get_node(
+			_pending_travel.from_node_id
+		)
+	)
+
+	var destination := (
+		_world_map.get_node(
+			_pending_travel.destination_node_id
+		)
+	)
+
+	if (
+		origin == null
+		or destination == null
+	):
+		return
+
+	var event_map_position := (
+		origin.map_position.lerp(
+			destination.map_position,
+			_pending_travel.event_progress
+		)
+	)
+
+	var event_canvas_position := (
+		_map_position_to_canvas(
+			event_map_position
+		)
+	)
+
+	_event_marker.position = (
+		event_canvas_position
+		+ Vector2(
+			16,
+			-52
+		)
+	)
+
+
 func _get_node_type_name(
 	node_type: int
 ) -> String:
@@ -434,4 +688,6 @@ func _on_node_pressed(
 
 func _on_resized() -> void:
 	_layout_node_buttons()
+	_refresh_travel_markers()
+
 	queue_redraw()

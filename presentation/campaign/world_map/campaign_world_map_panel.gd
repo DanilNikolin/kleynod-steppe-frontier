@@ -12,9 +12,15 @@ signal enter_requested(
 	node_id: StringName
 )
 
+signal travel_animation_finished
+
 
 var _world_map: CampaignWorldMapDefinition
 var _state: CampaignState
+
+var _pending_travel: CampaignPendingTravel
+
+var _travel_tween: Tween
 
 var _settlement_definition: CampaignSettlementDefinition
 var _settlement_state: CampaignSettlementState
@@ -42,10 +48,13 @@ func bind(
 	world_map: CampaignWorldMapDefinition,
 	state: CampaignState,
 	settlement_definition: CampaignSettlementDefinition,
-	settlement_state: CampaignSettlementState
+	settlement_state: CampaignSettlementState,
+	pending_travel: CampaignPendingTravel = null
 ) -> void:
 	_world_map = world_map
 	_state = state
+
+	_pending_travel = pending_travel
 
 	_settlement_definition = (
 		settlement_definition
@@ -56,9 +65,13 @@ func bind(
 	)
 
 	_selected_node_id = (
-		state.current_world_node_id
-		if state != null
-		else &""
+		pending_travel.destination_node_id
+		if pending_travel != null
+		else (
+			state.current_world_node_id
+			if state != null
+			else &""
+		)
 	)
 
 	_build_interface()
@@ -166,7 +179,8 @@ func _build_interface() -> void:
 		_world_map,
 		_state,
 		_settlement_definition,
-		_settlement_state
+		_settlement_state,
+		_pending_travel
 	)
 
 	content.add_child(
@@ -239,6 +253,52 @@ func _refresh_selection() -> void:
 		_selection_label.text = "—"
 
 		_travel_button.disabled = true
+		_enter_button.visible = false
+		_adventure_button.visible = false
+
+		return
+
+	if _pending_travel != null:
+		var origin := (
+			_world_map.get_node(
+				_pending_travel.from_node_id
+			)
+		)
+
+		var destination := (
+			_world_map.get_node(
+				_pending_travel.destination_node_id
+			)
+		)
+
+		_current_location_label.text = (
+			"В пути: %s → %s"
+			% [
+				(
+					origin.display_name
+					if origin != null
+					else "?"
+				),
+				(
+					destination.display_name
+					if destination != null
+					else "?"
+				),
+			]
+		)
+
+		_selection_label.text = (
+			"Путешествие продолжается · %d%%"
+			% int(
+				round(
+					_pending_travel.progress
+						* 100.0
+				)
+			)
+		)
+
+		_travel_button.disabled = true
+
 		_enter_button.visible = false
 		_adventure_button.visible = false
 
@@ -395,6 +455,100 @@ func _refresh_selection() -> void:
 	)
 
 	_travel_button.disabled = false
+
+
+func sync_pending_travel(
+	pending_travel: CampaignPendingTravel
+) -> void:
+	_pending_travel = pending_travel
+
+	_map_canvas.set_pending_travel(
+		pending_travel
+	)
+
+	_refresh_selection()
+
+
+func animate_pending_travel_to_next_stop() -> bool:
+	if (
+		_pending_travel == null
+		or _map_canvas == null
+	):
+		return false
+
+	if (
+		_travel_tween != null
+		and _travel_tween.is_running()
+	):
+		return false
+
+	var from_progress := (
+		_pending_travel.progress
+	)
+
+	var to_progress := (
+		_pending_travel
+			.get_next_stop_progress()
+	)
+
+	if to_progress < from_progress:
+		return false
+
+	_map_canvas.set_event_marker_visible(
+		false
+	)
+
+	_map_canvas.set_travel_display_progress(
+		from_progress
+	)
+
+	var distance := (
+		to_progress
+		- from_progress
+	)
+
+	var duration := clampf(
+		distance * 2.0,
+		0.55,
+		1.8
+	)
+
+	_travel_tween = create_tween()
+
+	_travel_tween.set_trans(
+		Tween.TRANS_SINE
+	)
+
+	_travel_tween.set_ease(
+		Tween.EASE_IN_OUT
+	)
+
+	_travel_tween.tween_method(
+		_map_canvas
+			.set_travel_display_progress,
+		from_progress,
+		to_progress,
+		duration
+	)
+
+	_travel_tween.finished.connect(
+		func() -> void:
+			if (
+				_pending_travel != null
+				and _pending_travel
+					.has_unresolved_event()
+				and is_equal_approx(
+					to_progress,
+					_pending_travel
+						.event_progress
+				)
+			):
+				_map_canvas.set_event_marker_visible(true)
+
+			travel_animation_finished.emit()
+	)
+
+	return true
 
 
 func _on_node_selected(

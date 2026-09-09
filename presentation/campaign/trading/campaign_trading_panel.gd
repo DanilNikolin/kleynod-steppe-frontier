@@ -58,7 +58,7 @@ func bind(
 	trader_definition: CampaignTraderDefinition,
 	trader_state: CampaignTraderState,
 	campaign_state: CampaignState,
-	settlement_definition: CampaignSettlementDefinition
+	settlement_definition: CampaignSettlementDefinition = null
 ) -> void:
 	_trader_definition = trader_definition
 	_trader_state = trader_state
@@ -846,7 +846,7 @@ func _rebuild_player_list() -> void:
 				)
 			)
 
-		var owner := (
+		var equipment_owner := (
 			_campaign_state.get_equipment_owner(
 				item.instance_id
 			)
@@ -854,7 +854,7 @@ func _rebuild_player_list() -> void:
 
 		var owner_suffix := ""
 
-		if owner != null:
+		if equipment_owner != null:
 			owner_suffix = (
 				" · экипировано"
 			)
@@ -967,13 +967,13 @@ func _refresh_ownership_text(
 
 		return
 
-	var owner := (
+	var equipment_owner := (
 		_campaign_state.get_equipment_owner(
 			item.instance_id
 		)
 	)
 
-	if owner == null:
+	if equipment_owner == null:
 		_detail_ownership.text = (
 			"Находится в вашем инвентаре."
 		)

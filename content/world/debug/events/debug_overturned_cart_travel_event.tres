@@ -1,6 +1,68 @@
 [gd_resource type="Resource" script_class="CampaignTravelEventDefinition" format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/events/campaign_travel_event_definition.gd" id="1_event"]
+[ext_resource type="Script" path="res://core/campaign/world/events/campaign_travel_event_node.gd" id="2_node"]
+[ext_resource type="Script" path="res://core/campaign/world/events/campaign_travel_event_choice.gd" id="3_choice"]
+
+[sub_resource type="Resource" id="ChoiceInspect"]
+script = ExtResource("3_choice")
+choice_id = &"inspect"
+text = "Остановиться и осмотреть воз."
+action = 0
+next_node_id = &"ambush"
+
+[sub_resource type="Resource" id="ChoicePass"]
+script = ExtResource("3_choice")
+choice_id = &"pass"
+text = "Не останавливаться и попытаться пройти мимо."
+action = 1
+success_chance = 0.85
+success_node_id = &"escaped"
+failure_node_id = &"ambush"
+
+[sub_resource type="Resource" id="ChoiceBribe"]
+script = ExtResource("3_choice")
+choice_id = &"bribe"
+text = "Откупиться — 80 золота."
+action = 2
+next_node_id = &"paid"
+gold_cost = 80
+
+[sub_resource type="Resource" id="ChoiceContinueEscaped"]
+script = ExtResource("3_choice")
+choice_id = &"continue_escaped"
+text = "Продолжить путь."
+action = 3
+
+[sub_resource type="Resource" id="ChoiceContinuePaid"]
+script = ExtResource("3_choice")
+choice_id = &"continue_paid"
+text = "Продолжить путь."
+action = 3
+
+[sub_resource type="Resource" id="NodeRoad"]
+script = ExtResource("2_node")
+node_id = &"road"
+text = "Поперёк дороги лежит перевёрнутый воз. Вокруг подозрительно тихо, а следов хозяев поблизости не видно."
+choices = Array[ExtResource("3_choice")]([SubResource("ChoiceInspect"), SubResource("ChoicePass")])
+
+[sub_resource type="Resource" id="NodeAmbush"]
+script = ExtResource("2_node")
+node_id = &"ambush"
+text = "Из-за деревьев выходят вооружённые люди. Воз оказался приманкой. Они требуют золото за право продолжить путь."
+choices = Array[ExtResource("3_choice")]([SubResource("ChoiceBribe")])
+
+[sub_resource type="Resource" id="NodeEscaped"]
+script = ExtResource("2_node")
+node_id = &"escaped"
+text = "Отряд не замедляет ход. Через некоторое время подозрительный воз остаётся далеко позади."
+choices = Array[ExtResource("3_choice")]([SubResource("ChoiceContinueEscaped")])
+
+[sub_resource type="Resource" id="NodePaid"]
+script = ExtResource("2_node")
+node_id = &"paid"
+text = "Получив золото, налётчики освобождают дорогу. Отряд может продолжить путешествие."
+choices = Array[ExtResource("3_choice")]([SubResource("ChoiceContinuePaid")])
 
 [resource]
 script = ExtResource("1_event")
@@ -9,3 +71,5 @@ display_name = "Перевёрнутый воз"
 description = "На дороге стоит перевёрнутый воз. Неясно, произошла ли здесь обычная беда или кто-то устроил ловушку."
 min_route_progress = 0.15
 max_route_progress = 0.85
+entry_node_id = &"road"
+nodes = Array[ExtResource("2_node")]([SubResource("NodeRoad"), SubResource("NodeAmbush"), SubResource("NodeEscaped"), SubResource("NodePaid")])

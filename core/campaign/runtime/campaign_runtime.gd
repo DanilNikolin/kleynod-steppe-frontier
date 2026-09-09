@@ -38,6 +38,14 @@ var travel_service := (
 	CampaignTravelService.new()
 )
 
+var travel_event_roll_service := (
+	CampaignTravelEventRollService.new()
+)
+
+var _travel_event_rng := (
+	RandomNumberGenerator.new()
+)
+
 var world_route_access_service := (
 	CampaignWorldRouteAccessService.new()
 )
@@ -88,6 +96,8 @@ var _battle_request_counter: int = 0
 
 
 func _ready() -> void:
+	_travel_event_rng.randomize()
+
 	ensure_campaign_started()
 
 
@@ -489,7 +499,7 @@ func get_quest_abandon_error(
 	if has_pending_battle():
 		return (
 			"Cannot abandon a quest "
-			+ "while a battle request is active."
+			+"while a battle request is active."
 		)
 
 	return quest_service.get_abandon_error(
@@ -1535,6 +1545,396 @@ func get_travel_days_to(
 	)
 
 
+func begin_travel(
+	destination_node_id: StringName
+) -> bool:
+	if not ensure_campaign_started():
+		return false
+
+	if has_pending_battle():
+		push_warning(
+			"Cannot begin travel while "
+			+"a battle request is active."
+		)
+
+		return false
+
+	if has_pending_travel():
+		push_warning(
+			"Cannot begin travel while another "
+			+"travel is already active."
+		)
+
+		return false
+
+	if (
+		campaign_state == null
+		or not campaign_state.is_valid_state()
+	):
+		push_warning(
+			"Cannot begin travel with "
+			+"an invalid campaign state."
+		)
+
+		return false
+
+	if destination_node_id == &"":
+		push_warning(
+			"Cannot travel to an empty "
+			+"world node ID."
+		)
+
+		return false
+
+	var from_node_id := (
+		campaign_state.current_world_node_id
+	)
+
+	if destination_node_id == from_node_id:
+		push_warning(
+			"Campaign party is already "
+			+"at world node '%s'."
+			% destination_node_id
+		)
+
+		return false
+
+	var world_map := (
+		get_world_map_definition()
+	)
+
+	if (
+		world_map == null
+		or not world_map.is_valid_definition()
+	):
+		push_warning(
+			"Campaign world map is "
+			+"missing or invalid."
+		)
+
+		return false
+
+	var destination := (
+		world_map.get_node(
+			destination_node_id
+		)
+	)
+
+	if destination == null:
+		push_warning(
+			"Unknown world destination '%s'."
+			% destination_node_id
+		)
+
+		return false
+
+	var route := (
+		world_map.get_route_between(
+			from_node_id,
+			destination_node_id
+		)
+	)
+
+	if route == null:
+		push_warning(
+			"No direct route from '%s' to '%s'."
+			% [
+				from_node_id,
+				destination_node_id,
+			]
+		)
+
+		return false
+
+	var route_access_error := (
+		world_route_access_service
+			.get_route_access_error(
+				route,
+				get_home_settlement_definition(),
+				get_home_settlement_state()
+			)
+	)
+
+	if not route_access_error.is_empty():
+		push_warning(
+			"World route is locked: %s"
+			% route_access_error
+		)
+
+		return false
+
+	var travel_days := (
+		travel_service.get_travel_days(
+			world_map,
+			from_node_id,
+			destination_node_id
+		)
+	)
+
+	if travel_days <= 0:
+		push_warning(
+			"Travel duration is invalid."
+		)
+
+		return false
+
+	var travel := (
+		CampaignPendingTravel.new()
+	)
+
+	travel.from_node_id = (
+		from_node_id
+	)
+
+	travel.destination_node_id = (
+		destination_node_id
+	)
+
+	travel.route_id = (
+		route.route_id
+	)
+
+	travel.total_travel_minutes = (
+		travel_days
+		* CampaignTimeService.MINUTES_PER_DAY
+	)
+
+	travel.progress = 0.0
+
+	var profile := (
+		route.travel_event_profile
+	)
+
+	if profile != null:
+		var rolled_event := (
+			travel_event_roll_service
+				.roll_event(
+					profile,
+					_travel_event_rng.randf(),
+					_travel_event_rng.randf()
+				)
+		)
+
+		if rolled_event != null:
+			var rolled_progress := (
+				travel_event_roll_service
+					.roll_event_progress(
+						rolled_event,
+						_travel_event_rng.randf()
+					)
+			)
+
+			if rolled_progress < 0.0:
+				push_warning(
+					"Travel event position "
+					+"could not be rolled."
+				)
+
+				return false
+
+			travel.event_definition = (
+				rolled_event
+			)
+
+			travel.event_progress = (
+				rolled_progress
+			)
+
+	if not travel.is_valid_against_world_map(
+		world_map
+	):
+		for validation_error in (
+			travel.get_validation_errors(
+				world_map
+			)
+		):
+			push_warning(
+				"Pending travel: %s"
+				% validation_error
+			)
+
+		return false
+
+	pending_travel = travel
+
+	return true
+
+func advance_pending_travel_to_next_stop() -> bool:
+	if (
+		pending_travel == null
+		or campaign_state == null
+	):
+		return false
+
+	var world_map := (
+		get_world_map_definition()
+	)
+
+	if (
+		world_map == null
+		or not pending_travel
+			.is_valid_against_world_map(
+				world_map
+			)
+	):
+		return false
+
+	# Пока travel не завершён,
+	# физическая world node остаётся origin.
+	if (
+		campaign_state.current_world_node_id
+		!= pending_travel.from_node_id
+	):
+		push_warning(
+			"Campaign party moved away from "
+			+"the pending travel origin."
+		)
+
+		return false
+
+	var target_progress := (
+		pending_travel
+			.get_next_stop_progress()
+	)
+
+	if (
+		target_progress
+		< pending_travel.progress
+	):
+		return false
+
+	var current_elapsed_minutes := (
+		pending_travel
+			.get_elapsed_travel_minutes()
+	)
+
+	var target_elapsed_minutes := clampi(
+		int(
+			round(
+				float(
+					pending_travel
+						.total_travel_minutes
+				)
+				* target_progress
+			)
+		),
+		0,
+		pending_travel.total_travel_minutes
+	)
+
+	var minutes_to_advance := maxi(
+		target_elapsed_minutes
+			- current_elapsed_minutes,
+		0
+	)
+
+	if (
+		minutes_to_advance > 0
+		and not advance_time(
+			minutes_to_advance
+		)
+	):
+		push_warning(
+			"Pending travel time "
+			+"could not be advanced."
+		)
+
+		return false
+
+	pending_travel.progress = (
+		target_progress
+	)
+
+	if not pending_travel.is_valid_against_world_map(
+		world_map
+	):
+		push_error(
+			"Pending travel became invalid "
+			+"after advancing."
+		)
+
+		return false
+
+	# Если дошли до unresolved event —
+	# здесь останавливаемся.
+	if pending_travel.has_reached_event():
+		return true
+
+	# Иначе следующая остановка должна
+	# быть уже destination.
+	if not is_equal_approx(
+		pending_travel.progress,
+		1.0
+	):
+		return false
+
+	var destination := (
+		world_map.get_node(
+			pending_travel
+				.destination_node_id
+		)
+	)
+
+	if destination == null:
+		return false
+
+	campaign_state.current_world_node_id = (
+		destination.node_id
+	)
+
+	if not campaign_state.is_valid_state():
+		campaign_state.current_world_node_id = (
+			pending_travel.from_node_id
+		)
+
+		push_error(
+			"Travel completion produced "
+			+"an invalid campaign state."
+		)
+
+		return false
+
+	pending_travel = null
+
+	return true
+
+func resolve_pending_travel_event() -> bool:
+	if pending_travel == null:
+		return false
+
+	if not pending_travel.has_reached_event():
+		push_warning(
+			"Pending travel event cannot be "
+			+"resolved before reaching it."
+		)
+
+		return false
+
+	var previous_resolved := (
+		pending_travel.event_resolved
+	)
+
+	pending_travel.event_resolved = true
+
+	var world_map := (
+		get_world_map_definition()
+	)
+
+	if (
+		world_map == null
+		or not pending_travel
+			.is_valid_against_world_map(
+				world_map
+			)
+	):
+		pending_travel.event_resolved = (
+			previous_resolved
+		)
+
+		return false
+
+	return true
+			
 func travel_to_world_node(
 	destination_node_id: StringName
 ) -> bool:
@@ -1544,6 +1944,14 @@ func travel_to_world_node(
 	if has_pending_battle():
 		push_warning(
 			"Cannot travel while a battle request is active."
+		)
+
+		return false
+
+	if has_pending_travel():
+		push_warning(
+			"Cannot use instant travel while "
+			+"a pending travel is active."
 		)
 
 		return false
@@ -1776,7 +2184,7 @@ func advance_time(
 	if has_pending_battle():
 		push_warning(
 			"Cannot advance campaign time "
-			+ "while a battle request is active."
+			+"while a battle request is active."
 		)
 
 		return false
@@ -1787,7 +2195,7 @@ func advance_time(
 	):
 		push_warning(
 			"Cannot advance time with "
-			+ "an invalid campaign state."
+			+"an invalid campaign state."
 		)
 
 		return false
@@ -2043,6 +2451,12 @@ func save_campaign() -> CampaignSaveResult:
 			"Mid-battle save is not supported."
 		)
 
+	if has_pending_travel():
+		return _create_save_failure(
+			CampaignSaveService.STATUS_SAVE_ERROR,
+			"Mid-travel save is not supported."
+		)
+
 	return save_service.save_campaign(
 		campaign_state
 	)
@@ -2064,6 +2478,12 @@ func load_campaign() -> CampaignSaveResult:
 			"Mid-battle load is not supported."
 		)
 
+	if has_pending_travel():
+		return _create_save_failure(
+			CampaignSaveService.STATUS_LOAD_ERROR,
+			"Mid-travel load is not supported."
+		)
+
 	var result := (
 		save_service.load_campaign(
 			campaign_definition
@@ -2079,6 +2499,7 @@ func load_campaign() -> CampaignSaveResult:
 	campaign_state = result.campaign_state
 
 	pending_battle_request = null
+	pending_travel = null
 	_return_adventure_area_id = &""
 
 	## Battle request ID — transient data,
@@ -2610,7 +3031,7 @@ func complete_pending_battle_and_return(
 	if not quest_progress_applied:
 		push_error(
 			"Battle completed, but quest progress "
-			+ "could not be applied."
+			+"could not be applied."
 		)
 
 	pending_battle_request = null

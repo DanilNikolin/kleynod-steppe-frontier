@@ -22,19 +22,40 @@ var event_definition: CampaignTravelEventDefinition
 ## -1.0 используется, если event не выпал.
 var event_progress: float = -1.0
 
+## true только после того, как gameplay event
+## был реально разрешён игроком.
+##
+## До этого travel не имеет права пройти
+## дальше event_progress.
+var event_resolved: bool = false
+
 
 func has_event() -> bool:
 	return event_definition != null
 
 
-func has_reached_event() -> bool:
+func has_unresolved_event() -> bool:
 	return (
 		has_event()
+		and not event_resolved
+	)
+
+
+func has_reached_event() -> bool:
+	return (
+		has_unresolved_event()
 		and is_equal_approx(
 			progress,
 			event_progress
 		)
 	)
+
+
+func get_next_stop_progress() -> float:
+	if has_unresolved_event():
+		return event_progress
+
+	return 1.0
 
 
 func get_elapsed_travel_minutes() -> int:
@@ -156,6 +177,12 @@ func get_validation_errors(
 				+"must use event progress -1."
 			)
 
+		if event_resolved:
+			errors.append(
+				"Pending travel without an event "
+				+"cannot have a resolved event."
+			)
+
 	else:
 		for event_error in (
 			event_definition
@@ -189,10 +216,22 @@ func get_validation_errors(
 				+"allowed route range."
 			)
 
-		if progress > event_progress:
+		if (
+			not event_resolved
+			and progress > event_progress
+		):
 			errors.append(
 				"Pending travel cannot progress "
 				+"past an unresolved event."
+			)
+
+		if (
+			event_resolved
+			and progress < event_progress
+		):
+			errors.append(
+				"Pending travel event cannot be resolved "
+				+"before the party reaches it."
 			)
 
 	return errors

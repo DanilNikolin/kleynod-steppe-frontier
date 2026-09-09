@@ -22,6 +22,7 @@ var campaign_definition: CampaignDefinition
 var campaign_state: CampaignState
 
 var pending_battle_request: CampaignBattleRequest
+var pending_travel: CampaignPendingTravel
 
 var state_factory := CampaignStateFactory.new()
 var hero_experience_service := HeroExperienceService.new()
@@ -132,6 +133,7 @@ func start_new_campaign() -> bool:
 		return false
 
 	pending_battle_request = null
+	pending_travel = null
 	_battle_request_counter = 0
 	_return_adventure_area_id = &""
 
@@ -1975,6 +1977,14 @@ func has_pending_battle() -> bool:
 		and pending_battle_request
 			.encounter_definition != null
 	)
+
+
+func has_pending_travel() -> bool:
+	return pending_travel != null
+
+
+func get_pending_travel() -> CampaignPendingTravel:
+	return pending_travel
 
 
 func get_pending_battle_encounter() -> BattleEncounterDefinition:

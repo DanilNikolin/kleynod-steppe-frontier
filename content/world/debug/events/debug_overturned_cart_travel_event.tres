@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignTravelEventDefinition" format=3]
+
+[ext_resource type="Script" path="res://core/campaign/world/events/campaign_travel_event_definition.gd" id="1_event"]
+
+[resource]
+script = ExtResource("1_event")
+event_id = &"debug_overturned_cart"
+display_name = "Перевёрнутый воз"
+description = "На дороге стоит перевёрнутый воз. Неясно, произошла ли здесь обычная беда или кто-то устроил ловушку."
+min_route_progress = 0.15
+max_route_progress = 0.85

@@ -49,6 +49,16 @@ var travel_multiplier: float = 1.0
 var travel_days_override: int = -1
 
 
+@export_group("Events")
+
+## Необязательный профиль случайных событий.
+##
+## null = на этом route случайные travel events
+## вообще не генерируются.
+@export
+var travel_event_profile: CampaignTravelEventProfileDefinition
+
+
 @export_group("Access")
 
 ## Если задано, маршрут существует в authored world,
@@ -142,5 +152,15 @@ func get_validation_errors() -> PackedStringArray:
 			"World route travel override must be -1 "
 			+"or a positive number of days."
 		)
+
+	if travel_event_profile != null:
+		for profile_error in (
+			travel_event_profile
+				.get_validation_errors()
+		):
+			errors.append(
+				"Travel event profile: %s"
+				% profile_error
+			)
 
 	return errors

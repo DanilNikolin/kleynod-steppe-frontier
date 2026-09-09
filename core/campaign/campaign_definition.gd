@@ -884,15 +884,65 @@ func get_validation_errors() -> PackedStringArray:
 					quest.quest_id
 				] = true
 
-		if get_resident(
-			quest.giver_resident_id
-		) == null:
-			errors.append(
-				"Quest '%s' references "
-				% quest.quest_id
-				+ "unknown giver resident '%s'."
-				% quest.giver_resident_id
-			)
+		match quest.giver_kind:
+			CampaignQuestDefinition.GiverKind.RESIDENT:
+				if get_resident(
+					quest.giver_resident_id
+				) == null:
+					errors.append(
+						"Quest '%s' references "
+						% quest.quest_id
+						+ "unknown giver resident '%s'."
+						% quest.giver_resident_id
+					)
+
+			CampaignQuestDefinition.GiverKind.LOCAL_INTERACTION:
+				if world_map_definition == null:
+					errors.append(
+						"Quest '%s' local giver requires a world map."
+						% quest.quest_id
+					)
+
+				else:
+					var giver_world_node := (
+						world_map_definition.get_node(
+							quest.giver_world_node_id
+						)
+					)
+
+					if giver_world_node == null:
+						errors.append(
+							"Quest '%s' references unknown giver world node '%s'."
+							% [
+								quest.quest_id,
+								quest.giver_world_node_id,
+							]
+						)
+
+					elif giver_world_node.local_location_definition == null:
+						errors.append(
+							"Quest '%s' giver world node '%s' has no local location."
+							% [
+								quest.quest_id,
+								quest.giver_world_node_id,
+							]
+						)
+
+					elif (
+						giver_world_node
+							.local_location_definition
+							.get_interaction(
+								quest.giver_local_interaction_id
+							)
+						== null
+					):
+						errors.append(
+							"Quest '%s' references unknown giver local interaction '%s'."
+							% [
+								quest.quest_id,
+								quest.giver_local_interaction_id,
+							]
+						)
 
 		for objective in quest.objectives:
 			if objective == null:

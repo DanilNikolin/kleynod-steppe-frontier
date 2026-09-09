@@ -22,17 +22,19 @@ func get_start_error(
 	if quest_state == null:
 		return "Quest state is missing."
 
-	if giver_definition == null:
-		return "Quest giver definition is missing."
+	if quest_definition.uses_resident_giver():
+		if giver_definition == null:
+			return "Quest giver definition is missing."
 
-	if giver_state == null:
-		return "Quest giver state is missing."
+		if giver_state == null:
+			return "Quest giver state is missing."
 
 	if not quest_state.is_not_started():
 		return "Quest has already been started."
 
 	var giver_world_node_id := (
-		_get_resident_world_node_id(
+		_get_quest_giver_world_node_id(
+			quest_definition,
 			giver_definition,
 			giver_state,
 			home_settlement_definition
@@ -255,11 +257,12 @@ func get_turn_in_error(
 	):
 		return "Quest is missing."
 
-	if (
-		giver_definition == null
-		or giver_state == null
-	):
-		return "Quest giver is missing."
+	if quest_definition.uses_resident_giver():
+		if (
+			giver_definition == null
+			or giver_state == null
+		):
+			return "Quest giver is missing."
 
 	if not quest_state.is_active():
 		return "Quest is not active."
@@ -270,7 +273,8 @@ func get_turn_in_error(
 		return "Quest objectives are not complete."
 
 	var giver_world_node_id := (
-		_get_resident_world_node_id(
+		_get_quest_giver_world_node_id(
+			quest_definition,
 			giver_definition,
 			giver_state,
 			home_settlement_definition
@@ -559,6 +563,25 @@ func _restore_adventure_unlock_statuses(
 			)
 			as CampaignAdventureSiteState.Status
 		)
+
+
+func _get_quest_giver_world_node_id(
+	quest_definition: CampaignQuestDefinition,
+	giver_definition: CampaignResidentDefinition,
+	giver_state: CampaignResidentState,
+	home_settlement_definition: CampaignSettlementDefinition
+) -> StringName:
+	if quest_definition == null:
+		return &""
+
+	if quest_definition.uses_local_interaction_giver():
+		return quest_definition.giver_world_node_id
+
+	return _get_resident_world_node_id(
+		giver_definition,
+		giver_state,
+		home_settlement_definition
+	)
 
 
 func _get_resident_world_node_id(

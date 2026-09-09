@@ -3,6 +3,12 @@ class_name CampaignQuestDefinition
 extends Resource
 
 
+enum GiverKind {
+	RESIDENT,
+	LOCAL_INTERACTION,
+}
+
+
 @export_group("Identity")
 
 @export
@@ -18,7 +24,30 @@ var description: String = ""
 @export_group("Giver")
 
 @export
+var giver_kind: GiverKind = GiverKind.RESIDENT
+
+## Используется, когда giver_kind == RESIDENT.
+@export
 var giver_resident_id: StringName = &""
+
+## Используется, когда giver_kind == LOCAL_INTERACTION.
+## Это world node, где физически находится источник задания
+## (например, доска объявлений в Малом селе).
+@export
+var giver_world_node_id: StringName = &""
+
+## Используется, когда giver_kind == LOCAL_INTERACTION.
+## Например: debug_village_notice_board
+@export
+var giver_local_interaction_id: StringName = &""
+
+
+func uses_resident_giver() -> bool:
+	return giver_kind == GiverKind.RESIDENT
+
+
+func uses_local_interaction_giver() -> bool:
+	return giver_kind == GiverKind.LOCAL_INTERACTION
 
 
 @export_group("Lifecycle")
@@ -89,10 +118,23 @@ func get_validation_errors() -> PackedStringArray:
 			"Quest display name is empty."
 		)
 
-	if giver_resident_id == &"":
-		errors.append(
-			"Quest giver resident ID is empty."
-		)
+	match giver_kind:
+		GiverKind.RESIDENT:
+			if giver_resident_id == &"":
+				errors.append(
+					"Quest giver resident ID is empty."
+				)
+
+		GiverKind.LOCAL_INTERACTION:
+			if giver_world_node_id == &"":
+				errors.append(
+					"Quest giver world node ID is empty."
+				)
+
+			if giver_local_interaction_id == &"":
+				errors.append(
+					"Quest giver local interaction ID is empty."
+				)
 
 	if objectives.is_empty():
 		errors.append(

@@ -364,17 +364,21 @@ func start_quest(
 	):
 		return false
 
-	var giver_definition := (
-		get_resident_definition(
-			quest_definition.giver_resident_id
-		)
-	)
+	var giver_definition: CampaignResidentDefinition = null
+	var giver_state: CampaignResidentState = null
 
-	var giver_state := (
-		get_resident_state(
-			quest_definition.giver_resident_id
+	if quest_definition.uses_resident_giver():
+		giver_definition = (
+			get_resident_definition(
+				quest_definition.giver_resident_id
+			)
 		)
-	)
+
+		giver_state = (
+			get_resident_state(
+				quest_definition.giver_resident_id
+			)
+		)
 
 	var error := quest_service.get_start_error(
 		campaign_state,
@@ -428,17 +432,21 @@ func turn_in_quest(
 	):
 		return false
 
-	var giver_definition := (
-		get_resident_definition(
-			quest_definition.giver_resident_id
-		)
-	)
+	var giver_definition: CampaignResidentDefinition = null
+	var giver_state: CampaignResidentState = null
 
-	var giver_state := (
-		get_resident_state(
-			quest_definition.giver_resident_id
+	if quest_definition.uses_resident_giver():
+		giver_definition = (
+			get_resident_definition(
+				quest_definition.giver_resident_id
+			)
 		)
-	)
+
+		giver_state = (
+			get_resident_state(
+				quest_definition.giver_resident_id
+			)
+		)
 
 	var error := quest_service.get_turn_in_error(
 		campaign_state,

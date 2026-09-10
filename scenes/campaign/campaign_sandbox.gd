@@ -526,7 +526,8 @@ func _create_hero_preparation_panel() -> Control:
 
 	panel.bind_campaign(
 		CampaignRuntime.get_campaign_state(),
-		"← К ОТРЯДУ"
+		"← К ОТРЯДУ",
+		CampaignRuntime
 	)
 
 	return panel

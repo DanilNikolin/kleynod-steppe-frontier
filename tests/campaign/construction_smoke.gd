@@ -148,7 +148,7 @@ func run() -> void:
 	var sandbox = load("res://scenes/campaign/campaign_sandbox.gd").new()
 	root.add_child(sandbox)
 	sandbox._show_view(sandbox.View.LOCAL_LOCATION)
-	var local_panel := sandbox._shell._content_host.get_child(0) as CampaignLocalLocationPanel
+	var local_panel := sandbox._shell._immersive_content_host.get_child(0) as CampaignLocalLocationPanel
 	check(local_panel != null, "HOME local panel instantiated")
 	if local_panel != null:
 		check(local_panel._canvas._visibility_overrides.get(&"debug_home_carpenter_worksite") == true, "Worksite visible after arrival")

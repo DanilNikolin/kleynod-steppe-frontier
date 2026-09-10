@@ -19,7 +19,7 @@ func run() -> void:
 	root.add_child(scene)
 	scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scene._show_view(scene.View.LOCAL_LOCATION)
-	var local = scene._shell._content_host.get_child(0)
+	var local = scene._shell._immersive_content_host.get_child(0)
 	local._on_interaction_selected(&"home_forge_site")
 	assert(local._actions_row.get_child_count() == 1)
 	assert(local._actions_row.get_child(0).text == "ОТКРЫТЬ КУЗНИЦУ")

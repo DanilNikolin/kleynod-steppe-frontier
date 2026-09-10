@@ -14,6 +14,9 @@ enum PreparationTab {
 }
 
 
+var respec_runtime: CampaignRuntimeService
+var _respec_status: String = ""
+
 var campaign_state: CampaignState
 
 var hero_state: CampaignHeroState
@@ -49,8 +52,10 @@ func bind(
 
 func bind_campaign(
 	p_campaign_state: CampaignState,
-	p_close_button_text: String = "Вернуться в лагерь"
+	p_close_button_text: String = "Вернуться в лагерь",
+	p_runtime: CampaignRuntimeService = null
 ) -> void:
+	respec_runtime = p_runtime
 	campaign_state = p_campaign_state
 
 	hero_state = (
@@ -167,6 +172,8 @@ func _rebuild_interface() -> void:
 		)
 
 		return
+
+	_create_respec_controls(root_column)
 
 	root_column.add_child(
 		_create_tabs()
@@ -405,6 +412,12 @@ func _create_hero_switcher() -> Control:
 			continue
 
 		var button := Button.new()
+
+		if roster_hero.is_placeholder_content:
+			button.text = "???"
+			button.disabled = true
+			buttons.add_child(button)
+			continue
 
 		var button_text := roster_hero.get_display_name()
 
@@ -709,6 +722,9 @@ func _create_progression_qa_bar() -> Control:
 		add_points_button
 	)
 
+	if campaign_state != null:
+		return panel
+
 	var reset_button := Button.new()
 
 	reset_button.text = "Сбросить Skill Grid"
@@ -748,6 +764,8 @@ func _on_qa_add_skill_points_pressed() -> void:
 
 
 func _on_qa_reset_skill_grid_pressed() -> void:
+	if campaign_state != null:
+		return
 	if (
 		hero_state == null
 		or hero_state.hero_definition == null
@@ -893,3 +911,48 @@ func _clear_children() -> void:
 		)
 
 		child.queue_free()
+
+
+func _create_respec_controls(parent: Node) -> void:
+	if respec_runtime == null or respec_runtime.campaign_state != campaign_state or hero_state.is_placeholder_content:
+		return
+	if not respec_runtime.has_active_home_settlement_effect(&"party_respec_access"):
+		return
+	var error := respec_runtime.get_hero_respec_error(hero_state.get_hero_id())
+	var row := HBoxContainer.new()
+	parent.add_child(row)
+	var button := Button.new()
+	button.name = "RespecButton"
+	button.text = "СБРОСИТЬ НАВЫКИ · БЕСПЛАТНО"
+	button.disabled = not error.is_empty()
+	button.tooltip_text = error
+	button.pressed.connect(_confirm_respec)
+	row.add_child(button)
+	var status := Label.new()
+	status.text = error if not error.is_empty() else _respec_status
+	row.add_child(status)
+
+
+func _confirm_respec() -> void:
+	var hero_id := hero_state.get_hero_id()
+	var original := hero_state.progression_state
+	var dialog := ConfirmationDialog.new()
+	dialog.name = "RespecConfirmation"
+	dialog.title = "Пересборка навыков"
+	dialog.dialog_text = "Сбросить все выбранные узлы и ветки Skill Grid и вернуть потраченные SP?\nБесплатно. Уровень, опыт и снаряжение сохранятся."
+	dialog.ok_button_text = "Сбросить навыки"
+	dialog.cancel_button_text = "Отмена"
+	add_child(dialog)
+	dialog.confirmed.connect(func() -> void:
+		# Confirmation belongs to the hero/progression that was shown. Runtime
+		# rechecks location/effect and all invariants at the moment of application.
+		if campaign_state.selected_hero_id != hero_id or hero_state.progression_state != original:
+			_respec_status = "Герой изменился. Откройте подтверждение заново."
+		else:
+			var error := respec_runtime.respec_hero_skills(hero_id)
+			_respec_status = "Навыки сброшены. Потраченные SP возвращены." if error.is_empty() else error
+			hero_state_changed.emit()
+		_rebuild_interface()
+	)
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.popup_centered(Vector2i(660, 200))

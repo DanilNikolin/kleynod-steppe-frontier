@@ -3604,3 +3604,77 @@ func retool_forge(module_id: StringName, expected_module_id: StringName) -> Stri
 	settlement.forge_major_module_id = module_id
 	_equipment_work_active = false
 	return ""
+
+## Full reset is prepared off-state. A failed refund/build validation cannot leave
+## a half-reset hero. No prices/history/derived combat stats are persisted here.
+func get_hero_respec_error(hero_id: StringName) -> String:
+	if campaign_definition == null or campaign_state == null or not campaign_state.is_valid_state():
+		return "Кампания недоступна или её состояние некорректно."
+	if has_pending_battle() or has_pending_travel():
+		return "Сброс недоступен во время боя или путешествия."
+	if campaign_state.current_world_node_id != get_home_settlement_definition().world_node_id:
+		return "Для пересборки навыков вернитесь в HOME."
+	if not get_home_settlement_state().is_valid_against_definition(get_home_settlement_definition()):
+		return "Состояние поселения некорректно."
+	if not has_active_home_settlement_effect(&"party_respec_access"):
+		return "Для пересборки навыков нужен постоянный курень."
+	var hero := campaign_state.get_hero(hero_id)
+	if hero == null or hero.is_placeholder_content or not hero.is_valid_state():
+		return "Этот герой недоступен для изменения."
+	var progression := hero.progression_state
+	if progression.purchased_node_ids.is_empty() and progression.attached_skill_block_ids.is_empty():
+		return "Нет выбранных навыков для сброса."
+	if HeroBattleBuildResolver.new().resolve(hero.hero_definition, progression) == null:
+		return "Текущие навыки героя некорректны."
+	if _create_respec_progression(hero) == null:
+		return "Не удалось безопасно вернуть очки навыков."
+	return ""
+
+
+func _create_respec_progression(hero: CampaignHeroState) -> HeroProgressionState:
+	var previous := hero.progression_state
+	var candidate := previous.duplicate(false) as HeroProgressionState
+	var refund: int = 0
+	for node_id in previous.purchased_node_ids:
+		var node := hero.hero_definition.skill_grid.get_node_definition(node_id)
+		if node == null:
+			return null
+		refund += node.skill_point_cost
+	# Existing save contract supports 0..999 unspent SP. Refuse overflow without
+	# silently clamping/refunding less; normal earned progression stays within it.
+	if previous.unspent_skill_points + refund > 999:
+		return null
+	candidate.purchased_node_ids = []
+	candidate.attached_skill_block_ids = []
+	candidate.unspent_skill_points += refund
+	var loadouts := HeroPersonalLoadoutService.new()
+	var known := loadouts.get_known_ability_ids(hero.hero_definition, candidate)
+	var slots := loadouts.get_active_slot_count(hero.hero_definition, candidate)
+	var selected: Array[StringName] = []
+	for ability_id in previous.selected_personal_ability_ids:
+		if known.has(ability_id) and not selected.has(ability_id) and selected.size() < slots:
+			selected.append(ability_id)
+	if not previous.selected_personal_ability_ids.is_empty() and hero.hero_definition.fallback_ability == null and not selected.has(hero.hero_definition.default_ability_id):
+		if selected.size() >= slots:
+			selected.pop_back()
+		selected.push_front(hero.hero_definition.default_ability_id)
+	candidate.selected_personal_ability_ids = selected
+	if not candidate.is_valid_state() or HeroBattleBuildResolver.new().resolve(hero.hero_definition, candidate) == null:
+		return null
+	return candidate
+
+
+func respec_hero_skills(hero_id: StringName) -> String:
+	var error := get_hero_respec_error(hero_id)
+	if not error.is_empty():
+		return error
+	var hero := campaign_state.get_hero(hero_id)
+	var candidate := _create_respec_progression(hero)
+	if candidate == null:
+		return "Не удалось подготовить пересборку навыков."
+	var previous := hero.progression_state
+	hero.progression_state = candidate
+	if not campaign_state.is_valid_state():
+		hero.progression_state = previous
+		return "Пересборка отменена: состояние героя некорректно."
+	return ""

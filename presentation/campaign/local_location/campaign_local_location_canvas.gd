@@ -33,7 +33,13 @@ var _needs_initial_camera_position: bool = true
 
 var _viewport: SubViewport
 var _world_root: Node2D
+
+var _far_background: Parallax2D
+var _mid_background: Parallax2D
 var _content_root: Node2D
+var _foreground: Parallax2D
+var _interactions_root: Node2D
+
 var _camera: Camera2D
 
 var _buttons_by_interaction_id: Dictionary = {}
@@ -187,12 +193,9 @@ func _ensure_viewport_scene() -> void:
 		return
 
 	_viewport = SubViewport.new()
-
 	_viewport.name = "LocalLocationViewport"
-
 	_viewport.transparent_bg = true
 	_viewport.gui_disable_input = false
-
 	_viewport.render_target_update_mode = (
 		SubViewport.UPDATE_ALWAYS
 	)
@@ -208,18 +211,52 @@ func _ensure_viewport_scene() -> void:
 		_world_root
 	)
 
+	_far_background = Parallax2D.new()
+	_far_background.name = "FarBackground"
+	_far_background.scroll_scale = Vector2.ONE
+	_far_background.z_index = -30
+
+	_world_root.add_child(
+		_far_background
+	)
+
+	_mid_background = Parallax2D.new()
+	_mid_background.name = "MidBackground"
+	_mid_background.scroll_scale = Vector2.ONE
+	_mid_background.z_index = -20
+
+	_world_root.add_child(
+		_mid_background
+	)
+
 	_content_root = Node2D.new()
-	_content_root.name = "Content"
+	_content_root.name = "WorldContent"
+	_content_root.z_index = 0
 
 	_world_root.add_child(
 		_content_root
 	)
 
+	_foreground = Parallax2D.new()
+	_foreground.name = "Foreground"
+	_foreground.scroll_scale = Vector2.ONE
+	_foreground.z_index = 20
+
+	_world_root.add_child(
+		_foreground
+	)
+
+	_interactions_root = Node2D.new()
+	_interactions_root.name = "Interactions"
+	_interactions_root.z_index = 100
+
+	_world_root.add_child(
+		_interactions_root
+	)
+
 	_camera = Camera2D.new()
 	_camera.name = "Camera"
-
 	_camera.position_smoothing_enabled = true
-
 	_camera.position_smoothing_speed = (
 		CAMERA_SMOOTHING_SPEED
 	)
@@ -229,17 +266,23 @@ func _ensure_viewport_scene() -> void:
 	)
 
 
-
-
 func _rebuild_world() -> void:
 	if (
 		_content_root == null
+		or _interactions_root == null
 		or _camera == null
 	):
 		return
 
 	for child in _content_root.get_children():
 		_content_root.remove_child(
+			child
+		)
+
+		child.queue_free()
+
+	for child in _interactions_root.get_children():
+		_interactions_root.remove_child(
 			child
 		)
 
@@ -383,7 +426,7 @@ func _create_interaction_buttons() -> void:
 			)
 		)
 
-		_content_root.add_child(
+		_interactions_root.add_child(
 			button
 		)
 

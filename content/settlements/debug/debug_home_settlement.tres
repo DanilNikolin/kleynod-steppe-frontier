@@ -111,7 +111,7 @@ script = ExtResource("5_upgrade")
 display_name = "Постоянный курень"
 description = "Стены, крыша и нормальные спальные места. Открывает бесплатный respec Skill Grid в HOME. DEV: стоимость, срок и будущие требования плотника/знаний/рабочих пока временные."
 target_level = 2
-upgrade_enabled = true
+upgrade_enabled = false
 gold_cost = 60
 material_cost = 12
 duration_minutes = 720
@@ -144,7 +144,7 @@ script = ExtResource("5_upgrade")
 display_name = "Общий склад"
 description = "Нормально организованное хранение и хозяйственная инфраструктура. Открывает будущую закупку и доставку базовых Materials. DEV: стоимость, срок и финальные requirements временные."
 target_level = 2
-upgrade_enabled = true
+upgrade_enabled = false
 gold_cost = 50
 material_cost = 10
 duration_minutes = 720
@@ -214,12 +214,28 @@ gold_cost = 150
 material_cost = 5
 duration_minutes = 1440
 
+[sub_resource type="Resource" id="ForgeShellEffect"]
+script = ExtResource("4_effect")
+effect_id = &"forge_shell_completed"
+display_name = "Здание кузницы готово"
+description = "Построено помещение. Кузнец и профессиональное оборудование ещё нужны."
+
+[sub_resource type="Resource" id="ForgeShell"]
+script = ExtResource("2_building")
+building_id = &"forge_shell"
+display_name = "Кузница — готовое здание"
+description = "Каркас, стены и крыша готовы. Здесь ещё не работают с металлом: нужны кузнец, горн, наковальня и оборудование."
+construction_enabled = false
+demolition_enabled = false
+max_level = 1
+active_effects = Array[ExtResource("4_effect")]([SubResource("ForgeShellEffect")])
+
 [sub_resource type="Resource" id="Blacksmith"]
 script = ExtResource("2_building")
 building_id = &"blacksmith_workshop"
 display_name = "Кузня"
 description = "Оружие, ремонт, перековка и особые заказы."
-construction_enabled = true
+construction_enabled = false
 construction_gold_cost = 200
 construction_material_cost = 10
 construction_minutes = 2880
@@ -425,11 +441,11 @@ max_level = 3
 [sub_resource type="Resource" id="ZoneWorkshopWest"]
 script = ExtResource("3_zone")
 zone_id = &"workshop_west"
-display_name = "Ремесленный участок I"
+display_name = "Место будущей кузницы"
 description = "Первый участок под важную мастерскую."
 zone_kind = 0
-local_interaction_id = &""
-allowed_buildings = Array[ExtResource("2_building")]([SubResource("Blacksmith"), SubResource("Leather"), SubResource("Saddlery")])
+local_interaction_id = &"home_forge_site"
+allowed_buildings = Array[ExtResource("2_building")]([SubResource("ForgeShell"), SubResource("Blacksmith")])
 
 [sub_resource type="Resource" id="ZoneWorkshopEast"]
 script = ExtResource("3_zone")

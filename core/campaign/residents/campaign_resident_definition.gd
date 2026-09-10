@@ -46,6 +46,8 @@ var starting_recruitment_unlocked: bool = false
 
 ## Guest arrival is distinct from permanent settlement.
 @export var arrives_as_guest: bool = false
+@export var arrival_construction_knowledge_ids: Array[StringName] = []
+@export var arrival_construction_agreement_ids: Array[StringName] = []
 @export var required_home_effect_ids: Array[StringName] = []
 
 

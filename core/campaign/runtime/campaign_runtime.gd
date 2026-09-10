@@ -25,6 +25,7 @@ var pending_battle_request: CampaignBattleRequest
 var pending_travel: CampaignPendingTravel
 
 var state_factory := CampaignStateFactory.new()
+var construction_service := CampaignConstructionService.new()
 var hero_experience_service := HeroExperienceService.new()
 var loot_reward_application_service := (
 	CampaignLootRewardApplicationService.new()
@@ -2311,6 +2312,9 @@ func advance_time(
 
 		return false
 
+	if not construction_service.complete_due(campaign_definition, campaign_state):
+		_restore_time_economy_snapshot(previous_day, previous_minute, previous_uncollected_gold, previous_inventory_gold)
+		return false
 	resident_service.update_wandering(campaign_definition, campaign_state)
 	return true
 
@@ -3531,3 +3535,19 @@ func get_dialogue_for_interaction(interaction_id: StringName) -> CampaignDialogu
 		return null
 	var interaction := local_definition.get_interaction(interaction_id)
 	return interaction.dialogue if interaction != null else null
+
+
+func construction_context_error() -> String:
+	if campaign_state == null or campaign_definition == null or has_pending_battle() or has_pending_travel():
+		return "Строительство недоступно во время пути или боя."
+	return ""
+
+
+func reserve_construction_crew(project_id: StringName, source_id: StringName, crew: int) -> String:
+	var error := construction_context_error()
+	return construction_service.reserve(campaign_definition, campaign_state, project_id, source_id, crew) if error.is_empty() else error
+
+
+func start_construction_project(project_id: StringName) -> String:
+	var error := construction_context_error()
+	return construction_service.start(campaign_definition, campaign_state, project_id) if error.is_empty() else error

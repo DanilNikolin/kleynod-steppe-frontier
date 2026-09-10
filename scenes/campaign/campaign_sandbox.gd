@@ -623,6 +623,7 @@ func _create_local_location_panel() -> Control:
 		_on_local_location_exit_requested
 	)
 
+	panel.construction_projects = CampaignRuntime.campaign_definition.construction_projects
 	panel.dialogue_requested.connect(_on_dialogue_requested.bind(panel))
 
 	panel.interaction_action_requested.connect(
@@ -1526,6 +1527,35 @@ func _on_local_interaction_action_requested(
 	action_label: String,
 	_panel: CampaignLocalLocationPanel
 ) -> void:
+	var campaign := CampaignRuntime.campaign_definition
+	var state := CampaignRuntime.campaign_state
+	if not CampaignRuntime.construction_context_error().is_empty():
+		return
+	var local := CampaignRuntime.get_current_local_location_definition()
+	var interaction := local.get_interaction(interaction_id) if local != null else null
+	if interaction == null or not interaction.action_labels.has(action_label):
+		return
+	var source_id: StringName = &""
+	var construction := false
+	if interaction_id == campaign.construction_worksite_interaction_id:
+		construction = state.current_world_node_id == campaign.home_settlement_definition.world_node_id and CampaignRuntime.construction_service.worksite_available(campaign, state)
+	else:
+		for source in campaign.crew_sources:
+			if source.interaction_id == interaction_id and source.world_node_id == state.current_world_node_id:
+				source_id = source.source_id
+				construction = true
+	if construction:
+		var panel := CampaignConstructionPanel.new()
+		panel.close_requested.connect(func() -> void:
+			_shell.clear_modal()
+			if is_instance_valid(_panel):
+				_panel.refresh_state()
+			_refresh_shell()
+		)
+		panel.state_changed.connect(_refresh_shell)
+		_shell.show_modal(panel)
+		panel.bind(CampaignRuntime, source_id)
+		return
 	var trader := (
 		CampaignRuntime.get_trader_for_interaction(
 			interaction_id

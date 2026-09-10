@@ -15,6 +15,10 @@ var display_name: String = "Unnamed Interaction"
 var description: String = ""
 
 
+## Derived presence for a resident's worksite; no building or population slot.
+@export var required_home_resident_id: StringName = &""
+
+
 @export_group("Presentation")
 
 ## Позиция на authored 2D-плоскости локальной локации.

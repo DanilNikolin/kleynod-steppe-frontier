@@ -89,6 +89,14 @@ func apply_recruitment(
 		return false
 
 	var previous_status := state.status
+	var previous_knowledge := campaign_state.construction_knowledge_ids.duplicate()
+	var previous_agreements := campaign_state.construction_agreement_ids.duplicate()
+	for id in definition.arrival_construction_knowledge_ids:
+		if not campaign_state.construction_knowledge_ids.has(id):
+			campaign_state.construction_knowledge_ids.append(id)
+	for id in definition.arrival_construction_agreement_ids:
+		if not campaign_state.construction_agreement_ids.has(id):
+			campaign_state.construction_agreement_ids.append(id)
 
 	state.status = CampaignResidentState.Status.HOME_GUEST if definition.arrives_as_guest else CampaignResidentState.Status.HOME_SETTLEMENT
 
@@ -97,6 +105,8 @@ func apply_recruitment(
 		or not campaign_state.is_valid_state()
 	):
 		state.status = previous_status
+		campaign_state.construction_knowledge_ids = previous_knowledge
+		campaign_state.construction_agreement_ids = previous_agreements
 		return false
 
 	return true

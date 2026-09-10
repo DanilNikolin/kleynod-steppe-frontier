@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CampaignCrewSourceDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/construction/campaign_crew_source_definition.gd" id="source"]
+[resource]
+script = ExtResource("source")
+source_id = &"village_crew"
+display_name = "Бригада Малого села"
+world_node_id = &"debug_village"
+interaction_id = &"debug_village_headman"
+base_capacity = 4
+maximum_capacity = 6
+minimum_reputation = 0
+reputation_per_extra_worker = 5
+daily_wage = 2
+mobilization_per_worker = 2

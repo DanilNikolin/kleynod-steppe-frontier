@@ -40,6 +40,14 @@
 [ext_resource type="Resource" path="res://content/adventure/debug/debug_carpenter_homestead_area.tres" id="38_homestead"]
 [ext_resource type="Resource" path="res://content/quests/debug/debug_carpenter_tools_quest.tres" id="39_carpenter_quest"]
 
+[ext_resource type="Script" path="res://core/campaign/construction/campaign_construction_project_definition.gd" id="40_project"]
+[ext_resource type="Script" path="res://core/campaign/construction/campaign_crew_source_definition.gd" id="41_source"]
+[ext_resource type="Resource" path="res://content/construction/debug/forge_shell.tres" id="construction_forge_shell"]
+[ext_resource type="Resource" path="res://content/construction/debug/party_kurin.tres" id="construction_party_kurin"]
+[ext_resource type="Resource" path="res://content/construction/debug/common_store.tres" id="construction_common_store"]
+[ext_resource type="Resource" path="res://content/construction/debug/river_pier.tres" id="construction_river_pier"]
+[ext_resource type="Resource" path="res://content/construction/debug/village_crew.tres" id="construction_village_crew"]
+
 [sub_resource type="Resource" id="HeroBayda"]
 script = ExtResource("2_hero_state")
 hero_definition = ExtResource("11_bayda")
@@ -117,3 +125,7 @@ starting_minute_of_day = 480
 days_per_season = 20
 starting_reputation = 5
 starting_materials = 0
+construction_resident_id = &"debug_carpenter"
+construction_worksite_interaction_id = &"debug_home_carpenter_worksite"
+construction_projects = Array[ExtResource("40_project")]([ExtResource("construction_forge_shell"), ExtResource("construction_party_kurin"), ExtResource("construction_common_store"), ExtResource("construction_river_pier")])
+crew_sources = Array[ExtResource("41_source")]([ExtResource("construction_village_crew")])

@@ -95,6 +95,12 @@ var home_settlement_definition: CampaignSettlementDefinition
 @export
 var residents: Array[CampaignResidentDefinition] = []
 
+@export_group("Construction")
+@export var construction_resident_id: StringName = &""
+@export var construction_worksite_interaction_id: StringName = &""
+@export var construction_projects: Array[CampaignConstructionProjectDefinition] = []
+@export var crew_sources: Array[CampaignCrewSourceDefinition] = []
+
 @export_group("Trading")
 
 @export
@@ -1067,6 +1073,38 @@ func get_validation_errors() -> PackedStringArray:
 					]
 				)
 
+	var project_ids: Dictionary = {}
+	for project in construction_projects:
+		if project == null:
+			errors.append("Null construction project.")
+			continue
+		errors.append_array(project.get_validation_errors())
+		if project_ids.has(project.project_id):
+			errors.append("Duplicate construction project.")
+		project_ids[project.project_id] = true
+		var zone := home_settlement_definition.get_zone(project.zone_id) if home_settlement_definition != null else null
+		var building := zone.get_building(project.building_id) if zone != null else null
+		if building == null or project.target_level > building.max_level:
+			errors.append("Construction target does not exist.")
+		if project.required_specialist_id != &"" and get_resident(project.required_specialist_id) == null:
+			errors.append("Unknown construction specialist.")
+	var source_ids: Dictionary = {}
+	for source in crew_sources:
+		if source == null:
+			errors.append("Null crew source.")
+			continue
+		errors.append_array(source.get_validation_errors())
+		if source_ids.has(source.source_id):
+			errors.append("Duplicate crew source.")
+		source_ids[source.source_id] = true
+		var node := world_map_definition.get_node(source.world_node_id) if world_map_definition != null else null
+		if node == null or node.local_location_definition == null or node.local_location_definition.get_interaction(source.interaction_id) == null:
+			errors.append("Crew source has no local contact.")
+	if not construction_projects.is_empty():
+		var home := world_map_definition.get_node(home_settlement_definition.world_node_id)
+		if get_resident(construction_resident_id) == null or home.local_location_definition.get_interaction(construction_worksite_interaction_id) == null:
+			errors.append("Construction needs a resident and a HOME worksite.")
+
 	# Every permitted job must actually contain the resident's interaction.
 	for resident in residents:
 		if resident == null or world_map_definition == null:
@@ -1289,4 +1327,17 @@ func get_adventure_area(
 		):
 			return area
 
+	return null
+
+func get_construction_project(id: StringName) -> CampaignConstructionProjectDefinition:
+	for project in construction_projects:
+		if project != null and project.project_id == id:
+			return project
+	return null
+
+
+func get_crew_source(id: StringName) -> CampaignCrewSourceDefinition:
+	for source in crew_sources:
+		if source != null and source.source_id == id:
+			return source
 	return null

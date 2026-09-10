@@ -57,6 +57,11 @@ var adventure_areas: Array[CampaignAdventureAreaState] = []
 ## Persistent inventories и деньги торговцев.
 var traders: Array[CampaignTraderState] = []
 
+## Separate persistent knowledge and willingness, granted by story progression.
+var construction_knowledge_ids: Array[StringName] = []
+var construction_agreement_ids: Array[StringName] = []
+var construction_contracts: Array[CampaignConstructionContract] = []
+
 var completed_battle_count: int = 0
 
 var last_battle_result: CampaignBattleResult
@@ -266,6 +271,21 @@ func get_validation_errors() -> PackedStringArray:
 				"Home settlement state: %s"
 				% settlement_error
 			)
+
+	for ids in [construction_knowledge_ids, construction_agreement_ids]:
+		var seen_ids: Dictionary = {}
+		for id in ids:
+			if id == &"" or seen_ids.has(id):
+				errors.append("Empty or duplicate construction knowledge/agreement.")
+			seen_ids[id] = true
+	var contract_ids: Dictionary = {}
+	for contract in construction_contracts:
+		if contract == null or not contract.is_valid_state():
+			errors.append("Invalid construction contract.")
+			continue
+		if contract_ids.has(contract.project_id):
+			errors.append("Duplicate construction project.")
+		contract_ids[contract.project_id] = true
 
 	var used_resident_ids: Dictionary = {}
 

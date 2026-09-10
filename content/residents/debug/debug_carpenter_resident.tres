@@ -15,4 +15,6 @@ home_interaction_id = &"debug_home_carpenter"
 wandering_world_node_ids = Array[StringName]([&"debug_village", &"debug_city"])
 wandering_interval_minutes = 4320
 arrives_as_guest = true
+arrival_construction_knowledge_ids = Array[StringName]([&"basic_forge_shell", &"permanent_kurin", &"common_store"])
+arrival_construction_agreement_ids = Array[StringName]([&"promised_forge"])
 required_home_effect_ids = Array[StringName]([&"primitive_camp_established", &"party_management_access", &"temporary_guest_access"])

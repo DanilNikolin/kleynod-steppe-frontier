@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 11
+const CURRENT_SAVE_VERSION: int = 12
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -253,6 +253,9 @@ func _encode_campaign(
 			state.traders
 		),
 
+		"construction_knowledge": _names_to_array(state.construction_knowledge_ids),
+		"construction_agreements": _names_to_array(state.construction_agreement_ids),
+		"construction_contracts": _encode_construction(state),
 		"completed_battle_count": (
 			state.completed_battle_count
 		),
@@ -783,6 +786,9 @@ func _decode_campaign(
 		state,
 		definition
 	):
+		return null
+
+	if not _decode_construction(data, state, definition):
 		return null
 
 	state.completed_battle_count = (
@@ -2825,3 +2831,57 @@ func _result(
 	result.campaign_state = campaign_state
 
 	return result
+
+
+func _encode_construction(state: CampaignState) -> Array:
+	var result: Array = []
+	for contract in state.construction_contracts:
+		result.append({"project_id": String(contract.project_id), "source_id": String(contract.source_id), "crew_size": contract.crew_size, "status": int(contract.status), "started_at": contract.started_at, "completes_at": contract.completes_at, "paid_gold": contract.paid_gold, "paid_materials": contract.paid_materials})
+	return result
+
+
+func _decode_construction(data: Dictionary, state: CampaignState, definition: CampaignDefinition) -> bool:
+	if not _has_keys(data, ["construction_knowledge", "construction_agreements", "construction_contracts"], "construction"):
+		return false
+	for key in ["construction_knowledge", "construction_agreements", "construction_contracts"]:
+		if not data[key] is Array:
+			_fail("Construction field must be an array: " + key)
+			return false
+	for key in ["construction_knowledge", "construction_agreements"]:
+		var ids: Array[StringName] = []
+		for value in data[key]:
+			var id := StringName(_string_value(value, key, false))
+			var known := false
+			for project in definition.construction_projects:
+				if id == (project.required_knowledge_id if key == "construction_knowledge" else project.required_agreement_id):
+					known = true
+			if not known or ids.has(id):
+				_fail("Unknown or duplicate construction knowledge/agreement.")
+				return false
+			ids.append(id)
+		if key == "construction_knowledge":
+			state.construction_knowledge_ids = ids
+		else:
+			state.construction_agreement_ids = ids
+	state.construction_contracts.clear()
+	for value in data["construction_contracts"]:
+		if not value is Dictionary or not _has_keys(value, ["project_id", "source_id", "crew_size", "status", "started_at", "completes_at", "paid_gold", "paid_materials"], "contract"):
+			_fail("Invalid saved construction contract.")
+			return false
+		var contract := CampaignConstructionContract.new()
+		contract.project_id = StringName(_string_value(value["project_id"], "contract.project_id", false))
+		contract.source_id = StringName(_string_value(value["source_id"], "contract.source_id", false))
+		contract.crew_size = _int_value(value["crew_size"], "contract.crew_size", 1, 100)
+		contract.status = _int_value(value["status"], "contract.status", 0, 2) as CampaignConstructionContract.Status
+		contract.started_at = _int_value(value["started_at"], "contract.started_at", 0, 1440000000000)
+		contract.completes_at = _int_value(value["completes_at"], "contract.completes_at", 0, 1440000000000)
+		contract.paid_gold = _int_value(value["paid_gold"], "contract.paid_gold", 0, 999999999)
+		contract.paid_materials = _int_value(value["paid_materials"], "contract.paid_materials", 0, 999999999)
+		state.construction_contracts.append(contract)
+	if _failed():
+		return false
+	var error := CampaignConstructionService.new().get_state_error(definition, state)
+	if not error.is_empty():
+		_fail(error)
+		return false
+	return true

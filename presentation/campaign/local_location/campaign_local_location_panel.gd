@@ -43,6 +43,8 @@ signal quest_turn_in_requested(
 )
 
 
+var construction_projects: Array[CampaignConstructionProjectDefinition] = []
+
 var _definition: CampaignLocalLocationDefinition
 var _state: CampaignState
 
@@ -234,9 +236,7 @@ func _refresh_settlement_visuals() -> void:
 			zone_state == null
 			or zone_state.is_empty()
 		):
-			overrides[
-				zone.local_interaction_id
-			] = zone.display_name
+			overrides[zone.local_interaction_id] = ("Строится: " + zone.display_name) if not _construction_status_for_zone(zone.zone_id).is_empty() else zone.display_name
 
 			continue
 
@@ -686,9 +686,11 @@ func _refresh_interaction_panel() -> void:
 
 		_status_label.text = ""
 
-		_create_settlement_zone_actions(
-			settlement_zone
-		)
+		var project_status := _construction_status_for_zone(settlement_zone.zone_id)
+		if not project_status.is_empty():
+			_interaction_description.text = project_status
+		else:
+			_create_settlement_zone_actions(settlement_zone)
 
 		return
 
@@ -1314,6 +1316,11 @@ func _refresh_resident_visibility() -> void:
 		return
 
 	var overrides: Dictionary = {}
+	if _definition != null:
+		for interaction in _definition.interactions:
+			if interaction.required_home_resident_id != &"":
+				var resident := _state.get_resident(interaction.required_home_resident_id)
+				overrides[interaction.interaction_id] = resident != null and resident.is_at_home()
 
 	for definition in (
 		_resident_definitions
@@ -1846,3 +1853,16 @@ func _create_dialogue_button(
 	_actions_row.add_child(
 		button
 	)
+
+
+func _construction_status_for_zone(zone_id: StringName) -> String:
+	for contract in _state.construction_contracts:
+		if contract.status != CampaignConstructionContract.Status.ACTIVE:
+			continue
+		for project in construction_projects:
+			if project.project_id == contract.project_id and project.zone_id == zone_id:
+				var remaining := maxi(0, contract.completes_at - _state.current_day * 1440 - _state.current_minute_of_day)
+				return "Строится: %s.
+Бригада: %d работников. Осталось %.1f дн.
+Контракт оплачен полностью. Можно отправляться в путешествие." % [project.display_name, contract.crew_size, float(remaining) / 1440]
+	return ""

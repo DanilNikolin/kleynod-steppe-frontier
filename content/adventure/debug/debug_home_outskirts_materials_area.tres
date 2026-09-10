@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="1_area"]
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_definition.gd" id="2_site"]
@@ -15,9 +15,21 @@ exploration_enabled = true
 exploration_action_label = "ИССЛЕДОВАТЬ ВЫРУБКУ"
 material_reward = 8
 
+[sub_resource type="Resource" id="ConstructionTimber"]
+script = ExtResource("2_site")
+site_id = &"construction_timber"
+display_name = "Запас лесоматериала"
+description = "У дальней просеки сохранились сухие жерди и пригодные доски. Их хватит для первой серьёзной стройки."
+exploration_result_text = "Пригодный лесоматериал собран: получено 12 материалов. Этот запас исчерпан."
+map_position = Vector2(730, 350)
+starting_available = true
+exploration_enabled = true
+exploration_action_label = "СОБРАТЬ ЛЕСОМАТЕРИАЛ"
+material_reward = 12
+
 [resource]
 script = ExtResource("1_area")
 area_id = &"debug_home_outskirts_materials_area"
 display_name = "Ближняя роща"
-description = "Небольшая роща недалеко от будущего поселения. Пока здесь есть только одна полезная точка."
-sites = Array[ExtResource("2_site")]([SubResource("OldLoggingSite")])
+description = "Небольшая роща недалеко от будущего поселения. Здесь можно собрать материалы для лагеря и первой серьёзной стройки."
+sites = Array[ExtResource("2_site")]([SubResource("OldLoggingSite"), SubResource("ConstructionTimber")])

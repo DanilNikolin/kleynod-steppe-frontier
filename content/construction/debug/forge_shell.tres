@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CampaignConstructionProjectDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/construction/campaign_construction_project_definition.gd" id="project"]
+[resource]
+script = ExtResource("project")
+project_id = &"forge_shell"
+display_name = "Базовая кузница — здание"
+description = "Каркас, стены и крыша под будущую кузницу. Работа плотника — по прежней договорённости, без отдельной платы. Для кузнечной работы позже нужны кузнец и оборудование."
+zone_id = &"workshop_west"
+building_id = &"forge_shell"
+target_level = 1
+required_knowledge_id = &"basic_forge_shell"
+required_agreement_id = &"promised_forge"
+implementation_enabled = true
+labor_worker_days = 12
+minimum_crew = 2
+maximum_effective_crew = 4
+material_cost = 12

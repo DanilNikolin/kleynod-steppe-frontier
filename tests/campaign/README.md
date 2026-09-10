@@ -5,6 +5,7 @@ Run with Godot 4.7 from the project root:
 ```text
 Godot --headless --path . --script res://tests/campaign/carpenter_smoke.gd
 Godot --headless --path . --script res://tests/campaign/carpenter_quest_smoke.gd
+Godot --headless --path . --script res://tests/campaign/construction_smoke.gd
 ```
 
 Checks the real debug campaign, wandering before acquaintance, innkeeper clue,
@@ -25,12 +26,13 @@ Temporary test saves use unique names and are removed; the player save is untouc
   retained in the completed site and HOME dialogue; finding them is a later quest.
 - Turn-in unlocks an invitation. A1/B1/C1 are required at the service level; the
   invitation moves the carpenter to HOME with distinct HOME_GUEST status.
-  The worksite and construction knowledge remain the next slice.
-- Save format is now 11. Start a new debug campaign; older versions are rejected by the
+  Arrival now opens the temporary worksite and the first forge-shell construction
+  loop, described in [CONSTRUCTION.md](CONSTRUCTION.md).
+- Save format is now 12. Start a new debug campaign; older versions are rejected by the
   existing strict loader rather than silently losing resident state.
 
 Manual F5 check: start a new campaign, visit the village innkeeper, ask where the
 carpenter is, follow the named location and accept his quest. Travel from the village
 to Old Homestead, explore both sites, return to the carpenter and report. Prepare
 the campfire, party shelter and common shelter, then invite him. At HOME the guest
-must be available for conversation. No worksite or construction knowledge is awarded yet.
+must be available for conversation. His nearby temporary worksite opens construction.

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CampaignConstructionProjectDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/construction/campaign_construction_project_definition.gd" id="project"]
+[resource]
+script = ExtResource("project")
+project_id = &"party_kurin"
+display_name = "Постоянный курень (B2)"
+description = "Плотник знает, как построить курень, но пока обещал только кузницу. Согласие появится по мере его личной истории. Бесплатный respec — будущая функция."
+zone_id = &"residential_yard"
+building_id = &"temporary_party_shelter"
+target_level = 2
+required_knowledge_id = &"permanent_kurin"
+required_agreement_id = &"help_with_kurin"
+implementation_enabled = false
+labor_worker_days = 12
+minimum_crew = 2
+maximum_effective_crew = 4
+material_cost = 12

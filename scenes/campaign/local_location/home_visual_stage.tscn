@@ -12,10 +12,10 @@ z_index = -20
 
 [node name="DebugGround" type="Polygon2D" parent="WorldContent" unique_id=439092786]
 color = Color(0.09, 0.085, 0.075, 1)
-polygon = PackedVector2Array(0, 626, 2874.054, 626.0001, 5760, 626, 5760, 1080, 0, 1080)
+polygon = PackedVector2Array(0, 696, 5760, 696, 5760, 1200, 0, 1200)
 
 [node name="DebugGroundLine" type="Line2D" parent="WorldContent" unique_id=1876937412]
-points = PackedVector2Array(0, 626, 5760, 626)
+points = PackedVector2Array(0, 696, 5760, 696)
 width = 2.0
 default_color = Color(0.28, 0.25, 0.2, 1)
 
@@ -26,4 +26,4 @@ z_index = 20
 z_index = 100
 
 [node name="Camera" type="Camera2D" parent="." unique_id=460212245]
-position = Vector2(960, 540)
+position = Vector2(960, 600)

@@ -53,6 +53,7 @@ func _ready() -> void:
 	stretch = true
 
 	_ensure_viewport_scene()
+	_activate_camera_if_ready()
 
 	resized.connect(
 		_on_resized
@@ -386,9 +387,20 @@ func _rebuild_world() -> void:
 		CAMERA_SMOOTHING_SPEED
 	)
 
-	_camera.make_current()
+	_activate_camera_if_ready()
 
 	_refresh_button_texts()
+
+
+func _activate_camera_if_ready() -> void:
+	if (
+		_camera == null
+		or not _camera.is_inside_tree()
+	):
+		return
+
+	_camera.enabled = true
+	_camera.make_current()
 
 func _clear_visual_stage() -> void:
 	if (

@@ -348,6 +348,10 @@ func _build_interface() -> void:
 	_interaction_panel.anchor_right = 0.0
 	_interaction_panel.anchor_bottom = 1.0
 
+	_interaction_panel.grow_vertical = (
+		Control.GROW_DIRECTION_BEGIN
+	)
+
 	_interaction_panel.offset_left = 32.0
 	_interaction_panel.offset_top = -230.0
 	_interaction_panel.offset_right = 860.0

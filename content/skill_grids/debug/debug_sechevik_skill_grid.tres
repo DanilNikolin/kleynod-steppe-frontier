@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="SkillGridDefinition" format=3 uid="uid://cvv0xgjjefuwd"]
 
+[ext_resource type="Script" uid="uid://7h6f3df5xybv" path="res://core/heroes/skill_grid/skill_grid_block_definition.gd" id="1_5efrm"]
 [ext_resource type="Script" uid="uid://xxfuh74w2dgj" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
 [ext_resource type="Script" uid="uid://n28i4614estl" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
 [ext_resource type="Resource" uid="uid://bnk0vuvlj8iqp" path="res://content/abilities/debug/debug_spirit_mend.tres" id="3_mend"]

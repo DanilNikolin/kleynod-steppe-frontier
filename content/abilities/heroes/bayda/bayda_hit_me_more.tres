@@ -1,154 +1,49 @@
-[gd_resource type="Resource" script_class="AbilityDefinition" format=3]
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://bjpwlbsruekuj"]
 
-[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
-[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
-[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
-[ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
-[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="5_status"]
-[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="6_reaction"]
-[ext_resource type="Script" path="res://core/battle/effects/restore_stamina_effect.gd" id="7_restore"]
-[ext_resource type="Script" path="res://core/battle/stats/battle_stat_modifier.gd" id="8_modifier"]
-[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="9_growth_rank"]
-[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="10_growth_table"]
-
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres" id="11_base_stance"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_exposure.tres" id="12_base_exposure"]
-
-
-; ============================================================
-; TARGETING
-; ============================================================
-
-[sub_resource type="Resource" id="Resource_targeting"]
-script = ExtResource("2_targeting")
-aim_requirement = 1
-aim_relation_mask = 1
-aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
-affected_relation_mask = 1
-impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
-
-
-; ============================================================
-; SHARED STAMINA EFFECTS
-; ============================================================
-
-[sub_resource type="Resource" id="Resource_restore_2"]
-script = ExtResource("7_restore")
-stamina_amount = 2
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_3"]
-script = ExtResource("7_restore")
-stamina_amount = 3
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_4"]
-script = ExtResource("7_restore")
-stamina_amount = 4
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_5"]
-script = ExtResource("7_restore")
-stamina_amount = 5
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_6"]
-script = ExtResource("7_restore")
-stamina_amount = 6
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_7"]
-script = ExtResource("7_restore")
-stamina_amount = 7
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_8"]
-script = ExtResource("7_restore")
-stamina_amount = 8
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_9"]
-script = ExtResource("7_restore")
-stamina_amount = 9
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-[sub_resource type="Resource" id="Resource_restore_10"]
-script = ExtResource("7_restore")
-stamina_amount = 10
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_restore_stamina"
-
-
-; ============================================================
-; EXPOSURE
-; R0-R1: max 3
-; R2+: max 2
-; ============================================================
-
-[sub_resource type="Resource" id="Resource_apply_base_exposure"]
-script = ExtResource("4_apply_status")
-status_definition = ExtResource("12_base_exposure")
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_exposure"
-
-
-[sub_resource type="Resource" id="Resource_rank2_armor_modifier"]
-script = ExtResource("8_modifier")
-amount_per_stack = -1
-
-[sub_resource type="Resource" id="Resource_rank2_exposure"]
-script = ExtResource("5_status")
-status_id = &"status_bayda_hit_me_more_exposure"
-display_name = "Распахнутая защита"
-description = "Каждый стак снижает броню на 1. Максимум 2 стака."
-polarity = 2
-tags = Array[StringName]([&"debuff", &"armor_debuff", &"self_exposure", &"reckless"])
-duration_turns = 1
-max_stacks = 2
-reapply_rule = 1
-stat_modifiers = Array[ExtResource("8_modifier")]([SubResource("Resource_rank2_armor_modifier")])
-
-[sub_resource type="Resource" id="Resource_apply_rank2_exposure"]
-script = ExtResource("4_apply_status")
-status_definition = SubResource("Resource_rank2_exposure")
-recipient = 1
-effect_id = &"effect_bayda_hit_me_more_exposure"
-
-
-; ============================================================
-; R0
-; ============================================================
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="4_apply_status"]
+[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="5_ql7ir"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="5_status"]
+[ext_resource type="Script" uid="uid://bn86k0twije6h" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="6_reaction"]
+[ext_resource type="Script" uid="uid://bnmepf1tny3eg" path="res://core/battle/effects/restore_stamina_effect.gd" id="7_restore"]
+[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="8_modifier"]
+[ext_resource type="Script" uid="uid://b6x7ygv2drd3f" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="9_growth_rank"]
+[ext_resource type="Script" uid="uid://cwdmavmpj41mr" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="10_growth_table"]
+[ext_resource type="Resource" uid="uid://tgwu0uu1gtcq" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres" id="11_base_stance"]
+[ext_resource type="Resource" uid="uid://dro6yil3ro043" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_exposure.tres" id="12_base_exposure"]
 
 [sub_resource type="Resource" id="Resource_base_apply_stance"]
 script = ExtResource("4_apply_status")
 status_definition = ExtResource("11_base_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
+[sub_resource type="Resource" id="Resource_restore_3"]
+script = ExtResource("7_restore")
+stamina_amount = 3
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
 
-; ============================================================
-; R1
-; HP >= 5 : +2
-; HP 1-4  : +3
-; Exposure max 3
-; ============================================================
+[sub_resource type="Resource" id="Resource_apply_base_exposure"]
+script = ExtResource("4_apply_status")
+status_definition = ExtResource("12_base_exposure")
+effect_id = &"effect_bayda_hit_me_more_exposure"
+recipient = 1
 
 [sub_resource type="Resource" id="Resource_r1_reaction_normal"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_base_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_4"]
+script = ExtResource("7_restore")
+stamina_amount = 4
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r1_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_base_exposure")])
@@ -168,22 +63,38 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r1_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r1_apply_stance")])
 
-; ============================================================
-; R2
-; Same stamina as R1
-; Exposure max 3 -> 2
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank2_armor_modifier"]
+script = ExtResource("8_modifier")
+amount_per_stack = -1
+
+[sub_resource type="Resource" id="Resource_rank2_exposure"]
+script = ExtResource("5_status")
+status_id = &"status_bayda_hit_me_more_exposure"
+display_name = "Распахнутая защита"
+description = "Каждый стак снижает броню на 1. Максимум 2 стака."
+polarity = 2
+tags = Array[StringName]([&"debuff", &"armor_debuff", &"self_exposure", &"reckless"])
+max_stacks = 2
+reapply_rule = 1
+stat_modifiers = Array[ExtResource("8_modifier")]([SubResource("Resource_rank2_armor_modifier")])
+
+[sub_resource type="Resource" id="Resource_apply_rank2_exposure"]
+script = ExtResource("4_apply_status")
+status_definition = SubResource("Resource_rank2_exposure")
+effect_id = &"effect_bayda_hit_me_more_exposure"
+recipient = 1
 
 [sub_resource type="Resource" id="Resource_r2_reaction_normal"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r2_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
@@ -203,22 +114,23 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r2_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; R3
-; HP >= 5 : +3
-; HP 1-4  : +4
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r2_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r3_reaction_normal"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_5"]
+script = ExtResource("7_restore")
+stamina_amount = 5
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r3_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
@@ -238,22 +150,27 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r3_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r3_apply_stance")])
 
-; ============================================================
-; R5
-; HP >= 5 : +3
-; HP 1-4  : +5
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("9_growth_rank")
+cooldown_turns_override = 2
 
 [sub_resource type="Resource" id="Resource_r5_reaction_normal"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_6"]
+script = ExtResource("7_restore")
+stamina_amount = 6
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r5_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
@@ -273,30 +190,23 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r5_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; R6
-; HP >= 8 : +3
-; HP 5-7  : +4
-; HP 1-4  : +5
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r5_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r6_reaction_high"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 8
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r6_reaction_mid"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 maximum_reactor_health = 7
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r6_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
@@ -316,38 +226,35 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r6_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; R7
-; HP >= 8 : +3
-; HP 5-7  : +4
-; HP 2-4  : +5
-; HP 1    : +7
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r6_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r7_reaction_high"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 8
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_3"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r7_reaction_mid"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 maximum_reactor_health = 7
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r7_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 2
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_8"]
+script = ExtResource("7_restore")
+stamina_amount = 8
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r7_reaction_last"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 1
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
@@ -367,38 +274,29 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r7_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; R8
-; HP >= 8 : +4
-; HP 5-7  : +5
-; HP 2-4  : +6
-; HP 1    : +8
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r7_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r8_reaction_high"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 8
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_4"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r8_reaction_mid"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 maximum_reactor_health = 7
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r8_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 2
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r8_reaction_last"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 1
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
@@ -418,38 +316,41 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r8_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; R9
-; HP >= 8 : +5
-; HP 5-7  : +6
-; HP 2-4  : +7
-; HP 1    : +9
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r8_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r9_reaction_high"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 8
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r9_reaction_mid"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 maximum_reactor_health = 7
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_7"]
+script = ExtResource("7_restore")
+stamina_amount = 7
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r9_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 2
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_7"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_9"]
+script = ExtResource("7_restore")
+stamina_amount = 9
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r9_reaction_last"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 1
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_9"), SubResource("Resource_apply_rank2_exposure")])
@@ -469,39 +370,35 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r9_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-
-; ============================================================
-; R10
-; HP >= 8 : +4
-; HP 5-7  : +5
-; HP 2-4  : +6
-; HP 1    : +10
-; ============================================================
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("9_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r9_apply_stance")])
 
 [sub_resource type="Resource" id="Resource_r10_reaction_high"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 8
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_5"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r10_reaction_mid"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 5
 maximum_reactor_health = 7
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_6"), SubResource("Resource_apply_rank2_exposure")])
 
 [sub_resource type="Resource" id="Resource_r10_reaction_low"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 2
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_8"), SubResource("Resource_apply_rank2_exposure")])
 
+[sub_resource type="Resource" id="Resource_restore_10"]
+script = ExtResource("7_restore")
+stamina_amount = 10
+effect_id = &"effect_bayda_hit_me_more_restore_stamina"
+recipient = 1
+
 [sub_resource type="Resource" id="Resource_r10_reaction_last"]
 script = ExtResource("6_reaction")
-damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 1
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_restore_10"), SubResource("Resource_apply_rank2_exposure")])
@@ -521,61 +418,19 @@ script = ExtResource("4_apply_status")
 status_definition = SubResource("Resource_r10_stance")
 effect_id = &"effect_bayda_hit_me_more_stance"
 
-
-; ============================================================
-; GROWTH
-; ============================================================
-
-[sub_resource type="Resource" id="Resource_rank1"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r1_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank2"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r2_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank3"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r3_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank4"]
-script = ExtResource("9_growth_rank")
-cooldown_turns_override = 2
-
-[sub_resource type="Resource" id="Resource_rank5"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r5_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank6"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r6_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank7"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r7_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank8"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r8_apply_stance")])
-
-[sub_resource type="Resource" id="Resource_rank9"]
-script = ExtResource("9_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r9_apply_stance")])
-
-
 [sub_resource type="Resource" id="Resource_rank10"]
 script = ExtResource("9_growth_rank")
 effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_r10_apply_stance")])
-
 
 [sub_resource type="Resource" id="Resource_growth_table"]
 script = ExtResource("10_growth_table")
 rank_steps = Array[ExtResource("9_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
 
-
-; ============================================================
-; ABILITY
-; ============================================================
+[sub_resource type="Resource" id="Resource_targeting"]
+script = ExtResource("2_targeting")
+aim_relation_mask = 1
+aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
+affected_relation_mask = 1
 
 [resource]
 script = ExtResource("1_ability")

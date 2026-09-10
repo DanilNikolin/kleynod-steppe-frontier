@@ -1,39 +1,31 @@
-[gd_resource type="Resource" script_class="AbilityDefinition" format=3]
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://b8y53wew75lqu"]
 
-[ext_resource type="Script" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
-[ext_resource type="Script" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
-[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
-[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
-[ext_resource type="Script" path="res://core/battle/effects/health_cost_effect.gd" id="5_health_cost"]
-[ext_resource type="Script" path="res://core/battle/effects/restore_stamina_effect.gd" id="6_restore_stamina"]
-[ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="7_guard"]
-[ext_resource type="Script" path="res://core/battle/effects/apply_status_effect.gd" id="8_apply_status"]
-[ext_resource type="Script" path="res://core/battle/effects/remove_status_effect.gd" id="9_remove_status"]
-[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="10_growth_rank"]
-[ext_resource type="Script" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="11_growth_table"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_blood_payment_armor_rank7.tres" id="12_rank7_armor"]
-[ext_resource type="Resource" path="res://content/statuses/heroes/bayda/bayda_blood_payment_armor_rank9.tres" id="13_rank9_armor"]
-
+[ext_resource type="Script" uid="uid://dkivlbn8e06qo" path="res://core/battle/abilities/ability_definition.gd" id="1_ability"]
+[ext_resource type="Script" uid="uid://36m0bduhwx85" path="res://core/battle/targeting/ability_targeting_definition.gd" id="2_targeting"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://uywbmj62vfev" path="res://core/battle/effects/health_cost_effect.gd" id="5_health_cost"]
+[ext_resource type="Script" uid="uid://bnmepf1tny3eg" path="res://core/battle/effects/restore_stamina_effect.gd" id="6_restore_stamina"]
+[ext_resource type="Script" uid="uid://ce41u306ntxkf" path="res://core/battle/effects/grant_guard_effect.gd" id="7_guard"]
+[ext_resource type="Script" uid="uid://bnwv71blsmx3l" path="res://core/battle/effects/apply_status_effect.gd" id="8_apply_status"]
+[ext_resource type="Script" uid="uid://dk3kmdoe3mr7r" path="res://core/battle/effects/remove_status_effect.gd" id="9_remove_status"]
+[ext_resource type="Script" uid="uid://b6x7ygv2drd3f" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="10_growth_rank"]
+[ext_resource type="Script" uid="uid://cwdmavmpj41mr" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="11_growth_table"]
+[ext_resource type="Resource" uid="uid://k5uc8d034wky" path="res://content/statuses/heroes/bayda/bayda_blood_payment_armor_rank7.tres" id="12_rank7_armor"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="12_wvtjv"]
+[ext_resource type="Resource" uid="uid://c12oqivp2gon6" path="res://content/statuses/heroes/bayda/bayda_blood_payment_armor_rank9.tres" id="13_rank9_armor"]
 
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 2
-strength_scaling = 0.0
-armor_piercing = 0
-minimum_damage = 1
 crit_mode = 0
-crit_chance_bonus_percent = 0
-critical_multiplier = 1.5
 effect_id = &"effect_bayda_blood_payment_damage"
-
 
 [sub_resource type="Resource" id="Resource_health_cost"]
 script = ExtResource("5_health_cost")
 health_cost = 2
-minimum_remaining_health = 1
 effect_id = &"effect_bayda_blood_payment_health_cost"
 recipient = 1
-
 
 [sub_resource type="Resource" id="Resource_stamina"]
 script = ExtResource("6_restore_stamina")
@@ -41,43 +33,30 @@ stamina_amount = 3
 effect_id = &"effect_bayda_blood_payment_stamina"
 recipient = 1
 
-
-[sub_resource type="Resource" id="Resource_targeting"]
-script = ExtResource("2_targeting")
-aim_requirement = 1
-aim_relation_mask = 4
-aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
-affected_relation_mask = 4
-impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
-
-
 [sub_resource type="Resource" id="Resource_rank1_stamina"]
 script = ExtResource("6_restore_stamina")
 stamina_amount = 4
 effect_id = &"effect_bayda_blood_payment_stamina"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank1"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_stamina")])
 
 [sub_resource type="Resource" id="Resource_rank2_damage"]
 script = ExtResource("4_damage")
 base_damage = 3
-strength_scaling = 0.0
-armor_piercing = 0
-minimum_damage = 1
 crit_mode = 0
-crit_chance_bonus_percent = 0
-critical_multiplier = 1.5
 effect_id = &"effect_bayda_blood_payment_damage"
-
 
 [sub_resource type="Resource" id="Resource_rank2_targeting"]
 script = ExtResource("2_targeting")
-aim_requirement = 1
-aim_relation_mask = 4
 aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(4, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1)])
-affected_relation_mask = 4
-impact_offsets = Array[Vector2i]([Vector2i(0, 0)])
 
+[sub_resource type="Resource" id="Resource_rank2"]
+script = ExtResource("10_growth_rank")
+targeting_override = SubResource("Resource_rank2_targeting")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_damage")])
 
 [sub_resource type="Resource" id="Resource_rank3_guard"]
 script = ExtResource("7_guard")
@@ -85,6 +64,9 @@ guard_amount = 2
 effect_id = &"effect_bayda_blood_payment_guard"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank3"]
+script = ExtResource("10_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_guard")])
 
 [sub_resource type="Resource" id="Resource_rank4_stamina"]
 script = ExtResource("6_restore_stamina")
@@ -92,6 +74,9 @@ stamina_amount = 5
 effect_id = &"effect_bayda_blood_payment_stamina"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank4"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_stamina")])
 
 [sub_resource type="Resource" id="Resource_rank5_stamina"]
 script = ExtResource("6_restore_stamina")
@@ -99,25 +84,25 @@ stamina_amount = 6
 effect_id = &"effect_bayda_blood_payment_stamina"
 recipient = 1
 
-
 [sub_resource type="Resource" id="Resource_rank5_guard"]
 script = ExtResource("7_guard")
 guard_amount = 3
 effect_id = &"effect_bayda_blood_payment_guard"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank5"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_stamina"), SubResource("Resource_rank5_guard")])
 
 [sub_resource type="Resource" id="Resource_rank6_damage"]
 script = ExtResource("4_damage")
 base_damage = 4
-strength_scaling = 0.0
-armor_piercing = 0
-minimum_damage = 1
 crit_mode = 0
-crit_chance_bonus_percent = 0
-critical_multiplier = 1.5
 effect_id = &"effect_bayda_blood_payment_damage"
 
+[sub_resource type="Resource" id="Resource_rank6"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_damage")])
 
 [sub_resource type="Resource" id="Resource_rank7_armor"]
 script = ExtResource("8_apply_status")
@@ -125,6 +110,9 @@ status_definition = ExtResource("12_rank7_armor")
 effect_id = &"effect_bayda_blood_payment_armor"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank7"]
+script = ExtResource("10_growth_rank")
+effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_armor")])
 
 [sub_resource type="Resource" id="Resource_rank8_stamina"]
 script = ExtResource("6_restore_stamina")
@@ -132,25 +120,21 @@ stamina_amount = 7
 effect_id = &"effect_bayda_blood_payment_stamina"
 recipient = 1
 
-
 [sub_resource type="Resource" id="Resource_rank8_guard"]
 script = ExtResource("7_guard")
 guard_amount = 4
 effect_id = &"effect_bayda_blood_payment_guard"
 recipient = 1
 
+[sub_resource type="Resource" id="Resource_rank8"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_stamina"), SubResource("Resource_rank8_guard")])
 
 [sub_resource type="Resource" id="Resource_rank9_damage"]
 script = ExtResource("4_damage")
 base_damage = 5
-strength_scaling = 0.0
-armor_piercing = 0
-minimum_damage = 1
 crit_mode = 0
-crit_chance_bonus_percent = 0
-critical_multiplier = 1.5
 effect_id = &"effect_bayda_blood_payment_damage"
-
 
 [sub_resource type="Resource" id="Resource_rank9_armor"]
 script = ExtResource("8_apply_status")
@@ -158,13 +142,9 @@ status_definition = ExtResource("13_rank9_armor")
 effect_id = &"effect_bayda_blood_payment_armor"
 recipient = 1
 
-
-[sub_resource type="Resource" id="Resource_rank10_stamina"]
-script = ExtResource("6_restore_stamina")
-stamina_amount = 8
-effect_id = &"effect_bayda_blood_payment_stamina"
-recipient = 1
-
+[sub_resource type="Resource" id="Resource_rank9"]
+script = ExtResource("10_growth_rank")
+effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_damage"), SubResource("Resource_rank9_armor")])
 
 [sub_resource type="Resource" id="Resource_rank10_cleanse"]
 script = ExtResource("9_remove_status")
@@ -172,63 +152,24 @@ filter_mode = 2
 effect_id = &"effect_bayda_blood_payment_cleanse"
 recipient = 1
 
-
-[sub_resource type="Resource" id="Resource_rank1"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank1_stamina")])
-
-
-[sub_resource type="Resource" id="Resource_rank2"]
-script = ExtResource("10_growth_rank")
-targeting_override = SubResource("Resource_rank2_targeting")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank2_damage")])
-
-
-[sub_resource type="Resource" id="Resource_rank3"]
-script = ExtResource("10_growth_rank")
-effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank3_guard")])
-
-
-[sub_resource type="Resource" id="Resource_rank4"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank4_stamina")])
-
-
-[sub_resource type="Resource" id="Resource_rank5"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank5_stamina"), SubResource("Resource_rank5_guard")])
-
-
-[sub_resource type="Resource" id="Resource_rank6"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_damage")])
-
-
-[sub_resource type="Resource" id="Resource_rank7"]
-script = ExtResource("10_growth_rank")
-effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank7_armor")])
-
-
-[sub_resource type="Resource" id="Resource_rank8"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank8_stamina"), SubResource("Resource_rank8_guard")])
-
-
-[sub_resource type="Resource" id="Resource_rank9"]
-script = ExtResource("10_growth_rank")
-effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank9_damage"), SubResource("Resource_rank9_armor")])
-
+[sub_resource type="Resource" id="Resource_rank10_stamina"]
+script = ExtResource("6_restore_stamina")
+stamina_amount = 8
+effect_id = &"effect_bayda_blood_payment_stamina"
+recipient = 1
 
 [sub_resource type="Resource" id="Resource_rank10"]
 script = ExtResource("10_growth_rank")
 effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_cleanse")])
 effect_overrides = Array[ExtResource("3_effect")]([SubResource("Resource_rank10_stamina")])
 
-
 [sub_resource type="Resource" id="Resource_growth_table"]
 script = ExtResource("11_growth_table")
 rank_steps = Array[ExtResource("10_growth_rank")]([SubResource("Resource_rank1"), SubResource("Resource_rank2"), SubResource("Resource_rank3"), SubResource("Resource_rank4"), SubResource("Resource_rank5"), SubResource("Resource_rank6"), SubResource("Resource_rank7"), SubResource("Resource_rank8"), SubResource("Resource_rank9"), SubResource("Resource_rank10")])
 
+[sub_resource type="Resource" id="Resource_targeting"]
+script = ExtResource("2_targeting")
+aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
 
 [resource]
 script = ExtResource("1_ability")

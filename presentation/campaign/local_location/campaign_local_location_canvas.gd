@@ -22,6 +22,7 @@ const INTERACTION_SIZE := Vector2(
 const PAN_FRACTION: float = 0.72
 
 const CAMERA_SMOOTHING_SPEED: float = 7.0
+const KEYBOARD_PAN_SPEED: float = 700.0
 
 
 var _definition: CampaignLocalLocationDefinition
@@ -30,6 +31,7 @@ var _selected_interaction_id: StringName = &""
 
 var _camera_target_x: float = 0.0
 var _needs_initial_camera_position: bool = true
+var _is_camera_dragging: bool = false
 
 var _viewport: SubViewport
 var _world_root: Node2D
@@ -51,10 +53,132 @@ func _ready() -> void:
 	stretch = true
 
 	_ensure_viewport_scene()
-	_camera.make_current()
 
 	resized.connect(
 		_on_resized
+	)
+
+
+func _process(delta: float) -> void:
+	if (
+		_definition == null
+		or _camera == null
+		or _is_camera_dragging
+		or not has_horizontal_pan()
+	):
+		return
+
+	var direction := Input.get_axis(
+		"ui_left",
+		"ui_right"
+	)
+
+	if is_zero_approx(direction):
+		return
+
+	_set_camera_target_x(
+		_camera_target_x
+			+ direction
+			* KEYBOARD_PAN_SPEED
+			* delta,
+		false
+	)
+
+
+func _input(event: InputEvent) -> void:
+	if (
+		_definition == null
+		or _camera == null
+		or not has_horizontal_pan()
+	):
+		return
+
+	if event is InputEventMouseButton:
+		var mouse_button := (
+			event as InputEventMouseButton
+		)
+
+		if (
+			mouse_button.button_index
+			!= MOUSE_BUTTON_LEFT
+		):
+			return
+
+		if mouse_button.pressed:
+			if not get_global_rect().has_point(
+				mouse_button.position
+			):
+				return
+
+			if _is_pointer_over_subviewport_control():
+				return
+
+			_begin_camera_drag()
+
+			get_viewport().set_input_as_handled()
+
+		elif _is_camera_dragging:
+			_end_camera_drag()
+
+			get_viewport().set_input_as_handled()
+
+		return
+
+	if (
+		event is InputEventMouseMotion
+		and _is_camera_dragging
+	):
+		var mouse_motion := (
+			event as InputEventMouseMotion
+		)
+
+		var world_delta_x := (
+			mouse_motion.relative.x
+			/ maxf(
+				_camera.zoom.x,
+				0.01
+			)
+		)
+
+		_set_camera_target_x(
+			_camera_target_x
+				- world_delta_x,
+			true
+		)
+
+		get_viewport().set_input_as_handled()
+
+
+func _is_pointer_over_subviewport_control() -> bool:
+	if _viewport == null:
+		return false
+
+	return (
+		_viewport.gui_get_hovered_control()
+		!= null
+	)
+
+
+func _begin_camera_drag() -> void:
+	if _camera == null:
+		return
+
+	_is_camera_dragging = true
+
+	_camera.position_smoothing_enabled = false
+
+
+func _end_camera_drag() -> void:
+	if _camera == null:
+		_is_camera_dragging = false
+
+		return
+
+	_is_camera_dragging = false
+
+	_camera.position_smoothing_enabled = true
+	_camera.position_smoothing_speed = (
+		CAMERA_SMOOTHING_SPEED
 	)
 
 
@@ -69,6 +193,7 @@ func bind(
 
 	_camera_target_x = 0.0
 	_needs_initial_camera_position = true
+	_is_camera_dragging = false
 
 	_ensure_viewport_scene()
 	_rebuild_world()
@@ -204,6 +329,192 @@ func _ensure_viewport_scene() -> void:
 		_viewport
 	)
 
+
+func _rebuild_world() -> void:
+	if _viewport == null:
+		return
+
+	_clear_visual_stage()
+
+	_buttons_by_interaction_id.clear()
+
+	if _definition == null:
+		return
+
+	var has_authored_visual_stage := (
+		_instantiate_authored_visual_stage()
+	)
+
+	if not has_authored_visual_stage:
+		_create_fallback_visual_stage()
+
+	if (
+		_content_root == null
+		or _interactions_root == null
+		or _camera == null
+	):
+		push_error(
+			"Local location visual stage is incomplete."
+		)
+
+		return
+
+	## Authored visual scenes own their placeholder/art content.
+	## Old locations without a scene keep the legacy debug ground.
+	if not has_authored_visual_stage:
+		_create_debug_ground()
+
+	_create_interaction_buttons()
+
+	_camera.position_smoothing_enabled = true
+	_camera.position_smoothing_speed = (
+		CAMERA_SMOOTHING_SPEED
+	)
+
+	_camera.make_current()
+
+	_refresh_button_texts()
+
+func _clear_visual_stage() -> void:
+	if (
+		_world_root != null
+		and is_instance_valid(_world_root)
+	):
+		var parent := _world_root.get_parent()
+
+		if parent != null:
+			parent.remove_child(
+				_world_root
+			)
+
+		_world_root.queue_free()
+
+	_reset_visual_stage_references()
+
+
+func _reset_visual_stage_references() -> void:
+	_world_root = null
+	_far_background = null
+	_mid_background = null
+	_content_root = null
+	_foreground = null
+	_interactions_root = null
+	_camera = null
+
+
+func _instantiate_authored_visual_stage() -> bool:
+	if (
+		_definition == null
+		or _definition
+			.visual_scene_path
+			.strip_edges()
+			.is_empty()
+	):
+		return false
+
+	var visual_scene := load(
+		_definition.visual_scene_path
+	) as PackedScene
+
+	if visual_scene == null:
+		push_error(
+			"Failed to load local location visual scene: %s"
+			% _definition.visual_scene_path
+		)
+
+		return false
+
+	var instance := visual_scene.instantiate()
+
+	if not instance is Node2D:
+		push_error(
+			"Local location visual scene root must be Node2D: %s"
+			% _definition.visual_scene_path
+		)
+
+		instance.queue_free()
+
+		return false
+
+	_world_root = instance as Node2D
+
+	_viewport.add_child(
+		_world_root
+	)
+
+	if _bind_visual_stage_nodes():
+		return true
+
+	_viewport.remove_child(
+		_world_root
+	)
+
+	_world_root.queue_free()
+
+	_reset_visual_stage_references()
+
+	return false
+
+
+func _bind_visual_stage_nodes() -> bool:
+	if _world_root == null:
+		return false
+
+	_far_background = (
+		_world_root.get_node_or_null(
+			"FarBackground"
+		) as Parallax2D
+	)
+
+	_mid_background = (
+		_world_root.get_node_or_null(
+			"MidBackground"
+		) as Parallax2D
+	)
+
+	_content_root = (
+		_world_root.get_node_or_null(
+			"WorldContent"
+		) as Node2D
+	)
+
+	_foreground = (
+		_world_root.get_node_or_null(
+			"Foreground"
+		) as Parallax2D
+	)
+
+	_interactions_root = (
+		_world_root.get_node_or_null(
+			"Interactions"
+		) as Node2D
+	)
+
+	_camera = (
+		_world_root.get_node_or_null(
+			"Camera"
+		) as Camera2D
+	)
+
+	if (
+		_far_background == null
+		or _mid_background == null
+		or _content_root == null
+		or _foreground == null
+		or _interactions_root == null
+		or _camera == null
+	):
+		push_error(
+			"Local location visual scene is missing required nodes: %s"
+			% _definition.visual_scene_path
+		)
+
+		return false
+
+	return true
+
+
+func _create_fallback_visual_stage() -> void:
 	_world_root = Node2D.new()
 	_world_root.name = "World"
 
@@ -256,49 +567,11 @@ func _ensure_viewport_scene() -> void:
 
 	_camera = Camera2D.new()
 	_camera.name = "Camera"
-	_camera.position_smoothing_enabled = true
-	_camera.position_smoothing_speed = (
-		CAMERA_SMOOTHING_SPEED
-	)
 
 	_world_root.add_child(
 		_camera
 	)
-
-
-func _rebuild_world() -> void:
-	if (
-		_content_root == null
-		or _interactions_root == null
-		or _camera == null
-	):
-		return
-
-	for child in _content_root.get_children():
-		_content_root.remove_child(
-			child
-		)
-
-		child.queue_free()
-
-	for child in _interactions_root.get_children():
-		_interactions_root.remove_child(
-			child
-		)
-
-		child.queue_free()
-
-	_buttons_by_interaction_id.clear()
-
-	if _definition == null:
-		return
-
-	_create_debug_ground()
-	_create_interaction_buttons()
-
-	_refresh_button_texts()
-
-
+	
 func _create_debug_ground() -> void:
 	if _definition == null:
 		return
@@ -552,31 +825,10 @@ func _sync_viewport_size() -> void:
 
 
 func _update_camera_zoom() -> void:
-	if (
-		_definition == null
-		or _camera == null
-		or _viewport == null
-		or _definition.view_width <= 0.0
-	):
+	if _camera == null:
 		return
 
-	## view_width — authored ширина кадра.
-	## Например HOME имеет 3000 world units,
-	## но камера одновременно показывает около 1000.
-	var zoom_factor := (
-		float(_viewport.size.x)
-		/ _definition.view_width
-	)
-
-	zoom_factor = maxf(
-		zoom_factor,
-		0.01
-	)
-
-	_camera.zoom = Vector2(
-		zoom_factor,
-		zoom_factor
-	)
+	_camera.zoom = Vector2.ONE
 
 
 func _get_visible_world_width() -> float:

@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://nnq2lj31kdxf"]
+
+[node name="HomeVisualStage" type="Node2D" unique_id=259198650]
+
+[node name="FarBackground" type="Parallax2D" parent="." unique_id=474965930]
+z_index = -30
+
+[node name="MidBackground" type="Parallax2D" parent="." unique_id=2077525275]
+z_index = -20
+
+[node name="WorldContent" type="Node2D" parent="." unique_id=1151582725]
+
+[node name="DebugGround" type="Polygon2D" parent="WorldContent" unique_id=439092786]
+color = Color(0.09, 0.085, 0.075, 1)
+polygon = PackedVector2Array(0, 626, 2874.054, 626.0001, 5760, 626, 5760, 1080, 0, 1080)
+
+[node name="DebugGroundLine" type="Line2D" parent="WorldContent" unique_id=1876937412]
+points = PackedVector2Array(0, 626, 5760, 626)
+width = 2.0
+default_color = Color(0.28, 0.25, 0.2, 1)
+
+[node name="Foreground" type="Parallax2D" parent="." unique_id=941042337]
+z_index = 20
+
+[node name="Interactions" type="Node2D" parent="." unique_id=1859977090]
+z_index = 100
+
+[node name="Camera" type="Camera2D" parent="." unique_id=460212245]
+position = Vector2(960, 540)

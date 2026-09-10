@@ -167,7 +167,8 @@ func _show_view(
 		content = _create_world_map_panel()
 
 	_shell.set_content(
-		content
+		content,
+		view == View.LOCAL_LOCATION
 	)
 
 	_refresh_shell()

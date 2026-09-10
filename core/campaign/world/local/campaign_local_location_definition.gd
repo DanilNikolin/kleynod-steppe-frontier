@@ -34,6 +34,13 @@ var reference_size: Vector2 = Vector2(
 @export_range(100.0, 10000.0, 1.0)
 var view_width: float = 1000.0
 
+## Optional authored visual scene for this local location.
+##
+## Stored as a path instead of PackedScene so heavy location art
+## is loaded only when the location canvas actually needs it.
+@export_file("*.tscn")
+var visual_scene_path: String = ""
+
 
 @export_group("Interactions")
 

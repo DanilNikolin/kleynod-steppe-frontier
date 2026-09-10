@@ -92,6 +92,7 @@ var _camera_label: Label
 var _resources_label: Label
 var _time_label: Label
 
+var _interaction_panel: PanelContainer
 var _interaction_title: Label
 var _interaction_description: Label
 var _actions_row: HBoxContainer
@@ -284,218 +285,37 @@ func _build_interface() -> void:
 
 		child.queue_free()
 
-	var margin := MarginContainer.new()
-
-	margin.add_theme_constant_override(
-		"margin_left",
-		32
-	)
-
-	margin.add_theme_constant_override(
-		"margin_top",
-		24
-	)
-
-	margin.add_theme_constant_override(
-		"margin_right",
-		32
-	)
-
-	margin.add_theme_constant_override(
-		"margin_bottom",
-		24
-	)
-
-	add_child(
-		margin
-	)
-
-	var root := VBoxContainer.new()
-
-	root.add_theme_constant_override(
-		"separation",
-		14
-	)
-
-	margin.add_child(
-		root
-	)
-
-	var header := HBoxContainer.new()
-
-	header.add_theme_constant_override(
-		"separation",
-		16
-	)
-
-	root.add_child(
-		header
-	)
-
-	var title := Label.new()
-
-	title.text = (
-		_definition.display_name
-		if _definition != null
-		else "Локальная локация"
-	)
-
-	title.add_theme_font_size_override(
-		"font_size",
-		32
-	)
-
-	title.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	header.add_child(
-		title
-	)
-
+	_camera_navigation = null
+	_camera_left_button = null
+	_camera_right_button = null
+	_camera_label = null
 	_resources_label = null
 	_time_label = null
 
-	if not _embedded_in_shell:
-		_resources_label = Label.new()
+	var stage := Control.new()
 
-		_resources_label.add_theme_font_size_override(
-			"font_size",
-			18
-		)
+	stage.name = "LocalLocationStage"
 
-		header.add_child(
-			_resources_label
-		)
-
-		_time_label = Label.new()
-
-		_time_label.add_theme_font_size_override(
-			"font_size",
-			20
-		)
-
-		header.add_child(
-			_time_label
-		)
-
-		var quest_button := Button.new()
-
-		quest_button.text = "ЗАДАНИЯ"
-
-		quest_button.pressed.connect(
-			_on_quest_journal_pressed
-		)
-
-		header.add_child(
-			quest_button
-		)
-
-	var description := Label.new()
-
-	description.text = (
-		_definition.description
-		if _definition != null
-		else ""
+	stage.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
 	)
 
-	description.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD_SMART
+	stage.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
 	)
 
-	root.add_child(
-		description
-	)
-
-	root.add_child(
-		HSeparator.new()
-	)
-
-	_camera_navigation = (
-		HBoxContainer.new()
-	)
-
-	_camera_navigation.add_theme_constant_override(
-		"separation",
-		12
-	)
-
-	root.add_child(
-		_camera_navigation
-	)
-
-	_camera_left_button = Button.new()
-
-	_camera_left_button.text = "←"
-
-	_camera_left_button.custom_minimum_size = Vector2(
-		90,
-		42
-	)
-
-	_camera_left_button.pressed.connect(
-		_on_camera_left_pressed
-	)
-
-	_camera_navigation.add_child(
-		_camera_left_button
-	)
-
-	_camera_label = Label.new()
-
-	_camera_label.text = (
-		"Обзор локации"
-	)
-
-	_camera_label.horizontal_alignment = (
-		HORIZONTAL_ALIGNMENT_CENTER
-	)
-
-	_camera_label.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	_camera_label.add_theme_font_size_override(
-		"font_size",
-		18
-	)
-
-	_camera_navigation.add_child(
-		_camera_label
-	)
-
-	_camera_right_button = Button.new()
-
-	_camera_right_button.text = "→"
-
-	_camera_right_button.custom_minimum_size = Vector2(
-		90,
-		42
-	)
-
-	_camera_right_button.pressed.connect(
-		_on_camera_right_pressed
-	)
-
-	_camera_navigation.add_child(
-		_camera_right_button
+	add_child(
+		stage
 	)
 
 	_canvas = (
 		CampaignLocalLocationCanvas.new()
 	)
 
-	_canvas.custom_minimum_size = Vector2(
-		900,
-		430
-	)
+	_canvas.name = "LocationCanvas"
 
-	_canvas.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
-
-	_canvas.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
+	_canvas.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
 	)
 
 	_canvas.interaction_selected.connect(
@@ -506,7 +326,7 @@ func _build_interface() -> void:
 		_refresh_camera_navigation
 	)
 
-	root.add_child(
+	stage.add_child(
 		_canvas
 	)
 
@@ -514,16 +334,57 @@ func _build_interface() -> void:
 		_definition
 	)
 
-	root.add_child(
-		HSeparator.new()
-	)
-
-	var interaction_panel := (
+	_interaction_panel = (
 		PanelContainer.new()
 	)
 
-	root.add_child(
-		interaction_panel
+	_interaction_panel.name = (
+		"InteractionOverlay"
+	)
+
+	## Compact temporary overlay in the lower-left corner.
+	_interaction_panel.anchor_left = 0.0
+	_interaction_panel.anchor_top = 1.0
+	_interaction_panel.anchor_right = 0.0
+	_interaction_panel.anchor_bottom = 1.0
+
+	_interaction_panel.offset_left = 32.0
+	_interaction_panel.offset_top = -230.0
+	_interaction_panel.offset_right = 860.0
+	_interaction_panel.offset_bottom = -32.0
+
+	_interaction_panel.visible = false
+
+	stage.add_child(
+		_interaction_panel
+	)
+
+	var interaction_margin := (
+		MarginContainer.new()
+	)
+
+	interaction_margin.add_theme_constant_override(
+		"margin_left",
+		18
+	)
+
+	interaction_margin.add_theme_constant_override(
+		"margin_top",
+		14
+	)
+
+	interaction_margin.add_theme_constant_override(
+		"margin_right",
+		18
+	)
+
+	interaction_margin.add_theme_constant_override(
+		"margin_bottom",
+		14
+	)
+
+	_interaction_panel.add_child(
+		interaction_margin
 	)
 
 	var interaction_content := (
@@ -535,7 +396,7 @@ func _build_interface() -> void:
 		8
 	)
 
-	interaction_panel.add_child(
+	interaction_margin.add_child(
 		interaction_content
 	)
 
@@ -581,20 +442,6 @@ func _build_interface() -> void:
 		_status_label
 	)
 
-	var exit_button := Button.new()
-
-	exit_button.text = (
-		"← ВЫЙТИ НА ГЛОБАЛЬНУЮ КАРТУ"
-	)
-
-	exit_button.pressed.connect(
-		_on_exit_pressed
-	)
-
-	root.add_child(
-		exit_button
-	)
-
 
 func _refresh_camera_navigation() -> void:
 	if (
@@ -624,21 +471,22 @@ func _refresh_camera_navigation() -> void:
 func _refresh_interaction_panel() -> void:
 	_clear_action_buttons()
 
+	if _interaction_panel == null:
+		return
+
 	if (
 		_definition == null
 		or _selected_interaction_id == &""
 	):
-		_interaction_title.text = (
-			"Выберите персонажа или объект"
-		)
+		_interaction_panel.visible = false
 
-		_interaction_description.text = (
-			"Нажмите на точку внутри локации."
-		)
-
+		_interaction_title.text = ""
+		_interaction_description.text = ""
 		_status_label.text = ""
 
 		return
+
+	_interaction_panel.visible = true
 
 	var interaction := (
 		_definition.get_interaction(
@@ -647,7 +495,8 @@ func _refresh_interaction_panel() -> void:
 	)
 
 	if interaction == null:
-		_interaction_title.text = "—"
+		_interaction_panel.visible = false
+		_interaction_title.text = ""
 		_interaction_description.text = ""
 		_status_label.text = ""
 

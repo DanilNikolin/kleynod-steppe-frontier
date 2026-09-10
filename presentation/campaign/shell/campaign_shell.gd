@@ -24,7 +24,9 @@ var _map_button: Button
 var _party_button: Button
 var _quests_button: Button
 
+var _content_frame: PanelContainer
 var _content_host: MarginContainer
+var _immersive_content_host: Control
 var _modal_layer: Control
 
 
@@ -124,7 +126,8 @@ func refresh_hud(
 
 
 func set_content(
-	content: Control
+	content: Control,
+	immersive: bool = false
 ) -> void:
 	_ensure_interface()
 
@@ -135,20 +138,39 @@ func set_content(
 
 		child.queue_free()
 
+	for child in _immersive_content_host.get_children():
+		_immersive_content_host.remove_child(
+			child
+		)
+
+		child.queue_free()
+
+	_content_frame.visible = not immersive
+
 	if content == null:
 		return
 
-	content.size_flags_horizontal = (
-		Control.SIZE_EXPAND_FILL
-	)
+	if immersive:
+		_immersive_content_host.add_child(
+			content
+		)
 
-	content.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
+		content.set_anchors_and_offsets_preset(
+			Control.PRESET_FULL_RECT
+		)
 
-	_content_host.add_child(
-		content
-	)
+	else:
+		content.size_flags_horizontal = (
+			Control.SIZE_EXPAND_FILL
+		)
+
+		content.size_flags_vertical = (
+			Control.SIZE_EXPAND_FILL
+		)
+
+		_content_host.add_child(
+			content
+		)
 
 
 func show_modal(
@@ -227,7 +249,26 @@ func _build_interface() -> void:
 		background
 	)
 
+	_immersive_content_host = Control.new()
+	_immersive_content_host.name = "ImmersiveContentHost"
+
+	_immersive_content_host.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+
+	_immersive_content_host.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
+	)
+
+	add_child(
+		_immersive_content_host
+	)
+
 	var margin := MarginContainer.new()
+
+	margin.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
+	)
 
 	margin.set_anchors_and_offsets_preset(
 		Control.PRESET_FULL_RECT
@@ -259,6 +300,10 @@ func _build_interface() -> void:
 
 	var root := VBoxContainer.new()
 
+	root.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE
+	)
+
 	root.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
@@ -284,18 +329,18 @@ func _build_interface() -> void:
 		_create_navigation_panel()
 	)
 
-	var content_frame := PanelContainer.new()
+	_content_frame = PanelContainer.new()
 
-	content_frame.size_flags_horizontal = (
+	_content_frame.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
 	)
 
-	content_frame.size_flags_vertical = (
+	_content_frame.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
 	)
 
 	root.add_child(
-		content_frame
+		_content_frame
 	)
 
 	_content_host = MarginContainer.new()
@@ -320,7 +365,7 @@ func _build_interface() -> void:
 		8
 	)
 
-	content_frame.add_child(
+	_content_frame.add_child(
 		_content_host
 	)
 

@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3 uid="uid://3r0fr75yb6j0"]
 
-[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
-[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="2_effect"]
-[ext_resource type="Script" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="3_trigger"]
-[ext_resource type="Script" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="3_trigger"]
+[ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://bn86k0twije6h" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="4_sln6y"]
+[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="6_a61ld"]
 
 [sub_resource type="Resource" id="Resource_bleeding_damage"]
 script = ExtResource("4_damage")

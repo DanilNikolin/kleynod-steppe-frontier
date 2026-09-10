@@ -1,138 +1,22 @@
-[gd_resource type="Resource" script_class="SkillGridDefinition" format=3 uid="uid://d2121oayryy6w"]
+[gd_resource type="Resource" script_class="SkillGridDefinition" format=3]
 
-[ext_resource type="Script" uid="uid://xxfuh74w2dgj" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
-[ext_resource type="Script" uid="uid://n28i4614estl" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
-[ext_resource type="Script" uid="uid://7h6f3df5xybv" path="res://core/heroes/skill_grid/skill_grid_block_definition.gd" id="3_block"]
-[ext_resource type="Resource" uid="uid://bbakexrp5kkh1" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="4_gallows_hook"]
-[ext_resource type="Resource" uid="uid://b8y53wew75lqu" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="5_blood_payment"]
-[ext_resource type="Resource" uid="uid://57l4q8qqy310" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="6_grit_teeth"]
-[ext_resource type="Resource" uid="uid://cn5phmix67sht" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="7_slanting_cut"]
-[ext_resource type="Resource" uid="uid://cs47vgssk4e06" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="8_open_vein"]
-[ext_resource type="Resource" uid="uid://g7qpkivy076i" path="res://content/abilities/heroes/bayda/bayda_do_not_bend.tres" id="9_do_not_bend"]
-[ext_resource type="Resource" uid="uid://cymkhh0481lkf" path="res://content/abilities/heroes/bayda/bayda_pin_down.tres" id="10_pin_down"]
-[ext_resource type="Resource" uid="uid://dxt5sdbavjura" path="res://content/abilities/heroes/bayda/bayda_black_massacre.tres" id="11_black_massacre"]
-[ext_resource type="Resource" uid="uid://ifra4c4f4gbb" path="res://content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres" id="12_palisade_of_cuts"]
-[ext_resource type="Resource" uid="uid://b7k1bw6bvoe7g" path="res://content/abilities/heroes/bayda/bayda_without_looking_back.tres" id="13_without_looking_back"]
-[ext_resource type="Resource" uid="uid://bi7ne8evxyx3l" path="res://content/abilities/heroes/bayda/bayda_answer_for_answer.tres" id="14_answer_for_answer"]
-[ext_resource type="Resource" uid="uid://bjpwlbsruekuj" path="res://content/abilities/heroes/bayda/bayda_hit_me_more.tres" id="15_hit_me_more"]
-[ext_resource type="Resource" uid="uid://dnc7prvcvs2at" path="res://content/abilities/heroes/bayda/bayda_last_word.tres" id="16_last_word"]
+[ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_definition.gd" id="1_grid"]
+[ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_node_definition.gd" id="2_node"]
+[ext_resource type="Script" path="res://core/heroes/skill_grid/skill_grid_block_definition.gd" id="3_block"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_gallows_hook.tres" id="4_gallows_hook"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_blood_payment.tres" id="5_blood_payment"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_grit_teeth.tres" id="6_grit_teeth"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_slanting_cut.tres" id="7_slanting_cut"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_open_vein.tres" id="8_open_vein"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_do_not_bend.tres" id="9_do_not_bend"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_pin_down.tres" id="10_pin_down"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_black_massacre.tres" id="11_black_massacre"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_palisade_of_cuts.tres" id="12_palisade_of_cuts"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_without_looking_back.tres" id="13_without_looking_back"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_answer_for_answer.tres" id="14_answer_for_answer"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_hit_me_more.tres" id="15_hit_me_more"]
+[ext_resource type="Resource" path="res://content/abilities/heroes/bayda/bayda_last_word.tres" id="16_last_word"]
 
-[sub_resource type="Resource" id="Block_strength_1"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_strength_1"
-display_name = "СИЛА I"
-branch = 1
-node_ids = Array[StringName]([&"node_bayda_strength_1_a", &"node_bayda_strength_1_b", &"node_bayda_strength_1_c", &"node_bayda_strength_1_d", &"node_bayda_strength_1_e", &"node_bayda_strength_1_f", &"node_bayda_strength_1_g", &"node_bayda_strength_1_h", &"node_bayda_strength_1_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_strength_1_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_strength_1_g", &"node_bayda_strength_1_h"])
-
-[sub_resource type="Resource" id="Block_agility_1"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_agility_1"
-display_name = "СПРИТНОСТЬ I"
-branch = 2
-node_ids = Array[StringName]([&"node_bayda_agility_1_a", &"node_bayda_agility_1_b", &"node_bayda_agility_1_c", &"node_bayda_agility_1_d", &"node_bayda_agility_1_e", &"node_bayda_agility_1_f", &"node_bayda_agility_1_g", &"node_bayda_agility_1_h", &"node_bayda_agility_1_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_agility_1_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_agility_1_g", &"node_bayda_agility_1_h"])
-
-[sub_resource type="Resource" id="Block_spirit_1"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_spirit_1"
-display_name = "ВОЛЯ I"
-branch = 3
-node_ids = Array[StringName]([&"node_bayda_spirit_1_a", &"node_bayda_spirit_1_b", &"node_bayda_spirit_1_c", &"node_bayda_spirit_1_d", &"node_bayda_spirit_1_e", &"node_bayda_spirit_1_f", &"node_bayda_spirit_1_g", &"node_bayda_spirit_1_h", &"node_bayda_spirit_1_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_spirit_1_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_spirit_1_g", &"node_bayda_spirit_1_h"])
-
-[sub_resource type="Resource" id="Block_strength_2"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_strength_2"
-display_name = "СИЛА II"
-branch = 1
-branch_order = 2
-node_ids = Array[StringName]([&"node_bayda_strength_2_a", &"node_bayda_strength_2_b", &"node_bayda_strength_2_c", &"node_bayda_strength_2_d", &"node_bayda_strength_2_e", &"node_bayda_strength_2_f", &"node_bayda_strength_2_g", &"node_bayda_strength_2_h", &"node_bayda_strength_2_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_strength_2_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_strength_2_g", &"node_bayda_strength_2_h"])
-
-[sub_resource type="Resource" id="Block_agility_2"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_agility_2"
-display_name = "СПРИТНОСТЬ II"
-branch = 2
-branch_order = 2
-node_ids = Array[StringName]([&"node_bayda_agility_2_a", &"node_bayda_agility_2_b", &"node_bayda_agility_2_c", &"node_bayda_agility_2_d", &"node_bayda_agility_2_e", &"node_bayda_agility_2_f", &"node_bayda_agility_2_g", &"node_bayda_agility_2_h", &"node_bayda_agility_2_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_agility_2_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_agility_2_g", &"node_bayda_agility_2_h"])
-
-[sub_resource type="Resource" id="Block_spirit_2"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_spirit_2"
-display_name = "ВОЛЯ II"
-branch = 3
-branch_order = 2
-node_ids = Array[StringName]([&"node_bayda_spirit_2_a", &"node_bayda_spirit_2_b", &"node_bayda_spirit_2_c", &"node_bayda_spirit_2_d", &"node_bayda_spirit_2_e", &"node_bayda_spirit_2_f", &"node_bayda_spirit_2_g", &"node_bayda_spirit_2_h", &"node_bayda_spirit_2_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_spirit_2_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_spirit_2_g", &"node_bayda_spirit_2_h"])
-
-[sub_resource type="Resource" id="Block_strength_3"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_strength_3"
-display_name = "СИЛА III"
-branch = 1
-branch_order = 3
-node_ids = Array[StringName]([&"node_bayda_strength_3_a", &"node_bayda_strength_3_b", &"node_bayda_strength_3_c", &"node_bayda_strength_3_d", &"node_bayda_strength_3_e", &"node_bayda_strength_3_f", &"node_bayda_strength_3_g", &"node_bayda_strength_3_h", &"node_bayda_strength_3_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_strength_3_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_strength_3_g", &"node_bayda_strength_3_h"])
-
-[sub_resource type="Resource" id="Block_agility_3"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_agility_3"
-display_name = "СПРИТНОСТЬ III"
-branch = 2
-branch_order = 3
-node_ids = Array[StringName]([&"node_bayda_agility_3_a", &"node_bayda_agility_3_b", &"node_bayda_agility_3_c", &"node_bayda_agility_3_d", &"node_bayda_agility_3_e", &"node_bayda_agility_3_f", &"node_bayda_agility_3_g", &"node_bayda_agility_3_h", &"node_bayda_agility_3_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_agility_3_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_agility_3_g", &"node_bayda_agility_3_h"])
-
-[sub_resource type="Resource" id="Block_spirit_3"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_spirit_3"
-display_name = "ВОЛЯ III"
-branch = 3
-branch_order = 3
-node_ids = Array[StringName]([&"node_bayda_spirit_3_a", &"node_bayda_spirit_3_b", &"node_bayda_spirit_3_c", &"node_bayda_spirit_3_d", &"node_bayda_spirit_3_e", &"node_bayda_spirit_3_f", &"node_bayda_spirit_3_g", &"node_bayda_spirit_3_h", &"node_bayda_spirit_3_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_spirit_3_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_spirit_3_g", &"node_bayda_spirit_3_h"])
-
-[sub_resource type="Resource" id="Block_strength_4"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_strength_4"
-display_name = "СИЛА IV"
-branch = 1
-branch_order = 4
-node_ids = Array[StringName]([&"node_bayda_strength_4_a", &"node_bayda_strength_4_b", &"node_bayda_strength_4_c", &"node_bayda_strength_4_d", &"node_bayda_strength_4_e", &"node_bayda_strength_4_f", &"node_bayda_strength_4_g", &"node_bayda_strength_4_h", &"node_bayda_strength_4_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_strength_4_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_strength_4_g", &"node_bayda_strength_4_h"])
-
-[sub_resource type="Resource" id="Block_agility_4"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_agility_4"
-display_name = "СПРИТНОСТЬ IV"
-branch = 2
-branch_order = 4
-node_ids = Array[StringName]([&"node_bayda_agility_4_a", &"node_bayda_agility_4_b", &"node_bayda_agility_4_c", &"node_bayda_agility_4_d", &"node_bayda_agility_4_e", &"node_bayda_agility_4_f", &"node_bayda_agility_4_g", &"node_bayda_agility_4_h", &"node_bayda_agility_4_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_agility_4_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_agility_4_g", &"node_bayda_agility_4_h"])
-
-[sub_resource type="Resource" id="Block_spirit_4"]
-script = ExtResource("3_block")
-block_id = &"block_bayda_spirit_4"
-display_name = "ВОЛЯ IV"
-branch = 3
-branch_order = 4
-node_ids = Array[StringName]([&"node_bayda_spirit_4_a", &"node_bayda_spirit_4_b", &"node_bayda_spirit_4_c", &"node_bayda_spirit_4_d", &"node_bayda_spirit_4_e", &"node_bayda_spirit_4_f", &"node_bayda_spirit_4_g", &"node_bayda_spirit_4_h", &"node_bayda_spirit_4_j"])
-entry_node_ids = Array[StringName]([&"node_bayda_spirit_4_a"])
-exit_anchor_node_ids = Array[StringName]([&"node_bayda_spirit_4_g", &"node_bayda_spirit_4_h"])
 
 [sub_resource type="Resource" id="Node_strength_1_a"]
 script = ExtResource("2_node")
@@ -231,6 +115,33 @@ block_id = &"block_bayda_strength_1"
 ui_position = Vector2(500, 650)
 path_parent_node_ids = Array[StringName]([&"node_bayda_strength_1_e"])
 rare_stat = 3
+
+[sub_resource type="Resource" id="Block_strength_1"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_strength_1"
+display_name = "СИЛА I"
+branch = 1
+branch_order = 1
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_strength_1_a",
+	&"node_bayda_strength_1_b",
+	&"node_bayda_strength_1_c",
+	&"node_bayda_strength_1_d",
+	&"node_bayda_strength_1_e",
+	&"node_bayda_strength_1_f",
+	&"node_bayda_strength_1_g",
+	&"node_bayda_strength_1_h",
+	&"node_bayda_strength_1_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_strength_1_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_strength_1_g",
+	&"node_bayda_strength_1_h"
+])
+
 
 [sub_resource type="Resource" id="Node_agility_1_a"]
 script = ExtResource("2_node")
@@ -332,6 +243,33 @@ ui_position = Vector2(500, 650)
 path_parent_node_ids = Array[StringName]([&"node_bayda_agility_1_e"])
 rare_stat = 1
 
+[sub_resource type="Resource" id="Block_agility_1"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_agility_1"
+display_name = "СПРИТНОСТЬ I"
+branch = 2
+branch_order = 1
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_agility_1_a",
+	&"node_bayda_agility_1_b",
+	&"node_bayda_agility_1_c",
+	&"node_bayda_agility_1_d",
+	&"node_bayda_agility_1_e",
+	&"node_bayda_agility_1_f",
+	&"node_bayda_agility_1_g",
+	&"node_bayda_agility_1_h",
+	&"node_bayda_agility_1_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_agility_1_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_agility_1_g",
+	&"node_bayda_agility_1_h"
+])
+
+
 [sub_resource type="Resource" id="Node_spirit_1_a"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_spirit_1_a"
@@ -430,6 +368,32 @@ ui_position = Vector2(500, 650)
 path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_1_e"])
 rare_stat = 3
 
+[sub_resource type="Resource" id="Block_spirit_1"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_spirit_1"
+display_name = "ВОЛЯ I"
+branch = 3
+branch_order = 1
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_spirit_1_a",
+	&"node_bayda_spirit_1_b",
+	&"node_bayda_spirit_1_c",
+	&"node_bayda_spirit_1_d",
+	&"node_bayda_spirit_1_e",
+	&"node_bayda_spirit_1_f",
+	&"node_bayda_spirit_1_g",
+	&"node_bayda_spirit_1_h",
+	&"node_bayda_spirit_1_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_spirit_1_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_spirit_1_g",
+	&"node_bayda_spirit_1_h"
+])
+
 [sub_resource type="Resource" id="Node_strength_2_a"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_strength_2_a"
@@ -440,6 +404,7 @@ block_id = &"block_bayda_strength_2"
 ui_position = Vector2(120, 300)
 rare_stat = 2
 
+
 [sub_resource type="Resource" id="Node_strength_2_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_strength_2_b"
@@ -448,8 +413,11 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(310, 160)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_a"
+])
 rare_stat = 3
+
 
 [sub_resource type="Resource" id="Node_strength_2_c"]
 script = ExtResource("2_node")
@@ -459,9 +427,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(310, 440)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_a"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_strength_2_d"]
 script = ExtResource("2_node")
@@ -471,8 +442,11 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_b"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_strength_2_e"]
 script = ExtResource("2_node")
@@ -482,8 +456,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_c"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_strength_2_f"]
 script = ExtResource("2_node")
@@ -493,8 +470,12 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_b", &"node_bayda_strength_2_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_b",
+	&"node_bayda_strength_2_c"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_strength_2_g"]
 script = ExtResource("2_node")
@@ -504,8 +485,12 @@ description = "Открывает личный приём Байды «Коса�
 node_type = 1
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(720, 160)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_d", &"node_bayda_strength_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_d",
+	&"node_bayda_strength_2_f"
+])
 granted_ability = ExtResource("7_slanting_cut")
+
 
 [sub_resource type="Resource" id="Node_strength_2_h"]
 script = ExtResource("2_node")
@@ -514,8 +499,12 @@ display_name = "Сила +1"
 description = "Повышает ранг ветки Силы Байды на 1."
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(720, 440)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_e", &"node_bayda_strength_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_e",
+	&"node_bayda_strength_2_f"
+])
 branch = 1
+
 
 [sub_resource type="Resource" id="Node_strength_2_j"]
 script = ExtResource("2_node")
@@ -525,8 +514,37 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_strength_2"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_f"
+])
 rare_stat = 2
+
+
+[sub_resource type="Resource" id="Block_strength_2"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_strength_2"
+display_name = "СИЛА II"
+branch = 1
+branch_order = 2
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_strength_2_a",
+	&"node_bayda_strength_2_b",
+	&"node_bayda_strength_2_c",
+	&"node_bayda_strength_2_d",
+	&"node_bayda_strength_2_e",
+	&"node_bayda_strength_2_f",
+	&"node_bayda_strength_2_g",
+	&"node_bayda_strength_2_h",
+	&"node_bayda_strength_2_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_strength_2_g",
+	&"node_bayda_strength_2_h"
+])
 
 [sub_resource type="Resource" id="Node_agility_2_a"]
 script = ExtResource("2_node")
@@ -538,6 +556,7 @@ block_id = &"block_bayda_agility_2"
 ui_position = Vector2(120, 300)
 rare_stat = 3
 
+
 [sub_resource type="Resource" id="Node_agility_2_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_agility_2_b"
@@ -546,9 +565,12 @@ description = "Повышает стандартный шанс критичес
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(310, 160)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_a"
+])
 rare_stat = 7
 rare_stat_amount = 3
+
 
 [sub_resource type="Resource" id="Node_agility_2_c"]
 script = ExtResource("2_node")
@@ -558,8 +580,11 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(310, 440)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_a"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_agility_2_d"]
 script = ExtResource("2_node")
@@ -569,9 +594,12 @@ description = "Повышает множитель критического ур
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_b"
+])
 rare_stat = 8
 rare_stat_amount = 15
+
 
 [sub_resource type="Resource" id="Node_agility_2_e"]
 script = ExtResource("2_node")
@@ -581,8 +609,11 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_c"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_agility_2_f"]
 script = ExtResource("2_node")
@@ -592,8 +623,12 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_b", &"node_bayda_agility_2_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_b",
+	&"node_bayda_agility_2_c"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_agility_2_g"]
 script = ExtResource("2_node")
@@ -603,8 +638,12 @@ description = "Открывает личный приём Байды «Вскр�
 node_type = 1
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(720, 160)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_d", &"node_bayda_agility_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_d",
+	&"node_bayda_agility_2_f"
+])
 granted_ability = ExtResource("8_open_vein")
+
 
 [sub_resource type="Resource" id="Node_agility_2_h"]
 script = ExtResource("2_node")
@@ -613,8 +652,12 @@ display_name = "Спритность +1"
 description = "Повышает ранг ветки Спритности Байды на 1."
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(720, 440)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_e", &"node_bayda_agility_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_e",
+	&"node_bayda_agility_2_f"
+])
 branch = 2
+
 
 [sub_resource type="Resource" id="Node_agility_2_j"]
 script = ExtResource("2_node")
@@ -624,9 +667,38 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_agility_2"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_f"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
+
+[sub_resource type="Resource" id="Block_agility_2"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_agility_2"
+display_name = "СПРИТНОСТЬ II"
+branch = 2
+branch_order = 2
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_agility_2_a",
+	&"node_bayda_agility_2_b",
+	&"node_bayda_agility_2_c",
+	&"node_bayda_agility_2_d",
+	&"node_bayda_agility_2_e",
+	&"node_bayda_agility_2_f",
+	&"node_bayda_agility_2_g",
+	&"node_bayda_agility_2_h",
+	&"node_bayda_agility_2_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_agility_2_g",
+	&"node_bayda_agility_2_h"
+])
 
 [sub_resource type="Resource" id="Node_spirit_2_a"]
 script = ExtResource("2_node")
@@ -638,6 +710,7 @@ block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(120, 300)
 rare_stat = 1
 
+
 [sub_resource type="Resource" id="Node_spirit_2_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_spirit_2_b"
@@ -646,9 +719,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(310, 150)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_spirit_2_c"]
 script = ExtResource("2_node")
@@ -658,8 +734,11 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(310, 450)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_spirit_2_d"]
 script = ExtResource("2_node")
@@ -669,8 +748,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_b"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_spirit_2_e"]
 script = ExtResource("2_node")
@@ -680,8 +762,12 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_d", &"node_bayda_spirit_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_f"
+])
 rare_stat = 10
+
 
 [sub_resource type="Resource" id="Node_spirit_2_f"]
 script = ExtResource("2_node")
@@ -691,8 +777,11 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_c"
+])
 rare_stat = 9
+
 
 [sub_resource type="Resource" id="Node_spirit_2_g"]
 script = ExtResource("2_node")
@@ -702,8 +791,12 @@ description = "Открывает личный приём Байды «Не со
 node_type = 1
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(720, 150)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_d", &"node_bayda_spirit_2_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_e"
+])
 granted_ability = ExtResource("9_do_not_bend")
+
 
 [sub_resource type="Resource" id="Node_spirit_2_h"]
 script = ExtResource("2_node")
@@ -712,8 +805,12 @@ display_name = "Воля +1"
 description = "Повышает ранг ветки Воли Байды на 1."
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(720, 450)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_e", &"node_bayda_spirit_2_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_e",
+	&"node_bayda_spirit_2_f"
+])
 branch = 3
+
 
 [sub_resource type="Resource" id="Node_spirit_2_j"]
 script = ExtResource("2_node")
@@ -723,8 +820,39 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_spirit_2"
 ui_position = Vector2(720, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_2_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_e"
+])
 rare_stat = 3
+
+
+[sub_resource type="Resource" id="Block_spirit_2"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_spirit_2"
+display_name = "ВОЛЯ II"
+branch = 3
+branch_order = 2
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a",
+	&"node_bayda_spirit_2_b",
+	&"node_bayda_spirit_2_c",
+	&"node_bayda_spirit_2_d",
+	&"node_bayda_spirit_2_e",
+	&"node_bayda_spirit_2_f",
+	&"node_bayda_spirit_2_g",
+	&"node_bayda_spirit_2_h",
+	&"node_bayda_spirit_2_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_spirit_2_g",
+	&"node_bayda_spirit_2_h"
+])
+
+; DRAFT BALANCE — СИЛА III. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_strength_3_a"]
 script = ExtResource("2_node")
@@ -736,6 +864,7 @@ block_id = &"block_bayda_strength_3"
 ui_position = Vector2(120, 300)
 rare_stat = 1
 
+
 [sub_resource type="Resource" id="Node_strength_3_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_strength_3_b"
@@ -744,8 +873,11 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_a"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_strength_3_c"]
 script = ExtResource("2_node")
@@ -755,9 +887,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_a"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_strength_3_d"]
 script = ExtResource("2_node")
@@ -767,8 +902,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_b"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_strength_3_e"]
 script = ExtResource("2_node")
@@ -778,8 +916,12 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_b", &"node_bayda_strength_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_b",
+	&"node_bayda_strength_3_c"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_strength_3_f"]
 script = ExtResource("2_node")
@@ -789,8 +931,11 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_c"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_strength_3_g"]
 script = ExtResource("2_node")
@@ -800,8 +945,12 @@ description = "Открывает личный приём Байды «Приб�
 node_type = 1
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_d", &"node_bayda_strength_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_d",
+	&"node_bayda_strength_3_e"
+])
 granted_ability = ExtResource("10_pin_down")
+
 
 [sub_resource type="Resource" id="Node_strength_3_h"]
 script = ExtResource("2_node")
@@ -810,8 +959,12 @@ display_name = "Сила +1"
 description = "Повышает ранг ветки Силы Байды на 1."
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_e", &"node_bayda_strength_3_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_e",
+	&"node_bayda_strength_3_f"
+])
 branch = 1
+
 
 [sub_resource type="Resource" id="Node_strength_3_j"]
 script = ExtResource("2_node")
@@ -821,8 +974,40 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_strength_3"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_e"
+])
 rare_stat = 3
+
+
+[sub_resource type="Resource" id="Block_strength_3"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_strength_3"
+display_name = "СИЛА III"
+branch = 1
+branch_order = 3
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_strength_3_a",
+	&"node_bayda_strength_3_b",
+	&"node_bayda_strength_3_c",
+	&"node_bayda_strength_3_d",
+	&"node_bayda_strength_3_e",
+	&"node_bayda_strength_3_f",
+	&"node_bayda_strength_3_g",
+	&"node_bayda_strength_3_h",
+	&"node_bayda_strength_3_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_strength_3_g",
+	&"node_bayda_strength_3_h"
+])
+
+
+; DRAFT BALANCE — СПРИТНОСТЬ III. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_agility_3_a"]
 script = ExtResource("2_node")
@@ -834,6 +1019,7 @@ block_id = &"block_bayda_agility_3"
 ui_position = Vector2(120, 300)
 rare_stat = 2
 
+
 [sub_resource type="Resource" id="Node_agility_3_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_agility_3_b"
@@ -842,9 +1028,12 @@ description = "Повышает стандартный шанс критичес
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_a"
+])
 rare_stat = 7
 rare_stat_amount = 3
+
 
 [sub_resource type="Resource" id="Node_agility_3_c"]
 script = ExtResource("2_node")
@@ -854,8 +1043,11 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_a"
+])
 rare_stat = 3
+
 
 [sub_resource type="Resource" id="Node_agility_3_d"]
 script = ExtResource("2_node")
@@ -865,9 +1057,12 @@ description = "Повышает множитель критического ур
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_b"
+])
 rare_stat = 8
 rare_stat_amount = 15
+
 
 [sub_resource type="Resource" id="Node_agility_3_e"]
 script = ExtResource("2_node")
@@ -877,8 +1072,12 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_b", &"node_bayda_agility_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_b",
+	&"node_bayda_agility_3_c"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_agility_3_f"]
 script = ExtResource("2_node")
@@ -888,8 +1087,11 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_c"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_agility_3_g"]
 script = ExtResource("2_node")
@@ -899,8 +1101,12 @@ description = "Открывает личный приём Байды «Част�
 node_type = 1
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_d", &"node_bayda_agility_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_d",
+	&"node_bayda_agility_3_e"
+])
 granted_ability = ExtResource("12_palisade_of_cuts")
+
 
 [sub_resource type="Resource" id="Node_agility_3_h"]
 script = ExtResource("2_node")
@@ -909,8 +1115,12 @@ display_name = "Спритность +1"
 description = "Повышает ранг ветки Спритности Байды на 1."
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_e", &"node_bayda_agility_3_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_e",
+	&"node_bayda_agility_3_f"
+])
 branch = 2
+
 
 [sub_resource type="Resource" id="Node_agility_3_j"]
 script = ExtResource("2_node")
@@ -920,9 +1130,41 @@ description = "Повышает стандартный шанс критичес
 node_type = 6
 block_id = &"block_bayda_agility_3"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_e"
+])
 rare_stat = 7
 rare_stat_amount = 3
+
+
+[sub_resource type="Resource" id="Block_agility_3"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_agility_3"
+display_name = "СПРИТНОСТЬ III"
+branch = 2
+branch_order = 3
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_agility_3_a",
+	&"node_bayda_agility_3_b",
+	&"node_bayda_agility_3_c",
+	&"node_bayda_agility_3_d",
+	&"node_bayda_agility_3_e",
+	&"node_bayda_agility_3_f",
+	&"node_bayda_agility_3_g",
+	&"node_bayda_agility_3_h",
+	&"node_bayda_agility_3_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_agility_3_g",
+	&"node_bayda_agility_3_h"
+])
+
+
+; DRAFT BALANCE — ВОЛЯ III. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_spirit_3_a"]
 script = ExtResource("2_node")
@@ -934,6 +1176,7 @@ block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(120, 300)
 rare_stat = 1
 
+
 [sub_resource type="Resource" id="Node_spirit_3_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_spirit_3_b"
@@ -942,8 +1185,11 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_a"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_spirit_3_c"]
 script = ExtResource("2_node")
@@ -953,9 +1199,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_a"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_spirit_3_d"]
 script = ExtResource("2_node")
@@ -965,8 +1214,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_b"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_spirit_3_e"]
 script = ExtResource("2_node")
@@ -976,8 +1228,12 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_b", &"node_bayda_spirit_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_b",
+	&"node_bayda_spirit_3_c"
+])
 rare_stat = 10
+
 
 [sub_resource type="Resource" id="Node_spirit_3_f"]
 script = ExtResource("2_node")
@@ -987,8 +1243,11 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_c"
+])
 rare_stat = 9
+
 
 [sub_resource type="Resource" id="Node_spirit_3_g"]
 script = ExtResource("2_node")
@@ -998,8 +1257,12 @@ description = "Открывает личный приём Байды «Отве�
 node_type = 1
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_d", &"node_bayda_spirit_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_d",
+	&"node_bayda_spirit_3_e"
+])
 granted_ability = ExtResource("14_answer_for_answer")
+
 
 [sub_resource type="Resource" id="Node_spirit_3_h"]
 script = ExtResource("2_node")
@@ -1008,8 +1271,12 @@ display_name = "Воля +1"
 description = "Повышает ранг ветки Воли Байды на 1."
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_e", &"node_bayda_spirit_3_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_e",
+	&"node_bayda_spirit_3_f"
+])
 branch = 3
+
 
 [sub_resource type="Resource" id="Node_spirit_3_j"]
 script = ExtResource("2_node")
@@ -1019,8 +1286,40 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_spirit_3"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_3_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_e"
+])
 rare_stat = 3
+
+
+[sub_resource type="Resource" id="Block_spirit_3"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_spirit_3"
+display_name = "ВОЛЯ III"
+branch = 3
+branch_order = 3
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_a",
+	&"node_bayda_spirit_3_b",
+	&"node_bayda_spirit_3_c",
+	&"node_bayda_spirit_3_d",
+	&"node_bayda_spirit_3_e",
+	&"node_bayda_spirit_3_f",
+	&"node_bayda_spirit_3_g",
+	&"node_bayda_spirit_3_h",
+	&"node_bayda_spirit_3_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_spirit_3_g",
+	&"node_bayda_spirit_3_h"
+])
+
+
+; DRAFT BALANCE — СИЛА IV. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_strength_4_a"]
 script = ExtResource("2_node")
@@ -1032,6 +1331,7 @@ block_id = &"block_bayda_strength_4"
 ui_position = Vector2(120, 300)
 rare_stat = 2
 
+
 [sub_resource type="Resource" id="Node_strength_4_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_strength_4_b"
@@ -1040,8 +1340,11 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_a"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_strength_4_c"]
 script = ExtResource("2_node")
@@ -1051,8 +1354,11 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_a"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_strength_4_d"]
 script = ExtResource("2_node")
@@ -1062,8 +1368,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_b"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_strength_4_e"]
 script = ExtResource("2_node")
@@ -1073,8 +1382,12 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_b", &"node_bayda_strength_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_b",
+	&"node_bayda_strength_4_c"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_strength_4_f"]
 script = ExtResource("2_node")
@@ -1084,9 +1397,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_c"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_strength_4_g"]
 script = ExtResource("2_node")
@@ -1096,8 +1412,12 @@ description = "Открывает личный приём Байды «Чёрн�
 node_type = 1
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_d", &"node_bayda_strength_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_d",
+	&"node_bayda_strength_4_e"
+])
 granted_ability = ExtResource("11_black_massacre")
+
 
 [sub_resource type="Resource" id="Node_strength_4_h"]
 script = ExtResource("2_node")
@@ -1106,8 +1426,12 @@ display_name = "Сила +1"
 description = "Повышает ранг ветки Силы Байды на 1."
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_e", &"node_bayda_strength_4_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_e",
+	&"node_bayda_strength_4_f"
+])
 branch = 1
+
 
 [sub_resource type="Resource" id="Node_strength_4_j"]
 script = ExtResource("2_node")
@@ -1117,8 +1441,40 @@ description = "Повышает стартовую выносливость Ба
 node_type = 6
 block_id = &"block_bayda_strength_4"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_strength_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_e"
+])
 rare_stat = 3
+
+
+[sub_resource type="Resource" id="Block_strength_4"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_strength_4"
+display_name = "СИЛА IV"
+branch = 1
+branch_order = 4
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_strength_4_a",
+	&"node_bayda_strength_4_b",
+	&"node_bayda_strength_4_c",
+	&"node_bayda_strength_4_d",
+	&"node_bayda_strength_4_e",
+	&"node_bayda_strength_4_f",
+	&"node_bayda_strength_4_g",
+	&"node_bayda_strength_4_h",
+	&"node_bayda_strength_4_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_strength_4_g",
+	&"node_bayda_strength_4_h"
+])
+
+
+; DRAFT BALANCE — СПРИТНОСТЬ IV. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_agility_4_a"]
 script = ExtResource("2_node")
@@ -1130,6 +1486,7 @@ block_id = &"block_bayda_agility_4"
 ui_position = Vector2(120, 300)
 rare_stat = 3
 
+
 [sub_resource type="Resource" id="Node_agility_4_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_agility_4_b"
@@ -1138,8 +1495,11 @@ description = "Повышает максимальную выносливост�
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_a"
+])
 rare_stat = 2
+
 
 [sub_resource type="Resource" id="Node_agility_4_c"]
 script = ExtResource("2_node")
@@ -1149,9 +1509,12 @@ description = "Повышает стандартный шанс критичес
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_a"
+])
 rare_stat = 7
 rare_stat_amount = 3
+
 
 [sub_resource type="Resource" id="Node_agility_4_d"]
 script = ExtResource("2_node")
@@ -1161,8 +1524,11 @@ description = "Повышает восстановление выносливо�
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_b"
+])
 rare_stat = 5
+
 
 [sub_resource type="Resource" id="Node_agility_4_e"]
 script = ExtResource("2_node")
@@ -1172,9 +1538,13 @@ description = "Повышает множитель критического ур
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_b", &"node_bayda_agility_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_b",
+	&"node_bayda_agility_4_c"
+])
 rare_stat = 8
 rare_stat_amount = 15
+
 
 [sub_resource type="Resource" id="Node_agility_4_f"]
 script = ExtResource("2_node")
@@ -1184,8 +1554,11 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_c"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_agility_4_g"]
 script = ExtResource("2_node")
@@ -1195,8 +1568,12 @@ description = "Открывает личный приём Байды «Без о
 node_type = 1
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_d", &"node_bayda_agility_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_d",
+	&"node_bayda_agility_4_e"
+])
 granted_ability = ExtResource("13_without_looking_back")
+
 
 [sub_resource type="Resource" id="Node_agility_4_h"]
 script = ExtResource("2_node")
@@ -1205,8 +1582,12 @@ display_name = "Спритность +1"
 description = "Повышает ранг ветки Спритности Байды на 1."
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_e", &"node_bayda_agility_4_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_e",
+	&"node_bayda_agility_4_f"
+])
 branch = 2
+
 
 [sub_resource type="Resource" id="Node_agility_4_j"]
 script = ExtResource("2_node")
@@ -1216,9 +1597,41 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_agility_4"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_agility_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_e"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
+
+[sub_resource type="Resource" id="Block_agility_4"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_agility_4"
+display_name = "СПРИТНОСТЬ IV"
+branch = 2
+branch_order = 4
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_agility_4_a",
+	&"node_bayda_agility_4_b",
+	&"node_bayda_agility_4_c",
+	&"node_bayda_agility_4_d",
+	&"node_bayda_agility_4_e",
+	&"node_bayda_agility_4_f",
+	&"node_bayda_agility_4_g",
+	&"node_bayda_agility_4_h",
+	&"node_bayda_agility_4_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_agility_4_g",
+	&"node_bayda_agility_4_h"
+])
+
+
+; DRAFT BALANCE — ВОЛЯ IV. Архитектура рабочая; награды и маршруты пересмотреть после реального pacing-теста.
 
 [sub_resource type="Resource" id="Node_spirit_4_a"]
 script = ExtResource("2_node")
@@ -1230,6 +1643,7 @@ block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(120, 300)
 rare_stat = 2
 
+
 [sub_resource type="Resource" id="Node_spirit_4_b"]
 script = ExtResource("2_node")
 node_id = &"node_bayda_spirit_4_b"
@@ -1238,8 +1652,11 @@ description = "Повышает максимальное здоровье Бай
 node_type = 6
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(310, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_a"
+])
 rare_stat = 1
+
 
 [sub_resource type="Resource" id="Node_spirit_4_c"]
 script = ExtResource("2_node")
@@ -1249,9 +1666,12 @@ description = "Байда начинает бой с дополнительны�
 node_type = 6
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(310, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_a"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_a"
+])
 rare_stat = 6
 rare_stat_amount = 2
+
 
 [sub_resource type="Resource" id="Node_spirit_4_d"]
 script = ExtResource("2_node")
@@ -1261,8 +1681,11 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(500, 90)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_b"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_b"
+])
 rare_stat = 9
+
 
 [sub_resource type="Resource" id="Node_spirit_4_e"]
 script = ExtResource("2_node")
@@ -1272,8 +1695,12 @@ description = "Каждый второй собственный ход Байд�
 node_type = 6
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(500, 300)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_b", &"node_bayda_spirit_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_b",
+	&"node_bayda_spirit_4_c"
+])
 rare_stat = 10
+
 
 [sub_resource type="Resource" id="Node_spirit_4_f"]
 script = ExtResource("2_node")
@@ -1283,8 +1710,11 @@ description = "Повышает постоянную броню Байды на 
 node_type = 6
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(500, 510)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_c"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_c"
+])
 rare_stat = 4
+
 
 [sub_resource type="Resource" id="Node_spirit_4_g"]
 script = ExtResource("2_node")
@@ -1294,8 +1724,12 @@ description = "Открывает личный приём Байды «Бейт�
 node_type = 1
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(720, 170)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_d", &"node_bayda_spirit_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_d",
+	&"node_bayda_spirit_4_e"
+])
 granted_ability = ExtResource("15_hit_me_more")
+
 
 [sub_resource type="Resource" id="Node_spirit_4_h"]
 script = ExtResource("2_node")
@@ -1304,8 +1738,12 @@ display_name = "Воля +1"
 description = "Повышает ранг ветки Воли Байды на 1."
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(720, 430)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_e", &"node_bayda_spirit_4_f"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_e",
+	&"node_bayda_spirit_4_f"
+])
 branch = 3
+
 
 [sub_resource type="Resource" id="Node_spirit_4_j"]
 script = ExtResource("2_node")
@@ -1315,12 +1753,170 @@ description = "Открывает личный приём Байды «Посл�
 node_type = 1
 block_id = &"block_bayda_spirit_4"
 ui_position = Vector2(500, 650)
-path_parent_node_ids = Array[StringName]([&"node_bayda_spirit_4_e"])
+path_parent_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_e"
+])
 granted_ability = ExtResource("16_last_word")
+
+
+[sub_resource type="Resource" id="Block_spirit_4"]
+script = ExtResource("3_block")
+block_id = &"block_bayda_spirit_4"
+display_name = "ВОЛЯ IV"
+branch = 3
+branch_order = 4
+minimum_purchased_nodes = 5
+node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_a",
+	&"node_bayda_spirit_4_b",
+	&"node_bayda_spirit_4_c",
+	&"node_bayda_spirit_4_d",
+	&"node_bayda_spirit_4_e",
+	&"node_bayda_spirit_4_f",
+	&"node_bayda_spirit_4_g",
+	&"node_bayda_spirit_4_h",
+	&"node_bayda_spirit_4_j"
+])
+entry_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_a"
+])
+exit_anchor_node_ids = Array[StringName]([
+	&"node_bayda_spirit_4_g",
+	&"node_bayda_spirit_4_h"
+])
+
 
 [resource]
 script = ExtResource("1_grid")
 grid_id = &"skill_grid_bayda"
 display_name = "Байда · Skill Grid"
-blocks = Array[ExtResource("3_block")]([SubResource("Block_strength_1"), SubResource("Block_agility_1"), SubResource("Block_spirit_1"), SubResource("Block_strength_2"), SubResource("Block_agility_2"), SubResource("Block_spirit_2"), SubResource("Block_strength_3"), SubResource("Block_agility_3"), SubResource("Block_spirit_3"), SubResource("Block_strength_4"), SubResource("Block_agility_4"), SubResource("Block_spirit_4")])
-nodes = Array[ExtResource("2_node")]([SubResource("Node_strength_1_a"), SubResource("Node_strength_1_b"), SubResource("Node_strength_1_c"), SubResource("Node_strength_1_d"), SubResource("Node_strength_1_e"), SubResource("Node_strength_1_f"), SubResource("Node_strength_1_g"), SubResource("Node_strength_1_h"), SubResource("Node_strength_1_j"), SubResource("Node_agility_1_a"), SubResource("Node_agility_1_b"), SubResource("Node_agility_1_c"), SubResource("Node_agility_1_d"), SubResource("Node_agility_1_e"), SubResource("Node_agility_1_f"), SubResource("Node_agility_1_g"), SubResource("Node_agility_1_h"), SubResource("Node_agility_1_j"), SubResource("Node_spirit_1_a"), SubResource("Node_spirit_1_b"), SubResource("Node_spirit_1_c"), SubResource("Node_spirit_1_d"), SubResource("Node_spirit_1_e"), SubResource("Node_spirit_1_f"), SubResource("Node_spirit_1_g"), SubResource("Node_spirit_1_h"), SubResource("Node_spirit_1_j"), SubResource("Node_strength_2_a"), SubResource("Node_strength_2_b"), SubResource("Node_strength_2_c"), SubResource("Node_strength_2_d"), SubResource("Node_strength_2_e"), SubResource("Node_strength_2_f"), SubResource("Node_strength_2_g"), SubResource("Node_strength_2_h"), SubResource("Node_strength_2_j"), SubResource("Node_agility_2_a"), SubResource("Node_agility_2_b"), SubResource("Node_agility_2_c"), SubResource("Node_agility_2_d"), SubResource("Node_agility_2_e"), SubResource("Node_agility_2_f"), SubResource("Node_agility_2_g"), SubResource("Node_agility_2_h"), SubResource("Node_agility_2_j"), SubResource("Node_spirit_2_a"), SubResource("Node_spirit_2_b"), SubResource("Node_spirit_2_c"), SubResource("Node_spirit_2_d"), SubResource("Node_spirit_2_e"), SubResource("Node_spirit_2_f"), SubResource("Node_spirit_2_g"), SubResource("Node_spirit_2_h"), SubResource("Node_spirit_2_j"), SubResource("Node_strength_3_a"), SubResource("Node_strength_3_b"), SubResource("Node_strength_3_c"), SubResource("Node_strength_3_d"), SubResource("Node_strength_3_e"), SubResource("Node_strength_3_f"), SubResource("Node_strength_3_g"), SubResource("Node_strength_3_h"), SubResource("Node_strength_3_j"), SubResource("Node_agility_3_a"), SubResource("Node_agility_3_b"), SubResource("Node_agility_3_c"), SubResource("Node_agility_3_d"), SubResource("Node_agility_3_e"), SubResource("Node_agility_3_f"), SubResource("Node_agility_3_g"), SubResource("Node_agility_3_h"), SubResource("Node_agility_3_j"), SubResource("Node_spirit_3_a"), SubResource("Node_spirit_3_b"), SubResource("Node_spirit_3_c"), SubResource("Node_spirit_3_d"), SubResource("Node_spirit_3_e"), SubResource("Node_spirit_3_f"), SubResource("Node_spirit_3_g"), SubResource("Node_spirit_3_h"), SubResource("Node_spirit_3_j"), SubResource("Node_strength_4_a"), SubResource("Node_strength_4_b"), SubResource("Node_strength_4_c"), SubResource("Node_strength_4_d"), SubResource("Node_strength_4_e"), SubResource("Node_strength_4_f"), SubResource("Node_strength_4_g"), SubResource("Node_strength_4_h"), SubResource("Node_strength_4_j"), SubResource("Node_agility_4_a"), SubResource("Node_agility_4_b"), SubResource("Node_agility_4_c"), SubResource("Node_agility_4_d"), SubResource("Node_agility_4_e"), SubResource("Node_agility_4_f"), SubResource("Node_agility_4_g"), SubResource("Node_agility_4_h"), SubResource("Node_agility_4_j"), SubResource("Node_spirit_4_a"), SubResource("Node_spirit_4_b"), SubResource("Node_spirit_4_c"), SubResource("Node_spirit_4_d"), SubResource("Node_spirit_4_e"), SubResource("Node_spirit_4_f"), SubResource("Node_spirit_4_g"), SubResource("Node_spirit_4_h"), SubResource("Node_spirit_4_j")])
+blocks = Array[ExtResource("3_block")]([
+	SubResource("Block_strength_1"),
+	SubResource("Block_agility_1"),
+	SubResource("Block_spirit_1"),
+	SubResource("Block_strength_2"),
+	SubResource("Block_agility_2"),
+	SubResource("Block_spirit_2"),
+	SubResource("Block_strength_3"),
+	SubResource("Block_agility_3"),
+	SubResource("Block_spirit_3"),
+	SubResource("Block_strength_4"),
+	SubResource("Block_agility_4"),
+	SubResource("Block_spirit_4")
+])
+nodes = Array[ExtResource("2_node")]([
+	SubResource("Node_strength_1_a"),
+	SubResource("Node_strength_1_b"),
+	SubResource("Node_strength_1_c"),
+	SubResource("Node_strength_1_d"),
+	SubResource("Node_strength_1_e"),
+	SubResource("Node_strength_1_f"),
+	SubResource("Node_strength_1_g"),
+	SubResource("Node_strength_1_h"),
+	SubResource("Node_strength_1_j"),
+
+	SubResource("Node_agility_1_a"),
+	SubResource("Node_agility_1_b"),
+	SubResource("Node_agility_1_c"),
+	SubResource("Node_agility_1_d"),
+	SubResource("Node_agility_1_e"),
+	SubResource("Node_agility_1_f"),
+	SubResource("Node_agility_1_g"),
+	SubResource("Node_agility_1_h"),
+	SubResource("Node_agility_1_j"),
+
+	SubResource("Node_spirit_1_a"),
+	SubResource("Node_spirit_1_b"),
+	SubResource("Node_spirit_1_c"),
+	SubResource("Node_spirit_1_d"),
+	SubResource("Node_spirit_1_e"),
+	SubResource("Node_spirit_1_f"),
+	SubResource("Node_spirit_1_g"),
+	SubResource("Node_spirit_1_h"),
+	SubResource("Node_spirit_1_j"),
+
+	SubResource("Node_strength_2_a"),
+	SubResource("Node_strength_2_b"),
+	SubResource("Node_strength_2_c"),
+	SubResource("Node_strength_2_d"),
+	SubResource("Node_strength_2_e"),
+	SubResource("Node_strength_2_f"),
+	SubResource("Node_strength_2_g"),
+	SubResource("Node_strength_2_h"),
+	SubResource("Node_strength_2_j"),
+
+	SubResource("Node_agility_2_a"),
+	SubResource("Node_agility_2_b"),
+	SubResource("Node_agility_2_c"),
+	SubResource("Node_agility_2_d"),
+	SubResource("Node_agility_2_e"),
+	SubResource("Node_agility_2_f"),
+	SubResource("Node_agility_2_g"),
+	SubResource("Node_agility_2_h"),
+	SubResource("Node_agility_2_j"),
+
+	SubResource("Node_spirit_2_a"),
+	SubResource("Node_spirit_2_b"),
+	SubResource("Node_spirit_2_c"),
+	SubResource("Node_spirit_2_d"),
+	SubResource("Node_spirit_2_e"),
+	SubResource("Node_spirit_2_f"),
+	SubResource("Node_spirit_2_g"),
+	SubResource("Node_spirit_2_h"),
+	SubResource("Node_spirit_2_j"),
+
+	SubResource("Node_strength_3_a"),
+	SubResource("Node_strength_3_b"),
+	SubResource("Node_strength_3_c"),
+	SubResource("Node_strength_3_d"),
+	SubResource("Node_strength_3_e"),
+	SubResource("Node_strength_3_f"),
+	SubResource("Node_strength_3_g"),
+	SubResource("Node_strength_3_h"),
+	SubResource("Node_strength_3_j"),
+	SubResource("Node_agility_3_a"),
+	SubResource("Node_agility_3_b"),
+	SubResource("Node_agility_3_c"),
+	SubResource("Node_agility_3_d"),
+	SubResource("Node_agility_3_e"),
+	SubResource("Node_agility_3_f"),
+	SubResource("Node_agility_3_g"),
+	SubResource("Node_agility_3_h"),
+	SubResource("Node_agility_3_j"),
+	SubResource("Node_spirit_3_a"),
+	SubResource("Node_spirit_3_b"),
+	SubResource("Node_spirit_3_c"),
+	SubResource("Node_spirit_3_d"),
+	SubResource("Node_spirit_3_e"),
+	SubResource("Node_spirit_3_f"),
+	SubResource("Node_spirit_3_g"),
+	SubResource("Node_spirit_3_h"),
+	SubResource("Node_spirit_3_j"),
+	SubResource("Node_strength_4_a"),
+	SubResource("Node_strength_4_b"),
+	SubResource("Node_strength_4_c"),
+	SubResource("Node_strength_4_d"),
+	SubResource("Node_strength_4_e"),
+	SubResource("Node_strength_4_f"),
+	SubResource("Node_strength_4_g"),
+	SubResource("Node_strength_4_h"),
+	SubResource("Node_strength_4_j"),
+	SubResource("Node_agility_4_a"),
+	SubResource("Node_agility_4_b"),
+	SubResource("Node_agility_4_c"),
+	SubResource("Node_agility_4_d"),
+	SubResource("Node_agility_4_e"),
+	SubResource("Node_agility_4_f"),
+	SubResource("Node_agility_4_g"),
+	SubResource("Node_agility_4_h"),
+	SubResource("Node_agility_4_j"),
+	SubResource("Node_spirit_4_a"),
+	SubResource("Node_spirit_4_b"),
+	SubResource("Node_spirit_4_c"),
+	SubResource("Node_spirit_4_d"),
+	SubResource("Node_spirit_4_e"),
+	SubResource("Node_spirit_4_f"),
+	SubResource("Node_spirit_4_g"),
+	SubResource("Node_spirit_4_h"),
+	SubResource("Node_spirit_4_j")
+])

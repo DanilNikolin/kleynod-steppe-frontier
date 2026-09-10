@@ -1,10 +1,8 @@
-[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3 uid="uid://4deq3lyjsuuy"]
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
 
-[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
-[ext_resource type="Script" uid="uid://b06rnp4fjl0um" path="res://core/battle/restrictions/battle_action_restriction.gd" id="2_restriction"]
-[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="2_wf8wb"]
-[ext_resource type="Script" uid="uid://bn86k0twije6h" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="3_2arv8"]
-[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="3_modifier"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" path="res://core/battle/restrictions/battle_action_restriction.gd" id="2_restriction"]
+[ext_resource type="Script" path="res://core/battle/stats/battle_stat_modifier.gd" id="3_modifier"]
 
 [sub_resource type="Resource" id="Resource_gallows_hook_restriction"]
 script = ExtResource("2_restriction")
@@ -12,6 +10,7 @@ block_movement = true
 
 [sub_resource type="Resource" id="Resource_armor_modifier"]
 script = ExtResource("3_modifier")
+stat = 0
 amount_per_stack = -2
 
 [resource]
@@ -21,5 +20,6 @@ display_name = "На крюке"
 description = "Цель не может двигаться до конца своего следующего хода и теряет 2 брони."
 polarity = 2
 tags = Array[StringName]([&"debuff", &"control", &"movement_control", &"immobilized", &"hook", &"armor_debuff"])
+duration_turns = 1
 action_restriction = SubResource("Resource_gallows_hook_restriction")
 stat_modifiers = Array[ExtResource("3_modifier")]([SubResource("Resource_armor_modifier")])

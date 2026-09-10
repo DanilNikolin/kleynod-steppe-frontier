@@ -1,32 +1,32 @@
-[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3 uid="uid://cp3r0ej1gw78r"]
+[gd_resource type="Resource" script_class="BattleStatusDefinition" format=3]
 
-[ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
-[ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="1_y2hoa"]
-[ext_resource type="Script" uid="uid://bn86k0twije6h" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="2_reaction"]
-[ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
-[ext_resource type="Script" uid="uid://ce41u306ntxkf" path="res://core/battle/effects/grant_guard_effect.gd" id="4_guard"]
-[ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="6_di78v"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_definition.gd" id="1_status"]
+[ext_resource type="Script" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="2_reaction"]
+[ext_resource type="Script" path="res://core/battle/effects/battle_effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://core/battle/effects/grant_guard_effect.gd" id="4_guard"]
 
 [sub_resource type="Resource" id="Resource_guard_normal"]
 script = ExtResource("4_guard")
 guard_amount = 2
-effect_id = &"effect_bayda_do_not_bend_reactive_guard"
 recipient = 1
-
-[sub_resource type="Resource" id="Resource_reaction_normal"]
-script = ExtResource("2_reaction")
-minimum_reactor_health = 5
-effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_normal")])
-consume_status_on_trigger = true
+effect_id = &"effect_bayda_do_not_bend_reactive_guard"
 
 [sub_resource type="Resource" id="Resource_guard_low"]
 script = ExtResource("4_guard")
 guard_amount = 4
-effect_id = &"effect_bayda_do_not_bend_reactive_guard"
 recipient = 1
+effect_id = &"effect_bayda_do_not_bend_reactive_guard"
+
+[sub_resource type="Resource" id="Resource_reaction_normal"]
+script = ExtResource("2_reaction")
+damage_requirement = 1
+minimum_reactor_health = 5
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_normal")])
+consume_status_on_trigger = true
 
 [sub_resource type="Resource" id="Resource_reaction_low"]
 script = ExtResource("2_reaction")
+damage_requirement = 1
 minimum_reactor_health = 1
 maximum_reactor_health = 4
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_guard_low")])

@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://uc2c7co5a0a2" path="res://core/battle/effects/battle_effect.gd" id="2_mig4r"]
 [ext_resource type="Script" uid="uid://bg2aiwnxjuvig" path="res://core/battle/statuses/battle_status_periodic_trigger.gd" id="2_trigger"]
 [ext_resource type="Script" uid="uid://djty1vj4ucxrn" path="res://core/battle/effects/damage_effect.gd" id="3_damage"]
-[ext_resource type="Script" uid="uid://bn86k0twije6h" path="res://core/battle/statuses/battle_status_reaction_definition.gd" id="4_pn5lx"]
 [ext_resource type="Script" uid="uid://byb5m0xovegd5" path="res://core/battle/stats/battle_stat_modifier.gd" id="5_pn5lx"]
 
 [sub_resource type="Resource" id="Resource_bleeding_damage"]

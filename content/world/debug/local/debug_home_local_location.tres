@@ -33,7 +33,7 @@ interaction_id = &"debug_home_blacksmith"
 display_name = "Остап Коваль"
 description = "Приглашённый коваль родного поселения."
 local_position = Vector2(2200, 300)
-action_labels = PackedStringArray("Поговорить", "Торговля")
+action_labels = PackedStringArray("Поговорить", "ОТКРЫТЬ КУЗНИЦУ")
 
 [sub_resource type="Resource" id="Carpenter"]
 script = ExtResource("2_interaction")
@@ -58,7 +58,7 @@ interaction_id = &"home_forge_site"
 display_name = "Место будущей кузницы"
 description = "Здесь плотник поставит здание кузницы. Контракт оформляется на его временном рабочем месте."
 local_position = Vector2(2480, 350)
-action_labels = PackedStringArray("Осмотреть")
+action_labels = PackedStringArray("Осмотреть", "ОТКРЫТЬ КУЗНИЦУ")
 
 [resource]
 script = ExtResource("1_location")

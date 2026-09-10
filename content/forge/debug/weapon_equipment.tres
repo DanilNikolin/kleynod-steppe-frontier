@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CampaignForgeModuleDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/forge/campaign_forge_module_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+module_id = &"weapon_equipment"
+display_name = "Оружейная оснастка"
+description = "Оружейный верстак, тиски, стойки и инструменты для клинков и древкового оружия. DEV: стоимость 20 гр., 4 материала и 4 часа временная; финальный баланс TBD."
+gold_cost = 20
+material_cost = 4
+duration_minutes = 240

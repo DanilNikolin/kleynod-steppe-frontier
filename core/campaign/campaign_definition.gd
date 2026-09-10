@@ -693,6 +693,15 @@ func get_validation_errors() -> PackedStringArray:
 				]
 			)
 
+		if resident.is_forge_master and home_settlement_definition != null:
+			if resident.required_workplace_zone_id != home_settlement_definition.forge_zone_id or resident.required_workplace_building_id != home_settlement_definition.forge_building_id:
+				errors.append("Forge master must require the configured forge workplace.")
+		for commission in resident.equipment_commissions:
+			if commission == null or commission.required_forge_module_id == &"":
+				continue
+			if not resident.is_forge_master or home_settlement_definition == null or home_settlement_definition.get_forge_module(commission.required_forge_module_id) == null:
+				errors.append("Commission has an invalid forge module requirement.")
+
 		if resident.resident_id != &"":
 			if used_resident_ids.has(
 				resident.resident_id

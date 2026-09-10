@@ -689,6 +689,8 @@ func _refresh_interaction_panel() -> void:
 		var project_status := _construction_status_for_zone(settlement_zone.zone_id)
 		if not project_status.is_empty():
 			_interaction_description.text = project_status
+		elif settlement_zone.zone_id == _settlement_definition.forge_zone_id and CampaignForgeService.new().has_shell(_settlement_definition, _settlement_state):
+			_create_forge_button()
 		else:
 			_create_settlement_zone_actions(settlement_zone)
 
@@ -1605,6 +1607,11 @@ func _refresh_resident_panel(
 
 			return
 
+	if definition.is_forge_master:
+		if CampaignForgeService.new().has_shell(_settlement_definition, _settlement_state):
+			_create_forge_button()
+		return
+
 	if not workplace_ready:
 		return
 
@@ -1866,3 +1873,10 @@ func _construction_status_for_zone(zone_id: StringName) -> String:
 Бригада: %d работников. Осталось %.1f дн.
 Контракт оплачен полностью. Можно отправляться в путешествие." % [project.display_name, contract.crew_size, float(remaining) / 1440]
 	return ""
+
+
+func _create_forge_button() -> void:
+	var button := Button.new()
+	button.text = "ОТКРЫТЬ КУЗНИЦУ"
+	button.pressed.connect(_on_action_pressed.bind("ОТКРЫТЬ КУЗНИЦУ"))
+	_actions_row.add_child(button)

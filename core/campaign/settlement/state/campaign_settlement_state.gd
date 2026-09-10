@@ -4,6 +4,9 @@ extends RefCounted
 
 var settlement_id: StringName = &""
 
+## Exactly one major slot; master and catalog are derived, never saved here.
+var forge_major_module_id: StringName = &""
+
 var zones: Array[CampaignSettlementZoneState] = []
 
 ## Доход, произведённый поселением,
@@ -120,6 +123,12 @@ func get_definition_validation_errors(
 		)
 
 		return errors
+
+	if forge_major_module_id != &"":
+		if definition.get_forge_module(forge_major_module_id) == null:
+			errors.append("Unknown forge major module.")
+		if not CampaignForgeService.new().has_shell(definition, self):
+			errors.append("Forge module requires its building shell.")
 
 	if settlement_id != definition.settlement_id:
 		errors.append(

@@ -23,6 +23,11 @@ var description: String = ""
 var world_node_id: StringName = &""
 
 
+@export_group("Forge I")
+@export var forge_zone_id: StringName = &""
+@export var forge_building_id: StringName = &""
+@export var forge_modules: Array[CampaignForgeModuleDefinition] = []
+
 @export_group("Zones")
 
 @export
@@ -109,6 +114,20 @@ func get_validation_errors() -> PackedStringArray:
 			"Settlement has no zones."
 		)
 
+	if forge_zone_id != &"" or forge_building_id != &"" or not forge_modules.is_empty():
+		var forge_zone := get_zone(forge_zone_id)
+		if forge_zone == null or forge_zone.get_building(forge_building_id) == null:
+			errors.append("Forge workplace is missing.")
+	var module_ids: Array[StringName] = []
+	for module in forge_modules:
+		if module == null:
+			errors.append("Null forge module.")
+			continue
+		errors.append_array(module.get_validation_errors())
+		if module_ids.has(module.module_id):
+			errors.append("Duplicate forge module.")
+		module_ids.append(module.module_id)
+
 	var used_zone_ids: Dictionary = {}
 	var used_building_ids: Dictionary = {}
 	var used_local_interaction_ids: Dictionary = {}
@@ -190,3 +209,9 @@ func get_validation_errors() -> PackedStringArray:
 				] = true
 
 	return errors
+
+func get_forge_module(id: StringName) -> CampaignForgeModuleDefinition:
+	for module in forge_modules:
+		if module != null and module.module_id == id:
+			return module
+	return null

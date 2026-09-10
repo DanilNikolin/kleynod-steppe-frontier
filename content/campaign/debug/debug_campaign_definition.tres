@@ -48,6 +48,9 @@
 [ext_resource type="Resource" path="res://content/construction/debug/river_pier.tres" id="construction_river_pier"]
 [ext_resource type="Resource" path="res://content/construction/debug/village_crew.tres" id="construction_village_crew"]
 
+[ext_resource type="Script" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="debug_item_instance"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_testing_sabre_instance.tres" id="debug_testing_sabre"]
+
 [sub_resource type="Resource" id="HeroBayda"]
 script = ExtResource("2_hero_state")
 hero_definition = ExtResource("11_bayda")
@@ -112,6 +115,7 @@ starting_heroes = Array[ExtResource("2_hero_state")]([SubResource("HeroBayda"), 
 starting_selected_hero_id = &"hero_bayda"
 starting_party_member_hero_ids = Array[StringName]([&"hero_bayda"])
 starting_gold = 500
+starting_inventory_items = Array[ExtResource("debug_item_instance")]([ExtResource("debug_testing_sabre")])
 loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location"), ExtResource("33_abandoned_cart_location"), ExtResource("35_travel_ambush_location")])
 adventure_areas = Array[ExtResource("29_adventure_area_script")]([ExtResource("38_homestead"), ExtResource("30_forest_area"), ExtResource("36_home_materials_area")])

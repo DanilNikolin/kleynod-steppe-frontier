@@ -28,7 +28,7 @@ Temporary test saves use unique names and are removed; the player save is untouc
   invitation moves the carpenter to HOME with distinct HOME_GUEST status.
   Arrival now opens the temporary worksite and the first forge-shell construction
   loop, described in [CONSTRUCTION.md](CONSTRUCTION.md).
-- Save format is now 12. Start a new debug campaign; older versions are rejected by the
+- Save format is now 13. Start a new debug campaign; older versions are rejected by the
   existing strict loader rather than silently losing resident state.
 
 Manual F5 check: start a new campaign, visit the village innkeeper, ask where the
@@ -36,3 +36,5 @@ carpenter is, follow the named location and accept his quest. Travel from the vi
 to Old Homestead, explore both sites, return to the carpenter and report. Prepare
 the campfire, party shelter and common shelter, then invite him. At HOME the guest
 must be available for conversation. His nearby temporary worksite opens construction.
+
+Forge I and DEBUG Sabre: see [FORGE.md](FORGE.md) for architecture, provisional values and checks.

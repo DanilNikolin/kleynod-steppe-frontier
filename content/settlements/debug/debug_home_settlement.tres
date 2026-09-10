@@ -1,10 +1,14 @@
-[gd_resource type="Resource" script_class="CampaignSettlementDefinition" format=3]
+[gd_resource type="Resource" script_class="CampaignSettlementDefinition" load_steps=72 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_definition.gd" id="1_settlement"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_building_definition.gd" id="2_building"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_zone_definition.gd" id="3_zone"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_effect_definition.gd" id="4_effect"]
 [ext_resource type="Script" path="res://core/campaign/settlement/campaign_settlement_building_upgrade_definition.gd" id="5_upgrade"]
+
+[ext_resource type="Script" path="res://core/campaign/forge/campaign_forge_module_definition.gd" id="forge_module"]
+[ext_resource type="Resource" path="res://content/forge/debug/weapon_equipment.tres" id="weapon_module"]
+[ext_resource type="Resource" path="res://content/forge/debug/armor_equipment.tres" id="armor_module"]
 
 [sub_resource type="Resource" id="BlacksmithInfrastructureEffect"]
 script = ExtResource("4_effect")
@@ -531,6 +535,9 @@ allowed_buildings = Array[ExtResource("2_building")]([SubResource("Windmill"), S
 [resource]
 script = ExtResource("1_settlement")
 settlement_id = &"debug_home_settlement"
+forge_zone_id = &"workshop_west"
+forge_building_id = &"forge_shell"
+forge_modules = Array[ExtResource("forge_module")]([ExtResource("weapon_module"), ExtResource("armor_module")])
 display_name = "Родное поселение"
 description = "Собственное поселение игрока на степном рубеже."
 world_node_id = &"debug_home"

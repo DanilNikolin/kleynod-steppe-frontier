@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="1_area"]
 [ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_definition.gd" id="2_site"]
@@ -27,9 +27,21 @@ exploration_enabled = true
 exploration_action_label = "СОБРАТЬ ЛЕСОМАТЕРИАЛ"
 material_reward = 12
 
+[sub_resource type="Resource" id="ForgeSupplies"]
+script = ExtResource("2_site")
+site_id = &"forge_supplies"
+display_name = "Брошенная хозяйственная телега"
+description = "Крепёж, обрезки металла и доски — запас для первых кузнечных работ. DEV: разовые 24 материала для проверки Forge I; будущий источник и баланс будут проработаны отдельно."
+exploration_result_text = "Собрано 24 материала для оснастки и первых заказов. Телега пуста."
+map_position = Vector2(250, 380)
+starting_available = true
+exploration_enabled = true
+exploration_action_label = "СОБРАТЬ ПРИПАСЫ"
+material_reward = 24
+
 [resource]
 script = ExtResource("1_area")
 area_id = &"debug_home_outskirts_materials_area"
 display_name = "Ближняя роща"
 description = "Небольшая роща недалеко от будущего поселения. Здесь можно собрать материалы для лагеря и первой серьёзной стройки."
-sites = Array[ExtResource("2_site")]([SubResource("OldLoggingSite"), SubResource("ConstructionTimber")])
+sites = Array[ExtResource("2_site")]([SubResource("OldLoggingSite"), SubResource("ConstructionTimber"), SubResource("ForgeSupplies")])

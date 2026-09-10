@@ -1535,6 +1535,15 @@ func _on_local_interaction_action_requested(
 	var interaction := local.get_interaction(interaction_id) if local != null else null
 	if interaction == null or not interaction.action_labels.has(action_label):
 		return
+	if action_label == "ОТКРЫТЬ КУЗНИЦУ":
+		var settlement := campaign.home_settlement_definition
+		var forge_zone := settlement.get_zone(settlement.forge_zone_id)
+		var master := CampaignRuntime.forge_service.get_master(campaign, state)
+		var valid_interaction := forge_zone != null and forge_zone.local_interaction_id == interaction_id
+		valid_interaction = valid_interaction or (master != null and master.home_interaction_id == interaction_id)
+		if valid_interaction and state.current_world_node_id == settlement.world_node_id and CampaignRuntime.forge_service.has_shell(settlement, state.home_settlement_state):
+			_show_forge_panel(_panel)
+		return
 	var source_id: StringName = &""
 	var construction := false
 	if interaction_id == campaign.construction_worksite_interaction_id:
@@ -1885,3 +1894,30 @@ func _on_dialogue_closed(local_panel: CampaignLocalLocationPanel) -> void:
 	if is_instance_valid(local_panel):
 		local_panel.refresh_state()
 	_refresh_shell()
+	if _forge_return_pending and is_instance_valid(local_panel):
+		_forge_return_pending = false
+		_show_forge_panel(local_panel)
+
+
+var _forge_return_pending: bool = false
+
+func _show_forge_panel(local_panel: CampaignLocalLocationPanel) -> void:
+	var panel := CampaignForgePanel.new()
+	panel.close_requested.connect(func() -> void:
+		_forge_return_pending = false
+		_shell.clear_modal()
+		if is_instance_valid(local_panel):
+			local_panel.refresh_state()
+		_refresh_shell()
+	)
+	panel.state_changed.connect(_refresh_shell)
+	panel.talk_requested.connect(func(interaction_id: StringName) -> void:
+		_forge_return_pending = true
+		_shell.clear_modal()
+		_on_dialogue_requested(interaction_id, local_panel)
+		if _dialogue_session == null:
+			_forge_return_pending = false
+			_show_forge_panel(local_panel)
+	)
+	_shell.show_modal(panel)
+	panel.bind(CampaignRuntime)

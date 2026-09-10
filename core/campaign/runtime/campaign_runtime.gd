@@ -669,6 +669,12 @@ func get_home_resident_commission_error(
 			+"while a battle request is active."
 		)
 
+	if has_pending_travel():
+		return "Заказы недоступны во время путешествия."
+	var resident := get_resident_definition(resident_id)
+	if resident != null and resident.is_forge_master:
+		if forge_service.get_master(campaign_definition, campaign_state) != resident:
+			return "Этот мастер сейчас не работает в кузнице."
 	return (
 		equipment_commission_service
 			.get_commission_error(
@@ -699,7 +705,7 @@ func can_use_home_resident_commission(
 	)
 
 
-func commission_home_resident_item(
+func _apply_home_resident_commission(
 	resident_id: StringName,
 	commission_id: StringName
 ) -> HeroEquipmentItemInstance:
@@ -3551,3 +3557,50 @@ func reserve_construction_crew(project_id: StringName, source_id: StringName, cr
 func start_construction_project(project_id: StringName) -> String:
 	var error := construction_context_error()
 	return construction_service.start(campaign_definition, campaign_state, project_id) if error.is_empty() else error
+
+
+var forge_service := CampaignForgeService.new()
+# Commissions and retooling complete synchronously through advance_time. No
+# persistent active order exists; this guard prevents reentrant equipment work.
+var _equipment_work_active: bool = false
+
+
+func commission_home_resident_item(resident_id: StringName, commission_id: StringName) -> HeroEquipmentItemInstance:
+	if _equipment_work_active:
+		return null
+	_equipment_work_active = true
+	var item := _apply_home_resident_commission(resident_id, commission_id)
+	_equipment_work_active = false
+	return item
+
+
+func get_forge_retool_error(module_id: StringName, expected_module_id: StringName) -> String:
+	if campaign_definition == null or campaign_state == null:
+		return "Кампания не запущена."
+	if _equipment_work_active:
+		return "Дождитесь окончания кузнечной работы."
+	if has_pending_battle() or has_pending_travel():
+		return "Кузница недоступна во время боя или путешествия."
+	return forge_service.retool_error(campaign_definition, campaign_state, module_id, expected_module_id)
+
+
+func retool_forge(module_id: StringName, expected_module_id: StringName) -> String:
+	var error := get_forge_retool_error(module_id, expected_module_id)
+	if not error.is_empty():
+		return error
+	var module := get_home_settlement_definition().get_forge_module(module_id)
+	var settlement := get_home_settlement_state()
+	var previous_gold := campaign_state.inventory_state.gold
+	var previous_materials := campaign_state.materials
+	_equipment_work_active = true
+	campaign_state.inventory_state.gold -= module.gold_cost
+	campaign_state.materials -= module.material_cost
+	# Assign after successful time advancement, so no observer sees half-installed gear.
+	if not advance_time(module.duration_minutes):
+		campaign_state.inventory_state.gold = previous_gold
+		campaign_state.materials = previous_materials
+		_equipment_work_active = false
+		return "Не удалось завершить переоснащение."
+	settlement.forge_major_module_id = module_id
+	_equipment_work_active = false
+	return ""

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemInstance" format=3]
+[ext_resource type="Script" path="res://core/heroes/equipment/hero_equipment_item_instance.gd" id="instance"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_testing_sabre.tres" id="definition"]
+[resource]
+script = ExtResource("instance")
+instance_id = &"debug_testing_sabre_start"
+definition = ExtResource("definition")

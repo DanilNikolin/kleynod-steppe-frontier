@@ -9,7 +9,7 @@ Godot --headless --path . --script res://tests/campaign/construction_smoke.gd
 
 ## Manual flow
 
-1. Start a new debug campaign (save format 12; older saves are not migrated).
+1. Start a new debug campaign (save format 13; older saves are not migrated).
 2. Complete the carpenter quest, build A1/B1/C1 and invite him as a guest.
 3. Enter HOME and select his temporary worksite. It opens a separate construction
    panel. B2/C2 have knowledge but no agreement; the pier lacks knowledge.

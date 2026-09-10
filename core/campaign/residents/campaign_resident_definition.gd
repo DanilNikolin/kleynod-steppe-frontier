@@ -3,6 +3,8 @@ class_name CampaignResidentDefinition
 extends Resource
 
 
+@export var is_forge_master: bool = false
+
 @export_group("Identity")
 
 @export

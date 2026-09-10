@@ -15,6 +15,9 @@ var display_name: String = "Unnamed Commission"
 var description: String = ""
 
 
+## Equipment gates a personal master recipe; modules do not own catalogs.
+@export var required_forge_module_id: StringName = &""
+
 @export_group("Output")
 
 @export

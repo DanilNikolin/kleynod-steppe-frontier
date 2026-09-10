@@ -101,7 +101,7 @@ func show_project(project: CampaignConstructionProjectDefinition) -> void:
 		label(gate, _body)
 		return
 	if contract != null and contract.status == CampaignConstructionContract.Status.COMPLETED:
-		label("ЗДАНИЕ ПОСТРОЕНО\nБригада закончила работу. Для действующей кузницы нужны кузнец и профессиональное оборудование. Услуги пока не открыты.", _body)
+		label("ЗДАНИЕ ПОСТРОЕНО\nБригада закончила работу. Для работы нужен кузнец. Заказы и профессиональная оснастка доступны в отдельной панели построенной кузницы.", _body)
 		label("Оплачено: %d гр. · Использовано: %d материалов" % [contract.paid_gold, contract.paid_materials], _body)
 		return
 	if contract != null and contract.status == CampaignConstructionContract.Status.ACTIVE:

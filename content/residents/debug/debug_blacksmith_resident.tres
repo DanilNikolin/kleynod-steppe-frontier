@@ -1,10 +1,13 @@
-[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="1_resident"]
 [ext_resource type="Script" path="res://core/campaign/residents/services/campaign_equipment_commission_definition.gd" id="2_commission"]
 [ext_resource type="Resource" path="res://content/equipment/debug/debug_forged_sabre.tres" id="3_forged_sabre"]
 
 [ext_resource type="Resource" path="res://content/dialogue/debug/debug_ostap_dialogue.tres" id="4_dialogue"]
+
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_heavy_berdysh.tres" id="weapon_item"]
+[ext_resource type="Resource" path="res://content/equipment/debug/debug_steppe_armor.tres" id="armor_item"]
 
 [sub_resource type="Resource" id="ForgedSabreCommission"]
 script = ExtResource("2_commission")
@@ -15,6 +18,28 @@ output_item_definition = ExtResource("3_forged_sabre")
 gold_cost = 120
 material_cost = 4
 duration_minutes = 360
+
+[sub_resource type="Resource" id="weaponCommission"]
+script = ExtResource("2_commission")
+commission_id = &"ostap_weapon"
+display_name = "Выковать тяжёлый бердыш"
+description = "Личный заказ Остапа. DEV: временные предмет и стоимость для проверки специализации."
+required_forge_module_id = &"weapon_equipment"
+output_item_definition = ExtResource("weapon_item")
+gold_cost = 60
+material_cost = 3
+duration_minutes = 240
+
+[sub_resource type="Resource" id="armorCommission"]
+script = ExtResource("2_commission")
+commission_id = &"ostap_armor"
+display_name = "Изготовить степной доспех"
+description = "Личный заказ Остапа. DEV: временные предмет и стоимость для проверки специализации."
+required_forge_module_id = &"armor_equipment"
+output_item_definition = ExtResource("armor_item")
+gold_cost = 60
+material_cost = 3
+duration_minutes = 240
 
 [resource]
 script = ExtResource("1_resident")
@@ -28,5 +53,6 @@ home_interaction_id = &"debug_home_blacksmith"
 required_reputation = 5
 starting_recruitment_unlocked = false
 required_workplace_zone_id = &"workshop_west"
-required_workplace_building_id = &"blacksmith_workshop"
-equipment_commissions = Array[ExtResource("2_commission")]([SubResource("ForgedSabreCommission")])
+is_forge_master = true
+required_workplace_building_id = &"forge_shell"
+equipment_commissions = Array[ExtResource("2_commission")]([SubResource("ForgedSabreCommission"), SubResource("weaponCommission"), SubResource("armorCommission")])

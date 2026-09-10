@@ -73,6 +73,10 @@ func get_commission_error(
 			"Equipment commission definition is invalid."
 		)
 
+	if commission.required_forge_module_id != &"" and settlement_state.forge_major_module_id != commission.required_forge_module_id:
+		var module := settlement_definition.get_forge_module(commission.required_forge_module_id)
+		return "Требуется: %s." % (module.display_name if module != null else String(commission.required_forge_module_id))
+
 	if (
 		campaign_state.inventory_state.gold
 		< commission.gold_cost

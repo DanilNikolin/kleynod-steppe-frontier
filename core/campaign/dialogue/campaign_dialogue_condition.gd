@@ -3,7 +3,7 @@ class_name CampaignDialogueCondition
 extends Resource
 
 
-enum Kind { QUEST_NOT_STARTED, QUEST_ACTIVE, QUEST_READY, QUEST_COMPLETED, RESIDENT_AT_HOME }
+enum Kind { QUEST_NOT_STARTED, QUEST_ACTIVE, QUEST_READY, QUEST_COMPLETED, RESIDENT_AT_HOME, RESIDENT_MET }
 
 @export var kind: Kind = Kind.QUEST_NOT_STARTED
 @export var target_id: StringName = &""
@@ -13,9 +13,9 @@ enum Kind { QUEST_NOT_STARTED, QUEST_ACTIVE, QUEST_READY, QUEST_COMPLETED, RESID
 func matches(state: CampaignState, campaign: CampaignDefinition) -> bool:
 	if state == null or campaign == null:
 		return false
-	if kind == Kind.RESIDENT_AT_HOME:
+	if kind in [Kind.RESIDENT_AT_HOME, Kind.RESIDENT_MET]:
 		var resident := state.get_resident(target_id)
-		return resident != null and resident.is_at_home()
+		return resident != null and (resident.has_met if kind == Kind.RESIDENT_MET else resident.is_at_home())
 	var quest := state.get_quest(target_id)
 	var definition := campaign.get_quest(target_id)
 	if quest == null or definition == null:
@@ -44,7 +44,7 @@ func get_validation_errors() -> PackedStringArray:
 
 
 func get_reference_errors(campaign: CampaignDefinition) -> PackedStringArray:
-	if kind == Kind.RESIDENT_AT_HOME:
+	if kind in [Kind.RESIDENT_AT_HOME, Kind.RESIDENT_MET]:
 		if campaign.get_resident(target_id) == null:
 			return PackedStringArray(["Unknown dialogue resident: %s." % target_id])
 	elif campaign.get_quest(target_id) == null:

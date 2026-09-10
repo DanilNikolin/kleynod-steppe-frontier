@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 9
+const CURRENT_SAVE_VERSION: int = 11
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -469,6 +469,10 @@ func _encode_residents(
 	for resident in residents:
 		result.append(
 			{
+				"current_world_node_id": String(resident.current_world_node_id),
+				"next_move_at_minute": resident.next_move_at_minute,
+				"location_clue_known": resident.location_clue_known,
+				"has_met": resident.has_met,
 				"resident_id": String(
 					resident.resident_id
 				),
@@ -2453,11 +2457,26 @@ func _decode_residents(
 
 			return false
 
+		if not _has_keys(resident_data, ["current_world_node_id", "next_move_at_minute", "location_clue_known", "has_met"], "resident movement"):
+			return false
+		resident_state.current_world_node_id = StringName(_string_value(resident_data["current_world_node_id"], "resident.current_world_node_id", true))
+		resident_state.next_move_at_minute = _int_value(resident_data["next_move_at_minute"], "resident.next_move_at_minute", 0, 1440000000000)
+		resident_state.location_clue_known = _bool_value(resident_data["location_clue_known"], "resident.location_clue_known")
+		resident_state.has_met = _bool_value(resident_data["has_met"], "resident.has_met")
+		var resident_definition := definition.get_resident(resident_id)
+		if not resident_definition.wandering_world_node_ids.is_empty():
+			if not resident_definition.wandering_world_node_ids.has(resident_state.current_world_node_id):
+				_fail("Saved wandering resident is outside permitted locations.")
+				return false
+		elif resident_state.current_world_node_id != &"" or resident_state.location_clue_known or resident_state.has_met or resident_state.next_move_at_minute != 0:
+			_fail("Static resident has wandering state.")
+			return false
+
 		resident_state.status = _int_value(
 			resident_data["status"],
 			"resident.status",
 			CampaignResidentState.Status.ORIGIN,
-			CampaignResidentState.Status.HOME_SETTLEMENT
+			CampaignResidentState.Status.HOME_GUEST
 		) as CampaignResidentState.Status
 
 		resident_state.recruitment_unlocked = (

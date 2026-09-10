@@ -596,7 +596,7 @@ func _get_resident_world_node_id(
 		return &""
 
 	if state.is_at_origin():
-		return definition.origin_world_node_id
+		return state.current_world_node_id if state.current_world_node_id != &"" else definition.origin_world_node_id
 
 	if (
 		state.is_at_home()
@@ -605,3 +605,23 @@ func _get_resident_world_node_id(
 		return home_settlement_definition.world_node_id
 
 	return &""
+
+
+func apply_exploration_result(definitions: Array[CampaignQuestDefinition], state: CampaignState, area_id: StringName, site_id: StringName) -> bool:
+	var area := state.get_adventure_area(area_id)
+	if area == null or area.get_site(site_id) == null or not area.get_site(site_id).is_cleared():
+		return false
+	var previous: Dictionary = {}
+	for definition in definitions:
+		var quest := state.get_quest(definition.quest_id)
+		if quest == null or not quest.is_active():
+			continue
+		previous[quest.quest_id] = quest.completed_objective_ids.duplicate()
+		for objective in definition.objectives:
+			if objective.objective_type == CampaignQuestObjectiveDefinition.ObjectiveType.EXPLORE_ADVENTURE_SITE and objective.target_area_id == area_id and objective.target_site_id == site_id and not quest.is_objective_completed(objective.objective_id):
+				quest.completed_objective_ids.append(objective.objective_id)
+	if state.is_valid_state():
+		return true
+	for id in previous:
+		state.get_quest(id).completed_objective_ids = previous[id]
+	return false

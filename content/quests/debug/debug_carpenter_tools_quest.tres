@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="CampaignQuestDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://core/campaign/quests/campaign_quest_objective_definition.gd" id="objective"]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_reference_definition.gd" id="ref"]
+
+[sub_resource type="Resource" id="tools"]
+script = ExtResource("objective")
+objective_id = &"recover_tools"
+display_name = "Забрать инструмент в мастерской на Старом хуторе"
+objective_type = 1
+target_area_id = &"debug_carpenter_homestead_area"
+target_site_id = &"old_workshop"
+
+[sub_resource type="Resource" id="family"]
+script = ExtResource("objective")
+objective_id = &"family_lead"
+display_name = "Расспросить соседа на Старом хуторе о семье плотника"
+objective_type = 1
+target_area_id = &"debug_carpenter_homestead_area"
+target_site_id = &"roadside_witness"
+
+[sub_resource type="Resource" id="unlock_tools"]
+script = ExtResource("ref")
+area_id = &"debug_carpenter_homestead_area"
+site_id = &"old_workshop"
+
+[sub_resource type="Resource" id="unlock_family"]
+script = ExtResource("ref")
+area_id = &"debug_carpenter_homestead_area"
+site_id = &"roadside_witness"
+
+[resource]
+script = ExtResource("quest")
+quest_id = &"carpenter_tools_and_family"
+display_name = "То, что осталось дома"
+description = "Плотник попросил забрать инструмент из старой мастерской. Осмотрите двор на Старом хуторе рядом с Малым селом, расспросите соседа и вернитесь к мастеру туда, где вы познакомились."
+giver_resident_id = &"debug_carpenter"
+abandon_enabled = false
+start_adventure_site_unlocks = Array[ExtResource("ref")]([SubResource("unlock_tools"), SubResource("unlock_family")])
+objectives = Array[ExtResource("objective")]([SubResource("tools"), SubResource("family")])
+recruitment_unlock_resident_ids = Array[StringName]([&"debug_carpenter"])

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
@@ -35,6 +35,14 @@ description = "Приглашённый коваль родного поселе
 local_position = Vector2(2200, 300)
 action_labels = PackedStringArray("Поговорить", "Торговля")
 
+[sub_resource type="Resource" id="Carpenter"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_home_carpenter"
+display_name = "Плотник"
+action_labels = PackedStringArray("Поговорить")
+description = "Бродячий мастер: берётся за крыши и стропила, а за словом в карман не лезет."
+local_position = Vector2(1950, 180)
+
 [resource]
 script = ExtResource("1_location")
 local_location_id = &"debug_home_local"
@@ -42,4 +50,4 @@ display_name = "Родное место"
 description = "Пока это почти пустой участок степи у реки. Здесь ещё только предстоит построить настоящий дом."
 reference_size = Vector2(3000, 500)
 view_width = 1000.0
-interactions = Array[ExtResource("2_interaction")]([SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("Carpenter"), SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])

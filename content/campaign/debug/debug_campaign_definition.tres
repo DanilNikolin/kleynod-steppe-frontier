@@ -35,6 +35,11 @@
 [ext_resource type="Resource" path="res://content/adventure/debug/debug_home_outskirts_materials_area.tres" id="36_home_materials_area"]
 
 
+[ext_resource type="Resource" path="res://content/residents/debug/debug_carpenter_resident.tres" id="37_carpenter"]
+
+[ext_resource type="Resource" path="res://content/adventure/debug/debug_carpenter_homestead_area.tres" id="38_homestead"]
+[ext_resource type="Resource" path="res://content/quests/debug/debug_carpenter_tools_quest.tres" id="39_carpenter_quest"]
+
 [sub_resource type="Resource" id="HeroBayda"]
 script = ExtResource("2_hero_state")
 hero_definition = ExtResource("11_bayda")
@@ -101,12 +106,12 @@ starting_party_member_hero_ids = Array[StringName]([&"hero_bayda"])
 starting_gold = 500
 loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
 locations = Array[ExtResource("4_location_script")]([ExtResource("5_location"), ExtResource("33_abandoned_cart_location"), ExtResource("35_travel_ambush_location")])
-adventure_areas = Array[ExtResource("29_adventure_area_script")]([ExtResource("30_forest_area"), ExtResource("36_home_materials_area")])
+adventure_areas = Array[ExtResource("29_adventure_area_script")]([ExtResource("38_homestead"), ExtResource("30_forest_area"), ExtResource("36_home_materials_area")])
 world_map_definition = ExtResource("6_world_map")
 home_settlement_definition = ExtResource("7_home_settlement")
-residents = Array[ExtResource("25_resident_script")]([ExtResource("26_blacksmith_resident")])
+residents = Array[ExtResource("25_resident_script")]([ExtResource("26_blacksmith_resident"), ExtResource("37_carpenter")])
 traders = Array[ExtResource("31_trader_script")]([ExtResource("32_innkeeper_trader")])
-quests = Array[ExtResource("27_quest_script")]([ExtResource("28_ostap_quest"), ExtResource("34_board_quest")])
+quests = Array[ExtResource("27_quest_script")]([ExtResource("39_carpenter_quest"), ExtResource("28_ostap_quest"), ExtResource("34_board_quest")])
 starting_day = 0
 starting_minute_of_day = 480
 days_per_season = 20

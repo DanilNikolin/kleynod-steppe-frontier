@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
@@ -31,10 +31,18 @@ local_position = Vector2(850, 310)
 dialogue = ExtResource("4_notice_board_dialogue")
 dialogue_action_label = "ПОСМОТРЕТЬ ОБЪЯВЛЕНИЯ"
 
+[sub_resource type="Resource" id="Carpenter"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_wandering_carpenter"
+display_name = "Плотник"
+action_labels = PackedStringArray("Поговорить")
+description = "Бродячий мастер: берётся за крыши и стропила, а за словом в карман не лезет."
+local_position = Vector2(460, 180)
+
 [resource]
 script = ExtResource("1_location")
 local_location_id = &"debug_village_local"
 display_name = "Малое село"
 description = "Небольшое придорожное село. Здесь уже есть люди, торговля и свои проблемы."
 reference_size = Vector2(1000, 500)
-interactions = Array[ExtResource("2_interaction")]([SubResource("Innkeeper"), SubResource("Blacksmith"), SubResource("NoticeBoard")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("Carpenter"), SubResource("Innkeeper"), SubResource("Blacksmith"), SubResource("NoticeBoard")])

@@ -44,6 +44,19 @@ var required_reputation: int = 0
 var starting_recruitment_unlocked: bool = false
 
 
+## Guest arrival is distinct from permanent settlement.
+@export var arrives_as_guest: bool = false
+@export var required_home_effect_ids: Array[StringName] = []
+
+
+@export_group("Wandering")
+
+## Empty for stationary residents. All locations share origin_interaction_id.
+@export var wandering_world_node_ids: Array[StringName] = []
+## DEV pacing: three days per job; tune when the early region is authored.
+@export_range(1, 999999, 1) var wandering_interval_minutes: int = 4320
+
+
 @export_group("Workplace")
 
 ## Оба поля могут быть пустыми для жителя,
@@ -133,6 +146,25 @@ func get_validation_errors() -> PackedStringArray:
 			"Resident workplace requires both zone "
 			+"and building IDs."
 		)
+
+	if not wandering_world_node_ids.is_empty():
+		if wandering_world_node_ids.size() < 2 or not wandering_world_node_ids.has(origin_world_node_id):
+			errors.append("Wandering needs at least two locations including the origin.")
+		var seen_locations: Dictionary = {}
+		for id in wandering_world_node_ids:
+			if id == &"" or seen_locations.has(id):
+				errors.append("Empty or duplicate wandering location.")
+			seen_locations[id] = true
+		if wandering_interval_minutes < 1:
+			errors.append("Wandering interval must be positive.")
+
+	var seen_home_effects: Dictionary = {}
+	for id in required_home_effect_ids:
+		if id == &"" or seen_home_effects.has(id):
+			errors.append("Empty or duplicate HOME recruitment effect.")
+		seen_home_effects[id] = true
+	if arrives_as_guest and not required_home_effect_ids.has(&"temporary_guest_access"):
+		errors.append("Guest arrival requires temporary_guest_access.")
 
 	var used_commission_ids: Dictionary = {}
 

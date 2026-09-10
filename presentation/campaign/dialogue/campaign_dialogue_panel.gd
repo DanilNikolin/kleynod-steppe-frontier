@@ -21,7 +21,7 @@ func _ready() -> void:
 func show_session(session: CampaignDialogueSession, error: String = "") -> void:
 	_busy = false
 	_speaker.text = session.definition.speaker_name
-	_text.text = session.node.text
+	_text.text = session.get_node_text()
 	_status.text = error
 	for child in _choices.get_children():
 		_choices.remove_child(child)

@@ -21,6 +21,10 @@ var display_name: String = "Unnamed Adventure Site"
 var description: String = ""
 
 
+## Revealed only after the one-time exploration, and restored from site status.
+@export_multiline var exploration_result_text: String = ""
+
+
 @export_group("Area")
 
 ## Позиция на внутренней authored-карте региона.

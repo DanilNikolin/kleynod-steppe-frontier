@@ -1013,6 +1013,14 @@ func get_validation_errors() -> PackedStringArray:
 					% objective.target_location_id
 				)
 
+		for objective in quest.objectives:
+			if objective == null or objective.objective_type != CampaignQuestObjectiveDefinition.ObjectiveType.EXPLORE_ADVENTURE_SITE:
+				continue
+			var area := get_adventure_area(objective.target_area_id)
+			var site := area.get_site(objective.target_site_id) if area != null else null
+			if site == null or not site.exploration_enabled:
+				errors.append("Quest %s references invalid exploration site." % quest.quest_id)
+
 		for unlock_resident_id in (
 			quest.recruitment_unlock_resident_ids
 		):
@@ -1058,6 +1066,15 @@ func get_validation_errors() -> PackedStringArray:
 						unlock.site_id,
 					]
 				)
+
+	# Every permitted job must actually contain the resident's interaction.
+	for resident in residents:
+		if resident == null or world_map_definition == null:
+			continue
+		for id in resident.wandering_world_node_ids:
+			var location := world_map_definition.get_node(id)
+			if location == null or location.local_location_definition == null or location.local_location_definition.get_interaction(resident.origin_interaction_id) == null:
+				errors.append("Resident %s has an invalid wandering location: %s." % [resident.resident_id, id])
 
 	# Resolve dialogue references against this campaign, after content validation.
 	for resident in residents:

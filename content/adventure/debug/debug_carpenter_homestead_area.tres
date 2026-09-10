@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="CampaignAdventureAreaDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_area_definition.gd" id="area"]
+[ext_resource type="Script" path="res://core/campaign/adventure/campaign_adventure_site_definition.gd" id="site"]
+
+[sub_resource type="Resource" id="workshop"]
+script = ExtResource("site")
+site_id = &"old_workshop"
+display_name = "Разорённая мастерская"
+description = "Вместо жилого двора — обгоревшие балки и выбитая дверь мастерской. Под рухнувшим верстаком мог уцелеть инструмент."
+exploration_result_text = "Под верстаком уцелел завёрнутый в промасленную ткань плотницкий инструмент. Байда забрал его для мастера. Дом разграблен; жены и детей здесь нет. У дороги виден сосед — стоит расспросить его."
+starting_available = false
+map_position = Vector2(320, 230)
+connected_site_ids = Array[StringName]([&"roadside_witness"])
+exploration_enabled = true
+exploration_action_label = "ОБЫСКАТЬ МАСТЕРСКУЮ И ЗАБРАТЬ ИНСТРУМЕНТ"
+
+[sub_resource type="Resource" id="witness"]
+script = ExtResource("site")
+site_id = &"roadside_witness"
+display_name = "Сосед у дороги"
+description = "У края хутора пожилой сосед собирает уцелевшее добро. Возможно, он знает, что случилось с семьёй плотника."
+exploration_result_text = "Сосед вспоминает: «Жена его с ребятами успела уйти с обозом на восток. Сам видел их живыми. Куда добрались потом — не знаю». Это след, а не ответ. Нужно вернуть инструмент плотнику и рассказать о семье."
+starting_available = false
+map_position = Vector2(670, 230)
+exploration_enabled = true
+exploration_action_label = "РАССПРОСИТЬ О СЕМЬЕ ПЛОТНИКА"
+
+[resource]
+script = ExtResource("area")
+area_id = &"debug_carpenter_homestead_area"
+display_name = "Старый хутор"
+description = "Небольшой хутор неподалёку от Малого села. Здесь остались дом и мастерская плотника."
+sites = Array[ExtResource("site")]([SubResource("workshop"), SubResource("witness")])

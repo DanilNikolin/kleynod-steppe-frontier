@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="CampaignLocalLocationDefinition" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_location_definition.gd" id="1_location"]
 [ext_resource type="Script" path="res://core/campaign/world/local/campaign_local_interaction_definition.gd" id="2_interaction"]
@@ -27,10 +27,18 @@ description = "Следит за порядком и может рассказа
 local_position = Vector2(810, 370)
 action_labels = PackedStringArray("Поговорить", "Спросить об окрестностях")
 
+[sub_resource type="Resource" id="Carpenter"]
+script = ExtResource("2_interaction")
+interaction_id = &"debug_wandering_carpenter"
+display_name = "Плотник"
+action_labels = PackedStringArray("Поговорить")
+description = "Бродячий мастер: берётся за крыши и стропила, а за словом в карман не лезет."
+local_position = Vector2(410, 180)
+
 [resource]
 script = ExtResource("1_location")
 local_location_id = &"debug_city_local"
 display_name = "Большой город"
 description = "Крупное поселение с торговлей, специалистами и большим количеством возможностей."
 reference_size = Vector2(1000, 500)
-interactions = Array[ExtResource("2_interaction")]([SubResource("Merchant"), SubResource("Herbalist"), SubResource("Guard")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("Carpenter"), SubResource("Merchant"), SubResource("Herbalist"), SubResource("Guard")])

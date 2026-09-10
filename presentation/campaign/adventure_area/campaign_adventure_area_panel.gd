@@ -278,6 +278,9 @@ func _refresh_details() -> void:
 		site_definition.description
 	)
 
+	if site_state.is_cleared() and not site_definition.exploration_result_text.is_empty():
+		_site_description.text = site_definition.exploration_result_text
+
 	if site_state.is_cleared():
 		_action_button.visible = true
 		_action_button.disabled = true

@@ -3,7 +3,7 @@ class_name CampaignDialogueChoice
 extends Resource
 
 
-enum Action { NONE, START_QUEST, TURN_IN_QUEST, INVITE_RESIDENT, OPEN_TRADING }
+enum Action { NONE, START_QUEST, TURN_IN_QUEST, INVITE_RESIDENT, OPEN_TRADING, REVEAL_RESIDENT_LOCATION }
 
 @export var choice_id: StringName = &""
 @export_multiline var text: String = ""

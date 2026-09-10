@@ -602,7 +602,8 @@ func get_resident_recruitment_error(
 	return resident_service.get_recruitment_error(
 		campaign_state,
 		definition,
-		state
+		state,
+		get_home_settlement_definition()
 	)
 
 
@@ -631,7 +632,8 @@ func invite_resident(
 		),
 		get_resident_state(
 			resident_id
-		)
+		),
+		get_home_settlement_definition()
 	)
 
 
@@ -2309,6 +2311,7 @@ func advance_time(
 
 		return false
 
+	resident_service.update_wandering(campaign_definition, campaign_state)
 	return true
 
 
@@ -2572,15 +2575,16 @@ func explore_adventure_site(
 
 		return false
 
-	return (
-		adventure_service
-			.apply_landmark_exploration(
-				campaign_state,
-				area_definition,
-				area_state,
-				site_id
-			)
-	)
+	var previous_materials := campaign_state.materials
+	var previous_status := area_state.get_site(site_id).status
+	if not adventure_service.apply_landmark_exploration(campaign_state, area_definition, area_state, site_id):
+		return false
+	if quest_service.apply_exploration_result(campaign_definition.quests, campaign_state, area_id, site_id):
+		return true
+	# Exploration and its quest progress commit together.
+	campaign_state.materials = previous_materials
+	area_state.get_site(site_id).status = previous_status
+	return false
 
 
 func start_adventure_site(
@@ -3507,7 +3511,7 @@ func get_resident_for_local_interaction(interaction_id: StringName) -> CampaignR
 		var state := get_resident_state(resident.resident_id)
 		if state == null or not resident_service.is_interaction_present(resident, state, interaction_id):
 			continue
-		var world_id := resident.origin_world_node_id
+		var world_id := resident_service.get_origin_world_node_id(resident, state)
 		if state.is_at_home():
 			var home := get_home_settlement_definition()
 			if home == null:

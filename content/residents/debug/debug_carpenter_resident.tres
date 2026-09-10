@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CampaignResidentDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://core/campaign/residents/campaign_resident_definition.gd" id="resident"]
+[ext_resource type="Resource" path="res://content/dialogue/debug/debug_carpenter_dialogue.tres" id="dialogue"]
+
+[resource]
+script = ExtResource("resident")
+resident_id = &"debug_carpenter"
+display_name = "Плотник"
+description = "Бродячий плотник. Знакомство ещё не означает согласия переселиться."
+dialogue = ExtResource("dialogue")
+origin_world_node_id = &"debug_village"
+origin_interaction_id = &"debug_wandering_carpenter"
+home_interaction_id = &"debug_home_carpenter"
+wandering_world_node_ids = Array[StringName]([&"debug_village", &"debug_city"])
+wandering_interval_minutes = 4320
+arrives_as_guest = true
+required_home_effect_ids = Array[StringName]([&"primitive_camp_established", &"party_management_access", &"temporary_guest_access"])

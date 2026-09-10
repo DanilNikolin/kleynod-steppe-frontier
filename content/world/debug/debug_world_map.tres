@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=19 format=3]
+[gd_resource type="Resource" script_class="CampaignWorldMapDefinition" load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_map_definition.gd" id="1_map"]
 [ext_resource type="Script" path="res://core/campaign/world/campaign_world_node_definition.gd" id="2_node"]
@@ -105,9 +105,25 @@ node_b_id = &"debug_forest_edge_node"
 travel_multiplier = 1.25
 travel_days_override = -1
 
+[sub_resource type="Resource" id="NodeCarpenterHomestead"]
+script = ExtResource("2_node")
+node_id = &"debug_carpenter_homestead"
+display_name = "Старый хутор"
+description = "Хутор со старой мастерской плотника."
+node_type = 3
+map_position = Vector2(570, 120)
+adventure_area_id = &"debug_carpenter_homestead_area"
+
+[sub_resource type="Resource" id="RouteCarpenterHomestead"]
+script = ExtResource("3_route")
+route_id = &"debug_route_village_homestead"
+node_a_id = &"debug_village"
+node_b_id = &"debug_carpenter_homestead"
+travel_days_override = 1
+
 [resource]
 script = ExtResource("1_map")
 map_units_per_day = 120.0
 starting_node_id = &"debug_home"
-nodes = Array[ExtResource("2_node")]([SubResource("NodeHome"), SubResource("NodeHomeMaterials"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
-routes = Array[ExtResource("3_route")]([SubResource("RouteHomeMaterials"), SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])
+nodes = Array[ExtResource("2_node")]([SubResource("NodeCarpenterHomestead"), SubResource("NodeHome"), SubResource("NodeHomeMaterials"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
+routes = Array[ExtResource("3_route")]([SubResource("RouteCarpenterHomestead"), SubResource("RouteHomeMaterials"), SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])

@@ -2,7 +2,8 @@ class_name CampaignDialogueSession
 extends RefCounted
 
 
-## Transient conversation. No authored resources or save data are mutated here.
+## Transient conversation. Authored resources stay immutable; successful
+## encounters and choices may update the campaign's saved gameplay state.
 var definition: CampaignDialogueDefinition
 var node: CampaignDialogueNode
 var revision: int = 0
@@ -30,6 +31,12 @@ func begin(runtime: CampaignRuntimeService, interaction_id: StringName) -> bool:
 	_world_node_id = _state.current_world_node_id
 	node = definition.get_entry(_state, _campaign)
 	closed = node == null
+	if not closed:
+		var resident := runtime.get_resident_for_local_interaction(interaction_id)
+		if resident != null and not resident.wandering_world_node_ids.is_empty():
+			# Select first-meeting entry before recording it. Opening the conversation
+			# counts as meeting, including when the player closes without an answer.
+			_state.get_resident(resident.resident_id).has_met = true
 	return not closed
 
 
@@ -82,6 +89,8 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 	revision += 1
 	var applied := true
 	match choice.action:
+		CampaignDialogueChoice.Action.REVEAL_RESIDENT_LOCATION:
+			_state.get_resident(choice.target_id).location_clue_known = true
 		CampaignDialogueChoice.Action.OPEN_TRADING:
 			pending_trader_id = choice.target_id
 		CampaignDialogueChoice.Action.START_QUEST:
@@ -103,6 +112,13 @@ func _get_action_error(
 	choice: CampaignDialogueChoice
 ) -> String:
 	if choice.action == CampaignDialogueChoice.Action.NONE:
+		return ""
+
+	if choice.action == CampaignDialogueChoice.Action.REVEAL_RESIDENT_LOCATION:
+		var target := _campaign.get_resident(choice.target_id)
+		var target_state := _state.get_resident(choice.target_id)
+		if target == null or target_state == null or target.wandering_world_node_ids.is_empty() or not target_state.is_at_origin():
+			return "О местонахождении этого мастера ничего не известно."
 		return ""
 
 	if choice.action == CampaignDialogueChoice.Action.OPEN_TRADING:
@@ -180,17 +196,9 @@ func _get_action_error(
 				% resident.required_reputation
 			)
 
-		if not (
-			_runtime
-				.get_resident_recruitment_error(
-					choice.target_id
-				)
-				.is_empty()
-		):
-			return (
-				"Сейчас нельзя пригласить "
-				+ "этого персонажа."
-			)
+		var recruitment_error := _runtime.get_resident_recruitment_error(choice.target_id)
+		if not recruitment_error.is_empty():
+			return recruitment_error
 
 		return ""
 
@@ -309,3 +317,15 @@ func resume_from_trading() -> String:
 		close()
 		return error
 	return ""
+
+
+func get_node_text() -> String:
+	var result := node.text
+	for resident in _campaign.residents:
+		var token := "{resident_location:%s}" % resident.resident_id
+		if not result.contains(token):
+			continue
+		var state := _state.get_resident(resident.resident_id)
+		var location := _campaign.world_map_definition.get_node(_runtime.resident_service.get_origin_world_node_id(resident, state))
+		result = result.replace(token, location.display_name if location != null else "неизвестно")
+	return result

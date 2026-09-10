@@ -1,8 +1,16 @@
-[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_definition.gd" id="dialogue"]
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_node.gd" id="node"]
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_choice.gd" id="choice"]
+
+[sub_resource type="Resource" id="carpenter_clue"]
+script = ExtResource("choice")
+choice_id = &"carpenter_clue"
+text = "Где найти плотника?"
+next_node_id = &"carpenter_clue"
+action = 5
+target_id = &"debug_carpenter"
 
 [sub_resource type="Resource" id="trade"]
 script = ExtResource("choice")
@@ -40,7 +48,7 @@ next_node_id = &""
 script = ExtResource("node")
 node_id = &"welcome"
 text = "Заходи, путник. Если собираешься в дорогу — посмотри, что у меня есть. А если хочешь узнать о селе, спрашивай."
-choices = Array[ExtResource("choice")]([SubResource("trade"), SubResource("village"), SubResource("terms"), SubResource("leave")])
+choices = Array[ExtResource("choice")]([SubResource("carpenter_clue"), SubResource("trade"), SubResource("village"), SubResource("terms"), SubResource("leave")])
 
 [sub_resource type="Resource" id="node_village"]
 script = ExtResource("node")
@@ -54,9 +62,15 @@ node_id = &"terms"
 text = "Людям с добрым именем я уступаю охотнее. Из того, что на прилавке, выбирай; запас у меня не бесконечный. Наладятся речные связи — появятся и привозные вещи."
 choices = Array[ExtResource("choice")]([SubResource("trade"), SubResource("back"), SubResource("leave")])
 
+[sub_resource type="Resource" id="node_carpenter_clue"]
+script = ExtResource("node")
+node_id = &"carpenter_clue"
+text = "Плотник сейчас работает здесь: {resident_location:debug_carpenter}. Он там задержится — успеешь поговорить. Мастер толковый, только шутить любит."
+choices = Array[ExtResource("choice")]([SubResource("back"), SubResource("leave")])
+
 [resource]
 script = ExtResource("dialogue")
 dialogue_id = &"village_innkeeper_conversation"
 speaker_name = "Трактирщик"
 entry_node_ids = Array[StringName]([&"welcome"])
-nodes = Array[ExtResource("node")]([SubResource("node_welcome"), SubResource("node_village"), SubResource("node_terms")])
+nodes = Array[ExtResource("node")]([SubResource("node_carpenter_clue"), SubResource("node_welcome"), SubResource("node_village"), SubResource("node_terms")])

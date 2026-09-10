@@ -1337,7 +1337,8 @@ func _refresh_resident_visibility() -> void:
 				.is_interaction_present(
 					definition,
 					resident_state,
-					definition.origin_interaction_id
+					definition.origin_interaction_id,
+					_state.current_world_node_id
 				)
 		)
 
@@ -1372,7 +1373,8 @@ func _refresh_resident_visibility() -> void:
 	if not _resident_service.is_interaction_present(
 		selected_resident,
 		selected_state,
-		_selected_interaction_id
+		_selected_interaction_id,
+		_state.current_world_node_id
 	):
 		_selected_interaction_id = &""
 
@@ -1434,26 +1436,16 @@ func _refresh_resident_panel(
 	)
 
 	if resident_state.is_at_origin():
-		lines.append(
-			"Статус: находится в Малом селе."
-		)
-
-		lines.append(
-			"Условие приглашения: %s"
-			% (
-				"выполнено"
-				if resident_state.recruitment_unlocked
-				else "не выполнено"
+		lines.append("Местонахождение: %s." % _definition.display_name)
+		if not definition.wandering_world_node_ids.is_empty():
+			lines.append(
+				"Вы уже знакомы. Мастер будет ждать здесь."
+				if resident_state.has_met
+				else "Мастер занят местной работой. С ним можно поговорить."
 			)
-		)
-
-		lines.append(
-			"Репутация: %d / %d"
-			% [
-				_state.reputation,
-				definition.required_reputation,
-			]
-		)
+		else:
+			lines.append("Условие приглашения: %s" % ("выполнено" if resident_state.recruitment_unlocked else "не выполнено"))
+			lines.append("Репутация: %d / %d" % [_state.reputation, definition.required_reputation])
 
 	else:
 		workplace_ready = (
@@ -1467,7 +1459,7 @@ func _refresh_resident_panel(
 		)
 
 		lines.append(
-			"Статус: живёт в родном поселении."
+			"Статус: временный гость поселения." if resident_state.status == CampaignResidentState.Status.HOME_GUEST else "Статус: живёт в родном поселении."
 		)
 
 		if definition.has_required_workplace():
@@ -1579,7 +1571,8 @@ func _refresh_resident_panel(
 					.get_recruitment_error(
 						_state,
 						definition,
-						resident_state
+						resident_state,
+						_settlement_definition
 					)
 			)
 

@@ -5,6 +5,7 @@ extends Resource
 
 enum ObjectiveType {
 	WIN_LOCATION_BATTLE,
+	EXPLORE_ADVENTURE_SITE,
 }
 
 
@@ -27,6 +28,12 @@ var objective_type: ObjectiveType = (
 ## CampaignLocationDefinition.location_id.
 @export
 var target_location_id: StringName = &""
+
+
+## Used by EXPLORE_ADVENTURE_SITE; tools and testimony are quest progress,
+## not sellable inventory items.
+@export var target_area_id: StringName = &""
+@export var target_site_id: StringName = &""
 
 
 func is_valid_definition() -> bool:
@@ -54,4 +61,9 @@ func get_validation_errors() -> PackedStringArray:
 					+"requires target location ID."
 				)
 
+		ObjectiveType.EXPLORE_ADVENTURE_SITE:
+			if target_area_id == &"" or target_site_id == &"":
+				errors.append("Exploration objective requires an area and site.")
+		_:
+			errors.append("Unknown quest objective type.")
 	return errors

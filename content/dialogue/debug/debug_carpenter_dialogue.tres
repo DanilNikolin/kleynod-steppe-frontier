@@ -1,0 +1,135 @@
+[gd_resource type="Resource" script_class="CampaignDialogueDefinition" format=3]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_definition.gd" id="dialogue"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_node.gd" id="node"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_choice.gd" id="choice"]
+[ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_condition.gd" id="condition"]
+
+[sub_resource type="Resource" id="met"]
+script = ExtResource("condition")
+kind = 5
+target_id = &"debug_carpenter"
+
+[sub_resource type="Resource" id="home"]
+script = ExtResource("condition")
+kind = 4
+target_id = &"debug_carpenter"
+
+[sub_resource type="Resource" id="active"]
+script = ExtResource("condition")
+kind = 1
+target_id = &"carpenter_tools_and_family"
+
+[sub_resource type="Resource" id="ready"]
+script = ExtResource("condition")
+kind = 2
+target_id = &"carpenter_tools_and_family"
+
+[sub_resource type="Resource" id="complete"]
+script = ExtResource("condition")
+kind = 3
+target_id = &"carpenter_tools_and_family"
+
+[sub_resource type="Resource" id="choice_ask_work"]
+script = ExtResource("choice")
+choice_id = &"ask_work"
+text = "Я Байда. Ищу мастера для поселения."
+next_node_id = &"work"
+action = 0
+
+[sub_resource type="Resource" id="choice_accept"]
+script = ExtResource("choice")
+choice_id = &"accept"
+text = "Схожу на Старый хутор. Где искать инструмент?"
+next_node_id = &"directions"
+action = 1
+target_id = &"carpenter_tools_and_family"
+
+[sub_resource type="Resource" id="choice_report"]
+script = ExtResource("choice")
+choice_id = &"report"
+text = "Инструмент у меня. Нужно поговорить о твоём доме и семье."
+next_node_id = &"news"
+action = 2
+target_id = &"carpenter_tools_and_family"
+
+[sub_resource type="Resource" id="choice_invite"]
+script = ExtResource("choice")
+choice_id = &"invite"
+text = "У нас есть место под навесом. Приезжай гостем."
+next_node_id = &""
+action = 3
+target_id = &"debug_carpenter"
+hide_when_unavailable = false
+
+[sub_resource type="Resource" id="choice_leave"]
+script = ExtResource("choice")
+choice_id = &"leave"
+text = "Ещё увидимся."
+next_node_id = &""
+action = 0
+
+[sub_resource type="Resource" id="node_home"]
+script = ExtResource("node")
+node_id = &"home"
+text = "Добрался. Спасибо за место под навесом. Пока я у тебя гость: с первой серьёзной стройкой помогу, а после надо искать моих. Сосед видел их живыми, с обозом на восток. За этот след и держусь."
+conditions = Array[ExtResource("condition")]([SubResource("home")])
+choices = Array[ExtResource("choice")]([SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_complete"]
+script = ExtResource("node")
+node_id = &"complete"
+text = "Инструмент ты вернул, и теперь я знаю: мои ушли живыми. Спасибо. Мне нужно место перевести дух и решить, где искать дальше. Если твой лагерь готов принять гостя — приеду. С первой серьёзной стройкой помогу; навсегда пока не обещаю."
+conditions = Array[ExtResource("condition")]([SubResource("complete")])
+choices = Array[ExtResource("choice")]([SubResource("choice_invite"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_ready"]
+script = ExtResource("node")
+node_id = &"ready"
+text = "Вижу, вернулся. Нашёл мастерскую? Что там дома?"
+conditions = Array[ExtResource("condition")]([SubResource("ready")])
+choices = Array[ExtResource("choice")]([SubResource("choice_report"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_active"]
+script = ExtResource("node")
+node_id = &"active"
+text = "За инструментом — на Старый хутор, дорога из Малого села. Осмотри мастерскую и расспроси соседа у дороги. Я жду здесь: {resident_location:debug_carpenter}."
+conditions = Array[ExtResource("condition")]([SubResource("active")])
+choices = Array[ExtResource("choice")]([SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_again"]
+script = ExtResource("node")
+node_id = &"again"
+text = "А, Байда! Всё ещё нужен мастер? Я здесь, как обещал."
+conditions = Array[ExtResource("condition")]([SubResource("met")])
+choices = Array[ExtResource("choice")]([SubResource("choice_ask_work"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_first"]
+script = ExtResource("node")
+node_id = &"first"
+text = "Мастера ищешь? Если крышу — ко мне. Если виноватого, что дождь идёт, — это к кому-нибудь повыше. Говори. Я пока здесь работаю, в другое место не уйду."
+choices = Array[ExtResource("choice")]([SubResource("choice_ask_work"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_work"]
+script = ExtResource("node")
+node_id = &"work"
+text = "Поселение, говоришь? Надеюсь, не один колышек посреди степи. За первую серьёзную стройку можно взяться, но в вечные работники я не нанимаюсь. Сначала помоги: забери мой инструмент из мастерской на Старом хуторе, рядом с Малым селом. Давно домой не выбирался…"
+choices = Array[ExtResource("choice")]([SubResource("choice_accept"), SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_directions"]
+script = ExtResource("node")
+node_id = &"directions"
+text = "Инструмент завёрнут в промасленную ткань, под верстаком. Загляни во двор, спроси у соседа, как там мои. Вернёшься — найдёшь меня здесь: {resident_location:debug_carpenter}."
+choices = Array[ExtResource("choice")]([SubResource("choice_leave")])
+
+[sub_resource type="Resource" id="node_news"]
+script = ExtResource("node")
+node_id = &"news"
+text = "Байда кладёт инструмент перед мастером и рассказывает о разорённом доме.\n\n— А мои?\n— Сосед видел жену с детьми живыми. Они ушли с обозом на восток. Дальше он не знает.\n\nПлотник долго молчит.\n— Значит, есть кого искать. Спасибо, что не стал выдумывать утешений. Если у тебя готов лагерь, приеду пока гостем. За помощь помогу с первой серьёзной стройкой. А семью искать не брошу."
+choices = Array[ExtResource("choice")]([SubResource("choice_invite"), SubResource("choice_leave")])
+
+[resource]
+script = ExtResource("dialogue")
+dialogue_id = &"carpenter_conversation"
+speaker_name = "Плотник"
+entry_node_ids = Array[StringName]([&"home", &"complete", &"ready", &"active", &"again", &"first"])
+nodes = Array[ExtResource("node")]([SubResource("node_home"), SubResource("node_complete"), SubResource("node_ready"), SubResource("node_active"), SubResource("node_again"), SubResource("node_first"), SubResource("node_work"), SubResource("node_directions"), SubResource("node_news")])

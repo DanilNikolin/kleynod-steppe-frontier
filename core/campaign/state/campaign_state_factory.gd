@@ -117,6 +117,10 @@ func create_from_definition(
 				.starting_recruitment_unlocked
 		)
 
+		if not resident_definition.wandering_world_node_ids.is_empty():
+			resident_state.current_world_node_id = resident_definition.origin_world_node_id
+			resident_state.next_move_at_minute = definition.starting_day * 1440 + definition.starting_minute_of_day + resident_definition.wandering_interval_minutes
+
 		if not resident_state.is_valid_state():
 			return null
 

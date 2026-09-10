@@ -85,7 +85,7 @@ func _process(delta: float) -> void:
 	)
 
 
-func _input(event: InputEvent) -> void:
+func _gui_input(event: InputEvent) -> void:
 	if (
 		_definition == null
 		or _camera == null
@@ -93,41 +93,40 @@ func _input(event: InputEvent) -> void:
 	):
 		return
 
-	if event is InputEventMouseButton:
-		var mouse_button := (
-			event as InputEventMouseButton
-		)
-
-		if (
-			mouse_button.button_index
-			!= MOUSE_BUTTON_LEFT
-		):
-			return
-
-		if mouse_button.pressed:
-			if not get_global_rect().has_point(
-				mouse_button.position
-			):
-				return
-
-			if _is_pointer_over_subviewport_control():
-				return
-
-			_begin_camera_drag()
-
-			get_viewport().set_input_as_handled()
-
-		elif _is_camera_dragging:
-			_end_camera_drag()
-
-			get_viewport().set_input_as_handled()
-
+	if not event is InputEventMouseButton:
 		return
 
+	var mouse_button := (
+		event as InputEventMouseButton
+	)
+
 	if (
-		event is InputEventMouseMotion
-		and _is_camera_dragging
+		mouse_button.button_index
+		!= MOUSE_BUTTON_LEFT
 	):
+		return
+
+	if not mouse_button.pressed:
+		return
+
+	## Interaction buttons rendered inside the SubViewport
+	## must keep their normal GUI click behaviour.
+	if _is_pointer_over_subviewport_control():
+		return
+
+	_begin_camera_drag()
+
+	accept_event()
+
+
+func _input(event: InputEvent) -> void:
+	if (
+		not _is_camera_dragging
+		or _camera == null
+	):
+		return
+
+	if event is InputEventMouseMotion:
 		var mouse_motion := (
 			event as InputEventMouseMotion
 		)
@@ -147,6 +146,22 @@ func _input(event: InputEvent) -> void:
 		)
 
 		get_viewport().set_input_as_handled()
+
+		return
+
+	if event is InputEventMouseButton:
+		var mouse_button := (
+			event as InputEventMouseButton
+		)
+
+		if (
+			mouse_button.button_index
+			== MOUSE_BUTTON_LEFT
+			and not mouse_button.pressed
+		):
+			_end_camera_drag()
+
+			get_viewport().set_input_as_handled()
 
 
 func _is_pointer_over_subviewport_control() -> bool:

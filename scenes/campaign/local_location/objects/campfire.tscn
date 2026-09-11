@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://dg0u8g2l7x4a1"]
+
+[ext_resource type="Texture2D" uid="uid://civfopkvvrlea" path="res://Graphics/home_village/campfire/ChatGPT Image 11 сент. 2026 г., 12_52_20.png" id="1_2igmp"]
+
+[node name="Campfire" type="Node2D" unique_id=501293828]
+
+[node name="Visual" type="Node2D" parent="." unique_id=860722378]
+
+[node name="Base" type="Sprite2D" parent="Visual" unique_id=1319691281]
+
+[node name="ChatGptImage11Сент_2026Г_,125220" type="Sprite2D" parent="." unique_id=1501634599]
+position = Vector2(5, -34.99997)
+scale = Vector2(0.1539075, 0.1539075)
+texture = ExtResource("1_2igmp")

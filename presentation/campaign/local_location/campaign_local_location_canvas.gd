@@ -47,6 +47,7 @@ var _camera: Camera2D
 var _buttons_by_interaction_id: Dictionary = {}
 var _display_text_overrides: Dictionary = {}
 var _visibility_overrides: Dictionary = {}
+var _anchors_by_interaction_id: Dictionary = {}
 
 
 func _ready() -> void:
@@ -427,6 +428,7 @@ func _reset_visual_stage_references() -> void:
 	_foreground = null
 	_interactions_root = null
 	_camera = null
+	_anchors_by_interaction_id.clear()
 
 
 func _instantiate_authored_visual_stage() -> bool:
@@ -524,21 +526,47 @@ func _bind_visual_stage_nodes() -> bool:
 	)
 
 	if (
-		_far_background == null
-		or _mid_background == null
-		or _content_root == null
-		or _foreground == null
+		_content_root == null
 		or _interactions_root == null
 		or _camera == null
 	):
 		push_error(
-			"Local location visual scene is missing required nodes: %s"
+			"Local location visual scene is missing required nodes (WorldContent, Interactions, Camera): %s"
 			% _definition.visual_scene_path
 		)
 
 		return false
 
+	_discover_interaction_anchors()
+
 	return true
+
+
+func _discover_interaction_anchors() -> void:
+	_anchors_by_interaction_id.clear()
+
+	if _world_root == null:
+		return
+
+	var stack: Array[Node] = [_world_root]
+
+	while not stack.is_empty():
+		var current := stack.pop_back() as Node
+
+		if current == null:
+			continue
+
+		if (
+			current is Node2D
+			and "interaction_id" in current
+		):
+			var id_value = current.get("interaction_id")
+
+			if id_value is StringName and not (id_value as StringName).is_empty():
+				_anchors_by_interaction_id[id_value] = current as Node2D
+
+		for child in current.get_children():
+			stack.push_back(child)
 
 
 func _create_fallback_visual_stage() -> void:
@@ -705,8 +733,16 @@ func _create_interaction_buttons() -> void:
 			INTERACTION_SIZE
 		)
 
+		var target_pos := interaction.local_position
+
+		if _anchors_by_interaction_id.has(interaction.interaction_id):
+			var anchor := _anchors_by_interaction_id[interaction.interaction_id] as Node2D
+
+			if anchor != null and is_instance_valid(anchor):
+				target_pos = _interactions_root.to_local(anchor.global_position)
+
 		button.position = (
-			interaction.local_position
+			target_pos
 			- INTERACTION_SIZE * 0.5
 		)
 

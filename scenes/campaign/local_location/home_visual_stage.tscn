@@ -1,29 +1,65 @@
 [gd_scene format=3 uid="uid://nnq2lj31kdxf"]
 
-[ext_resource type="Texture2D" uid="uid://cqj7vw1h82yd2" path="res://scenes/campaign/local_location/BG_Home(middle).png" id="1_q0qq8"]
+[ext_resource type="Texture2D" uid="uid://mhibtd77xbvc" path="res://Graphics/home_village/BG/Parallax/03_Middle/BG_Home(middle).png" id="1_q0qq8"]
+[ext_resource type="PackedScene" uid="uid://dg0u8g2l7x4a1" path="res://scenes/campaign/local_location/objects/campfire.tscn" id="2_campfire"]
+
+[ext_resource type="Script" path="res://presentation/campaign/local_location/local_interaction_anchor.gd" id="3_anchor"]
+
+[sub_resource type="Gradient" id="Gradient_sky"]
+colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sky"]
+gradient = SubResource("Gradient_sky")
+fill_to = Vector2(0, 1)
 
 [node name="HomeVisualStage" type="Node2D" unique_id=259198650]
 
-[node name="FarBackground" type="Parallax2D" parent="." unique_id=474965930]
-z_index = -30
+[node name="SkyLayer" type="CanvasLayer" parent="." unique_id=128493010]
+layer = -1
 
-[node name="MidBackground" type="Parallax2D" parent="." unique_id=2077525275]
-z_index = -20
+[node name="SkyGradient" type="TextureRect" parent="SkyLayer" unique_id=128493011]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_sky")
+
+[node name="Clouds" type="Parallax2D" parent="." unique_id=474965930]
+z_index = -30
 
 [node name="WorldContent" type="Node2D" parent="." unique_id=1151582725]
 
-[node name="DebugGround" type="Polygon2D" parent="WorldContent" unique_id=439092786]
-color = Color(0.09, 0.085, 0.075, 1)
-polygon = PackedVector2Array(0, 696, 5760, 696, 5760, 1200, 0, 1200)
-
-[node name="DebugGroundLine" type="Line2D" parent="WorldContent" unique_id=1876937412]
-points = PackedVector2Array(0, 696, 5760, 696)
-width = 2.0
-default_color = Color(0.28, 0.25, 0.2, 1)
-
-[node name="BgHome(middle)" type="Sprite2D" parent="WorldContent" unique_id=236266373]
+[node name="Landscape" type="Sprite2D" parent="WorldContent" unique_id=1767925986]
 position = Vector2(3715, 688)
 texture = ExtResource("1_q0qq8")
+
+[node name="EarlyBuildSites" type="Node2D" parent="WorldContent" unique_id=210000001]
+
+[node name="CampfireSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000002]
+position = Vector2(3072, 792)
+script = ExtResource("3_anchor")
+interaction_id = &"home_zone_central_camp"
+
+[node name="PartyShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000003]
+position = Vector2(2650, 756)
+script = ExtResource("3_anchor")
+interaction_id = &"home_zone_party_shelter"
+
+[node name="CommonShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000004]
+position = Vector2(3418, 756)
+script = ExtResource("3_anchor")
+interaction_id = &"home_zone_common_shelter"
+
+[node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
+
+[node name="Campfire" parent="WorldContent/Buildings" unique_id=1183204079 instance=ExtResource("2_campfire")]
+position = Vector2(3074, 796)
+
+[node name="Props" type="Node2D" parent="WorldContent" unique_id=210000020]
+
+[node name="NPCs" type="Node2D" parent="WorldContent" unique_id=210000030]
 
 [node name="Foreground" type="Parallax2D" parent="." unique_id=941042337]
 z_index = 20

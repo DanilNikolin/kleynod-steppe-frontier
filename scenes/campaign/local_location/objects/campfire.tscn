@@ -1,14 +1,153 @@
 [gd_scene format=3 uid="uid://dg0u8g2l7x4a1"]
 
-[ext_resource type="Texture2D" uid="uid://civfopkvvrlea" path="res://Graphics/home_village/campfire/ChatGPT Image 11 сент. 2026 г., 12_52_20.png" id="1_2igmp"]
+[ext_resource type="Texture2D" uid="uid://tadc2obugaid" path="res://Graphics/home_village/campfire/shade.png" id="1_coi10"]
+[ext_resource type="Texture2D" uid="uid://dxq8ln4snya6b" path="res://Graphics/home_village/campfire/fire_spot.png" id="1_rkdag"]
+[ext_resource type="Texture2D" uid="uid://3tklrdtynpy4" path="res://Graphics/home_village/campfire/fire_01.png" id="2_coi10"]
+[ext_resource type="Texture2D" uid="uid://cq7cfp6cj7edr" path="res://Graphics/home_village/campfire/fire_02.png" id="3_x85uq"]
+[ext_resource type="Texture2D" uid="uid://dlkkjqs8kmaye" path="res://Graphics/home_village/campfire/fire_03.png" id="4_1m1lv"]
+[ext_resource type="Texture2D" uid="uid://dq7jd417uiwwp" path="res://Graphics/home_village/campfire/fire_04.png" id="5_exrsc"]
+[ext_resource type="Texture2D" uid="uid://8nwkofubk42d" path="res://Graphics/home_village/campfire/fire_05.png" id="6_ggmf7"]
+[ext_resource type="Texture2D" uid="uid://c65q6tjm7jx5d" path="res://Graphics/home_village/campfire/fire_06.png" id="7_qaqvu"]
+[ext_resource type="Texture2D" uid="uid://32ut35f0rl32" path="res://Graphics/home_village/campfire/fire_07.png" id="8_7kgsv"]
+[ext_resource type="Texture2D" uid="uid://8bq1dx8e2d7b" path="res://Graphics/home_village/campfire/fire_08.png" id="9_qdhdm"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fire"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_coi10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_x85uq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_1m1lv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_exrsc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ggmf7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_qaqvu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_7kgsv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_qdhdm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_qdhdm")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.4, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.65, 1, 1, 1, 0.2, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Animation" id="Animation_coi10"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("FireLight:energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.75]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("FireLight:texture_scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_idle_light"]
+resource_name = "idle_light"
+length = 1.09
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("FireLight:energy")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.21, 0.53, 0.98),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.75, 0.88, 0.72, 0.85]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("FireLight:texture_scale")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.53, 1.01),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.05, 0.98, 1.04]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_campfire"]
+_data = {
+&"RESET": SubResource("Animation_coi10"),
+&"idle_light": SubResource("Animation_idle_light")
+}
 
 [node name="Campfire" type="Node2D" unique_id=501293828]
 
 [node name="Visual" type="Node2D" parent="." unique_id=860722378]
+scale = Vector2(0.285, 0.285)
+
+[node name="Shadow" type="Sprite2D" parent="Visual" unique_id=934651386]
+modulate = Color(1, 1, 1, 0.9411765)
+position = Vector2(0, -31.578947)
+texture = ExtResource("1_coi10")
 
 [node name="Base" type="Sprite2D" parent="Visual" unique_id=1319691281]
+position = Vector2(5, -44)
+texture = ExtResource("1_rkdag")
 
-[node name="ChatGptImage11Сент_2026Г_,125220" type="Sprite2D" parent="." unique_id=1501634599]
-position = Vector2(5, -34.99997)
-scale = Vector2(0.1539075, 0.1539075)
-texture = ExtResource("1_2igmp")
+[node name="Fire" type="AnimatedSprite2D" parent="Visual" unique_id=1501634599]
+position = Vector2(10.526318, -42.105267)
+scale = Vector2(1.1231376, 1.1231376)
+sprite_frames = SubResource("SpriteFrames_fire")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.22917521
+
+[node name="FireLight" type="PointLight2D" parent="Visual" unique_id=1839201011]
+position = Vector2(14.035088, -94.73685)
+scale = Vector2(16.811132, 16.811132)
+color = Color(1, 0.603922, 0.333333, 1)
+energy = 0.75
+texture = SubResource("GradientTexture2D_light")
+
+[node name="LightAnimation" type="AnimationPlayer" parent="Visual" unique_id=1839201012]
+libraries/ = SubResource("AnimationLibrary_campfire")
+autoplay = &"idle_light"

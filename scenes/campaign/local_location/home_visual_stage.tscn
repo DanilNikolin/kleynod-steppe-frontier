@@ -2,8 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://mhibtd77xbvc" path="res://Graphics/home_village/BG/Parallax/03_Middle/BG_Home(middle).png" id="1_q0qq8"]
 [ext_resource type="PackedScene" uid="uid://dg0u8g2l7x4a1" path="res://scenes/campaign/local_location/objects/campfire.tscn" id="2_campfire"]
-
-[ext_resource type="Script" path="res://presentation/campaign/local_location/local_interaction_anchor.gd" id="3_anchor"]
+[ext_resource type="Script" uid="uid://0lyliyi7c4s" path="res://presentation/campaign/local_location/local_build_site_view.gd" id="3_build_site"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -39,23 +38,58 @@ texture = ExtResource("1_q0qq8")
 
 [node name="CampfireSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000002]
 position = Vector2(3072, 792)
-script = ExtResource("3_anchor")
+script = ExtResource("3_build_site")
 interaction_id = &"home_zone_central_camp"
+
+[node name="InteractionButton" type="Button" parent="WorldContent/EarlyBuildSites/CampfireSite" unique_id=210000101]
+z_index = 10
+offset_left = -83.0
+offset_top = 121.0
+offset_right = 97.0
+offset_bottom = 181.0
+focus_mode = 0
+text = "Центральное место"
+
+[node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CampfireSite" unique_id=210000201]
+
+[node name="Campfire" parent="WorldContent/EarlyBuildSites/CampfireSite/BuiltVisual" unique_id=1183204079 instance=ExtResource("2_campfire")]
+position = Vector2(2, 4)
 
 [node name="PartyShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000003]
 position = Vector2(2650, 756)
-script = ExtResource("3_anchor")
+script = ExtResource("3_build_site")
 interaction_id = &"home_zone_party_shelter"
+
+[node name="InteractionButton" type="Button" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000102]
+z_index = 10
+offset_left = -90.0
+offset_top = -30.0
+offset_right = 90.0
+offset_bottom = 30.0
+focus_mode = 0
+text = "Место отряда"
+
+[node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000202]
+visible = false
 
 [node name="CommonShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000004]
 position = Vector2(3418, 756)
-script = ExtResource("3_anchor")
+script = ExtResource("3_build_site")
 interaction_id = &"home_zone_common_shelter"
 
-[node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
+[node name="InteractionButton" type="Button" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000103]
+z_index = 10
+offset_left = -90.0
+offset_top = -30.0
+offset_right = 90.0
+offset_bottom = 30.0
+focus_mode = 0
+text = "Общее место лагеря"
 
-[node name="Campfire" parent="WorldContent/Buildings" unique_id=1183204079 instance=ExtResource("2_campfire")]
-position = Vector2(3074, 796)
+[node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
+visible = false
+
+[node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 
 [node name="Props" type="Node2D" parent="WorldContent" unique_id=210000020]
 

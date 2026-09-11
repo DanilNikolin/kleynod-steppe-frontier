@@ -252,6 +252,28 @@ func set_interaction_visibility_overrides(
 	_refresh_button_texts()
 
 
+func set_build_site_built_states(
+	states: Dictionary
+) -> void:
+	for interaction_id in states:
+		if not _anchors_by_interaction_id.has(
+			interaction_id
+		):
+			continue
+
+		var site := (
+			_anchors_by_interaction_id[interaction_id]
+			as LocalBuildSiteView
+		)
+
+		if site == null:
+			continue
+
+		site.set_built(
+			bool(states[interaction_id])
+		)
+
+
 func has_horizontal_pan() -> bool:
 	if (
 		_definition == null
@@ -720,6 +742,32 @@ func _create_interaction_buttons() -> void:
 		if interaction == null:
 			continue
 
+		var authored_button := _get_authored_interaction_button(
+			interaction.interaction_id
+		)
+
+		if authored_button != null:
+			authored_button.tooltip_text = (
+				interaction.description
+			)
+
+			authored_button.focus_mode = (
+				Control.FOCUS_NONE
+			)
+
+			var pressed_callable := _on_interaction_pressed.bind(
+				interaction.interaction_id
+			)
+
+			if not authored_button.pressed.is_connected(pressed_callable):
+				authored_button.pressed.connect(pressed_callable)
+
+			_buttons_by_interaction_id[
+				interaction.interaction_id
+			] = authored_button
+
+			continue
+
 		var button := Button.new()
 
 		button.name = (
@@ -769,6 +817,25 @@ func _create_interaction_buttons() -> void:
 		_buttons_by_interaction_id[
 			interaction.interaction_id
 		] = button
+
+
+func _get_authored_interaction_button(
+	interaction_id: StringName
+) -> Button:
+	if not _anchors_by_interaction_id.has(interaction_id):
+		return null
+
+	var anchor := (
+		_anchors_by_interaction_id[interaction_id]
+		as Node2D
+	)
+
+	if anchor is LocalBuildSiteView:
+		return (
+			anchor as LocalBuildSiteView
+		).get_interaction_button()
+
+	return null
 
 
 func _refresh_button_texts() -> void:

@@ -89,6 +89,8 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 	revision += 1
 	var applied := true
 	match choice.action:
+		CampaignDialogueChoice.Action.ESTABLISH_SUPPLIER:
+			applied = _runtime.establish_supplier(choice.target_id, _interaction_id).is_empty()
 		CampaignDialogueChoice.Action.REVEAL_RESIDENT_LOCATION:
 			_state.get_resident(choice.target_id).location_clue_known = true
 		CampaignDialogueChoice.Action.OPEN_TRADING:
@@ -111,6 +113,8 @@ func choose(choice_id: StringName, expected_revision: int) -> String:
 func _get_action_error(
 	choice: CampaignDialogueChoice
 ) -> String:
+	if choice.action == CampaignDialogueChoice.Action.ESTABLISH_SUPPLIER:
+		return _runtime.get_supplier_relationship_error(choice.target_id, _interaction_id)
 	if choice.action == CampaignDialogueChoice.Action.NONE:
 		return ""
 

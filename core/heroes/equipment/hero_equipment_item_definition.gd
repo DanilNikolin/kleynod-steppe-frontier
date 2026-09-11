@@ -11,6 +11,7 @@ enum Category {
 	BOOTS,
 	CHARM,
 	RING,
+	CARGO,
 }
 
 
@@ -36,6 +37,9 @@ var category: Category = Category.WEAPON
 @export
 var is_two_handed: bool = false
 
+
+## Cargo shares the ordinary inventory but cannot occupy an equipment slot.
+@export_range(0, 999999, 1) var material_value: int = 0
 
 @export_group("Stats")
 
@@ -115,6 +119,10 @@ func is_valid_definition() -> bool:
 func get_validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
 
+	if material_value < 0 or (material_value > 0 and category != Category.CARGO):
+		errors.append("Material value requires cargo category.")
+	if category == Category.CARGO and (stat_bonuses != null or primary_ability != null or not granted_abilities.is_empty()):
+		errors.append("Cargo cannot grant combat effects.")
 	if item_id == &"":
 		errors.append(
 			"Equipment item ID is empty."

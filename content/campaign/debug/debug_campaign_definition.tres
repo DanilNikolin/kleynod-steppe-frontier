@@ -1,5 +1,10 @@
 [gd_resource type="Resource" script_class="CampaignDefinition" format=3 uid="uid://c62cq0t20ags4"]
 
+[ext_resource type="Script" path="res://core/campaign/supply/campaign_supplier_definition.gd" id="supplier_script"]
+[ext_resource type="Resource" path="res://content/supply/debug/village_supplier.tres" id="supplier"]
+
+[ext_resource type="Resource" path="res://content/equipment/debug/material_bundle.tres" id="material_bundle"]
+
 [ext_resource type="Script" uid="uid://c0tpixraq1bbo" path="res://core/campaign/campaign_definition.gd" id="1_campaign"]
 [ext_resource type="Script" uid="uid://d1trmhrixtrn1" path="res://core/campaign/heroes/campaign_hero_state.gd" id="2_hero_state"]
 [ext_resource type="Resource" uid="uid://5mlrljx6pow5" path="res://content/heroes/debug/debug_sechevik_progression_purchase_test.tres" id="3_progression"]
@@ -109,6 +114,8 @@ roster_note = "Уникальное жертвенное правило Схим
 
 [resource]
 script = ExtResource("1_campaign")
+suppliers = Array[ExtResource("supplier_script")]([ExtResource("supplier")])
+material_bundle_definition = ExtResource("material_bundle")
 campaign_id = &"debug_campaign"
 display_name = "Клейнод — Campaign Sandbox"
 starting_heroes = Array[ExtResource("2_hero_state")]([SubResource("HeroBayda"), SubResource("HeroPlastunka"), SubResource("HeroMarkswoman"), SubResource("HeroMavka"), SubResource("HeroChugaister"), SubResource("HeroHunter"), SubResource("HeroWolf"), SubResource("HeroSchemonk")])

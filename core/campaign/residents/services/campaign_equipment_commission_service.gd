@@ -21,6 +21,9 @@ func get_commission_error(
 	if campaign_state.inventory_state == null:
 		return "Campaign inventory is missing."
 
+	if not campaign_state.inventory_state.can_add_items(1):
+		return "Нет свободного места для готового заказа."
+
 	if resident_definition == null:
 		return "Resident definition is missing."
 

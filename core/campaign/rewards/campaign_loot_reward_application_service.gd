@@ -106,6 +106,9 @@ func apply_reward(
 	)
 
 	for instance in generated_instances:
+		if not inventory.can_add_items(1):
+			battle_result.left_behind_item_names.append(instance.definition.display_name)
+			continue
 		inventory.items.append(instance)
 		battle_result.loot_item_instance_ids.append(instance.instance_id)
 		battle_result.loot_item_display_names.append(instance.definition.display_name)

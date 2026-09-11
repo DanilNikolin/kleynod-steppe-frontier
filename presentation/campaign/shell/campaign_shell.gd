@@ -12,6 +12,7 @@ signal menu_requested
 
 const SECTION_WORLD_MAP: StringName = &"world_map"
 const SECTION_PARTY: StringName = &"party"
+const SECTION_LOGISTICS: StringName = &"logistics"
 const SECTION_QUESTS: StringName = &"quests"
 
 
@@ -80,13 +81,16 @@ func refresh_hud(
 				active_quest_count += 1
 
 	_resources_label.text = (
-		"Гроші: %d · Материалы: %d · Репутация: %d"
+		"Гроші: %d · Запас HOME: %d · Репутация: %d"
 		% [
 			gold,
 			materials,
 			reputation,
 		]
 	)
+
+	if state != null and state.inventory_state != null:
+		_resources_label.text += " · Груз: %d мат. · Места: %d/%d" % [state.inventory_state.get_carried_materials(), state.inventory_state.items.size(), state.inventory_state.slot_capacity]
 
 	if uncollected_gold > 0:
 		_resources_label.text += (
@@ -524,6 +528,8 @@ func _create_navigation_panel() -> Control:
 	row.add_child(
 		_party_button
 	)
+
+	row.add_child(_create_section_button("ГРУЗ / ПОСТАВКИ", SECTION_LOGISTICS))
 
 	_quests_button = _create_section_button(
 		"ЗАДАНИЯ (0)",

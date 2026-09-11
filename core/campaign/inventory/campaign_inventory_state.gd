@@ -9,6 +9,9 @@ extends Resource
 var gold: int = 0
 
 
+## DEV: shared expedition capacity, including carried equipment. One instance = one slot.
+@export_range(1, 999, 1) var slot_capacity: int = 12
+
 @export_group("Items")
 
 @export
@@ -55,6 +58,8 @@ func is_valid_state() -> bool:
 func get_validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
 
+	if slot_capacity < 1 or items.size() > slot_capacity:
+		errors.append("Inventory exceeds its shared slot capacity.")
 	if gold < 0:
 		errors.append(
 			"Campaign gold cannot be negative."
@@ -111,3 +116,32 @@ func get_validation_errors() -> PackedStringArray:
 		] = true
 
 	return errors
+
+func can_add_items(count: int) -> bool:
+	return count >= 0 and items.size() + count <= slot_capacity
+
+func get_carried_materials() -> int:
+	var total: int = 0
+	for item in items:
+		if item != null and item.definition != null:
+			total += item.definition.material_value
+	return total
+
+func add_material_bundles(definition: HeroEquipmentItemDefinition, amount: int) -> bool:
+	if amount == 0:
+		return true
+	if definition == null or not definition.is_valid_definition() or definition.material_value <= 0 or amount < 0 or amount % definition.material_value != 0:
+		return false
+	var count: int = amount / definition.material_value
+	if not can_add_items(count):
+		return false
+	for index in count:
+		var item := HeroEquipmentItemInstance.new()
+		item.definition = definition
+		item.instance_id = StringName("cargo_%d" % next_generated_item_serial)
+		next_generated_item_serial += 1
+		while has_item(item.instance_id):
+			item.instance_id = StringName("cargo_%d" % next_generated_item_serial)
+			next_generated_item_serial += 1
+		items.append(item)
+	return true

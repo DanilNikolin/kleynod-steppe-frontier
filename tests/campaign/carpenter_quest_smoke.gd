@@ -96,6 +96,7 @@ func run() -> void:
 		state.current_world_node_id = &"debug_home_materials_node"
 		check(runtime.explore_adventure_site(&"debug_home_outskirts_materials_area", &"starter_materials_cache"), "Starter materials still work")
 		state.current_world_node_id = &"debug_home"
+		check(runtime.unload_materials().is_empty(), "Unload starter cargo")
 		build(runtime, &"temporary_party_shelter")
 		state.current_world_node_id = rendezvous
 		check(not runtime.get_resident_recruitment_error(RESIDENT).is_empty(), "A1/B1 without C1 blocks guest")

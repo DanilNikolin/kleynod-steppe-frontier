@@ -79,6 +79,9 @@ func get_reference_errors(campaign: CampaignDefinition) -> PackedStringArray:
 				if condition != null:
 					errors.append_array(condition.get_reference_errors(campaign))
 			match choice.action:
+				CampaignDialogueChoice.Action.ESTABLISH_SUPPLIER:
+					if campaign.get_supplier(choice.target_id) == null:
+						errors.append("Unknown dialogue supplier.")
 				CampaignDialogueChoice.Action.START_QUEST, CampaignDialogueChoice.Action.TURN_IN_QUEST:
 					if campaign.get_quest(choice.target_id) == null:
 						errors.append("Unknown dialogue action quest: %s." % choice.target_id)

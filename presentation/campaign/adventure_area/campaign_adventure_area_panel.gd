@@ -336,7 +336,7 @@ func _refresh_details() -> void:
 
 			if site_definition.material_reward > 0:
 				_action_button.text += (
-					" · +%d мат."
+					" · груз на %d мат."
 					% site_definition.material_reward
 				)
 

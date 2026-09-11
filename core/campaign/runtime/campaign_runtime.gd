@@ -2251,6 +2251,12 @@ func advance_time(
 		inventory.gold
 	)
 
+	if not supply_service.validation_errors(campaign_definition, campaign_state).is_empty():
+		return false
+	var arrival_total := supply_service.due_amount(campaign_state, campaign_state.current_day * 1440 + campaign_state.current_minute_of_day + minutes)
+	if campaign_state.materials > CampaignSupplyService.MAX_MATERIALS - arrival_total:
+		return false
+
 	if not time_service.advance_minutes(
 		campaign_state,
 		minutes
@@ -2322,6 +2328,7 @@ func advance_time(
 		_restore_time_economy_snapshot(previous_day, previous_minute, previous_uncollected_gold, previous_inventory_gold)
 		return false
 	resident_service.update_wandering(campaign_definition, campaign_state)
+	supply_service.complete_due(campaign_state)
 	return true
 
 
@@ -2585,14 +2592,16 @@ func explore_adventure_site(
 
 		return false
 
-	var previous_materials := campaign_state.materials
+	var previous_items := campaign_state.inventory_state.items.duplicate()
+	var previous_serial := campaign_state.inventory_state.next_generated_item_serial
 	var previous_status := area_state.get_site(site_id).status
 	if not adventure_service.apply_landmark_exploration(campaign_state, area_definition, area_state, site_id):
 		return false
 	if quest_service.apply_exploration_result(campaign_definition.quests, campaign_state, area_id, site_id):
 		return true
 	# Exploration and its quest progress commit together.
-	campaign_state.materials = previous_materials
+	campaign_state.inventory_state.items.assign(previous_items)
+	campaign_state.inventory_state.next_generated_item_serial = previous_serial
 	area_state.get_site(site_id).status = previous_status
 	return false
 
@@ -3677,4 +3686,88 @@ func respec_hero_skills(hero_id: StringName) -> String:
 	if not campaign_state.is_valid_state():
 		hero.progression_state = previous
 		return "Пересборка отменена: состояние героя некорректно."
+	return ""
+
+
+var supply_service := CampaignSupplyService.new()
+
+func logistics_context_error() -> String:
+	if campaign_definition == null or campaign_state == null or not campaign_state.is_valid_state():
+		return "Некорректное состояние кампании."
+	if has_pending_battle() or has_pending_travel():
+		return "Действие недоступно в бою или пути."
+	if not supply_service.validation_errors(campaign_definition, campaign_state).is_empty():
+		return "Некорректное состояние поставок."
+	return ""
+
+func get_unload_materials_error() -> String:
+	var error := logistics_context_error()
+	if not error.is_empty():
+		return error
+	if campaign_state.current_world_node_id != get_home_settlement_definition().world_node_id:
+		return "Для разгрузки вернитесь в HOME."
+	var amount := campaign_state.inventory_state.get_carried_materials()
+	if amount == 0:
+		return "Нет связок материалов для разгрузки."
+	if campaign_state.materials > CampaignSupplyService.MAX_MATERIALS - amount:
+		return "Слишком большой запас материалов."
+	return ""
+
+func unload_materials() -> String:
+	var error := get_unload_materials_error()
+	if not error.is_empty():
+		return error
+	var inventory := campaign_state.inventory_state
+	var previous := inventory.items.duplicate()
+	var stockpile := campaign_state.materials
+	var retained: Array[HeroEquipmentItemInstance] = []
+	for item in inventory.items:
+		if item.definition.material_value > 0:
+			campaign_state.materials += item.definition.material_value
+		else:
+			retained.append(item)
+	inventory.items = retained
+	if not campaign_state.is_valid_state():
+		inventory.items.assign(previous)
+		campaign_state.materials = stockpile
+		return "Разгрузка отменена."
+	return ""
+
+func get_supplier_relationship_error(id: StringName, interaction_id: StringName) -> String:
+	var error := logistics_context_error()
+	return error if not error.is_empty() else supply_service.relationship_error(campaign_definition, campaign_state, id, interaction_id)
+
+func establish_supplier(id: StringName, interaction_id: StringName) -> String:
+	var error := get_supplier_relationship_error(id, interaction_id)
+	if not error.is_empty():
+		return error
+	campaign_state.supplier_relationship_ids.append(id)
+	return ""
+
+func get_supply_order_error(id: StringName, package_id: StringName) -> String:
+	var error := logistics_context_error()
+	return error if not error.is_empty() else supply_service.order_error(campaign_definition, campaign_state, id, package_id)
+
+func order_material_supply(id: StringName, package_id: StringName, expected_price: int = -1) -> String:
+	var error := get_supply_order_error(id, package_id)
+	if not error.is_empty():
+		return error
+	var supplier := campaign_definition.get_supplier(id)
+	var offer := supplier.get_package(package_id)
+	var price := supply_service.price(campaign_definition, campaign_state, supplier, offer)
+	if expected_price >= 0 and expected_price != price:
+		return "Цена изменилась. Подтвердите заказ заново."
+	var delivery := CampaignSupplyDelivery.new()
+	delivery.supplier_id = id
+	delivery.package_id = package_id
+	delivery.amount = offer.amount
+	delivery.paid_gold = price
+	delivery.ordered_at = campaign_state.current_day * 1440 + campaign_state.current_minute_of_day
+	delivery.arrives_at = delivery.ordered_at + offer.duration_minutes
+	campaign_state.inventory_state.gold -= price
+	campaign_state.active_deliveries.append(delivery)
+	if not campaign_state.is_valid_state() or not supply_service.validation_errors(campaign_definition, campaign_state).is_empty():
+		campaign_state.active_deliveries.erase(delivery)
+		campaign_state.inventory_state.gold += price
+		return "Заказ отменён."
 	return ""

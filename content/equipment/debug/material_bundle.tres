@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HeroEquipmentItemDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://core/heroes/equipment/hero_equipment_item_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = &"material_bundle"
+display_name = "Связка материалов"
+description = "Доставьте в HOME и разгрузите. DEV: 4 материала, одно место в общем инвентаре."
+category = 7
+material_value = 4

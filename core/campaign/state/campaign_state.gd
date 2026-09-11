@@ -30,6 +30,9 @@ var current_world_node_id: StringName = &""
 
 ## Единственный Source of Truth глобального календаря.
 ## Сезон и год выводятся из этого числа.
+var supplier_relationship_ids: Array[StringName] = []
+var active_deliveries: Array[CampaignSupplyDelivery] = []
+
 var current_day: int = 0
 
 ## Минута внутри текущего игрового дня.
@@ -236,6 +239,15 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Current world node ID is empty."
 		)
+
+	var suppliers_in_transit: Array[StringName] = []
+	for delivery in active_deliveries:
+		if delivery == null or not delivery.is_valid_state() or suppliers_in_transit.has(delivery.supplier_id):
+			errors.append("Invalid or duplicate supplier delivery.")
+		elif not supplier_relationship_ids.has(delivery.supplier_id):
+			errors.append("Delivery has no supplier relationship.")
+		else:
+			suppliers_in_transit.append(delivery.supplier_id)
 
 	if current_day < 0:
 		errors.append(

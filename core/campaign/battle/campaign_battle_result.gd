@@ -49,6 +49,7 @@ var loot_item_instance_ids: Array[StringName] = []
 
 ## Snapshot имён для истории боя.
 var loot_item_display_names := PackedStringArray()
+var left_behind_item_names := PackedStringArray()
 
 ## Золото из неиспользованного budget.
 var gold_reward: int = 0

@@ -72,6 +72,8 @@ var exploration_action_label: String = "ИССЛЕДОВАТЬ"
 @export_range(0, 999999999, 1)
 var material_reward: int = 0
 
+@export var material_bundle_definition: HeroEquipmentItemDefinition
+
 
 func is_valid_definition() -> bool:
 	return get_validation_errors().is_empty()
@@ -89,6 +91,12 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Adventure site display name is empty."
 		)
+
+	if material_reward > 0:
+		if material_bundle_definition == null or not material_bundle_definition.is_valid_definition() or material_bundle_definition.material_value <= 0:
+			errors.append("Material reward requires a valid cargo bundle.")
+		elif material_reward % material_bundle_definition.material_value != 0:
+			errors.append("Material reward must contain whole bundles.")
 
 	match site_type:
 		SiteType.LANDMARK:

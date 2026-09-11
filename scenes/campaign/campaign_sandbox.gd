@@ -16,6 +16,7 @@ enum View {
 	ADVENTURE_AREA,
 	TRADING,
 	HERO_PREPARATION,
+	LOGISTICS,
 }
 
 
@@ -152,6 +153,11 @@ func _show_view(
 
 		View.HERO_PREPARATION:
 			content = _create_hero_preparation_panel()
+		View.LOGISTICS:
+			var panel := CampaignSupplyPanel.new()
+			panel.state_changed.connect(_refresh_shell)
+			panel.bind(CampaignRuntime)
+			content = panel
 
 	if content == null:
 		push_warning(
@@ -738,6 +744,8 @@ func _on_shell_section_requested(
 
 			target_view = View.PARTY
 
+		CampaignShell.SECTION_LOGISTICS:
+			target_view = View.LOGISTICS
 		CampaignShell.SECTION_QUESTS:
 			target_view = View.QUEST_JOURNAL
 

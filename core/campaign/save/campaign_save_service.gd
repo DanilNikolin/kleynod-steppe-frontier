@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 13
+const CURRENT_SAVE_VERSION: int = 14
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -208,6 +208,8 @@ func _encode_campaign(
 		)
 
 	return {
+		"supplier_relationship_ids": _names_to_array(state.supplier_relationship_ids),
+		"active_deliveries": _encode_deliveries(state),
 		"format_version": CURRENT_SAVE_VERSION,
 		"campaign_id": String(
 			state.campaign_id
@@ -327,6 +329,7 @@ func _encode_inventory(
 		)
 
 	return {
+		"slot_capacity": inventory.slot_capacity,
 		"gold": inventory.gold,
 		"next_generated_item_serial": (
 			inventory
@@ -424,6 +427,7 @@ func _encode_battle_result(
 				result.loot_item_instance_ids
 			)
 		),
+		"left_behind_item_names": Array(result.left_behind_item_names),
 		"loot_item_display_names": (
 			_packed_to_array(
 				result.loot_item_display_names
@@ -789,6 +793,8 @@ func _decode_campaign(
 	):
 		return null
 
+	if not _decode_supply(data, state, definition):
+		return null
 	if not _decode_construction(data, state, definition):
 		return null
 
@@ -1061,6 +1067,7 @@ func _decode_inventory(
 	if not _has_keys(
 		data,
 		[
+			"slot_capacity",
 			"gold",
 			"next_generated_item_serial",
 			"items",
@@ -1082,6 +1089,9 @@ func _decode_inventory(
 		CampaignInventoryState.new()
 	)
 
+	inventory.slot_capacity = _int_value(data["slot_capacity"], "inventory.slot_capacity", 1, 999)
+	if _failed():
+		return null
 	inventory.gold = _int_value(
 		data["gold"],
 		"inventory.gold",
@@ -1662,6 +1672,10 @@ func _decode_battle_result(
 		)
 	)
 
+	if not data.has("left_behind_item_names"):
+		_fail("Missing left-behind loot list.")
+		return null
+	result.left_behind_item_names = _packed_strings(data["left_behind_item_names"], "battle.left_behind_item_names")
 	result.loot_item_display_names = (
 		_packed_strings(
 			data["loot_item_display_names"],
@@ -2887,5 +2901,42 @@ func _decode_construction(data: Dictionary, state: CampaignState, definition: Ca
 	var error := CampaignConstructionService.new().get_state_error(definition, state)
 	if not error.is_empty():
 		_fail(error)
+		return false
+	return true
+
+
+func _encode_deliveries(state: CampaignState) -> Array:
+	var rows: Array = []
+	for delivery in state.active_deliveries:
+		rows.append({"supplier_id": String(delivery.supplier_id), "package_id": String(delivery.package_id), "amount": delivery.amount, "paid_gold": delivery.paid_gold, "ordered_at": delivery.ordered_at, "arrives_at": delivery.arrives_at})
+	return rows
+
+func _decode_supply(data: Dictionary, state: CampaignState, definition: CampaignDefinition) -> bool:
+	if not _has_keys(data, ["supplier_relationship_ids", "active_deliveries"], "supply"):
+		return false
+	if typeof(data.supplier_relationship_ids) != TYPE_ARRAY or typeof(data.active_deliveries) != TYPE_ARRAY:
+		_fail("Supply fields must be arrays.")
+		return false
+	for value in data.supplier_relationship_ids:
+		state.supplier_relationship_ids.append(StringName(_string_value(value, "supplier relationship", false)))
+	for row in data.active_deliveries:
+		if typeof(row) != TYPE_DICTIONARY:
+			_fail("Delivery must be a dictionary.")
+			return false
+		if not _has_keys(row, ["supplier_id", "package_id", "amount", "paid_gold", "ordered_at", "arrives_at"], "delivery"):
+			return false
+		var delivery := CampaignSupplyDelivery.new()
+		delivery.supplier_id = StringName(_string_value(row.supplier_id, "delivery supplier", false))
+		delivery.package_id = StringName(_string_value(row.package_id, "delivery package", false))
+		delivery.amount = _int_value(row.amount, "delivery amount", 1, 999999999)
+		delivery.paid_gold = _int_value(row.paid_gold, "delivery payment", 1, 999999999)
+		delivery.ordered_at = _int_value(row.ordered_at, "delivery order time", 0, CampaignTimeService.MAX_CAMPAIGN_DAY * 1440 + 1439)
+		delivery.arrives_at = _int_value(row.arrives_at, "delivery arrival", 1, CampaignTimeService.MAX_CAMPAIGN_DAY * 1440 + 1439)
+		state.active_deliveries.append(delivery)
+	if _failed():
+		return false
+	var errors := CampaignSupplyService.new().validation_errors(definition, state)
+	if not errors.is_empty():
+		_fail("Invalid supply state: " + "; ".join(errors))
 		return false
 	return true

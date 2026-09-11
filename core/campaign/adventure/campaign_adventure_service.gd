@@ -50,13 +50,13 @@ func get_landmark_exploration_error(
 	if not site_definition.exploration_enabled:
 		return "Adventure landmark has no exploration action."
 
-	if (
-		site_definition.material_reward > 0
-		and campaign_state.materials
-			> MAX_MATERIALS
-				- site_definition.material_reward
-	):
-		return "Material reward would overflow."
+	if site_definition.material_reward > 0:
+		var bundle := site_definition.material_bundle_definition
+		if bundle == null or bundle.material_value <= 0 or site_definition.material_reward % bundle.material_value != 0:
+			return "Неверная награда материалов."
+		var count: int = site_definition.material_reward / bundle.material_value
+		if not campaign_state.inventory_state.can_add_items(count):
+			return "Не хватает места: нужно %d свободных мест. Разгрузите груз в HOME." % count
 
 	return ""
 
@@ -93,17 +93,15 @@ func apply_landmark_exploration(
 	):
 		return false
 
-	var previous_materials := (
-		campaign_state.materials
-	)
+	var previous_items := campaign_state.inventory_state.items.duplicate()
+	var previous_serial := campaign_state.inventory_state.next_generated_item_serial
 
 	var previous_status := (
 		site_state.status
 	)
 
-	campaign_state.materials += (
-		site_definition.material_reward
-	)
+	if not campaign_state.inventory_state.add_material_bundles(site_definition.material_bundle_definition, site_definition.material_reward):
+		return false
 
 	site_state.status = (
 		CampaignAdventureSiteState
@@ -119,9 +117,8 @@ func apply_landmark_exploration(
 	):
 		return true
 
-	campaign_state.materials = (
-		previous_materials
-	)
+	campaign_state.inventory_state.items.assign(previous_items)
+	campaign_state.inventory_state.next_generated_item_serial = previous_serial
 
 	site_state.status = (
 		previous_status

@@ -38,3 +38,5 @@ the campfire, party shelter and common shelter, then invite him. At HOME the gue
 must be available for conversation. His nearby temporary worksite opens construction.
 
 Forge I and DEBUG Sabre: see [FORGE.md](FORGE.md) for architecture, provisional values and checks.
+
+Materials logistics / C2: see [LOGISTICS.md](LOGISTICS.md). Current save format: 14; start a new debug campaign. External materials must now be carried and unloaded in HOME.

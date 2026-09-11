@@ -7,6 +7,10 @@ const MIN_PARTY_SIZE: int = 1
 const MAX_PARTY_SIZE: int = 3
 
 
+@export var suppliers: Array[CampaignSupplierDefinition] = []
+
+@export var material_bundle_definition: HeroEquipmentItemDefinition
+
 @export_group("Identity")
 
 @export
@@ -1134,6 +1138,15 @@ func get_validation_errors() -> PackedStringArray:
 			for interaction in world_node.local_location_definition.interactions:
 				if interaction != null and interaction.dialogue != null:
 					errors.append_array(interaction.dialogue.get_reference_errors(self))
+	var supplier_ids: Array[StringName] = []
+	for supplier in suppliers:
+		if supplier == null:
+			errors.append("Null supplier.")
+			continue
+		errors.append_array(supplier.get_validation_errors(self))
+		if supplier_ids.has(supplier.supplier_id):
+			errors.append("Duplicate supplier.")
+		supplier_ids.append(supplier.supplier_id)
 	return errors
 
 
@@ -1175,7 +1188,7 @@ func get_equipment_item_definition(
 	if item_id == &"":
 		return null
 
-	var result: HeroEquipmentItemDefinition = null
+	var result: HeroEquipmentItemDefinition = material_bundle_definition if material_bundle_definition != null and material_bundle_definition.item_id == item_id else null
 
 	for item_instance in starting_inventory_items:
 		if (
@@ -1349,4 +1362,11 @@ func get_crew_source(id: StringName) -> CampaignCrewSourceDefinition:
 	for source in crew_sources:
 		if source != null and source.source_id == id:
 			return source
+	return null
+
+
+func get_supplier(id: StringName) -> CampaignSupplierDefinition:
+	for supplier in suppliers:
+		if supplier != null and supplier.supplier_id == id:
+			return supplier
 	return null

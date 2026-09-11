@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CampaignSupplierDefinition" load_steps=6 format=3]
+[ext_resource type="Script" path="res://core/campaign/supply/campaign_supplier_definition.gd" id="supplier"]
+[ext_resource type="Script" path="res://core/campaign/supply/campaign_supply_package_definition.gd" id="package"]
+
+[sub_resource type="Resource" id="small"]
+script = ExtResource("package")
+package_id = &"small"
+display_name = "Малая партия"
+amount = 5
+base_price = 30
+duration_minutes = 1440
+minimum_reputation = 0
+
+[sub_resource type="Resource" id="standard"]
+script = ExtResource("package")
+package_id = &"standard"
+display_name = "Обычная партия"
+amount = 10
+base_price = 55
+duration_minutes = 2880
+minimum_reputation = 5
+
+[sub_resource type="Resource" id="large"]
+script = ExtResource("package")
+package_id = &"large"
+display_name = "Большая партия"
+amount = 20
+base_price = 100
+duration_minutes = 4320
+minimum_reputation = 10
+
+[resource]
+script = ExtResource("supplier")
+supplier_id = &"village_materials"
+display_name = "Трактирщик · Малое село"
+trader_id = &"debug_village_innkeeper_trader"
+minimum_reputation = 0
+minimum_price_multiplier = 0.8
+packages = Array[ExtResource("package")]([SubResource("small"), SubResource("standard"), SubResource("large")])

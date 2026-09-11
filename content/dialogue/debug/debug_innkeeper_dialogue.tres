@@ -1,8 +1,17 @@
-[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="CampaignDialogueDefinition" load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_definition.gd" id="dialogue"]
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_node.gd" id="node"]
 [ext_resource type="Script" path="res://core/campaign/dialogue/campaign_dialogue_choice.gd" id="choice"]
+
+[sub_resource type="Resource" id="supply_contact"]
+script = ExtResource("choice")
+choice_id = &"supply_contact"
+text = "Обустраиваю своё поселение. Договоримся о поставках строительных материалов?"
+next_node_id = &"supply_agreed"
+action = 6
+target_id = &"village_materials"
+hide_when_unavailable = false
 
 [sub_resource type="Resource" id="carpenter_clue"]
 script = ExtResource("choice")
@@ -48,7 +57,7 @@ next_node_id = &""
 script = ExtResource("node")
 node_id = &"welcome"
 text = "Заходи, путник. Если собираешься в дорогу — посмотри, что у меня есть. А если хочешь узнать о селе, спрашивай."
-choices = Array[ExtResource("choice")]([SubResource("carpenter_clue"), SubResource("trade"), SubResource("village"), SubResource("terms"), SubResource("leave")])
+choices = Array[ExtResource("choice")]([SubResource("supply_contact"), SubResource("carpenter_clue"), SubResource("trade"), SubResource("village"), SubResource("terms"), SubResource("leave")])
 
 [sub_resource type="Resource" id="node_village"]
 script = ExtResource("node")
@@ -68,9 +77,15 @@ node_id = &"carpenter_clue"
 text = "Плотник сейчас работает здесь: {resident_location:debug_carpenter}. Он там задержится — успеешь поговорить. Мастер толковый, только шутить любит."
 choices = Array[ExtResource("choice")]([SubResource("back"), SubResource("leave")])
 
+[sub_resource type="Resource" id="node_supply_agreed"]
+script = ExtResource("node")
+node_id = &"supply_agreed"
+text = "Договорились. Я собираю товары для приезжих — найду и доски с крепежом у местных хозяев. Как поставишь общий склад, заказывай партии через поставки HOME. За каждую платишь отдельно, доставка займёт время. Доброе имя — лучшая скидка."
+choices = Array[ExtResource("choice")]([SubResource("back"), SubResource("leave")])
+
 [resource]
 script = ExtResource("dialogue")
 dialogue_id = &"village_innkeeper_conversation"
 speaker_name = "Трактирщик"
 entry_node_ids = Array[StringName]([&"welcome"])
-nodes = Array[ExtResource("node")]([SubResource("node_carpenter_clue"), SubResource("node_welcome"), SubResource("node_village"), SubResource("node_terms")])
+nodes = Array[ExtResource("node")]([SubResource("node_supply_agreed"), SubResource("node_carpenter_clue"), SubResource("node_welcome"), SubResource("node_village"), SubResource("node_terms")])

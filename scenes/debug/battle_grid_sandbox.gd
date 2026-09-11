@@ -1113,6 +1113,10 @@ func _show_campaign_return_panel(
 			]
 		)
 
+	var inventory := CampaignRuntime.get_campaign_state().inventory_state
+	if _campaign_loot_reward_roll != null and _campaign_loot_reward_roll.dropped_item_definitions.size() > inventory.slot_capacity - inventory.items.size():
+		loot_label.text += "\nНедостаточно места: поместятся первые %d предметов, остальные останутся на месте боя." % maxi(0, inventory.slot_capacity - inventory.items.size())
+
 	content.add_child(
 		loot_label
 	)

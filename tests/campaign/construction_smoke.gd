@@ -45,8 +45,9 @@ func run() -> void:
 	state.current_world_node_id = &"debug_home_materials_node"
 	check(runtime.explore_adventure_site(&"debug_home_outskirts_materials_area", &"starter_materials_cache"), "Starter eight materials")
 	check(runtime.explore_adventure_site(&"debug_home_outskirts_materials_area", &"construction_timber"), "Reachable additional timber")
-	check(state.materials == 20, "Both supplies total 20")
+	check(state.materials == 0 and state.inventory_state.get_carried_materials() == 20, "Both supplies are carried cargo")
 	state.current_world_node_id = &"debug_home"
+	check(runtime.unload_materials().is_empty() and state.materials == 20, "Unload construction supplies")
 	build(&"temporary_party_shelter")
 	build(&"primitive_common_shelter")
 	check(state.materials == 12, "Enough timber remains for forge without debug grants")

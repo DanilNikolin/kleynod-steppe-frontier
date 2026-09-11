@@ -195,6 +195,9 @@ func get_buy_error(
 	if player_inventory == null:
 		return "Player inventory is missing."
 
+	if not player_inventory.can_add_items(1):
+		return "Нет свободного места в инвентаре."
+
 	var item := trader_state.get_item(
 		item_instance_id
 	)

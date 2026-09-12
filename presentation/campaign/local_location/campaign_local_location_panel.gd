@@ -1731,6 +1731,30 @@ func _create_dialogue_button(
 
 
 func _construction_status_for_zone(zone_id: StringName) -> String:
+	if _settlement_state != null and _settlement_definition != null:
+		var zone_state := _settlement_state.get_zone(zone_id)
+		if zone_state != null and zone_state.has_pending_construction():
+			var zone_def := _settlement_definition.get_zone(zone_id)
+			var building_name := String(zone_state.pending_building_id)
+			if zone_def != null:
+				var building := zone_def.get_building(zone_state.pending_building_id)
+				if building != null and not building.display_name.is_empty():
+					building_name = building.display_name
+
+			var current_total_minutes := _state.current_day * 1440 + _state.current_minute_of_day
+			var remaining := maxi(0, zone_state.pending_completes_at - current_total_minutes)
+			var hours := floori(float(remaining) / 60.0)
+			var minutes := remaining % 60
+			var time_str := ""
+			if hours > 0 and minutes > 0:
+				time_str = "%d ч. %d мин." % [hours, minutes]
+			elif hours > 0:
+				time_str = "%d ч." % hours
+			else:
+				time_str = "%d мин." % minutes
+
+			return "Строится: %s.\nОсталось: %s" % [building_name, time_str]
+
 	for contract in _state.construction_contracts:
 		if contract.status != CampaignConstructionContract.Status.ACTIVE:
 			continue

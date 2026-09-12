@@ -2,7 +2,7 @@ class_name CampaignSaveService
 extends RefCounted
 
 
-const CURRENT_SAVE_VERSION: int = 14
+const CURRENT_SAVE_VERSION: int = 15
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
 
 const STATUS_SAVED: StringName = &"saved"
@@ -453,6 +453,24 @@ func _encode_settlement(
 				),
 				"building_level": (
 					zone.building_level
+				),
+				"pending_building_id": String(
+					zone.pending_building_id
+				),
+				"pending_target_level": (
+					zone.pending_target_level
+				),
+				"pending_started_at": (
+					zone.pending_started_at
+				),
+				"pending_completes_at": (
+					zone.pending_completes_at
+				),
+				"pending_paid_gold": (
+					zone.pending_paid_gold
+				),
+				"pending_paid_materials": (
+					zone.pending_paid_materials
 				),
 			}
 		)
@@ -1021,6 +1039,55 @@ func _decode_settlement(
 				% zone_index,
 			0,
 			99
+		)
+
+		zone_state.pending_building_id = StringName(
+			_string_value(
+				zone_data.get("pending_building_id", ""),
+				"home_settlement.zones[%d].pending_building_id"
+					% zone_index,
+				true
+			)
+		)
+
+		zone_state.pending_target_level = _int_value(
+			zone_data.get("pending_target_level", 0),
+			"home_settlement.zones[%d].pending_target_level"
+				% zone_index,
+			0,
+			99
+		)
+
+		zone_state.pending_started_at = _int_value(
+			zone_data.get("pending_started_at", 0),
+			"home_settlement.zones[%d].pending_started_at"
+				% zone_index,
+			0,
+			2147483647
+		)
+
+		zone_state.pending_completes_at = _int_value(
+			zone_data.get("pending_completes_at", 0),
+			"home_settlement.zones[%d].pending_completes_at"
+				% zone_index,
+			0,
+			2147483647
+		)
+
+		zone_state.pending_paid_gold = _int_value(
+			zone_data.get("pending_paid_gold", 0),
+			"home_settlement.zones[%d].pending_paid_gold"
+				% zone_index,
+			0,
+			2147483647
+		)
+
+		zone_state.pending_paid_materials = _int_value(
+			zone_data.get("pending_paid_materials", 0),
+			"home_settlement.zones[%d].pending_paid_materials"
+				% zone_index,
+			0,
+			2147483647
 		)
 
 		if _failed():

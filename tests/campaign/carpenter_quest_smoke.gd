@@ -18,8 +18,10 @@ func _initialize() -> void:
 
 func build(runtime: CampaignRuntimeService, building_id: StringName) -> void:
 	for zone in runtime.get_home_settlement_definition().zones:
-		if zone.get_building(building_id) != null:
+		var b := zone.get_building(building_id)
+		if b != null:
 			check(runtime.construct_home_settlement_building(zone.zone_id, building_id), "Build " + String(building_id))
+			check(runtime.advance_time(b.construction_minutes), "Advance construction time for " + String(building_id))
 			return
 	check(false, "Building definition absent")
 

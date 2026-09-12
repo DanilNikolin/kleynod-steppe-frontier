@@ -16,8 +16,10 @@ func _initialize() -> void:
 
 func build(id: StringName) -> void:
 	for zone in runtime.get_home_settlement_definition().zones:
-		if zone.get_building(id) != null:
+		var b := zone.get_building(id)
+		if b != null:
 			check(runtime.construct_home_settlement_building(zone.zone_id, id), "Build " + String(id))
+			check(runtime.advance_time(b.construction_minutes), "Advance construction time for " + String(id))
 			return
 	check(false, "Missing primitive building")
 

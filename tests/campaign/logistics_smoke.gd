@@ -18,6 +18,7 @@ func run() -> void:
 	var campaign := runtime.campaign_definition
 	var inventory := state.inventory_state
 	check(runtime.construct_home_settlement_building(&"trade_yard", &"primitive_campfire"), "Campfire unlocks grove")
+	check(runtime.advance_time(120), "Campfire finishes")
 	state.current_world_node_id = &"debug_home_materials_node"
 	var before_count := inventory.items.size()
 	check(runtime.explore_adventure_site(&"debug_home_outskirts_materials_area", &"starter_materials_cache"), "Starter pickup")
@@ -61,6 +62,7 @@ func run() -> void:
 	check(not runtime.unload_materials().is_empty() and state.materials == 8, "No duplicate unload")
 	check(runtime.construct_home_settlement_building(&"residential_yard", &"temporary_party_shelter"), "B1 costs five")
 	check(runtime.construct_home_settlement_building(&"household_yard", &"primitive_common_shelter"), "C1 costs three")
+	check(runtime.advance_time(120), "B1 and C1 finish")
 	check(state.materials == 0, "Starter eight exactly enough")
 	check(not runtime.get_supply_order_error(&"village_materials", &"small").is_empty(), "C2 capability gate")
 	state.home_settlement_state.get_zone(&"household_yard").building_level = 2

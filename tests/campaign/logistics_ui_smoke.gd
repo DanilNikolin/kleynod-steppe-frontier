@@ -15,6 +15,7 @@ func run() -> void:
 	runtime.start_new_campaign()
 	var state = runtime.campaign_state
 	runtime.construct_home_settlement_building(&"trade_yard", &"primitive_campfire")
+	runtime.advance_time(120)
 	state.current_world_node_id = &"debug_home_materials_node"
 	assert(runtime.explore_adventure_site(&"debug_home_outskirts_materials_area", &"starter_materials_cache"))
 	sandbox = load("res://scenes/campaign/campaign_sandbox.gd").new()
@@ -32,6 +33,7 @@ func run() -> void:
 	assert(state.materials == 8 and state.inventory_state.get_carried_materials() == 0)
 	runtime.construct_home_settlement_building(&"residential_yard", &"temporary_party_shelter")
 	runtime.construct_home_settlement_building(&"household_yard", &"primitive_common_shelter")
+	runtime.advance_time(120)
 	state.home_settlement_state.get_zone(&"household_yard").building_level = 2
 	panel = show_panel()
 	await capture("no-supplier")

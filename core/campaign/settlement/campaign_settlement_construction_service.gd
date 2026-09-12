@@ -76,6 +76,12 @@ func get_construction_error(
 			% zone_id
 		)
 
+	if zone_state.has_pending_construction():
+		return (
+			"Settlement zone '%s' already has construction in progress."
+			% zone_id
+		)
+
 	var building := zone_definition.get_building(
 		building_id
 	)
@@ -129,7 +135,7 @@ func get_construction_error(
 	return ""
 
 
-func apply_construction(
+func start_construction(
 	campaign_state: CampaignState,
 	settlement_definition: CampaignSettlementDefinition,
 	zone_id: StringName,
@@ -167,20 +173,23 @@ func apply_construction(
 	):
 		return false
 
+	var now := (
+		campaign_state.current_day
+		* CampaignTimeService.MINUTES_PER_DAY
+		+ campaign_state.current_minute_of_day
+	)
+
+	var completes_at := now + building.construction_minutes
+	var completes_day := floori(float(completes_at) / float(CampaignTimeService.MINUTES_PER_DAY))
+	if completes_day > CampaignTimeService.MAX_CAMPAIGN_DAY:
+		return false
+
 	var previous_gold := (
 		campaign_state.inventory_state.gold
 	)
 
 	var previous_materials := (
 		campaign_state.materials
-	)
-
-	var previous_building_id := (
-		zone_state.building_id
-	)
-
-	var previous_building_level := (
-		zone_state.building_level
 	)
 
 	campaign_state.inventory_state.gold -= (
@@ -191,11 +200,12 @@ func apply_construction(
 		building.construction_material_cost
 	)
 
-	zone_state.building_id = (
-		building.building_id
-	)
-
-	zone_state.building_level = 1
+	zone_state.pending_building_id = building.building_id
+	zone_state.pending_target_level = 1
+	zone_state.pending_started_at = now
+	zone_state.pending_completes_at = completes_at
+	zone_state.pending_paid_gold = building.construction_gold_cost
+	zone_state.pending_paid_materials = building.construction_material_cost
 
 	if (
 		not settlement_state.is_valid_against_definition(
@@ -211,17 +221,87 @@ func apply_construction(
 			previous_materials
 		)
 
-		zone_state.building_id = (
-			previous_building_id
-		)
-
-		zone_state.building_level = (
-			previous_building_level
-		)
-
+		zone_state.clear_pending_construction()
 		return false
 
 	return true
+
+
+func complete_due(
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition
+) -> bool:
+	if campaign_state == null or settlement_definition == null:
+		return false
+
+	var settlement_state := (
+		campaign_state.home_settlement_state
+	)
+
+	if settlement_state == null:
+		return false
+
+	var now := (
+		campaign_state.current_day
+		* CampaignTimeService.MINUTES_PER_DAY
+		+ campaign_state.current_minute_of_day
+	)
+
+	for zone_def in settlement_definition.zones:
+		if zone_def == null:
+			continue
+
+		var zone_state := settlement_state.get_zone(zone_def.zone_id)
+		if zone_state == null:
+			continue
+
+		if not zone_state.has_pending_construction():
+			continue
+
+		if now < zone_state.pending_completes_at:
+			continue
+
+		var building := zone_def.get_building(zone_state.pending_building_id)
+		if building == null:
+			return false
+
+		if zone_state.pending_target_level != 1:
+			return false
+
+		if (zone_state.pending_completes_at - zone_state.pending_started_at) != building.construction_minutes:
+			return false
+
+		if zone_state.pending_paid_gold != building.construction_gold_cost:
+			return false
+
+		if zone_state.pending_paid_materials != building.construction_material_cost:
+			return false
+
+		zone_state.building_id = zone_state.pending_building_id
+		zone_state.building_level = zone_state.pending_target_level
+		zone_state.clear_pending_construction()
+
+	if not settlement_state.is_valid_against_definition(settlement_definition):
+		return false
+
+	if not campaign_state.is_valid_state():
+		return false
+
+	return true
+
+
+func apply_construction(
+	campaign_state: CampaignState,
+	settlement_definition: CampaignSettlementDefinition,
+	zone_id: StringName,
+	building_id: StringName
+) -> bool:
+	return start_construction(
+		campaign_state,
+		settlement_definition,
+		zone_id,
+		building_id
+	)
 
 
 func can_demolish(

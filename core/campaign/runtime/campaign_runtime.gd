@@ -986,122 +986,14 @@ func construct_home_settlement_building(
 	if building == null:
 		return false
 
-	var previous_gold := (
-		campaign_state.inventory_state.gold
-	)
-
-	var previous_materials := (
-		campaign_state.materials
-	)
-
-	var previous_day := (
-		campaign_state.current_day
-	)
-
-	var previous_minute := (
-		campaign_state.current_minute_of_day
-	)
-
-	var previous_uncollected_gold := (
-		settlement_state.uncollected_gold
-	)
-
-	var previous_building_id := (
-		zone_state.building_id
-	)
-
-	var previous_building_level := (
-		zone_state.building_level
-	)
-
-	## Пока идёт строительство,
-	## участок всё ещё считается в старом состоянии.
-	if not advance_time(
-		building.construction_minutes
-	):
-		push_warning(
-			"Settlement construction time could not be applied."
-		)
-
-		return false
-
-	if not settlement_construction_service.apply_construction(
+	if not settlement_construction_service.start_construction(
 		campaign_state,
 		settlement_definition,
 		zone_id,
 		building_id
 	):
-		campaign_state.inventory_state.gold = (
-			previous_gold
-		)
-
-		campaign_state.materials = (
-			previous_materials
-		)
-
-		campaign_state.current_day = (
-			previous_day
-		)
-
-		campaign_state.current_minute_of_day = (
-			previous_minute
-		)
-
-		settlement_state.uncollected_gold = (
-			previous_uncollected_gold
-		)
-
-		zone_state.building_id = (
-			previous_building_id
-		)
-
-		zone_state.building_level = (
-			previous_building_level
-		)
-
 		push_warning(
-			"Settlement construction could not be applied."
-		)
-
-		return false
-
-	if (
-		not settlement_state.is_valid_against_definition(
-			settlement_definition
-		)
-		or not campaign_state.is_valid_state()
-	):
-		campaign_state.inventory_state.gold = (
-			previous_gold
-		)
-
-		campaign_state.materials = (
-			previous_materials
-		)
-
-		campaign_state.current_day = (
-			previous_day
-		)
-
-		campaign_state.current_minute_of_day = (
-			previous_minute
-		)
-
-		settlement_state.uncollected_gold = (
-			previous_uncollected_gold
-		)
-
-		zone_state.building_id = (
-			previous_building_id
-		)
-
-		zone_state.building_level = (
-			previous_building_level
-		)
-
-		push_error(
-			"Settlement construction produced "
-			+"an invalid campaign state."
+			"Settlement construction could not be started."
 		)
 
 		return false
@@ -2325,6 +2217,9 @@ func advance_time(
 		return false
 
 	if not construction_service.complete_due(campaign_definition, campaign_state):
+		_restore_time_economy_snapshot(previous_day, previous_minute, previous_uncollected_gold, previous_inventory_gold)
+		return false
+	if not settlement_construction_service.complete_due(campaign_state, settlement_definition):
 		_restore_time_economy_snapshot(previous_day, previous_minute, previous_uncollected_gold, previous_inventory_gold)
 		return false
 	resident_service.update_wandering(campaign_definition, campaign_state)

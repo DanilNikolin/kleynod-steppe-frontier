@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://c6xk144n514g1"]
+
+[ext_resource type="Script" uid="uid://d2rwrftb3f2wj" path="res://presentation/campaign/local_location/cloud_drift.gd" id="1_drift"]
+[ext_resource type="Texture2D" uid="uid://c4qod6mpmecly" path="res://Graphics/home_village/BG/Clouds/Far/cloud_far_01.png" id="2_far01"]
+[ext_resource type="Texture2D" uid="uid://b2erua6gq5sa" path="res://Graphics/home_village/BG/Clouds/Far/cloud_far_02.png" id="3_far02"]
+[ext_resource type="Texture2D" uid="uid://b35i6r4qrg7g1" path="res://Graphics/home_village/BG/Clouds/Far/cloud_far_03.png" id="4_far03"]
+[ext_resource type="Texture2D" uid="uid://bt0l770tt738c" path="res://Graphics/home_village/BG/Clouds/Far/cloud_far_04.png" id="5_far04"]
+[ext_resource type="Texture2D" uid="uid://ban143w4py8ic" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_01.png" id="6_near01"]
+[ext_resource type="Texture2D" uid="uid://b18nbvbxxecwg" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_02.png" id="7_near02"]
+[ext_resource type="Texture2D" uid="uid://iv6gpcovc0s8" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_03.png" id="8_near03"]
+[ext_resource type="Texture2D" uid="uid://p08k5uk7rfrt" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_04.png" id="9_near04"]
+[ext_resource type="Texture2D" uid="uid://dskou8jkg7vmt" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_05.png" id="10_near05"]
+[ext_resource type="Texture2D" uid="uid://dpuq8w668oppg" path="res://Graphics/home_village/BG/Clouds/Near/cloud_near_06.png" id="11_near06"]
+
+[node name="HomeClouds" type="Node2D" unique_id=1910883529]
+
+[node name="FarClouds" type="Parallax2D" parent="." unique_id=838039927]
+z_index = -30
+scroll_scale = Vector2(0.72, 1)
+
+[node name="CloudFar01" type="Sprite2D" parent="FarClouds" unique_id=1425727625]
+position = Vector2(450, 294)
+texture = ExtResource("2_far01")
+script = ExtResource("1_drift")
+speed_x = 4.2
+vertical_amplitude = 5.0
+vertical_period = 42.0
+phase_offset = 3.5
+respawn_y_min = 70.0
+respawn_y_max = 380.0
+
+[node name="CloudFar02" type="Sprite2D" parent="FarClouds" unique_id=169727363]
+position = Vector2(1950, 423)
+texture = ExtResource("3_far02")
+script = ExtResource("1_drift")
+speed_x = 3.8
+vertical_amplitude = 4.0
+vertical_period = 48.0
+phase_offset = 14.2
+respawn_y_min = 70.0
+respawn_y_max = 380.0
+
+[node name="CloudFar03" type="Sprite2D" parent="FarClouds" unique_id=47787804]
+position = Vector2(4002, 610)
+scale = Vector2(0.703125, 0.703125)
+texture = ExtResource("4_far03")
+script = ExtResource("1_drift")
+speed_x = 4.8
+vertical_amplitude = 6.0
+vertical_period = 38.0
+phase_offset = 27.8
+respawn_y_min = 70.0
+respawn_y_max = 380.0
+
+[node name="CloudFar04" type="Sprite2D" parent="FarClouds" unique_id=740895917]
+position = Vector2(6147, 518)
+texture = ExtResource("5_far04")
+script = ExtResource("1_drift")
+speed_x = 3.6
+vertical_amplitude = 4.5
+vertical_period = 52.0
+phase_offset = 8.6
+respawn_y_min = 70.0
+respawn_y_max = 380.0
+
+[node name="NearClouds" type="Parallax2D" parent="." unique_id=959771359]
+z_index = -29
+scroll_scale = Vector2(0.88, 1)
+
+[node name="CloudNear01" type="Sprite2D" parent="NearClouds" unique_id=2109241711]
+position = Vector2(5202, 240)
+texture = ExtResource("6_near01")
+script = ExtResource("1_drift")
+speed_x = 7.2
+vertical_period = 32.0
+phase_offset = 5.0
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08
+
+[node name="CloudNear02" type="Sprite2D" parent="NearClouds" unique_id=427801952]
+position = Vector2(1388, 147)
+texture = ExtResource("7_near02")
+script = ExtResource("1_drift")
+speed_x = 8.5
+vertical_amplitude = 11.0
+vertical_period = 28.0
+phase_offset = 18.3
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08
+
+[node name="CloudNear03" type="Sprite2D" parent="NearClouds" unique_id=2112073036]
+position = Vector2(8664, 323)
+texture = ExtResource("8_near03")
+script = ExtResource("1_drift")
+speed_x = 6.4
+vertical_amplitude = 7.0
+vertical_period = 40.0
+phase_offset = 9.7
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08
+
+[node name="CloudNear04" type="Sprite2D" parent="NearClouds" unique_id=1213958705]
+position = Vector2(3168, 284)
+texture = ExtResource("9_near04")
+script = ExtResource("1_drift")
+speed_x = 7.8
+vertical_amplitude = 9.5
+vertical_period = 35.0
+phase_offset = 24.1
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08
+
+[node name="CloudNear05" type="Sprite2D" parent="NearClouds" unique_id=860187707]
+position = Vector2(4584, 280)
+texture = ExtResource("10_near05")
+script = ExtResource("1_drift")
+speed_x = 6.8
+vertical_amplitude = 8.5
+phase_offset = 12.4
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08
+
+[node name="CloudNear06" type="Sprite2D" parent="NearClouds" unique_id=572137113]
+position = Vector2(7317, 150)
+texture = ExtResource("11_near06")
+script = ExtResource("1_drift")
+speed_x = 8.1
+vertical_amplitude = 10.0
+vertical_period = 44.0
+phase_offset = 31.0
+respawn_y_min = 70.0
+respawn_y_max = 430.0
+scale_variation_min = 0.92
+scale_variation_max = 1.08

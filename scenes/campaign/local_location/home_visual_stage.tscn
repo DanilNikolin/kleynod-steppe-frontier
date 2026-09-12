@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dg0u8g2l7x4a1" path="res://scenes/campaign/local_location/objects/campfire.tscn" id="2_campfire"]
 [ext_resource type="Script" uid="uid://0lyliyi7c4s" path="res://presentation/campaign/local_location/local_build_site_view.gd" id="3_build_site"]
 [ext_resource type="PackedScene" uid="uid://b23u17yyakl3p" path="res://scenes/campaign/local_location/objects/river.tscn" id="4_iqjhl"]
+[ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -26,8 +27,9 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_sky")
 
-[node name="Clouds" type="Parallax2D" parent="." unique_id=474965930]
-z_index = -30
+[node name="Clouds" parent="." unique_id=474965930 instance=ExtResource("5_clouds")]
+position = Vector2(-12.000002, 96.000015)
+scale = Vector2(0.525, 0.525)
 
 [node name="WorldContent" type="Node2D" parent="." unique_id=1151582725]
 

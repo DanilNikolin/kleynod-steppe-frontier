@@ -242,16 +242,44 @@ func _refresh_settlement_visuals() -> void:
 			or zone_state.is_empty()
 		):
 			var is_constructing := not _construction_status_for_zone(zone.zone_id).is_empty()
-			site_states[zone.local_interaction_id] = (
-				LocalBuildSiteView.BuildVisualState.CONSTRUCTING
-				if is_constructing
-				else LocalBuildSiteView.BuildVisualState.EMPTY
-			)
-			overrides[zone.local_interaction_id] = ("Строится: " + zone.display_name) if is_constructing else zone.display_name
+			if is_constructing:
+				var progress: float = 0.0
+				var current_total_minutes := _state.current_day * 1440 + _state.current_minute_of_day
+				if zone_state != null and zone_state.has_pending_construction():
+					var duration := zone_state.pending_completes_at - zone_state.pending_started_at
+					if duration > 0:
+						var elapsed := current_total_minutes - zone_state.pending_started_at
+						progress = clampf(float(elapsed) / float(duration), 0.0, 1.0)
+				else:
+					for contract in _state.construction_contracts:
+						if contract.status != CampaignConstructionContract.Status.ACTIVE:
+							continue
+						for project in construction_projects:
+							if project.project_id == contract.project_id and project.zone_id == zone.zone_id:
+								var duration := contract.completes_at - contract.started_at
+								if duration > 0:
+									var elapsed := current_total_minutes - contract.started_at
+									progress = clampf(float(elapsed) / float(duration), 0.0, 1.0)
+								break
+
+				site_states[zone.local_interaction_id] = {
+					"state": LocalBuildSiteView.BuildVisualState.CONSTRUCTING,
+					"progress": progress,
+				}
+				overrides[zone.local_interaction_id] = "Строится: " + zone.display_name
+			else:
+				site_states[zone.local_interaction_id] = {
+					"state": LocalBuildSiteView.BuildVisualState.EMPTY,
+					"progress": 0.0,
+				}
+				overrides[zone.local_interaction_id] = zone.display_name
 
 			continue
 
-		site_states[zone.local_interaction_id] = LocalBuildSiteView.BuildVisualState.BUILT
+		site_states[zone.local_interaction_id] = {
+			"state": LocalBuildSiteView.BuildVisualState.BUILT,
+			"progress": 1.0,
+		}
 
 		var building := zone.get_building(
 			zone_state.building_id

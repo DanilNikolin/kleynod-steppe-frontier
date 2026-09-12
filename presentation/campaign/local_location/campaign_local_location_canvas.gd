@@ -269,9 +269,13 @@ func set_build_site_states(
 		if site == null:
 			continue
 
-		site.set_build_state(
-			states[interaction_id]
-		)
+		var val = states[interaction_id]
+		if val is Dictionary:
+			var build_state: LocalBuildSiteView.BuildVisualState = val.get("state", LocalBuildSiteView.BuildVisualState.EMPTY)
+			var progress: float = float(val.get("progress", 0.0))
+			site.set_build_state(build_state, progress)
+		elif val is LocalBuildSiteView.BuildVisualState or val is int:
+			site.set_build_state(val as LocalBuildSiteView.BuildVisualState)
 
 
 func set_build_site_built_states(

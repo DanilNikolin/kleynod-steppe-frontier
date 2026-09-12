@@ -73,16 +73,29 @@ func run() -> void:
 
 	var party_shelter_anchor := panel._canvas._anchors_by_interaction_id.get(&"home_zone_party_shelter") as LocalBuildSiteView
 	check(party_shelter_anchor != null, "Found party shelter anchor")
-	var construction_visual := party_shelter_anchor.get_node_or_null("ConstructionVisual") as CanvasItem
-	var built_visual := party_shelter_anchor.get_node_or_null("BuiltVisual") as CanvasItem
-	check(construction_visual != null and construction_visual.visible == true, "ConstructionVisual is visible during construction")
-	check(built_visual != null and built_visual.visible == false, "BuiltVisual is hidden during construction")
+	var buildable: LocalBuildableVisual = party_shelter_anchor.get_buildable_visual()
+	check(buildable != null, "Found LocalBuildableVisual under party shelter anchor")
+	var construction_node := buildable.get_node_or_null("Construction") as CanvasItem
+	var stage30_node := buildable.get_node_or_null("Construction/Stage30") as CanvasItem
+	var built_node := buildable.get_node_or_null("Built") as CanvasItem
+	var flag_node := buildable.get_node_or_null("Built/Visual/Flag") as AnimatedSprite2D
+
+	check(construction_node != null and construction_node.visible == true, "Construction is visible during construction")
+	check(stage30_node != null and stage30_node.visible == true, "Stage30 is visible during construction")
+	check(built_node != null and built_node.visible == false, "Built is hidden during construction")
 
 	# Step 3: Advance time partially (construction_minutes - 1)
 	var partial_minutes := building_def.construction_minutes - 1
 	check(runtime.advance_time(partial_minutes), "Advance time partially")
 	check(zone_state.building_id == &"", "Zone still empty before deadline")
 	check(zone_state.has_pending_construction(), "Pending construction still active before deadline")
+
+	# Refresh panel during mid-construction to verify progress update maintains CONSTRUCTING state
+	panel._state = state
+	panel._settlement_state = state.home_settlement_state
+	panel.refresh_state()
+	check(construction_node.visible == true, "Construction remains visible mid-construction")
+	check(built_node.visible == false, "Built remains hidden mid-construction")
 
 	# Step 4: Save and load in the middle of construction
 	var path := "user://home_construction_async_smoke_%d.json" % Time.get_ticks_usec()
@@ -115,8 +128,9 @@ func run() -> void:
 	panel._state = state
 	panel._settlement_state = state.home_settlement_state
 	panel.refresh_state()
-	check(construction_visual.visible == false, "ConstructionVisual is hidden after completion")
-	check(built_visual.visible == true, "BuiltVisual is visible after completion")
+	check(construction_node.visible == false, "Construction is hidden after completion")
+	check(built_node.visible == true, "Built is visible after completion")
+	check(flag_node != null and flag_node.is_playing() and flag_node.animation == &"idle", "Flag continues playing idle animation when built")
 
 	sandbox.free()
 	runtime.free()

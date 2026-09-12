@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://cb5y1x3j8r2pm"]
 
+[ext_resource type="Script" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
+[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="3_stage30"]
 [ext_resource type="Texture2D" uid="uid://whpym7qt3bp1" path="res://Graphics/home_village/Место отряда/Укрытие отряда_тень_правильнаz.png" id="1_k3b5f"]
 [ext_resource type="Texture2D" uid="uid://cb2gnvm1f3l2i" path="res://Graphics/home_village/Место отряда/Укрытие отряда_правильное_тестовое.png" id="2_4a6x7"]
 [ext_resource type="Texture2D" uid="uid://c1c1bk222mnjg" path="res://Graphics/home_village/Место отряда/анимация флага/00.png" id="3_4a6x7"]
@@ -23,7 +26,6 @@
 [ext_resource type="Texture2D" uid="uid://d0ytsrwvudex0" path="res://Graphics/home_village/Место отряда/анимация флага/18.png" id="21_pom72"]
 [ext_resource type="Texture2D" uid="uid://chuebud8rhg05" path="res://Graphics/home_village/Место отряда/анимация флага/19.png" id="22_6fj2j"]
 [ext_resource type="Texture2D" uid="uid://cjh7w5dlh4b3y" path="res://Graphics/home_village/Место отряда/анимация флага/20.png" id="23_pynyc"]
-[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="24_u6qrp"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_flag"]
 animations = [{
@@ -97,19 +99,31 @@ animations = [{
 }]
 
 [node name="PartyShelter" type="Node2D" unique_id=1736695738]
+script = ExtResource("1_buildable")
 
-[node name="Visual" type="Node2D" parent="." unique_id=456412336]
+[node name="Construction" type="Node2D" parent="." unique_id=892301142]
+visible = false
 
-[node name="УкрытиеОтрядаТень" type="Sprite2D" parent="Visual" unique_id=1187510409]
+[node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1944022590]
+position = Vector2(-24, -157)
+texture = ExtResource("3_stage30")
+script = ExtResource("2_stage")
+
+[node name="Built" type="Node2D" parent="." unique_id=741029381]
+visible = false
+
+[node name="Visual" type="Node2D" parent="Built" unique_id=456412336]
+
+[node name="УкрытиеОтрядаТень" type="Sprite2D" parent="Built/Visual" unique_id=1187510409]
 visible = false
 modulate = Color(1, 1, 1, 0.84313726)
 texture = ExtResource("1_k3b5f")
 
-[node name="Base" type="Sprite2D" parent="Visual" unique_id=2077613346]
+[node name="Base" type="Sprite2D" parent="Built/Visual" unique_id=2077613346]
 position = Vector2(-27, -152)
 texture = ExtResource("2_4a6x7")
 
-[node name="Flag" type="AnimatedSprite2D" parent="Visual" unique_id=93530370]
+[node name="Flag" type="AnimatedSprite2D" parent="Built/Visual" unique_id=93530370]
 position = Vector2(171, -287)
 scale = Vector2(0.27794117, 0.2779412)
 sprite_frames = SubResource("SpriteFrames_flag")

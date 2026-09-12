@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://d0ytsrwvudex0" path="res://Graphics/home_village/Место отряда/анимация флага/18.png" id="21_pom72"]
 [ext_resource type="Texture2D" uid="uid://chuebud8rhg05" path="res://Graphics/home_village/Место отряда/анимация флага/19.png" id="22_6fj2j"]
 [ext_resource type="Texture2D" uid="uid://cjh7w5dlh4b3y" path="res://Graphics/home_village/Место отряда/анимация флага/20.png" id="23_pynyc"]
+[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="24_u6qrp"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_flag"]
 animations = [{
@@ -114,4 +115,9 @@ scale = Vector2(0.27794117, 0.2779412)
 sprite_frames = SubResource("SpriteFrames_flag")
 animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.69723916
+frame_progress = 0.15300839
+
+[node name="buildind" type="Sprite2D" parent="Visual" unique_id=1944022590]
+visible = false
+position = Vector2(-24, -157)
+texture = ExtResource("24_u6qrp")

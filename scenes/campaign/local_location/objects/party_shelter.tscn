@@ -116,8 +116,3 @@ sprite_frames = SubResource("SpriteFrames_flag")
 animation = &"idle"
 autoplay = "idle"
 frame_progress = 0.15300839
-
-[node name="buildind" type="Sprite2D" parent="Visual" unique_id=1944022590]
-visible = false
-position = Vector2(-24, -157)
-texture = ExtResource("24_u6qrp")

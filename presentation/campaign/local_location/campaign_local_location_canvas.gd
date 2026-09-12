@@ -252,6 +252,28 @@ func set_interaction_visibility_overrides(
 	_refresh_button_texts()
 
 
+func set_build_site_states(
+	states: Dictionary
+) -> void:
+	for interaction_id in states:
+		if not _anchors_by_interaction_id.has(
+			interaction_id
+		):
+			continue
+
+		var site := (
+			_anchors_by_interaction_id[interaction_id]
+			as LocalBuildSiteView
+		)
+
+		if site == null:
+			continue
+
+		site.set_build_state(
+			states[interaction_id]
+		)
+
+
 func set_build_site_built_states(
 	states: Dictionary
 ) -> void:

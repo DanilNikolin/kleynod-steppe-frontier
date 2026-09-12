@@ -209,7 +209,7 @@ func _refresh_settlement_visuals() -> void:
 		return
 
 	var overrides: Dictionary = {}
-	var built_states: Dictionary = {}
+	var site_states: Dictionary = {}
 
 	if (
 		_settlement_definition == null
@@ -218,8 +218,8 @@ func _refresh_settlement_visuals() -> void:
 		_canvas.set_interaction_display_overrides(
 			overrides
 		)
-		_canvas.set_build_site_built_states(
-			built_states
+		_canvas.set_build_site_states(
+			site_states
 		)
 
 		return
@@ -241,12 +241,17 @@ func _refresh_settlement_visuals() -> void:
 			zone_state == null
 			or zone_state.is_empty()
 		):
-			built_states[zone.local_interaction_id] = false
-			overrides[zone.local_interaction_id] = ("Строится: " + zone.display_name) if not _construction_status_for_zone(zone.zone_id).is_empty() else zone.display_name
+			var is_constructing := not _construction_status_for_zone(zone.zone_id).is_empty()
+			site_states[zone.local_interaction_id] = (
+				LocalBuildSiteView.BuildVisualState.CONSTRUCTING
+				if is_constructing
+				else LocalBuildSiteView.BuildVisualState.EMPTY
+			)
+			overrides[zone.local_interaction_id] = ("Строится: " + zone.display_name) if is_constructing else zone.display_name
 
 			continue
 
-		built_states[zone.local_interaction_id] = true
+		site_states[zone.local_interaction_id] = LocalBuildSiteView.BuildVisualState.BUILT
 
 		var building := zone.get_building(
 			zone_state.building_id
@@ -282,8 +287,8 @@ func _refresh_settlement_visuals() -> void:
 	_canvas.set_interaction_display_overrides(
 		overrides
 	)
-	_canvas.set_build_site_built_states(
-		built_states
+	_canvas.set_build_site_states(
+		site_states
 	)
 
 

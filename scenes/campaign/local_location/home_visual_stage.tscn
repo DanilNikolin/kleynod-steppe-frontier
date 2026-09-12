@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b23u17yyakl3p" path="res://scenes/campaign/local_location/objects/river.tscn" id="4_iqjhl"]
 [ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
 [ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
+[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="7_building"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -74,7 +75,15 @@ offset_bottom = 445.0
 focus_mode = 0
 text = "Место отряда"
 
+[node name="ConstructionVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000302]
+visible = false
+
+[node name="Building" type="Sprite2D" parent="WorldContent/EarlyBuildSites/PartyShelterSite/ConstructionVisual" unique_id=210000303]
+position = Vector2(-340, 163)
+texture = ExtResource("7_building")
+
 [node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000202]
+visible = false
 
 [node name="PartyShelter" parent="WorldContent/EarlyBuildSites/PartyShelterSite/BuiltVisual" unique_id=1481920381 instance=ExtResource("6_party_shelter")]
 position = Vector2(-316, 320)

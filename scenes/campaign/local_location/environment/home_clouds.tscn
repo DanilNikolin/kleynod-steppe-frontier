@@ -18,7 +18,13 @@
 z_index = -30
 scroll_scale = Vector2(0.72, 1)
 
-[node name="CloudFar01" type="Sprite2D" parent="FarClouds" unique_id=1425727625]
+[node name="SpawnLeft" type="Marker2D" parent="FarClouds" unique_id=365415983]
+position = Vector2(-476, 0)
+
+[node name="DespawnRight" type="Marker2D" parent="FarClouds" unique_id=1405685724]
+position = Vector2(12500, 0)
+
+[node name="CloudFar01" type="Sprite2D" parent="FarClouds" unique_id=1425727625 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(450, 294)
 texture = ExtResource("2_far01")
 script = ExtResource("1_drift")
@@ -26,10 +32,12 @@ speed_x = 4.2
 vertical_amplitude = 5.0
 vertical_period = 42.0
 phase_offset = 3.5
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 380.0
 
-[node name="CloudFar02" type="Sprite2D" parent="FarClouds" unique_id=169727363]
+[node name="CloudFar02" type="Sprite2D" parent="FarClouds" unique_id=169727363 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(1950, 423)
 texture = ExtResource("3_far02")
 script = ExtResource("1_drift")
@@ -37,10 +45,12 @@ speed_x = 3.8
 vertical_amplitude = 4.0
 vertical_period = 48.0
 phase_offset = 14.2
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 380.0
 
-[node name="CloudFar03" type="Sprite2D" parent="FarClouds" unique_id=47787804]
+[node name="CloudFar03" type="Sprite2D" parent="FarClouds" unique_id=47787804 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(4002, 610)
 scale = Vector2(0.703125, 0.703125)
 texture = ExtResource("4_far03")
@@ -49,10 +59,12 @@ speed_x = 4.8
 vertical_amplitude = 6.0
 vertical_period = 38.0
 phase_offset = 27.8
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 380.0
 
-[node name="CloudFar04" type="Sprite2D" parent="FarClouds" unique_id=740895917]
+[node name="CloudFar04" type="Sprite2D" parent="FarClouds" unique_id=740895917 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(6147, 518)
 texture = ExtResource("5_far04")
 script = ExtResource("1_drift")
@@ -60,6 +72,8 @@ speed_x = 3.6
 vertical_amplitude = 4.5
 vertical_period = 52.0
 phase_offset = 8.6
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 380.0
 
@@ -67,19 +81,27 @@ respawn_y_max = 380.0
 z_index = -29
 scroll_scale = Vector2(0.88, 1)
 
-[node name="CloudNear01" type="Sprite2D" parent="NearClouds" unique_id=2109241711]
+[node name="SpawnLeft" type="Marker2D" parent="NearClouds" unique_id=1909592571]
+position = Vector2(-478, 0)
+
+[node name="DespawnRight" type="Marker2D" parent="NearClouds" unique_id=1131258337]
+position = Vector2(12500, 0)
+
+[node name="CloudNear01" type="Sprite2D" parent="NearClouds" unique_id=2109241711 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(5202, 240)
 texture = ExtResource("6_near01")
 script = ExtResource("1_drift")
 speed_x = 7.2
 vertical_period = 32.0
 phase_offset = 5.0
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92
 scale_variation_max = 1.08
 
-[node name="CloudNear02" type="Sprite2D" parent="NearClouds" unique_id=427801952]
+[node name="CloudNear02" type="Sprite2D" parent="NearClouds" unique_id=427801952 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(1388, 147)
 texture = ExtResource("7_near02")
 script = ExtResource("1_drift")
@@ -87,12 +109,14 @@ speed_x = 8.5
 vertical_amplitude = 11.0
 vertical_period = 28.0
 phase_offset = 18.3
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92
 scale_variation_max = 1.08
 
-[node name="CloudNear03" type="Sprite2D" parent="NearClouds" unique_id=2112073036]
+[node name="CloudNear03" type="Sprite2D" parent="NearClouds" unique_id=2112073036 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(8664, 323)
 texture = ExtResource("8_near03")
 script = ExtResource("1_drift")
@@ -100,12 +124,14 @@ speed_x = 6.4
 vertical_amplitude = 7.0
 vertical_period = 40.0
 phase_offset = 9.7
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92
 scale_variation_max = 1.08
 
-[node name="CloudNear04" type="Sprite2D" parent="NearClouds" unique_id=1213958705]
+[node name="CloudNear04" type="Sprite2D" parent="NearClouds" unique_id=1213958705 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(3168, 284)
 texture = ExtResource("9_near04")
 script = ExtResource("1_drift")
@@ -113,24 +139,28 @@ speed_x = 7.8
 vertical_amplitude = 9.5
 vertical_period = 35.0
 phase_offset = 24.1
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92
 scale_variation_max = 1.08
 
-[node name="CloudNear05" type="Sprite2D" parent="NearClouds" unique_id=860187707]
+[node name="CloudNear05" type="Sprite2D" parent="NearClouds" unique_id=860187707 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(4584, 280)
 texture = ExtResource("10_near05")
 script = ExtResource("1_drift")
 speed_x = 6.8
 vertical_amplitude = 8.5
 phase_offset = 12.4
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92
 scale_variation_max = 1.08
 
-[node name="CloudNear06" type="Sprite2D" parent="NearClouds" unique_id=572137113]
+[node name="CloudNear06" type="Sprite2D" parent="NearClouds" unique_id=572137113 node_paths=PackedStringArray("spawn_marker", "despawn_marker")]
 position = Vector2(7317, 150)
 texture = ExtResource("11_near06")
 script = ExtResource("1_drift")
@@ -138,6 +168,8 @@ speed_x = 8.1
 vertical_amplitude = 10.0
 vertical_period = 44.0
 phase_offset = 31.0
+spawn_marker = NodePath("../SpawnLeft")
+despawn_marker = NodePath("../DespawnRight")
 respawn_y_min = 70.0
 respawn_y_max = 430.0
 scale_variation_min = 0.92

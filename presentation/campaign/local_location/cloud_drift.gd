@@ -11,8 +11,8 @@ extends Sprite2D
 @export var spawn_marker: Marker2D
 @export var despawn_marker: Marker2D
 
-@export var despawn_margin: float = 250.0
-@export var respawn_x_variation: float = 600.0
+@export var despawn_margin: float = 50.0
+@export var respawn_x_variation: float = 150.0
 
 @export var respawn_y_min: float = 80.0
 @export var respawn_y_max: float = 460.0
@@ -39,6 +39,12 @@ func _ready() -> void:
 	_elapsed = phase_offset
 	_current_speed = speed_x
 
+	if spawn_marker == null and get_parent() != null:
+		spawn_marker = get_parent().get_node_or_null("SpawnLeft") as Marker2D
+
+	if despawn_marker == null and get_parent() != null:
+		despawn_marker = get_parent().get_node_or_null("DespawnRight") as Marker2D
+
 	_rng.randomize()
 
 
@@ -59,13 +65,16 @@ func _process(delta: float) -> void:
 		) * vertical_amplitude
 	)
 
-	if despawn_marker != null:
-		var half_width := 0.0
-		if texture != null:
-			half_width = texture.get_width() * absf(scale.x) * 0.5
+	var half_width := 0.0
+	if texture != null:
+		half_width = texture.get_width() * absf(scale.x) * 0.5
 
-		if (position.x - half_width) > (despawn_marker.position.x + despawn_margin):
-			_respawn_cloud()
+	var despawn_x := 12500.0
+	if despawn_marker != null:
+		despawn_x = despawn_marker.position.x
+
+	if (position.x - half_width) > (despawn_x + despawn_margin):
+		_respawn_cloud()
 
 
 func _respawn_cloud() -> void:
@@ -73,7 +82,7 @@ func _respawn_cloud() -> void:
 	if texture != null:
 		half_width = texture.get_width() * absf(scale.x) * 0.5
 
-	var spawn_x := -800.0
+	var spawn_x := -1500.0
 	if spawn_marker != null:
 		spawn_x = spawn_marker.position.x
 

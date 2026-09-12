@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://b23u17yyakl3p"]
+
+[ext_resource type="Texture2D" uid="uid://btv821uwxn6vm" path="res://Graphics/home_village/river/Animation/1.png" id="1_j54ki"]
+[ext_resource type="Texture2D" uid="uid://c7go0riiw12to" path="res://Graphics/home_village/river/Animation/3.png" id="2_vjmgj"]
+[ext_resource type="Texture2D" uid="uid://0ysip3iw3kax" path="res://Graphics/home_village/river/Animation/5.png" id="3_qkav3"]
+[ext_resource type="Texture2D" uid="uid://boo2kvcbysmnr" path="res://Graphics/home_village/river/Animation/6.png" id="4_ryxsc"]
+[ext_resource type="Texture2D" uid="uid://cgibvqu42a6ar" path="res://Graphics/home_village/river/Animation/7.png" id="5_0cjpx"]
+[ext_resource type="Texture2D" uid="uid://k3e26rnhwrgj" path="res://Graphics/home_village/river/Animation/9.png" id="6_xsgyu"]
+[ext_resource type="Texture2D" uid="uid://cmf2uoutsx4xj" path="res://Graphics/home_village/river/Animation/13.png" id="7_m1qw3"]
+[ext_resource type="Texture2D" uid="uid://cr1cc3pbp3yo7" path="res://Graphics/home_village/river/Animation/14.png" id="8_e5b48"]
+[ext_resource type="Texture2D" uid="uid://c10er4l5ej8pd" path="res://Graphics/home_village/river/Animation/16.png" id="9_sfhh0"]
+[ext_resource type="Texture2D" uid="uid://chywyex5iy08o" path="res://Graphics/home_village/river/Animation/18.png" id="10_sixbr"]
+[ext_resource type="Texture2D" uid="uid://cd5cl3f41huqq" path="res://Graphics/home_village/river/Animation/20.png" id="11_3jtf7"]
+[ext_resource type="Texture2D" uid="uid://cmhsk1irqwun5" path="res://Graphics/home_village/river/Animation/30.png" id="13_g4u60"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_river"]
+animations = [{
+"frames": [{
+"duration": 3.7,
+"texture": ExtResource("1_j54ki")
+}, {
+"duration": 3.7,
+"texture": ExtResource("2_vjmgj")
+}, {
+"duration": 3.7,
+"texture": ExtResource("3_qkav3")
+}, {
+"duration": 3.7,
+"texture": ExtResource("4_ryxsc")
+}, {
+"duration": 3.7,
+"texture": ExtResource("5_0cjpx")
+}, {
+"duration": 3.7,
+"texture": ExtResource("6_xsgyu")
+}, {
+"duration": 3.7,
+"texture": ExtResource("7_m1qw3")
+}, {
+"duration": 3.7,
+"texture": ExtResource("8_e5b48")
+}, {
+"duration": 3.7,
+"texture": ExtResource("9_sfhh0")
+}, {
+"duration": 3.7,
+"texture": ExtResource("10_sixbr")
+}, {
+"duration": 3.7,
+"texture": ExtResource("11_3jtf7")
+}, {
+"duration": 3.7,
+"texture": ExtResource("13_g4u60")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[node name="River" type="Node2D" unique_id=785900773]
+
+[node name="Visual" type="Node2D" parent="." unique_id=1187609510]
+
+[node name="Water" type="AnimatedSprite2D" parent="Visual" unique_id=256637165]
+sprite_frames = SubResource("SpriteFrames_river")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.6524782

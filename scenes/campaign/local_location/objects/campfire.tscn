@@ -1,45 +1,41 @@
 [gd_scene format=3 uid="uid://dg0u8g2l7x4a1"]
 
-[ext_resource type="Texture2D" uid="uid://tadc2obugaid" path="res://Graphics/home_village/campfire/shade.png" id="1_coi10"]
-[ext_resource type="Texture2D" uid="uid://dxq8ln4snya6b" path="res://Graphics/home_village/campfire/fire_spot.png" id="1_rkdag"]
-[ext_resource type="Texture2D" uid="uid://3tklrdtynpy4" path="res://Graphics/home_village/campfire/fire_01.png" id="2_coi10"]
-[ext_resource type="Texture2D" uid="uid://cq7cfp6cj7edr" path="res://Graphics/home_village/campfire/fire_02.png" id="3_x85uq"]
-[ext_resource type="Texture2D" uid="uid://dlkkjqs8kmaye" path="res://Graphics/home_village/campfire/fire_03.png" id="4_1m1lv"]
-[ext_resource type="Texture2D" uid="uid://dq7jd417uiwwp" path="res://Graphics/home_village/campfire/fire_04.png" id="5_exrsc"]
-[ext_resource type="Texture2D" uid="uid://8nwkofubk42d" path="res://Graphics/home_village/campfire/fire_05.png" id="6_ggmf7"]
-[ext_resource type="Texture2D" uid="uid://c65q6tjm7jx5d" path="res://Graphics/home_village/campfire/fire_06.png" id="7_qaqvu"]
-[ext_resource type="Texture2D" uid="uid://32ut35f0rl32" path="res://Graphics/home_village/campfire/fire_07.png" id="8_7kgsv"]
-[ext_resource type="Texture2D" uid="uid://8bq1dx8e2d7b" path="res://Graphics/home_village/campfire/fire_08.png" id="9_qdhdm"]
+[ext_resource type="Texture2D" path="res://Graphics/home_village/campfire/shade.png" id="1_coi10"]
+[ext_resource type="Texture2D" uid="uid://c7yeyoiobbb6y" path="res://Graphics/home_village/campfire/00.png" id="3_coi10"]
+[ext_resource type="Texture2D" uid="uid://bwiejkirujvls" path="res://Graphics/home_village/campfire/01.png" id="4_x85uq"]
+[ext_resource type="Texture2D" uid="uid://m2svf805g4ot" path="res://Graphics/home_village/campfire/03.png" id="5_1m1lv"]
+[ext_resource type="Texture2D" uid="uid://y3begv5po8up" path="res://Graphics/home_village/campfire/05.png" id="6_exrsc"]
+[ext_resource type="Texture2D" uid="uid://ceov1hgp615ju" path="res://Graphics/home_village/campfire/06.png" id="7_ggmf7"]
+[ext_resource type="Texture2D" uid="uid://dw6n501togu4h" path="res://Graphics/home_village/campfire/07.png" id="8_qaqvu"]
+[ext_resource type="Texture2D" uid="uid://gc84i02gf188" path="res://Graphics/home_village/campfire/08.png" id="9_7kgsv"]
+[ext_resource type="Texture2D" uid="uid://stxwxx2x2l8f" path="res://Graphics/home_village/campfire/09.png" id="10_qdhdm"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fire"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_coi10")
+"texture": ExtResource("3_coi10")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_x85uq")
+"texture": ExtResource("4_x85uq")
 }, {
 "duration": 1.0,
-"texture": ExtResource("4_1m1lv")
+"texture": ExtResource("5_1m1lv")
 }, {
 "duration": 1.0,
-"texture": ExtResource("5_exrsc")
+"texture": ExtResource("6_exrsc")
 }, {
 "duration": 1.0,
-"texture": ExtResource("6_ggmf7")
+"texture": ExtResource("7_ggmf7")
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_qaqvu")
+"texture": ExtResource("8_qaqvu")
 }, {
 "duration": 1.0,
-"texture": ExtResource("8_7kgsv")
+"texture": ExtResource("9_7kgsv")
 }, {
 "duration": 1.0,
-"texture": ExtResource("9_qdhdm")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_qdhdm")
+"texture": ExtResource("10_qdhdm")
 }],
 "loop": 1,
 "name": &"idle",
@@ -126,12 +122,12 @@ scale = Vector2(0.285, 0.285)
 
 [node name="Shadow" type="Sprite2D" parent="Visual" unique_id=934651386]
 modulate = Color(1, 1, 1, 0.9411765)
-position = Vector2(0, -31.578947)
+position = Vector2(-10.526317, 14.035086)
+scale = Vector2(1.1638217, 1.0517242)
 texture = ExtResource("1_coi10")
 
 [node name="Base" type="Sprite2D" parent="Visual" unique_id=1319691281]
 position = Vector2(5, -44)
-texture = ExtResource("1_rkdag")
 
 [node name="Fire" type="AnimatedSprite2D" parent="Visual" unique_id=1501634599]
 position = Vector2(10.526318, -42.105267)
@@ -139,11 +135,11 @@ scale = Vector2(1.1231376, 1.1231376)
 sprite_frames = SubResource("SpriteFrames_fire")
 animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.22917521
+frame_progress = 0.6029066
 
 [node name="FireLight" type="PointLight2D" parent="Visual" unique_id=1839201011]
-position = Vector2(14.035088, -94.73685)
-scale = Vector2(16.811132, 16.811132)
+position = Vector2(-3.5087714, -175.4386)
+scale = Vector2(22.495478, 22.495478)
 color = Color(1, 0.603922, 0.333333, 1)
 energy = 0.75
 texture = SubResource("GradientTexture2D_light")

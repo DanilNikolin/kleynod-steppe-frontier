@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://0lyliyi7c4s" path="res://presentation/campaign/local_location/local_build_site_view.gd" id="3_build_site"]
 [ext_resource type="PackedScene" uid="uid://b23u17yyakl3p" path="res://scenes/campaign/local_location/objects/river.tscn" id="4_iqjhl"]
 [ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
+[ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -60,24 +61,26 @@ position = Vector2(79, 122)
 scale = Vector2(0.7, 0.7)
 
 [node name="PartyShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000003]
-position = Vector2(2650, 756)
+position = Vector2(3927, 553)
 script = ExtResource("3_build_site")
 interaction_id = &"home_zone_party_shelter"
 
 [node name="InteractionButton" type="Button" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000102]
 z_index = 10
-offset_left = -90.0
-offset_top = -30.0
-offset_right = 90.0
-offset_bottom = 30.0
+offset_left = -361.0
+offset_top = 385.0
+offset_right = -181.0
+offset_bottom = 445.0
 focus_mode = 0
 text = "Место отряда"
 
 [node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/PartyShelterSite" unique_id=210000202]
-visible = false
+
+[node name="PartyShelter" parent="WorldContent/EarlyBuildSites/PartyShelterSite/BuiltVisual" unique_id=1481920381 instance=ExtResource("6_party_shelter")]
+position = Vector2(-316, 320)
 
 [node name="CommonShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000004]
-position = Vector2(3418, 756)
+position = Vector2(2672, 756)
 script = ExtResource("3_build_site")
 interaction_id = &"home_zone_common_shelter"
 

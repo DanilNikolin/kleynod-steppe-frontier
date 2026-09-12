@@ -1,0 +1,117 @@
+[gd_scene format=3 uid="uid://cb5y1x3j8r2pm"]
+
+[ext_resource type="Texture2D" uid="uid://whpym7qt3bp1" path="res://Graphics/home_village/Место отряда/Укрытие отряда_тень_правильнаz.png" id="1_k3b5f"]
+[ext_resource type="Texture2D" uid="uid://cb2gnvm1f3l2i" path="res://Graphics/home_village/Место отряда/Укрытие отряда_правильное_тестовое.png" id="2_4a6x7"]
+[ext_resource type="Texture2D" uid="uid://c1c1bk222mnjg" path="res://Graphics/home_village/Место отряда/анимация флага/00.png" id="3_4a6x7"]
+[ext_resource type="Texture2D" uid="uid://e4dm7nwfrfdd" path="res://Graphics/home_village/Место отряда/анимация флага/01.png" id="4_u6qrp"]
+[ext_resource type="Texture2D" uid="uid://c4inj0f222ft5" path="res://Graphics/home_village/Место отряда/анимация флага/02.png" id="5_tm7ef"]
+[ext_resource type="Texture2D" uid="uid://vkhcxjf1xx3r" path="res://Graphics/home_village/Место отряда/анимация флага/03.png" id="6_age8m"]
+[ext_resource type="Texture2D" uid="uid://e038qnkkup3v" path="res://Graphics/home_village/Место отряда/анимация флага/04.png" id="7_jstrg"]
+[ext_resource type="Texture2D" uid="uid://bxwd8rxywk7nk" path="res://Graphics/home_village/Место отряда/анимация флага/05.png" id="8_mear8"]
+[ext_resource type="Texture2D" uid="uid://1rt6qp8oxgjf" path="res://Graphics/home_village/Место отряда/анимация флага/06.png" id="9_8cmrk"]
+[ext_resource type="Texture2D" uid="uid://qoum0423urd3" path="res://Graphics/home_village/Место отряда/анимация флага/07.png" id="10_ni4nd"]
+[ext_resource type="Texture2D" uid="uid://3fwsb2fi4f32" path="res://Graphics/home_village/Место отряда/анимация флага/08.png" id="11_7mk47"]
+[ext_resource type="Texture2D" uid="uid://cd7vpg2l6bqhw" path="res://Graphics/home_village/Место отряда/анимация флага/09.png" id="12_r40xi"]
+[ext_resource type="Texture2D" uid="uid://d1fk3thi4t2qs" path="res://Graphics/home_village/Место отряда/анимация флага/10.png" id="13_oodfh"]
+[ext_resource type="Texture2D" uid="uid://dgwpm8jjku8b5" path="res://Graphics/home_village/Место отряда/анимация флага/11.png" id="14_sfik5"]
+[ext_resource type="Texture2D" uid="uid://bndfgk5xasl73" path="res://Graphics/home_village/Место отряда/анимация флага/12.png" id="15_2qel0"]
+[ext_resource type="Texture2D" uid="uid://cxh5jgv27fww" path="res://Graphics/home_village/Место отряда/анимация флага/13.png" id="16_wq8ip"]
+[ext_resource type="Texture2D" uid="uid://ddwnc7y1enf6" path="res://Graphics/home_village/Место отряда/анимация флага/14.png" id="17_7wrn0"]
+[ext_resource type="Texture2D" uid="uid://b4mxw73l2f1tr" path="res://Graphics/home_village/Место отряда/анимация флага/15.png" id="18_3p2w4"]
+[ext_resource type="Texture2D" uid="uid://ojhv36ply470" path="res://Graphics/home_village/Место отряда/анимация флага/16.png" id="19_123cf"]
+[ext_resource type="Texture2D" uid="uid://c74t1e72tskd5" path="res://Graphics/home_village/Место отряда/анимация флага/17.png" id="20_iank3"]
+[ext_resource type="Texture2D" uid="uid://d0ytsrwvudex0" path="res://Graphics/home_village/Место отряда/анимация флага/18.png" id="21_pom72"]
+[ext_resource type="Texture2D" uid="uid://chuebud8rhg05" path="res://Graphics/home_village/Место отряда/анимация флага/19.png" id="22_6fj2j"]
+[ext_resource type="Texture2D" uid="uid://cjh7w5dlh4b3y" path="res://Graphics/home_village/Место отряда/анимация флага/20.png" id="23_pynyc"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_flag"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_4a6x7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_u6qrp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_tm7ef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_age8m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_jstrg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_mear8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_8cmrk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ni4nd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_7mk47")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_r40xi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_oodfh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_sfik5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_2qel0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_wq8ip")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_7wrn0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_3p2w4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_123cf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_iank3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_pom72")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_6fj2j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_pynyc")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[node name="PartyShelter" type="Node2D" unique_id=1736695738]
+
+[node name="Visual" type="Node2D" parent="." unique_id=456412336]
+
+[node name="УкрытиеОтрядаТень" type="Sprite2D" parent="Visual" unique_id=1187510409]
+visible = false
+modulate = Color(1, 1, 1, 0.84313726)
+texture = ExtResource("1_k3b5f")
+
+[node name="Base" type="Sprite2D" parent="Visual" unique_id=2077613346]
+position = Vector2(-27, -152)
+texture = ExtResource("2_4a6x7")
+
+[node name="Flag" type="AnimatedSprite2D" parent="Visual" unique_id=93530370]
+position = Vector2(171, -287)
+scale = Vector2(0.27794117, 0.2779412)
+sprite_frames = SubResource("SpriteFrames_flag")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.69723916

@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://cb5y1x3j8r2pm"]
 
-[ext_resource type="Script" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
-[ext_resource type="Script" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
-[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="3_stage30"]
+[ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
 [ext_resource type="Texture2D" uid="uid://whpym7qt3bp1" path="res://Graphics/home_village/Место отряда/Укрытие отряда_тень_правильнаz.png" id="1_k3b5f"]
 [ext_resource type="Texture2D" uid="uid://cb2gnvm1f3l2i" path="res://Graphics/home_village/Место отряда/Укрытие отряда_правильное_тестовое.png" id="2_4a6x7"]
+[ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="Texture2D" uid="uid://c1c1bk222mnjg" path="res://Graphics/home_village/Место отряда/анимация флага/00.png" id="3_4a6x7"]
+[ext_resource type="Texture2D" uid="uid://bc32x4q6fbept" path="res://Graphics/home_village/Место отряда/Укрытие отряда_стройка_1.png" id="3_stage30"]
 [ext_resource type="Texture2D" uid="uid://e4dm7nwfrfdd" path="res://Graphics/home_village/Место отряда/анимация флага/01.png" id="4_u6qrp"]
 [ext_resource type="Texture2D" uid="uid://c4inj0f222ft5" path="res://Graphics/home_village/Место отряда/анимация флага/02.png" id="5_tm7ef"]
 [ext_resource type="Texture2D" uid="uid://vkhcxjf1xx3r" path="res://Graphics/home_village/Место отряда/анимация флага/03.png" id="6_age8m"]
@@ -110,7 +110,6 @@ texture = ExtResource("3_stage30")
 script = ExtResource("2_stage")
 
 [node name="Built" type="Node2D" parent="." unique_id=741029381]
-visible = false
 
 [node name="Visual" type="Node2D" parent="Built" unique_id=456412336]
 

@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
+[ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
+
+[node name="CommonShelter" type="Node2D"]
+script = ExtResource("1_buildable")
+
+[node name="Construction" type="Node2D" parent="."]
+visible = false
+
+[node name="Stage30" type="Sprite2D" parent="Construction"]
+script = ExtResource("2_stage")
+
+[node name="Built" type="Node2D" parent="."]
+
+[node name="Visual" type="Node2D" parent="Built"]
+
+[node name="Shadow" type="Sprite2D" parent="Built/Visual"]
+
+[node name="Base" type="Sprite2D" parent="Built/Visual"]

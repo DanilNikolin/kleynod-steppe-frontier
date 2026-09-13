@@ -84,6 +84,28 @@ func run() -> void:
 	check(stage30_node != null and stage30_node.visible == true, "Stage30 is visible during construction")
 	check(built_node != null and built_node.visible == false, "Built is hidden during construction")
 
+	# Check CommonShelterSite uses canonical LocalBuildableVisual architecture
+	var common_shelter_anchor := panel._canvas._anchors_by_interaction_id.get(&"home_zone_common_shelter") as LocalBuildSiteView
+	check(common_shelter_anchor != null, "Found common shelter anchor")
+	var common_buildable: LocalBuildableVisual = common_shelter_anchor.get_buildable_visual()
+	check(common_buildable != null, "CommonShelterSite has LocalBuildableVisual")
+	check(common_buildable.get_node_or_null("Construction/Stage30") != null, "CommonShelter has Construction/Stage30")
+	check(common_buildable.get_node_or_null("Built/Visual/Shadow") != null, "CommonShelter has Built/Visual/Shadow")
+	check(common_buildable.get_node_or_null("Built/Visual/Base") != null, "CommonShelter has Built/Visual/Base")
+	# Check 3-state switching on CommonShelterSite
+	common_shelter_anchor.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
+	check(common_buildable.get_node_or_null("Construction").visible == false, "CommonShelter EMPTY: Construction hidden")
+	check(common_buildable.get_node_or_null("Built").visible == false, "CommonShelter EMPTY: Built hidden")
+	common_shelter_anchor.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
+	check(common_buildable.get_node_or_null("Construction").visible == true, "CommonShelter CONSTRUCTING: Construction visible")
+	check(common_buildable.get_node_or_null("Construction/Stage30").visible == true, "CommonShelter CONSTRUCTING: Stage30 active")
+	check(common_buildable.get_node_or_null("Built").visible == false, "CommonShelter CONSTRUCTING: Built hidden")
+	common_shelter_anchor.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
+	check(common_buildable.get_node_or_null("Construction").visible == false, "CommonShelter BUILT: Construction hidden")
+	check(common_buildable.get_node_or_null("Built").visible == true, "CommonShelter BUILT: Built visible")
+	# Restore EMPTY state
+	common_shelter_anchor.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
+
 	# Step 3: Advance time partially (construction_minutes - 1)
 	var partial_minutes := building_def.construction_minutes - 1
 	check(runtime.advance_time(partial_minutes), "Advance time partially")

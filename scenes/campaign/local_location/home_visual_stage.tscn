@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b23u17yyakl3p" path="res://scenes/campaign/local_location/objects/river.tscn" id="4_iqjhl"]
 [ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
 [ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
+[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -93,8 +94,9 @@ offset_bottom = 30.0
 focus_mode = 0
 text = "Общее место лагеря"
 
-[node name="BuiltVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
-visible = false
+[node name="BuildingVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
+
+[node name="CommonShelter" parent="WorldContent/EarlyBuildSites/CommonShelterSite/BuildingVisual" unique_id=1481920382 instance=ExtResource("7_common_shelter")]
 
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 

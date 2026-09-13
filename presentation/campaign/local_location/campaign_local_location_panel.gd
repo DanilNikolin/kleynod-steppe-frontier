@@ -509,10 +509,10 @@ func _build_debug_time_slider(stage: Control) -> void:
 	debug_panel.anchor_top = 0.0
 	debug_panel.anchor_right = 1.0
 	debug_panel.anchor_bottom = 0.0
-	debug_panel.offset_left = -280.0
-	debug_panel.offset_top = 16.0
-	debug_panel.offset_right = -16.0
-	debug_panel.offset_bottom = 86.0
+	debug_panel.offset_left = -290.0
+	debug_panel.offset_top = 120.0
+	debug_panel.offset_right = -20.0
+	debug_panel.offset_bottom = 192.0
 	debug_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 
 	var margin := MarginContainer.new()

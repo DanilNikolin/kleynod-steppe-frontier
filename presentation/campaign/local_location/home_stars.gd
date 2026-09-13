@@ -2,10 +2,10 @@ class_name HomeStars
 extends Node2D
 
 @export var field_left: float = -200.0
-@export var field_width: float = 6200.0
+@export var field_width: float = 9200.0
 @export var stars_min_y: float = 30.0
 @export var stars_max_y: float = 480.0
-@export var star_count: int = 380
+@export var star_count: int = 560
 
 @export var min_radius: float = 1.0
 @export var max_radius: float = 2.2

@@ -22,6 +22,8 @@ fill_to = Vector2(0, 1)
 script = ExtResource("8_time_of_day")
 world_modulate = NodePath("WorldModulate")
 sky_gradient_rect = NodePath("../SkyLayer/SkyGradient")
+far_clouds_root = NodePath("../Clouds/FarClouds")
+near_clouds_root = NodePath("../Clouds/NearClouds")
 
 [node name="WorldModulate" type="CanvasModulate" parent="TimeOfDay" unique_id=81928471]
 

@@ -1,10 +1,10 @@
 class_name HomeStars
 extends Control
 
-@export var star_count: int = 90
-@export var min_radius: float = 0.7
-@export var max_radius: float = 1.5
-@export var vertical_fill: float = 0.58
+@export var star_count: int = 120
+@export var min_radius: float = 1.0
+@export var max_radius: float = 2.2
+@export var vertical_fill: float = 0.60
 @export var random_seed: int = 17341
 
 class StarData:
@@ -38,34 +38,41 @@ func generate_stars() -> void:
 		var ny := rng.randf_range(0.02, clampf(vertical_fill, 0.1, 1.0))
 		star.pos_norm = Vector2(nx, ny)
 
-		# Radius: mostly smaller, few larger
-		var t_size := rng.randf()
-		# Biased slightly towards min_radius
-		t_size = t_size * t_size
-		star.radius = lerpf(min_radius, max_radius, t_size)
+		# Tiered distribution:
+		# ~70% small & faint (1.0 .. 1.3 rad, alpha 0.45 .. 0.60)
+		# ~20% medium (1.3 .. 1.7 rad, alpha 0.55 .. 0.70)
+		# ~10% bright & larger (1.7 .. 2.2 rad, alpha 0.70 .. 0.82)
+		var tier_roll := rng.randf()
+		var base_a: float
+		if tier_roll < 0.70:
+			star.radius = rng.randf_range(min_radius, lerpf(min_radius, max_radius, 0.25))
+			base_a = rng.randf_range(0.45, 0.60)
+		elif tier_roll < 0.90:
+			star.radius = rng.randf_range(lerpf(min_radius, max_radius, 0.25), lerpf(min_radius, max_radius, 0.60))
+			base_a = rng.randf_range(0.55, 0.70)
+		else:
+			star.radius = rng.randf_range(lerpf(min_radius, max_radius, 0.60), max_radius)
+			base_a = rng.randf_range(0.70, 0.82)
 
-		# Color: subtle tints
-		# Base color: subtle warm, cold, or neutral white
+		# Color: subtle tints (neutral, slightly cool, or slightly warm)
 		var tint_roll := rng.randf()
 		var col: Color
 		if tint_roll < 0.65:
 			# Neutral soft white
-			col = Color(0.95, 0.96, 1.0)
+			col = Color(0.95, 0.96, 1.0, base_a)
 		elif tint_roll < 0.85:
 			# Slightly cool / blueish
-			col = Color(0.88, 0.92, 1.0)
+			col = Color(0.88, 0.92, 1.0, base_a)
 		else:
 			# Slightly warm / golden
-			col = Color(1.0, 0.97, 0.90)
+			col = Color(1.0, 0.97, 0.90, base_a)
 
-		# Base alpha ~ 0.50 .. 0.82
-		col.a = rng.randf_range(0.50, 0.82)
 		star.base_color = col
 
-		# Twinkle parameters
+		# Twinkle parameters (noticeable micro-fluctuations, not on/off blinking)
 		star.phase = rng.randf_range(0.0, TAU)
-		star.twinkle_speed = rng.randf_range(0.8, 2.5)
-		star.twinkle_amount = rng.randf_range(0.08, 0.18)
+		star.twinkle_speed = rng.randf_range(1.0, 2.8)
+		star.twinkle_amount = rng.randf_range(0.08, 0.20)
 
 		_stars.append(star)
 

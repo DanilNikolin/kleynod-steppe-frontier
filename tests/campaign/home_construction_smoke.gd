@@ -425,7 +425,48 @@ func run() -> void:
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
-	check(plain_buildable != null, "LocalBuildableVisual works without Ambient, TransitionFX or DetailAnimation")
+	# Step 9: Test LocalTimeOfDayVisual (Time-of-day lighting and sky cycle)
+	var tod := LocalTimeOfDayVisual.new()
+	var tod_modulate := CanvasModulate.new()
+	var tod_sky_rect := TextureRect.new()
+	var tod_gradient := Gradient.new()
+	var tod_tex := GradientTexture2D.new()
+	tod_tex.gradient = tod_gradient
+	tod_sky_rect.texture = tod_tex
+
+	tod.world_modulate = tod_modulate
+	tod.sky_gradient_rect = tod_sky_rect
+	root.add_child(tod_modulate)
+	root.add_child(tod_sky_rect)
+	root.add_child(tod)
+
+	# 9.1 Test Day (12:00 = 720 minutes) vs Night (00:00 = 0 minutes) profiles
+	tod.set_time_of_day(720, true) # Noon
+	check(tod_modulate.color.is_equal_approx(Color(1.0, 1.0, 1.0, 1.0)), "12:00 noon world modulate is neutral white (1, 1, 1)")
+
+	tod.set_time_of_day(0, true) # Midnight
+	check(tod_modulate.color.r < 0.6 and tod_modulate.color.b > tod_modulate.color.r, "00:00 midnight world modulate is cool blueish/slate tint")
+
+	# 9.2 Test interpolation between keys (e.g. 06:00 = 360 min sunrise, warm/rose tint)
+	tod.set_time_of_day(360, true)
+	check(tod_modulate.color.r > tod_modulate.color.b, "06:00 sunrise has warmer red than blue tint")
+
+	# 9.3 Test immediate sync on first call vs smooth transition flag
+	var initial_minute := state.current_minute_of_day
+	tod.set_time_of_day(720, true)
+	check(tod.get_current_minute_of_day() == 720, "set_time_of_day updates current minute")
+	check(state.current_minute_of_day == initial_minute, "Visual time update does not mutate campaign state time")
+
+	# 9.4 Test CampaignLocalLocationCanvas set_time_of_day safe invocation
+	var canvas_test := CampaignLocalLocationCanvas.new()
+	root.add_child(canvas_test)
+	# Safe call without world_root
+	canvas_test.set_time_of_day(360, true)
+	canvas_test.free()
+
+	tod.free()
+	tod_modulate.free()
+	tod_sky_rect.free()
 
 	test_visual.free()
 	test_visual2.free()

@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
 [ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
 [ext_resource type="PackedScene" uid="uid://iadi6qb7ex2r" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/local_time_of_day_visual.gd" id="8_time_of_day"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -16,6 +17,13 @@ gradient = SubResource("Gradient_sky")
 fill_to = Vector2(0, 1)
 
 [node name="HomeVisualStage" type="Node2D" unique_id=259198650]
+
+[node name="TimeOfDay" type="Node" parent="." unique_id=184719283]
+script = ExtResource("8_time_of_day")
+world_modulate = NodePath("WorldModulate")
+sky_gradient_rect = NodePath("../SkyLayer/SkyGradient")
+
+[node name="WorldModulate" type="CanvasModulate" parent="TimeOfDay" unique_id=81928471]
 
 [node name="SkyLayer" type="CanvasLayer" parent="." unique_id=128493010]
 layer = -1

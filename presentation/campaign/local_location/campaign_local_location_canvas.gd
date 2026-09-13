@@ -278,6 +278,15 @@ func set_build_site_states(
 			site.set_build_state(val as LocalBuildSiteView.BuildVisualState)
 
 
+func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
+	if _world_root == null:
+		return
+	var time_of_day_controllers := _world_root.find_children("*", "LocalTimeOfDayVisual", true, false)
+	for ctrl in time_of_day_controllers:
+		if ctrl is LocalTimeOfDayVisual:
+			ctrl.set_time_of_day(minute_of_day, immediate)
+
+
 func set_build_site_built_states(
 	states: Dictionary
 ) -> void:

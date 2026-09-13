@@ -53,6 +53,7 @@ var _settlement_state: CampaignSettlementState
 
 var _selected_interaction_id: StringName = &""
 var _embedded_in_shell: bool = false
+var _is_first_time_sync: bool = true
 
 var _time_service := (
 	CampaignTimeService.new()
@@ -132,6 +133,7 @@ func bind(
 	)
 
 	_selected_interaction_id = &""
+	_is_first_time_sync = true
 
 	_build_interface()
 	_refresh_camera_navigation()
@@ -141,8 +143,16 @@ func bind(
 func refresh_state() -> void:
 	_refresh_header_state()
 	_refresh_settlement_visuals()
+	_refresh_time_of_day_visual()
 	_refresh_resident_visibility()
 	_refresh_interaction_panel()
+
+
+func _refresh_time_of_day_visual() -> void:
+	if _canvas == null or _state == null:
+		return
+	_canvas.set_time_of_day(_state.current_minute_of_day, _is_first_time_sync)
+	_is_first_time_sync = false
 
 
 func show_status_message(

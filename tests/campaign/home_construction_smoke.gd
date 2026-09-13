@@ -222,10 +222,12 @@ func run() -> void:
 	check(fresh.get_node("Built").visible == true, "Built is immediately visible")
 	check(fresh.get_node("Construction").visible == false, "Construction is immediately hidden")
 
-	# Step 8: Test DetailAnimation (IntermittentDetailAnimation)
+	# Step 8: Test DetailAnimation (IntermittentDetailAnimation with AnimatedSprite2D)
 	var stage30_node_ref := fresh.get_node("Construction/Stage30")
 	var detail_ctrl := stage30_node_ref.get_node_or_null("DetailAnimation/IntermittentController") as IntermittentDetailAnimation
+	var stage30_visual_sprite := stage30_node_ref.get_node_or_null("DetailAnimation/Visual") as AnimatedSprite2D
 	check(detail_ctrl != null, "Found IntermittentDetailAnimation in Stage30")
+	check(stage30_visual_sprite != null, "Found AnimatedSprite2D Visual in Stage30/DetailAnimation")
 
 	# 8.1 In BUILT state: Stage30 detail controller must be inactive
 	check(not detail_ctrl.is_active(), "DetailAnimation is inactive when BUILT")
@@ -238,14 +240,33 @@ func run() -> void:
 	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
 	check(detail_ctrl.is_active(), "DetailAnimation is active when Stage30 is active in CONSTRUCTING")
 
-	# 8.4 Setup second controller on stage50 and test transition Stage30 -> Stage50
+	# 8.4 Setup mock animated sprite with 2 frames on Stage50 to test playback, stop, and transition
 	var detail50_node := Node2D.new()
 	detail50_node.name = "DetailAnimation"
+
+	var sprite50 := AnimatedSprite2D.new()
+	sprite50.name = "Visual"
+	var frames50 := SpriteFrames.new()
+	frames50.add_animation(&"idle")
+	frames50.set_animation_loop(&"idle", false)
+	# create 2 dummy 1x1 image textures for testing frames
+	var img1 := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	var tex1 := ImageTexture.create_from_image(img1)
+	var img2 := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	var tex2 := ImageTexture.create_from_image(img2)
+	frames50.add_frame(&"idle", tex1)
+	frames50.add_frame(&"idle", tex2)
+	sprite50.sprite_frames = frames50
+	detail50_node.add_child(sprite50)
+
 	var ctrl50 := IntermittentDetailAnimation.new()
 	ctrl50.name = "IntermittentController"
+	ctrl50.animated_sprite_path = NodePath("../Visual")
 	detail50_node.add_child(ctrl50)
+
 	var ctrl50_extra := IntermittentDetailAnimation.new()
 	ctrl50_extra.name = "ExtraController"
+	ctrl50_extra.animated_sprite_path = NodePath("../Visual")
 	detail50_node.add_child(ctrl50_extra)
 	stage50.add_child(detail50_node)
 
@@ -258,10 +279,26 @@ func run() -> void:
 	check(ctrl50.is_active(), "Stage50 controller becomes active")
 	check(ctrl50_extra.is_active(), "Stage50 extra controller also becomes active (multiple controllers supported)")
 
-	# 8.5 Switch from CONSTRUCTING to BUILT: all active stage controllers become inactive
+	# Trigger timer timeout manually to verify play
+	var ctrl50_timer := ctrl50.get_node("Timer") as Timer
+	check(ctrl50_timer != null and not ctrl50_timer.is_stopped(), "ctrl50 timer is running for random pause")
+	ctrl50._on_timer_timeout()
+	check(sprite50.is_playing(), "sprite50 started playing after timer timeout")
+
+	# Set frame to 1 to simulate intermediate animation frame, then finish animation
+	sprite50.frame = 1
+	ctrl50._on_animation_finished()
+	check(not sprite50.is_playing(), "sprite50 stopped after animation_finished")
+	check(sprite50.frame == 0, "sprite50 reset to frame 0 after animation_finished")
+	check(not ctrl50_timer.is_stopped(), "ctrl50 timer scheduled next pause after animation_finished")
+
+	# 8.5 Switch from CONSTRUCTING to BUILT: all active stage controllers become inactive and reset
+	sprite50.frame = 1
 	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
 	check(not ctrl50.is_active(), "Stage50 controller becomes inactive on BUILT")
 	check(not ctrl50_extra.is_active(), "Stage50 extra controller becomes inactive on BUILT")
+	check(sprite50.frame == 0, "sprite50 frame reset to 0 when controller deactivated on BUILT")
+	check(not sprite50.is_playing(), "sprite50 stopped playing on BUILT")
 
 	# 7.3 Optionality check: Visual without Ambient, TransitionFX or DetailAnimation works without errors
 	var plain_buildable := LocalBuildableVisual.new()

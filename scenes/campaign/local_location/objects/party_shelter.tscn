@@ -58,6 +58,10 @@
 [ext_resource type="Texture2D" uid="uid://c0645lxabflcc" path="res://Graphics/home_village/party_shelter/fabric_animation/28.png" id="31_ldux6"]
 [ext_resource type="Texture2D" uid="uid://0yckiceec71r" path="res://Graphics/home_village/party_shelter/fabric_animation/29.png" id="32_8kneu"]
 [ext_resource type="Texture2D" uid="uid://bcs3n0k5h7c3a" path="res://Graphics/home_village/party_shelter/fabric_animation/30.png" id="33_cvnre"]
+[ext_resource type="Texture2D" path="res://Graphics/home_village/party_shelter/fabric_constant_idle/0.png" id="34_idle0"]
+[ext_resource type="Texture2D" path="res://Graphics/home_village/party_shelter/fabric_constant_idle/1.png" id="35_idle1"]
+[ext_resource type="Texture2D" path="res://Graphics/home_village/party_shelter/fabric_constant_idle/2.png" id="36_idle2"]
+[ext_resource type="Texture2D" path="res://Graphics/home_village/party_shelter/fabric_constant_idle/3.png" id="37_idle3"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_detail_rope"]
 animations = [{
@@ -156,14 +160,91 @@ animations = [{
 "name": &"idle",
 "speed": 5.0
 }, {
-"frames": [],
-"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_ufk2a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_v3dta")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_wuops")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_qmkpp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_qaufw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_xpdwd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_nr8t3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_dy228")
+}],
+"loop": 0,
 "name": &"idle_2",
 "speed": 5.0
 }, {
-"frames": [],
-"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("22_d60ky")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_e2uha")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_5jwqq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_jtxfm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_2pjvd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_tgeb3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_gydmp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_wem3y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_mhghk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_ldux6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_8kneu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_cvnre")
+}],
+"loop": 0,
 "name": &"idle_3",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("34_idle0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_idle1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_idle2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_idle3")
+}],
+"loop": 1,
+"name": &"base_idle",
 "speed": 5.0
 }]
 
@@ -253,9 +334,7 @@ script = ExtResource("2_stage")
 [node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation" unique_id=1483188923]
 position = Vector2(-37, -59)
 sprite_frames = SubResource("SpriteFrames_detail_rope")
-animation = &"idle"
-frame = 29
-frame_progress = 1.0
+animation = &"base_idle"
 
 [node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation" unique_id=1601616149]
 script = ExtResource("4_intermittent")

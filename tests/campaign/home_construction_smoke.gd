@@ -360,6 +360,59 @@ func run() -> void:
 	multi_ctrl.set_active(false)
 	multi_node.free()
 
+	# 8.7 Test continuous base_idle loop and loop-to-event transition
+	var base_node := Node2D.new()
+	var base_sprite := AnimatedSprite2D.new()
+	base_sprite.name = "Visual"
+	var base_frames := SpriteFrames.new()
+	base_frames.add_animation(&"base_idle")
+	base_frames.set_animation_loop(&"base_idle", true)
+	base_frames.add_frame(&"base_idle", tex1)
+	base_frames.add_frame(&"base_idle", tex2)
+
+	base_frames.add_animation(&"burst")
+	base_frames.set_animation_loop(&"burst", false)
+	base_frames.add_frame(&"burst", tex1)
+	base_frames.add_frame(&"burst", tex2)
+
+	base_sprite.sprite_frames = base_frames
+	base_node.add_child(base_sprite)
+
+	var base_ctrl := IntermittentDetailAnimation.new()
+	base_ctrl.name = "BaseController"
+	base_ctrl.animated_sprite_path = NodePath("../Visual")
+	base_ctrl.base_animation_name = &"base_idle"
+	base_ctrl.animation_name = &"burst"
+	base_node.add_child(base_ctrl)
+	root.add_child(base_node)
+
+	# When activated, base_idle starts playing continuously
+	base_ctrl.set_active(true)
+	check(base_sprite.is_playing(), "base_sprite playing on activate")
+	check(base_sprite.animation == &"base_idle", "base_sprite starts with base_idle")
+
+	# Timer fires: must set pending_event and NOT interrupt immediately
+	base_ctrl._on_timer_timeout()
+	check(base_ctrl._pending_event, "pending_event is set on timer timeout")
+	check(base_sprite.animation == &"base_idle", "base_sprite still playing base_idle until loop finishes")
+
+	# When loop completes, burst triggers
+	base_ctrl._on_animation_looped()
+	check(not base_ctrl._pending_event, "pending_event cleared after loop completion")
+	check(base_sprite.animation == &"burst", "base_sprite switched to burst after loop finished")
+	check(base_ctrl._is_playing_event, "controller marked as playing event")
+
+	# When burst finishes, smoothly transitions back to base_idle
+	base_ctrl._on_animation_finished()
+	check(base_sprite.is_playing(), "base_sprite resumed playing after event finished")
+	check(base_sprite.animation == &"base_idle", "base_sprite returned to base_idle after event finished")
+
+	base_ctrl.set_active(false)
+	check(not base_sprite.is_playing(), "base_sprite stopped on set_active(false)")
+	check(base_sprite.animation == &"base_idle", "base_sprite reset to base_idle on stop")
+	check(base_sprite.frame == 0, "base_sprite frame reset to 0 on stop")
+	base_node.free()
+
 	# 7.3 Optionality check: Visual without Ambient, TransitionFX or DetailAnimation works without errors
 	var plain_buildable := LocalBuildableVisual.new()
 	root.add_child(plain_buildable)

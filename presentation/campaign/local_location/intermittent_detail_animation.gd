@@ -2,6 +2,7 @@ class_name IntermittentDetailAnimation
 extends Node
 
 @export var animated_sprite_path: NodePath
+@export var base_animation_name: StringName = &"base_idle"
 @export var animation_name: StringName = &"idle"
 @export var animation_names: Array[StringName] = []
 @export var animation_weights: PackedFloat32Array = PackedFloat32Array()
@@ -23,6 +24,8 @@ var _rng: RandomNumberGenerator
 var _is_active: bool = false
 var _cached_sprite: AnimatedSprite2D
 var _current_animation: StringName = &""
+var _pending_event: bool = false
+var _is_playing_event: bool = false
 var _warned_loops: Dictionary = {}
 
 
@@ -57,6 +60,9 @@ func set_active(active: bool) -> void:
 	if _is_active:
 		if not enabled:
 			return
+		_pending_event = false
+		_is_playing_event = false
+		_start_base_idle_if_available()
 		_schedule_next_event(initial_min_pause, initial_max_pause)
 	else:
 		_stop_effects()
@@ -79,8 +85,26 @@ func _resolve_sprite() -> AnimatedSprite2D:
 	if _cached_sprite != null:
 		if not _cached_sprite.animation_finished.is_connected(_on_animation_finished):
 			_cached_sprite.animation_finished.connect(_on_animation_finished)
+		if not _cached_sprite.animation_looped.is_connected(_on_animation_looped):
+			_cached_sprite.animation_looped.connect(_on_animation_looped)
 
 	return _cached_sprite
+
+
+func _has_base_idle(sprite: AnimatedSprite2D) -> bool:
+	if sprite == null or sprite.sprite_frames == null:
+		return false
+	if base_animation_name.is_empty():
+		return false
+	return sprite.sprite_frames.has_animation(base_animation_name) and sprite.sprite_frames.get_frame_count(base_animation_name) > 0
+
+
+func _start_base_idle_if_available() -> void:
+	var sprite := _resolve_sprite()
+	if sprite != null and _has_base_idle(sprite):
+		_current_animation = base_animation_name
+		sprite.speed_scale = 1.0
+		sprite.play(base_animation_name)
 
 
 func _schedule_next_event(min_delay: float, max_delay: float) -> void:
@@ -144,10 +168,38 @@ func _on_timer_timeout() -> void:
 	if sprite == null or sprite.sprite_frames == null:
 		return
 
-	var chosen_animation := _choose_animation(sprite)
-	if chosen_animation.is_empty():
+	# If base_idle is playing, wait for loop to complete before triggering event
+	if _has_base_idle(sprite) and not _is_playing_event:
+		_pending_event = true
+		# In case base_idle somehow isn't actively playing, trigger immediately
+		if not sprite.is_playing() or sprite.animation != base_animation_name:
+			_trigger_event_animation(sprite)
+	else:
+		_trigger_event_animation(sprite)
+
+
+func _on_animation_looped() -> void:
+	if not _is_active or not enabled or not _pending_event:
 		return
 
+	var sprite := _resolve_sprite()
+	if sprite != null and sprite.animation == base_animation_name:
+		_pending_event = false
+		_trigger_event_animation(sprite)
+
+
+func _trigger_event_animation(sprite: AnimatedSprite2D) -> void:
+	_pending_event = false
+
+	var chosen_animation := _choose_animation(sprite)
+	if chosen_animation.is_empty():
+		# If no valid event animation, return to base idle and schedule next
+		_is_playing_event = false
+		_start_base_idle_if_available()
+		_schedule_next_event(min_pause, max_pause)
+		return
+
+	_is_playing_event = true
 	_current_animation = chosen_animation
 
 	if not _warned_loops.has(_current_animation) and sprite.sprite_frames.get_animation_loop(_current_animation):
@@ -172,9 +224,13 @@ func _on_animation_finished() -> void:
 			sprite.frame = 0
 			sprite.frame_progress = 0.0
 
+	_is_playing_event = false
+
 	if not _is_active or not enabled:
 		return
 
+	# Return to continuous base_idle if available
+	_start_base_idle_if_available()
 	_schedule_next_event(min_pause, max_pause)
 
 
@@ -182,12 +238,15 @@ func _stop_effects() -> void:
 	if _timer != null:
 		_timer.stop()
 
+	_pending_event = false
+	_is_playing_event = false
+
 	var sprite := _resolve_sprite()
 	if sprite != null:
 		if sprite.is_playing():
 			sprite.stop()
 		if reset_to_first_frame_on_stop:
-			var target_anim := _current_animation
+			var target_anim := base_animation_name if _has_base_idle(sprite) else _current_animation
 			if target_anim.is_empty():
 				target_anim = animation_name
 			if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(target_anim):

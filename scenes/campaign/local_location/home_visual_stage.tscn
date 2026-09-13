@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
 [ext_resource type="PackedScene" uid="uid://iadi6qb7ex2r" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
 [ext_resource type="Script" uid="uid://b3rup68wy2it8" path="res://presentation/campaign/local_location/local_time_of_day_visual.gd" id="8_time_of_day"]
+[ext_resource type="PackedScene" uid="uid://bstar710klynd" path="res://scenes/campaign/local_location/environment/home_stars.tscn" id="9_stars"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -28,11 +29,6 @@ fill_to = Vector2(0, 1)
 
 [node name="TimeOfDay" type="Node" parent="." unique_id=184719283]
 script = ExtResource("8_time_of_day")
-world_modulate = NodePath("WorldModulate")
-sky_gradient_rect = NodePath("../SkyLayer/SkyGradient")
-far_clouds_root = NodePath("../Clouds/FarClouds")
-near_clouds_root = NodePath("../Clouds/NearClouds")
-horizon_overlay = NodePath("../WorldContent/NightHorizonOverlay")
 
 [node name="WorldModulate" type="CanvasModulate" parent="TimeOfDay" unique_id=81928471]
 
@@ -48,6 +44,8 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_sky")
 
+[node name="Stars" parent="SkyLayer" unique_id=128493012 instance=ExtResource("9_stars")]
+
 [node name="Clouds" parent="." unique_id=474965930 instance=ExtResource("5_clouds")]
 position = Vector2(-12.000002, 96.000015)
 scale = Vector2(0.525, 0.525)
@@ -62,10 +60,10 @@ texture = ExtResource("1_q0qq8")
 position = Vector2(0, 320)
 
 [node name="GradientBand" type="TextureRect" parent="WorldContent/NightHorizonOverlay" unique_id=194729185]
-offset_left = 488.0
-offset_top = -160.0
-offset_right = 8888.0
-offset_bottom = 540.0
+offset_left = -16.0
+offset_top = -166.0
+offset_right = 8384.0
+offset_bottom = 534.0
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_horizon")
 expand_mode = 1

@@ -10,6 +10,9 @@ extends Node
 @export var horizon_overlay: CanvasItem
 @export var horizon_overlay_strength_cycle: Curve
 
+@export var stars_root: CanvasItem
+@export var stars_visibility_cycle: Curve
+
 @export var world_color_cycle: Gradient
 @export var sky_top_color_cycle: Gradient
 @export var sky_bottom_color_cycle: Gradient
@@ -39,9 +42,11 @@ func _ready() -> void:
 		near_clouds_root = get_node_or_null("../Clouds/NearClouds") as CanvasItem
 	if horizon_overlay == null:
 		horizon_overlay = get_node_or_null("../WorldContent/NightHorizonOverlay") as CanvasItem
+	if stars_root == null:
+		stars_root = get_node_or_null("../SkyLayer/Stars") as CanvasItem
 
 	_ensure_default_gradients()
-	_ensure_default_curve()
+	_ensure_default_curves()
 	_prepare_sky_gradient()
 
 	if horizon_overlay != null:
@@ -49,6 +54,12 @@ func _ready() -> void:
 		c.a = 0.0
 		horizon_overlay.modulate = c
 		horizon_overlay.visible = false
+
+	if stars_root != null:
+		var sc := stars_root.modulate
+		sc.a = 0.0
+		stars_root.modulate = sc
+		stars_root.visible = false
 
 
 func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
@@ -67,6 +78,7 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 	var target_far_cloud_color := _sample_far_cloud_color(time01)
 	var target_near_cloud_color := _sample_near_cloud_color(time01)
 	var target_horizon_alpha := _sample_horizon_alpha(time01)
+	var target_stars_alpha := _sample_stars_alpha(time01)
 
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
@@ -79,7 +91,8 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 			target_sky_bottom_color,
 			target_far_cloud_color,
 			target_near_cloud_color,
-			target_horizon_alpha
+			target_horizon_alpha,
+			target_stars_alpha
 		)
 		return
 
@@ -95,6 +108,7 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 	var current_far_cloud := far_clouds_root.modulate if far_clouds_root != null else target_far_cloud_color
 	var current_near_cloud := near_clouds_root.modulate if near_clouds_root != null else target_near_cloud_color
 	var current_horizon_alpha := horizon_overlay.modulate.a if horizon_overlay != null else target_horizon_alpha
+	var current_stars_alpha := stars_root.modulate.a if stars_root != null else target_stars_alpha
 
 	_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
@@ -106,7 +120,8 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 			var fc := current_far_cloud.lerp(target_far_cloud_color, t)
 			var nc := current_near_cloud.lerp(target_near_cloud_color, t)
 			var ha := lerpf(current_horizon_alpha, target_horizon_alpha, t)
-			_apply_colors(w, st, sb, fc, nc, ha),
+			var sa := lerpf(current_stars_alpha, target_stars_alpha, t)
+			_apply_colors(w, st, sb, fc, nc, ha, sa),
 		0.0,
 		1.0,
 		transition_duration
@@ -149,7 +164,13 @@ func _sample_near_cloud_color(time01: float) -> Color:
 
 func _sample_horizon_alpha(time01: float) -> float:
 	if horizon_overlay_strength_cycle != null:
-		return clampf(horizon_overlay_strength_cycle.sample_baked(time01), 0.0, 1.0)
+		return clampf(horizon_overlay_strength_cycle.sample(time01), 0.0, 1.0)
+	return 0.0
+
+
+func _sample_stars_alpha(time01: float) -> float:
+	if stars_visibility_cycle != null:
+		return clampf(stars_visibility_cycle.sample(time01), 0.0, 1.0)
 	return 0.0
 
 
@@ -159,7 +180,8 @@ func _apply_colors(
 	sky_bottom: Color,
 	far_cloud: Color = Color.WHITE,
 	near_cloud: Color = Color.WHITE,
-	horizon_alpha: float = 0.0
+	horizon_alpha: float = 0.0,
+	stars_alpha: float = 0.0
 ) -> void:
 	if world_modulate != null:
 		world_modulate.color = world_color
@@ -179,6 +201,12 @@ func _apply_colors(
 		c.a = horizon_alpha
 		horizon_overlay.modulate = c
 		horizon_overlay.visible = (horizon_alpha > 0.001)
+
+	if stars_root != null:
+		var sc := stars_root.modulate
+		sc.a = stars_alpha
+		stars_root.modulate = sc
+		stars_root.visible = (stars_alpha > 0.001)
 
 
 func _prepare_sky_gradient() -> void:
@@ -215,9 +243,11 @@ func _ensure_default_gradients() -> void:
 		near_cloud_color_cycle = _create_default_near_cloud_gradient()
 
 
-func _ensure_default_curve() -> void:
+func _ensure_default_curves() -> void:
 	if horizon_overlay_strength_cycle == null:
 		horizon_overlay_strength_cycle = _create_default_horizon_overlay_curve()
+	if stars_visibility_cycle == null:
+		stars_visibility_cycle = _create_default_stars_curve()
 
 
 static func _setup_gradient(g: Gradient, points_data: Array) -> Gradient:
@@ -341,5 +371,36 @@ static func _create_default_horizon_overlay_curve() -> Curve:
 	# 22:00 (0.917) - Late night: 1.00
 	c.add_point(Vector2(0.917, 1.00))
 	# 24:00 (1.000) - Night: 1.00
+	c.add_point(Vector2(1.000, 1.00))
+	return c
+
+
+static func _create_default_stars_curve() -> Curve:
+	var c := Curve.new()
+	c.bake_resolution = 100
+	c.min_value = 0.0
+	c.max_value = 1.0
+
+	# 00:00 (0.000) - Night: full visibility
+	c.add_point(Vector2(0.000, 1.00))
+	# 04:30 (0.188) - Pre-dawn
+	c.add_point(Vector2(0.188, 0.65))
+	# 05:30 (0.229) - Early twilight fade
+	c.add_point(Vector2(0.229, 0.20))
+	# 06:00 (0.250) - Sunrise: fully gone
+	c.add_point(Vector2(0.250, 0.00))
+	# 08:00 (0.333) - Morning
+	c.add_point(Vector2(0.333, 0.00))
+	# 12:00 (0.500) - Noon: fully invisible
+	c.add_point(Vector2(0.500, 0.00))
+	# 17:00 (0.708) - Evening
+	c.add_point(Vector2(0.708, 0.00))
+	# 18:30 (0.771) - Sunset starts
+	c.add_point(Vector2(0.771, 0.15))
+	# 19:15 (0.802) - Twilight stars emerging
+	c.add_point(Vector2(0.802, 0.60))
+	# 20:00 (0.833) - Late twilight / full stars
+	c.add_point(Vector2(0.833, 1.00))
+	# 24:00 (1.000) - Night
 	c.add_point(Vector2(1.000, 1.00))
 	return c

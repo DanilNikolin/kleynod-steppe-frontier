@@ -44,6 +44,12 @@ func _ready() -> void:
 	_ensure_default_curve()
 	_prepare_sky_gradient()
 
+	if horizon_overlay != null:
+		var c := horizon_overlay.modulate
+		c.a = 0.0
+		horizon_overlay.modulate = c
+		horizon_overlay.visible = false
+
 
 func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 	var should_be_immediate := immediate or _is_first_sync
@@ -316,22 +322,24 @@ static func _create_default_horizon_overlay_curve() -> Curve:
 	c.min_value = 0.0
 	c.max_value = 1.0
 
-	# 00:00 (0.000) - Night: ~0.35 intensity
-	c.add_point(Vector2(0.000, 0.35))
-	# 04:30 (0.188) - Pre-dawn: ~0.20 intensity
-	c.add_point(Vector2(0.188, 0.20))
-	# 06:00 (0.250) - Sunrise: ~0.04
-	c.add_point(Vector2(0.250, 0.04))
-	# 08:00 (0.333) - Morning: 0.0
-	c.add_point(Vector2(0.333, 0.0))
-	# 12:00 (0.500) - Noon: 0.0
-	c.add_point(Vector2(0.500, 0.0))
-	# 17:00 (0.708) - Evening: 0.0
-	c.add_point(Vector2(0.708, 0.0))
-	# 18:30 (0.771) - Sunset: ~0.10
-	c.add_point(Vector2(0.771, 0.10))
-	# 20:00 (0.833) - Twilight: ~0.25
-	c.add_point(Vector2(0.833, 0.25))
-	# 24:00 (1.000) - Night: ~0.35
-	c.add_point(Vector2(1.000, 0.35))
+	# 00:00 (0.000) - Night: 1.00 full authored overlay intensity
+	c.add_point(Vector2(0.000, 1.00))
+	# 04:30 (0.188) - Pre-dawn: 0.65
+	c.add_point(Vector2(0.188, 0.65))
+	# 06:00 (0.250) - Sunrise: 0.10
+	c.add_point(Vector2(0.250, 0.10))
+	# 08:00 (0.333) - Morning: 0.00
+	c.add_point(Vector2(0.333, 0.00))
+	# 12:00 (0.500) - Noon: 0.00
+	c.add_point(Vector2(0.500, 0.00))
+	# 17:00 (0.708) - Evening: 0.00
+	c.add_point(Vector2(0.708, 0.00))
+	# 18:30 (0.771) - Sunset: 0.20
+	c.add_point(Vector2(0.771, 0.20))
+	# 20:00 (0.833) - Twilight: 0.70
+	c.add_point(Vector2(0.833, 0.70))
+	# 22:00 (0.917) - Late night: 1.00
+	c.add_point(Vector2(0.917, 1.00))
+	# 24:00 (1.000) - Night: 1.00
+	c.add_point(Vector2(1.000, 1.00))
 	return c

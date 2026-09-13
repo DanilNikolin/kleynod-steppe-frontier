@@ -48,6 +48,7 @@ var _buttons_by_interaction_id: Dictionary = {}
 var _display_text_overrides: Dictionary = {}
 var _visibility_overrides: Dictionary = {}
 var _anchors_by_interaction_id: Dictionary = {}
+var _last_time_of_day_minute: int = -1
 
 
 func _ready() -> void:
@@ -279,6 +280,7 @@ func set_build_site_states(
 
 
 func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
+	_last_time_of_day_minute = minute_of_day
 	if _world_root == null:
 		return
 	var time_of_day_controllers := _world_root.find_children("*", "LocalTimeOfDayVisual", true, false)
@@ -448,6 +450,9 @@ func _rebuild_world() -> void:
 	_activate_camera_if_ready()
 
 	_refresh_button_texts()
+
+	if _last_time_of_day_minute >= 0:
+		set_time_of_day(_last_time_of_day_minute, true)
 
 
 func _activate_camera_if_ready() -> void:

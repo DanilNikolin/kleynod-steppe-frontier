@@ -451,6 +451,8 @@ func run() -> void:
 	root.add_child(tod_near_clouds)
 	root.add_child(tod_horizon_overlay)
 	root.add_child(tod)
+	# 9.0 Test initial state after _ready() before any set_time_of_day: must be hidden with alpha 0
+	check(tod_horizon_overlay.modulate.a <= 0.001 and not tod_horizon_overlay.visible, "_ready initializes horizon overlay as hidden with 0 alpha")
 
 	# 9.1 Test Day (12:00 = 720 minutes) vs Night (00:00 = 0 minutes) profiles
 	tod.set_time_of_day(720, true) # Noon
@@ -463,7 +465,7 @@ func run() -> void:
 	check(tod_modulate.color.r < 0.6 and tod_modulate.color.b > tod_modulate.color.r, "00:00 midnight world modulate is cool blueish/slate tint")
 	check(tod_far_clouds.modulate.r < 0.85 and tod_far_clouds.modulate.b > tod_far_clouds.modulate.r, "00:00 midnight far clouds has cool darker tint")
 	check(tod_near_clouds.modulate.r < tod_far_clouds.modulate.r, "00:00 midnight near clouds is darker than far clouds")
-	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a > 0.25, "00:00 midnight horizon overlay is visible with night alpha")
+	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a >= 0.99, "00:00 midnight horizon overlay is visible with 1.0 scale alpha")
 
 	# 9.2 Test interpolation between keys (e.g. 06:00 = 360 min sunrise, warm/rose tint)
 	tod.set_time_of_day(360, true)
@@ -479,7 +481,7 @@ func run() -> void:
 	tod_horizon_overlay.position = Vector2(500, 600)
 	tod_horizon_overlay.scale = Vector2(1.5, 1.5)
 	tod.set_time_of_day(0, true)
-	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a > 0.25, "Horizon overlay works after manual position/scale change")
+	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a >= 0.99, "Horizon overlay works after manual position/scale change")
 
 	# 9.5 Test CampaignLocalLocationCanvas set_time_of_day safe invocation
 	var canvas_test := CampaignLocalLocationCanvas.new()

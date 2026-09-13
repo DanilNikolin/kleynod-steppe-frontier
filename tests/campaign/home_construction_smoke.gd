@@ -300,6 +300,66 @@ func run() -> void:
 	check(sprite50.frame == 0, "sprite50 frame reset to 0 when controller deactivated on BUILT")
 	check(not sprite50.is_playing(), "sprite50 stopped playing on BUILT")
 
+	# 8.6 Multi-animation weighted random tests
+	var multi_node := Node2D.new()
+	var multi_sprite := AnimatedSprite2D.new()
+	multi_sprite.name = "Visual"
+	var multi_frames := SpriteFrames.new()
+	multi_frames.add_animation(&"idle")
+	multi_frames.set_animation_loop(&"idle", false)
+	multi_frames.add_frame(&"idle", tex1)
+	multi_frames.add_animation(&"idle_2")
+	multi_frames.set_animation_loop(&"idle_2", false)
+	multi_frames.add_frame(&"idle_2", tex1)
+	multi_frames.add_animation(&"idle_3")
+	multi_frames.set_animation_loop(&"idle_3", false)
+	multi_frames.add_frame(&"idle_3", tex1)
+	# Add empty animation with 0 frames to test filtering
+	multi_frames.add_animation(&"empty_anim")
+	multi_frames.set_animation_loop(&"empty_anim", false)
+
+	multi_sprite.sprite_frames = multi_frames
+	multi_node.add_child(multi_sprite)
+
+	var multi_ctrl := IntermittentDetailAnimation.new()
+	multi_ctrl.name = "MultiController"
+	multi_ctrl.animated_sprite_path = NodePath("../Visual")
+	multi_ctrl.animation_names = [&"idle", &"idle_2", &"idle_3", &"empty_anim", &"non_existent"]
+	# Weights with mismatched length and negative values to test safety
+	multi_ctrl.animation_weights = PackedFloat32Array([1.0, 3.0, 2.0])
+	multi_node.add_child(multi_ctrl)
+	root.add_child(multi_node)
+
+	# Test choice logic
+	var chosen_counts: Dictionary = {&"idle": 0, &"idle_2": 0, &"idle_3": 0}
+	for i in range(100):
+		var anim_pick := multi_ctrl._choose_animation(multi_sprite)
+		check(anim_pick in chosen_counts, "Chosen animation must be one of the valid animations with frames")
+		chosen_counts[anim_pick] += 1
+
+	check(chosen_counts[&"idle_2"] > 0, "Weighted picker chose idle_2")
+	check(chosen_counts[&"idle_3"] > 0, "Weighted picker chose idle_3")
+	check(chosen_counts[&"idle"] > 0, "Weighted picker chose idle")
+	# Check idle_2 is more frequent than idle
+	check(chosen_counts[&"idle_2"] > chosen_counts[&"idle"], "idle_2 weight (3.0) resulted in higher frequency than idle (1.0)")
+
+	# Test playback of chosen animation and reset on finish
+	multi_ctrl.set_active(true)
+	multi_ctrl._on_timer_timeout()
+	check(multi_sprite.is_playing(), "multi_sprite playing chosen animation")
+	var active_anim := multi_ctrl._current_animation
+	check(not active_anim.is_empty(), "_current_animation is set")
+	check(multi_sprite.animation == active_anim, "Sprite animation matches _current_animation")
+
+	multi_sprite.frame = 1
+	multi_ctrl._on_animation_finished()
+	check(not multi_sprite.is_playing(), "multi_sprite stopped on animation_finished")
+	check(multi_sprite.animation == active_anim, "multi_sprite animation preserved as the one played")
+	check(multi_sprite.frame == 0, "multi_sprite frame reset to 0 after finished")
+
+	multi_ctrl.set_active(false)
+	multi_node.free()
+
 	# 7.3 Optionality check: Visual without Ambient, TransitionFX or DetailAnimation works without errors
 	var plain_buildable := LocalBuildableVisual.new()
 	root.add_child(plain_buildable)

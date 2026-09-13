@@ -1,17 +1,17 @@
 [gd_scene format=3 uid="uid://iadi6qb7ex2r"]
 
 [ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
-[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="2_ambient"]
-[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="3_transition"]
-[ext_resource type="Script" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="4_intermittent"]
+[ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="2_ambient"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="Texture2D" uid="uid://c5td3smxrr81p" path="res://Graphics/home_village/common_shelter/склад_спрайт_стройка.png" id="2_yrdkc"]
 [ext_resource type="Texture2D" uid="uid://i4shvod40alk" path="res://Graphics/home_village/common_shelter/склад_спрайт.png" id="3_pdybp"]
+[ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="3_transition"]
+[ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="4_intermittent"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_common_detail"]
 animations = [{
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 5.0
 }]
@@ -20,23 +20,24 @@ animations = [{
 script = ExtResource("1_buildable")
 
 [node name="Construction" type="Node2D" parent="." unique_id=1482167432]
-visible = false
 
 [node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1837934703]
+visible = false
 texture = ExtResource("2_yrdkc")
 script = ExtResource("2_stage")
 
-[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30"]
+[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30" unique_id=421605660]
 
-[node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation"]
+[node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation" unique_id=581272163]
 sprite_frames = SubResource("SpriteFrames_common_detail")
 animation = &"idle"
 
-[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation"]
+[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation" unique_id=512713585]
 script = ExtResource("4_intermittent")
 animated_sprite_path = NodePath("../Visual")
 
-[node name="Ambient" parent="Construction" instance=ExtResource("2_ambient")]
+[node name="Ambient" parent="Construction" unique_id=517579176 instance=ExtResource("2_ambient")]
+position = Vector2(-20, 18)
 
 [node name="Built" type="Node2D" parent="." unique_id=2105287042]
 
@@ -47,4 +48,5 @@ animated_sprite_path = NodePath("../Visual")
 [node name="Base" type="Sprite2D" parent="Built/Visual" unique_id=935285257]
 texture = ExtResource("3_pdybp")
 
-[node name="TransitionFX" parent="." instance=ExtResource("3_transition")]
+[node name="TransitionFX" parent="." unique_id=2097136827 instance=ExtResource("3_transition")]
+position = Vector2(-1, 57)

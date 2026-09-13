@@ -1,21 +1,31 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://iadi6qb7ex2r"]
 
 [ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
+[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="2_ambient"]
+[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="3_transition"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
+[ext_resource type="Texture2D" uid="uid://c5td3smxrr81p" path="res://Graphics/home_village/common_shelter/склад_спрайт_стройка.png" id="2_yrdkc"]
+[ext_resource type="Texture2D" uid="uid://i4shvod40alk" path="res://Graphics/home_village/common_shelter/склад_спрайт.png" id="3_pdybp"]
 
-[node name="CommonShelter" type="Node2D"]
+[node name="CommonShelter" type="Node2D" unique_id=1053172467]
 script = ExtResource("1_buildable")
 
-[node name="Construction" type="Node2D" parent="."]
+[node name="Construction" type="Node2D" parent="." unique_id=1482167432]
 visible = false
 
-[node name="Stage30" type="Sprite2D" parent="Construction"]
+[node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1837934703]
+texture = ExtResource("2_yrdkc")
 script = ExtResource("2_stage")
 
-[node name="Built" type="Node2D" parent="."]
+[node name="Ambient" parent="Construction" instance=ExtResource("2_ambient")]
 
-[node name="Visual" type="Node2D" parent="Built"]
+[node name="Built" type="Node2D" parent="." unique_id=2105287042]
 
-[node name="Shadow" type="Sprite2D" parent="Built/Visual"]
+[node name="Visual" type="Node2D" parent="Built" unique_id=192254669]
 
-[node name="Base" type="Sprite2D" parent="Built/Visual"]
+[node name="Shadow" type="Sprite2D" parent="Built/Visual" unique_id=911533558]
+
+[node name="Base" type="Sprite2D" parent="Built/Visual" unique_id=935285257]
+texture = ExtResource("3_pdybp")
+
+[node name="TransitionFX" parent="." instance=ExtResource("3_transition")]

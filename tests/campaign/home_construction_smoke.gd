@@ -154,6 +154,93 @@ func run() -> void:
 	check(built_node.visible == true, "Built is visible after completion")
 	check(flag_node != null and flag_node.is_playing() and flag_node.animation == &"idle", "Flag continues playing idle animation when built")
 
+	# Step 7: Test Presentation systems (ConstructionAmbient & ConstructionTransitionFX)
+	var party_ambient: ConstructionAmbient = buildable.ambient
+	var party_transition: ConstructionTransitionFX = buildable.transition_fx
+	check(party_ambient != null, "Party shelter has ConstructionAmbient")
+	check(party_transition != null, "Party shelter has ConstructionTransitionFX")
+
+	# 7.1 Lifecycle with PartyShelter
+	# Current state is BUILT: ambient must be inactive
+	check(not party_ambient.is_active(), "Ambient is inactive in BUILT state")
+
+	# First state sync: new visual instance directly receiving BUILT should NOT trigger transition
+	var test_visual: LocalBuildableVisual = load("res://scenes/campaign/local_location/objects/party_shelter.tscn").instantiate()
+	root.add_child(test_visual)
+	var fx_before: int = test_visual.transition_fx.get_transition_count()
+	test_visual.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
+	check(test_visual.transition_fx.get_transition_count() == fx_before, "First state sync (BUILT) does NOT trigger TransitionFX")
+	check(not test_visual.ambient.is_active(), "First state sync (BUILT) leaves ambient inactive")
+
+	# First state sync directly receiving CONSTRUCTING should NOT trigger transition, but ambient is active
+	var test_visual2: LocalBuildableVisual = load("res://scenes/campaign/local_location/objects/party_shelter.tscn").instantiate()
+	root.add_child(test_visual2)
+	fx_before = test_visual2.transition_fx.get_transition_count()
+	test_visual2.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.2)
+	check(test_visual2.transition_fx.get_transition_count() == fx_before, "First state sync (CONSTRUCTING) does NOT trigger TransitionFX")
+	check(test_visual2.ambient.is_active(), "First state sync (CONSTRUCTING) activates ambient")
+
+	# 7.2 Controlled progression on fresh instance: EMPTY -> CONSTRUCTING -> same CONSTRUCTING -> Stage change -> BUILT
+	var fresh: LocalBuildableVisual = load("res://scenes/campaign/local_location/objects/party_shelter.tscn").instantiate()
+	root.add_child(fresh)
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
+	check(fresh.transition_fx.get_transition_count() == 0, "Initial EMPTY sync has 0 transitions")
+	check(not fresh.ambient.is_active(), "EMPTY has ambient inactive")
+
+	# EMPTY -> CONSTRUCTING: should trigger exactly 1 transition and activate ambient immediately
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
+	check(fresh.transition_fx.get_transition_count() == 1, "EMPTY -> CONSTRUCTING triggers 1 TransitionFX")
+	check(fresh.ambient.is_active(), "EMPTY -> CONSTRUCTING activates ambient")
+	check(fresh.get_node("Construction/Stage30").visible == true, "Stage30 is immediately visible")
+
+	# Repeat set_build_state with same CONSTRUCTING progress: no new transition
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.1)
+	check(fresh.transition_fx.get_transition_count() == 1, "CONSTRUCTING with same stage does NOT trigger TransitionFX")
+
+	# Add dynamic Stage50 with start_progress 0.5 to verify stage change detection
+	var stage50 := Sprite2D.new()
+	stage50.name = "Stage50"
+	stage50.set_script(load("res://presentation/campaign/local_location/local_construction_stage_visual.gd"))
+	stage50.set("start_progress", 0.5)
+	fresh.get_node("Construction").add_child(stage50)
+
+	# Progress 0.49: still Stage30, no transition
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.49)
+	check(fresh.transition_fx.get_transition_count() == 1, "Progress 0.49 stays on Stage30 (no transition)")
+	check(stage50.visible == false, "Stage50 hidden at progress 0.49")
+
+	# Progress 0.50: stage changes to Stage50, triggers exactly 1 transition
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.50)
+	check(fresh.transition_fx.get_transition_count() == 2, "Stage30 -> Stage50 triggers 1 TransitionFX (total 2)")
+	check(stage50.visible == true, "Stage50 visible at progress 0.50")
+	check(fresh.get_node("Construction/Stage30").visible == false, "Stage30 hidden at progress 0.50")
+
+	# CONSTRUCTING -> BUILT: triggers exactly 1 transition and disables ambient
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
+	check(fresh.transition_fx.get_transition_count() == 3, "CONSTRUCTING -> BUILT triggers 1 TransitionFX (total 3)")
+	check(not fresh.ambient.is_active(), "Ambient becomes inactive when BUILT")
+	check(fresh.get_node("Built").visible == true, "Built is immediately visible")
+	check(fresh.get_node("Construction").visible == false, "Construction is immediately hidden")
+
+	# 7.3 Optionality check: Visual without Ambient and without TransitionFX works without errors
+	var plain_buildable := LocalBuildableVisual.new()
+	root.add_child(plain_buildable)
+	var plain_construction := Node2D.new()
+	plain_construction.name = "Construction"
+	plain_buildable.add_child(plain_construction)
+	var plain_built := Node2D.new()
+	plain_built.name = "Built"
+	plain_buildable.add_child(plain_built)
+	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
+	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
+	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
+	check(plain_buildable != null, "LocalBuildableVisual works without Ambient or TransitionFX")
+
+	test_visual.free()
+	test_visual2.free()
+	fresh.free()
+	plain_buildable.free()
+
 	sandbox.free()
 	runtime.free()
 

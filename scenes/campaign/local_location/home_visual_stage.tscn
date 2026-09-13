@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b23u17yyakl3p" path="res://scenes/campaign/local_location/objects/river.tscn" id="4_iqjhl"]
 [ext_resource type="PackedScene" uid="uid://c6xk144n514g1" path="res://scenes/campaign/local_location/environment/home_clouds.tscn" id="5_clouds"]
 [ext_resource type="PackedScene" uid="uid://cb5y1x3j8r2pm" path="res://scenes/campaign/local_location/objects/party_shelter.tscn" id="6_party_shelter"]
-[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
+[ext_resource type="PackedScene" uid="uid://iadi6qb7ex2r" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -87,16 +87,17 @@ interaction_id = &"home_zone_common_shelter"
 
 [node name="InteractionButton" type="Button" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000103]
 z_index = 10
-offset_left = -90.0
-offset_top = -30.0
-offset_right = 90.0
-offset_bottom = 30.0
+offset_left = -116.0
+offset_top = 111.0
+offset_right = 64.0
+offset_bottom = 171.0
 focus_mode = 0
 text = "Общее место лагеря"
 
 [node name="BuildingVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
 
 [node name="CommonShelter" parent="WorldContent/EarlyBuildSites/CommonShelterSite/BuildingVisual" unique_id=1481920382 instance=ExtResource("7_common_shelter")]
+position = Vector2(16, -24)
 
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 

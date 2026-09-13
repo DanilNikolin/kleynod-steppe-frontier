@@ -155,6 +155,16 @@ animations = [{
 "loop": 0,
 "name": &"idle",
 "speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle_2",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle_3",
+"speed": 5.0
 }]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_flag"]

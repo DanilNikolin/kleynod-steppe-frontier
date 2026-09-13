@@ -1,14 +1,18 @@
 class_name HomeStars
-extends Control
+extends Node2D
 
-@export var star_count: int = 120
+@export var field_left: float = -200.0
+@export var field_width: float = 6200.0
+@export var stars_min_y: float = 30.0
+@export var stars_max_y: float = 480.0
+@export var star_count: int = 380
+
 @export var min_radius: float = 1.0
 @export var max_radius: float = 2.2
-@export var vertical_fill: float = 0.60
 @export var random_seed: int = 17341
 
 class StarData:
-	var pos_norm: Vector2
+	var world_position: Vector2
 	var radius: float
 	var base_color: Color
 	var phase: float
@@ -21,7 +25,6 @@ var _internal_time: float = 0.0
 
 
 func _ready() -> void:
-	mouse_filter = MOUSE_FILTER_IGNORE
 	generate_stars()
 	_setup_twinkle_timer()
 
@@ -33,10 +36,9 @@ func generate_stars() -> void:
 
 	for i in range(star_count):
 		var star := StarData.new()
-		# Position normalized: x in [0.01, 0.99], y in [0.02, vertical_fill]
-		var nx := rng.randf_range(0.01, 0.99)
-		var ny := rng.randf_range(0.02, clampf(vertical_fill, 0.1, 1.0))
-		star.pos_norm = Vector2(nx, ny)
+		var wx := rng.randf_range(field_left, field_left + field_width)
+		var wy := rng.randf_range(stars_min_y, stars_max_y)
+		star.world_position = Vector2(wx, wy)
 
 		# Tiered distribution:
 		# ~70% small & faint (1.0 .. 1.3 rad, alpha 0.45 .. 0.60)
@@ -98,16 +100,11 @@ func _on_twinkle_tick() -> void:
 
 
 func _draw() -> void:
-	var s := size
-	if s.x <= 0.0 or s.y <= 0.0:
-		return
-
 	for star in _stars:
-		var pos := Vector2(star.pos_norm.x * s.x, star.pos_norm.y * s.y)
 		var factor: float = sin(_internal_time * star.twinkle_speed + star.phase) * star.twinkle_amount
 		var col := star.base_color
 		col.a = clampf(col.a + factor, 0.0, 1.0)
-		draw_circle(pos, star.radius, col)
+		draw_circle(star.world_position, star.radius, col)
 
 
 func get_stars_count() -> int:

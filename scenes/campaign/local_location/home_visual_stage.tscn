@@ -44,7 +44,7 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_sky")
 
-[node name="Stars" parent="SkyLayer" unique_id=128493012 instance=ExtResource("9_stars")]
+[node name="StarsWorld" parent="." unique_id=128493012 instance=ExtResource("9_stars")]
 
 [node name="Clouds" parent="." unique_id=474965930 instance=ExtResource("5_clouds")]
 position = Vector2(-12.000002, 96.000015)

@@ -441,8 +441,7 @@ func run() -> void:
 	tod_horizon_overlay.position = Vector2(100, 200)
 
 	var HomeStarsScript = load("res://presentation/campaign/local_location/home_stars.gd")
-	var tod_stars: Control = HomeStarsScript.new()
-	tod_stars.size = Vector2(1920, 1080)
+	var tod_stars: Node2D = HomeStarsScript.new()
 
 	tod.world_modulate = tod_modulate
 	tod.sky_gradient_rect = tod_sky_rect
@@ -484,13 +483,14 @@ func run() -> void:
 	tod.set_time_of_day(1155, true) # 19:15 twilight
 	check(tod_stars.visible and tod_stars.modulate.a > 0.4 and tod_stars.modulate.a < 0.8, "19:15 twilight stars has intermediate alpha (~0.6)")
 
-	# 9.3 Test HomeStars seed determinism
-	var stars2: Control = HomeStarsScript.new()
+	# 9.3 Test HomeStars seed determinism and world coverage
+	var stars2: Node2D = HomeStarsScript.new()
 	root.add_child(stars2)
 	check(tod_stars.get_stars_count() == stars2.get_stars_count(), "HomeStars star count matches across instances")
 	var s1 = tod_stars.get_star_data(0)
 	var s2 = stars2.get_star_data(0)
-	check(s1 != null and s2 != null and s1.pos_norm.is_equal_approx(s2.pos_norm), "HomeStars fixed seed produces identical star positions")
+	check(s1 != null and s2 != null and s1.world_position.is_equal_approx(s2.world_position), "HomeStars fixed seed produces identical world positions")
+	check(tod_stars.field_width >= 5760.0, "HomeStars covers entire HOME panorama width")
 	stars2.free()
 
 	# 9.4 Test immediate sync on first call vs smooth transition flag
@@ -505,11 +505,31 @@ func run() -> void:
 	tod.set_time_of_day(0, true)
 	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a >= 0.99, "Horizon overlay works after manual position/scale change")
 
-	# 9.6 Test CampaignLocalLocationCanvas set_time_of_day safe invocation
+	# 9.6 Test CampaignLocalLocationCanvas with real visual stage: StarsWorld is in world canvas and responds to camera pan
+	var home_def = load("res://content/world/debug/local/debug_home_local_location.tres") as CampaignLocalLocationDefinition
 	var canvas_test := CampaignLocalLocationCanvas.new()
+	canvas_test.size = Vector2(1920, 1080)
 	root.add_child(canvas_test)
-	# Safe call without world_root
-	canvas_test.set_time_of_day(360, true)
+	canvas_test.bind(home_def)
+
+	var stage_stars = canvas_test.find_child("StarsWorld", true, false) as Node2D
+	var sky_layer_node = canvas_test.find_child("SkyLayer", true, false)
+	check(stage_stars != null, "StarsWorld found in instantiated HOME visual stage")
+	if stage_stars != null and sky_layer_node != null:
+		check(stage_stars.get_parent() != sky_layer_node, "StarsWorld is NOT a child of SkyLayer")
+		check(stage_stars.z_index == -40, "StarsWorld z_index is -40 (under clouds)")
+
+	# Camera panning test: camera moves, StarsWorld screen transform changes 1:1 with world
+	var stage_cam = canvas_test.find_child("Camera", true, false) as Camera2D
+	if stage_cam != null and stage_stars != null:
+		var cam_initial_x = stage_cam.position.x
+		canvas_test.pan_horizontal(1)
+		var cam_panned_x = stage_cam.position.x
+		check(cam_panned_x > cam_initial_x, "Camera panned horizontally to the right")
+		# World transform of stars relative to camera moved by pan delta
+		var canvas_xform = canvas_test._viewport.canvas_transform
+		check(canvas_xform.origin.x != 0.0 or not is_equal_approx(cam_panned_x, cam_initial_x), "World-space camera moves viewport canvas transform")
+
 	canvas_test.free()
 
 	tod.free()

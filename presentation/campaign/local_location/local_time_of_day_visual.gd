@@ -43,6 +43,8 @@ func _ready() -> void:
 	if horizon_overlay == null:
 		horizon_overlay = get_node_or_null("../WorldContent/NightHorizonOverlay") as CanvasItem
 	if stars_root == null:
+		stars_root = get_node_or_null("../StarsWorld") as CanvasItem
+	if stars_root == null:
 		stars_root = get_node_or_null("../SkyLayer/Stars") as CanvasItem
 
 	_ensure_default_gradients()

@@ -16,6 +16,14 @@ colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96,
 gradient = SubResource("Gradient_sky")
 fill_to = Vector2(0, 1)
 
+[sub_resource type="Gradient" id="Gradient_horizon"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.12, 0.16, 0.25, 0, 0.12, 0.16, 0.25, 0.85, 0.12, 0.16, 0.25, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_horizon"]
+gradient = SubResource("Gradient_horizon")
+fill_to = Vector2(0, 1)
+
 [node name="HomeVisualStage" type="Node2D" unique_id=259198650]
 
 [node name="TimeOfDay" type="Node" parent="." unique_id=184719283]
@@ -24,6 +32,7 @@ world_modulate = NodePath("WorldModulate")
 sky_gradient_rect = NodePath("../SkyLayer/SkyGradient")
 far_clouds_root = NodePath("../Clouds/FarClouds")
 near_clouds_root = NodePath("../Clouds/NearClouds")
+horizon_overlay = NodePath("../WorldContent/NightHorizonOverlay")
 
 [node name="WorldModulate" type="CanvasModulate" parent="TimeOfDay" unique_id=81928471]
 
@@ -48,6 +57,18 @@ scale = Vector2(0.525, 0.525)
 [node name="Landscape" type="Sprite2D" parent="WorldContent" unique_id=1767925986]
 position = Vector2(3715, 688)
 texture = ExtResource("1_q0qq8")
+
+[node name="NightHorizonOverlay" type="Node2D" parent="WorldContent" unique_id=194729184]
+position = Vector2(0, 320)
+
+[node name="GradientBand" type="TextureRect" parent="WorldContent/NightHorizonOverlay" unique_id=194729185]
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 8200.0
+offset_bottom = 500.0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_horizon")
+expand_mode = 1
 
 [node name="EarlyBuildSites" type="Node2D" parent="WorldContent" unique_id=210000001]
 

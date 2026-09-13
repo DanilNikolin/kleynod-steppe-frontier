@@ -437,14 +437,19 @@ func run() -> void:
 	var tod_far_clouds := Node2D.new()
 	var tod_near_clouds := Node2D.new()
 
+	var tod_horizon_overlay := Node2D.new()
+	tod_horizon_overlay.position = Vector2(100, 200)
+
 	tod.world_modulate = tod_modulate
 	tod.sky_gradient_rect = tod_sky_rect
 	tod.far_clouds_root = tod_far_clouds
 	tod.near_clouds_root = tod_near_clouds
+	tod.horizon_overlay = tod_horizon_overlay
 	root.add_child(tod_modulate)
 	root.add_child(tod_sky_rect)
 	root.add_child(tod_far_clouds)
 	root.add_child(tod_near_clouds)
+	root.add_child(tod_horizon_overlay)
 	root.add_child(tod)
 
 	# 9.1 Test Day (12:00 = 720 minutes) vs Night (00:00 = 0 minutes) profiles
@@ -452,11 +457,13 @@ func run() -> void:
 	check(tod_modulate.color.is_equal_approx(Color(1.0, 1.0, 1.0, 1.0)), "12:00 noon world modulate is neutral white (1, 1, 1)")
 	check(tod_far_clouds.modulate.is_equal_approx(Color(1.0, 1.0, 1.0, 1.0)), "12:00 noon far clouds modulate is white (1, 1, 1)")
 	check(tod_near_clouds.modulate.is_equal_approx(Color(1.0, 1.0, 1.0, 1.0)), "12:00 noon near clouds modulate is white (1, 1, 1)")
+	check(tod_horizon_overlay.modulate.a <= 0.001 or not tod_horizon_overlay.visible, "12:00 noon horizon overlay is invisible / alpha 0")
 
 	tod.set_time_of_day(0, true) # Midnight
 	check(tod_modulate.color.r < 0.6 and tod_modulate.color.b > tod_modulate.color.r, "00:00 midnight world modulate is cool blueish/slate tint")
 	check(tod_far_clouds.modulate.r < 0.85 and tod_far_clouds.modulate.b > tod_far_clouds.modulate.r, "00:00 midnight far clouds has cool darker tint")
 	check(tod_near_clouds.modulate.r < tod_far_clouds.modulate.r, "00:00 midnight near clouds is darker than far clouds")
+	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a > 0.25, "00:00 midnight horizon overlay is visible with night alpha")
 
 	# 9.2 Test interpolation between keys (e.g. 06:00 = 360 min sunrise, warm/rose tint)
 	tod.set_time_of_day(360, true)
@@ -468,7 +475,13 @@ func run() -> void:
 	check(tod.get_current_minute_of_day() == 720, "set_time_of_day updates current minute")
 	check(state.current_minute_of_day == initial_minute, "Visual time update does not mutate campaign state time")
 
-	# 9.4 Test CampaignLocalLocationCanvas set_time_of_day safe invocation
+	# 9.4 Manual movement of overlay does not affect time logic
+	tod_horizon_overlay.position = Vector2(500, 600)
+	tod_horizon_overlay.scale = Vector2(1.5, 1.5)
+	tod.set_time_of_day(0, true)
+	check(tod_horizon_overlay.visible and tod_horizon_overlay.modulate.a > 0.25, "Horizon overlay works after manual position/scale change")
+
+	# 9.5 Test CampaignLocalLocationCanvas set_time_of_day safe invocation
 	var canvas_test := CampaignLocalLocationCanvas.new()
 	root.add_child(canvas_test)
 	# Safe call without world_root
@@ -480,6 +493,7 @@ func run() -> void:
 	tod_sky_rect.free()
 	tod_far_clouds.free()
 	tod_near_clouds.free()
+	tod_horizon_overlay.free()
 
 	test_visual.free()
 	test_visual2.free()

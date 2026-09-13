@@ -7,6 +7,9 @@ extends Node
 @export var far_clouds_root: CanvasItem
 @export var near_clouds_root: CanvasItem
 
+@export var horizon_overlay: CanvasItem
+@export var horizon_overlay_strength_cycle: Curve
+
 @export var world_color_cycle: Gradient
 @export var sky_top_color_cycle: Gradient
 @export var sky_bottom_color_cycle: Gradient
@@ -34,8 +37,11 @@ func _ready() -> void:
 		far_clouds_root = get_node_or_null("../Clouds/FarClouds") as CanvasItem
 	if near_clouds_root == null:
 		near_clouds_root = get_node_or_null("../Clouds/NearClouds") as CanvasItem
+	if horizon_overlay == null:
+		horizon_overlay = get_node_or_null("../WorldContent/NightHorizonOverlay") as CanvasItem
 
 	_ensure_default_gradients()
+	_ensure_default_curve()
 	_prepare_sky_gradient()
 
 
@@ -54,6 +60,7 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 	var target_sky_bottom_color := _sample_sky_bottom_color(time01)
 	var target_far_cloud_color := _sample_far_cloud_color(time01)
 	var target_near_cloud_color := _sample_near_cloud_color(time01)
+	var target_horizon_alpha := _sample_horizon_alpha(time01)
 
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
@@ -65,7 +72,8 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 			target_sky_top_color,
 			target_sky_bottom_color,
 			target_far_cloud_color,
-			target_near_cloud_color
+			target_near_cloud_color,
+			target_horizon_alpha
 		)
 		return
 
@@ -80,6 +88,7 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 
 	var current_far_cloud := far_clouds_root.modulate if far_clouds_root != null else target_far_cloud_color
 	var current_near_cloud := near_clouds_root.modulate if near_clouds_root != null else target_near_cloud_color
+	var current_horizon_alpha := horizon_overlay.modulate.a if horizon_overlay != null else target_horizon_alpha
 
 	_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
@@ -90,7 +99,8 @@ func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 			var sb := current_sky_bottom.lerp(target_sky_bottom_color, t)
 			var fc := current_far_cloud.lerp(target_far_cloud_color, t)
 			var nc := current_near_cloud.lerp(target_near_cloud_color, t)
-			_apply_colors(w, st, sb, fc, nc),
+			var ha := lerpf(current_horizon_alpha, target_horizon_alpha, t)
+			_apply_colors(w, st, sb, fc, nc, ha),
 		0.0,
 		1.0,
 		transition_duration
@@ -131,12 +141,19 @@ func _sample_near_cloud_color(time01: float) -> Color:
 	return Color.WHITE
 
 
+func _sample_horizon_alpha(time01: float) -> float:
+	if horizon_overlay_strength_cycle != null:
+		return clampf(horizon_overlay_strength_cycle.sample_baked(time01), 0.0, 1.0)
+	return 0.0
+
+
 func _apply_colors(
 	world_color: Color,
 	sky_top: Color,
 	sky_bottom: Color,
 	far_cloud: Color = Color.WHITE,
-	near_cloud: Color = Color.WHITE
+	near_cloud: Color = Color.WHITE,
+	horizon_alpha: float = 0.0
 ) -> void:
 	if world_modulate != null:
 		world_modulate.color = world_color
@@ -150,6 +167,12 @@ func _apply_colors(
 
 	if near_clouds_root != null:
 		near_clouds_root.modulate = near_cloud
+
+	if horizon_overlay != null:
+		var c := horizon_overlay.modulate
+		c.a = horizon_alpha
+		horizon_overlay.modulate = c
+		horizon_overlay.visible = (horizon_alpha > 0.001)
 
 
 func _prepare_sky_gradient() -> void:
@@ -184,6 +207,11 @@ func _ensure_default_gradients() -> void:
 		far_cloud_color_cycle = _create_default_far_cloud_gradient()
 	if near_cloud_color_cycle == null:
 		near_cloud_color_cycle = _create_default_near_cloud_gradient()
+
+
+func _ensure_default_curve() -> void:
+	if horizon_overlay_strength_cycle == null:
+		horizon_overlay_strength_cycle = _create_default_horizon_overlay_curve()
 
 
 static func _setup_gradient(g: Gradient, points_data: Array) -> Gradient:
@@ -280,3 +308,30 @@ static func _create_default_near_cloud_gradient() -> Gradient:
 		[0.833, Color(0.68, 0.70, 0.82, 1.0)], # 20:00 - Twilight
 		[1.000, Color(0.64, 0.68, 0.80, 1.0)]  # 24:00 - Night
 	])
+
+
+static func _create_default_horizon_overlay_curve() -> Curve:
+	var c := Curve.new()
+	c.bake_resolution = 100
+	c.min_value = 0.0
+	c.max_value = 1.0
+
+	# 00:00 (0.000) - Night: ~0.35 intensity
+	c.add_point(Vector2(0.000, 0.35))
+	# 04:30 (0.188) - Pre-dawn: ~0.20 intensity
+	c.add_point(Vector2(0.188, 0.20))
+	# 06:00 (0.250) - Sunrise: ~0.04
+	c.add_point(Vector2(0.250, 0.04))
+	# 08:00 (0.333) - Morning: 0.0
+	c.add_point(Vector2(0.333, 0.0))
+	# 12:00 (0.500) - Noon: 0.0
+	c.add_point(Vector2(0.500, 0.0))
+	# 17:00 (0.708) - Evening: 0.0
+	c.add_point(Vector2(0.708, 0.0))
+	# 18:30 (0.771) - Sunset: ~0.10
+	c.add_point(Vector2(0.771, 0.10))
+	# 20:00 (0.833) - Twilight: ~0.25
+	c.add_point(Vector2(0.833, 0.25))
+	# 24:00 (1.000) - Night: ~0.35
+	c.add_point(Vector2(1.000, 0.35))
+	return c

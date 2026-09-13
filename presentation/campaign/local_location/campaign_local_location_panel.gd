@@ -499,6 +499,62 @@ func _build_interface() -> void:
 		_status_label
 	)
 
+	_build_debug_time_slider(stage)
+
+
+func _build_debug_time_slider(stage: Control) -> void:
+	var debug_panel := PanelContainer.new()
+	debug_panel.name = "DebugTimePanel"
+	debug_panel.anchor_left = 1.0
+	debug_panel.anchor_top = 0.0
+	debug_panel.anchor_right = 1.0
+	debug_panel.anchor_bottom = 0.0
+	debug_panel.offset_left = -280.0
+	debug_panel.offset_top = 16.0
+	debug_panel.offset_right = -16.0
+	debug_panel.offset_bottom = 86.0
+	debug_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	debug_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	margin.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "Время суток (Debug):"
+	title.add_theme_font_size_override("font_size", 14)
+	vbox.add_child(title)
+
+	var current_min := _state.current_minute_of_day if _state != null else 720
+	var hours := current_min / 60
+	var mins := current_min % 60
+	title.text = "Время суток (Debug): %02d:%02d" % [hours, mins]
+
+	var slider := HSlider.new()
+	slider.min_value = 0
+	slider.max_value = 1439
+	slider.step = 10
+	slider.value = current_min
+	vbox.add_child(slider)
+
+	slider.value_changed.connect(
+		func(val: float) -> void:
+			var m := int(val)
+			var h := m / 60
+			var mi := m % 60
+			title.text = "Время суток (Debug): %02d:%02d" % [h, mi]
+			if _canvas != null:
+				_canvas.set_time_of_day(m, false)
+	)
+
+	stage.add_child(debug_panel)
+
 
 func _refresh_camera_navigation() -> void:
 	if (

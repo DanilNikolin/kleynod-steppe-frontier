@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
 [ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="2_ambient"]
 [ext_resource type="PackedScene" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="3_transition"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="4_intermittent"]
 [ext_resource type="Texture2D" uid="uid://whpym7qt3bp1" path="res://Graphics/home_village/party_shelter/party_shelter_shadow.png" id="1_k3b5f"]
 [ext_resource type="Texture2D" uid="uid://cb2gnvm1f3l2i" path="res://Graphics/home_village/party_shelter/party_shelter_base.png" id="2_4a6x7"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
@@ -100,6 +101,19 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_detail_idle"]
+resource_name = "idle"
+length = 0.5
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_detail"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"idle": SubResource("Animation_detail_idle")
+}
+
 [node name="PartyShelter" type="Node2D" unique_id=1736695738]
 script = ExtResource("1_buildable")
 
@@ -110,6 +124,16 @@ visible = false
 position = Vector2(-24, -157)
 texture = ExtResource("3_stage30")
 script = ExtResource("2_stage")
+
+[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30"]
+
+[node name="Visual" type="Node2D" parent="Construction/Stage30/DetailAnimation"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Construction/Stage30/DetailAnimation"]
+libraries/ = SubResource("AnimationLibrary_detail")
+
+[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation"]
+script = ExtResource("4_intermittent")
 
 [node name="Ambient" parent="Construction" instance=ExtResource("2_ambient")]
 position = Vector2(-24, -157)

@@ -67,6 +67,8 @@ func set_build_state(
 				built_root.visible = false
 			if ambient != null:
 				ambient.set_active(false)
+			if _last_active_stage != null:
+				_set_stage_detail_animations_active(_last_active_stage, false)
 
 		LocalBuildSiteView.BuildVisualState.CONSTRUCTING:
 			if built_root != null:
@@ -77,6 +79,13 @@ func set_build_state(
 			if _last_visual_state == int(LocalBuildSiteView.BuildVisualState.CONSTRUCTING):
 				if active_stage != null and _last_active_stage != null and active_stage != _last_active_stage:
 					stage_changed = true
+					_set_stage_detail_animations_active(_last_active_stage, false)
+			elif _last_active_stage != null and _last_active_stage != active_stage:
+				_set_stage_detail_animations_active(_last_active_stage, false)
+
+			if active_stage != null:
+				_set_stage_detail_animations_active(active_stage, true)
+
 			if ambient != null:
 				ambient.set_active(true)
 
@@ -87,6 +96,8 @@ func set_build_state(
 				built_root.visible = true
 			if ambient != null:
 				ambient.set_active(false)
+			if _last_active_stage != null:
+				_set_stage_detail_animations_active(_last_active_stage, false)
 
 	# Transition FX trigger criteria:
 	# Only triggers if this is NOT the first state synchronization.
@@ -108,6 +119,18 @@ func set_build_state(
 	_has_received_state = true
 	_last_visual_state = int(state)
 	_last_active_stage = active_stage
+
+
+func _set_stage_detail_animations_active(stage_node: Node, active: bool) -> void:
+	if stage_node == null:
+		return
+
+	var controllers := stage_node.find_children("*", "IntermittentDetailAnimation", true, false)
+	for controller in controllers:
+		if controller is IntermittentDetailAnimation:
+			controller.set_active(active)
+		elif controller.has_method("set_active"):
+			controller.call("set_active", active)
 
 
 func _apply_construction_stage(progress: float) -> CanvasItem:

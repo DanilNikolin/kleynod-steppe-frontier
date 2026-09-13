@@ -222,7 +222,48 @@ func run() -> void:
 	check(fresh.get_node("Built").visible == true, "Built is immediately visible")
 	check(fresh.get_node("Construction").visible == false, "Construction is immediately hidden")
 
-	# 7.3 Optionality check: Visual without Ambient and without TransitionFX works without errors
+	# Step 8: Test DetailAnimation (IntermittentDetailAnimation)
+	var stage30_node_ref := fresh.get_node("Construction/Stage30")
+	var detail_ctrl := stage30_node_ref.get_node_or_null("DetailAnimation/IntermittentController") as IntermittentDetailAnimation
+	check(detail_ctrl != null, "Found IntermittentDetailAnimation in Stage30")
+
+	# 8.1 In BUILT state: Stage30 detail controller must be inactive
+	check(not detail_ctrl.is_active(), "DetailAnimation is inactive when BUILT")
+
+	# 8.2 In EMPTY state: Detail controller must be inactive
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
+	check(not detail_ctrl.is_active(), "DetailAnimation is inactive when EMPTY")
+
+	# 8.3 In CONSTRUCTING state on Stage30 (progress 0.0): Detail controller becomes active
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
+	check(detail_ctrl.is_active(), "DetailAnimation is active when Stage30 is active in CONSTRUCTING")
+
+	# 8.4 Setup second controller on stage50 and test transition Stage30 -> Stage50
+	var detail50_node := Node2D.new()
+	detail50_node.name = "DetailAnimation"
+	var ctrl50 := IntermittentDetailAnimation.new()
+	ctrl50.name = "IntermittentController"
+	detail50_node.add_child(ctrl50)
+	var ctrl50_extra := IntermittentDetailAnimation.new()
+	ctrl50_extra.name = "ExtraController"
+	detail50_node.add_child(ctrl50_extra)
+	stage50.add_child(detail50_node)
+
+	check(not ctrl50.is_active(), "Stage50 controller initially inactive")
+	check(not ctrl50_extra.is_active(), "Stage50 extra controller initially inactive")
+
+	# Switch to progress 0.50 (Stage50 becomes active):
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.50)
+	check(not detail_ctrl.is_active(), "Stage30 controller becomes inactive when stage changes to Stage50")
+	check(ctrl50.is_active(), "Stage50 controller becomes active")
+	check(ctrl50_extra.is_active(), "Stage50 extra controller also becomes active (multiple controllers supported)")
+
+	# 8.5 Switch from CONSTRUCTING to BUILT: all active stage controllers become inactive
+	fresh.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
+	check(not ctrl50.is_active(), "Stage50 controller becomes inactive on BUILT")
+	check(not ctrl50_extra.is_active(), "Stage50 extra controller becomes inactive on BUILT")
+
+	# 7.3 Optionality check: Visual without Ambient, TransitionFX or DetailAnimation works without errors
 	var plain_buildable := LocalBuildableVisual.new()
 	root.add_child(plain_buildable)
 	var plain_construction := Node2D.new()
@@ -234,7 +275,7 @@ func run() -> void:
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.EMPTY)
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.CONSTRUCTING, 0.0)
 	plain_buildable.set_build_state(LocalBuildSiteView.BuildVisualState.BUILT)
-	check(plain_buildable != null, "LocalBuildableVisual works without Ambient or TransitionFX")
+	check(plain_buildable != null, "LocalBuildableVisual works without Ambient, TransitionFX or DetailAnimation")
 
 	test_visual.free()
 	test_visual2.free()

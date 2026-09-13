@@ -135,80 +135,67 @@ func _ensure_default_gradients() -> void:
 		sky_bottom_color_cycle = _create_default_sky_bottom_gradient()
 
 
+static func _setup_gradient(g: Gradient, points_data: Array) -> Gradient:
+	# Godot Gradient requires at least 1 or 2 points and throws an error if points.size() <= 1 on remove_point.
+	# We update point 0 and 1 first, then add the rest.
+	if points_data.size() >= 1:
+		g.set_offset(0, points_data[0][0])
+		g.set_color(0, points_data[0][1])
+	if points_data.size() >= 2 and g.get_point_count() >= 2:
+		g.set_offset(1, points_data[1][0])
+		g.set_color(1, points_data[1][1])
+
+	# Remove any extra points beyond index 1 if there were more
+	while g.get_point_count() > 2:
+		g.remove_point(2)
+
+	# Add remaining points from index 2 onwards
+	for i in range(2, points_data.size()):
+		g.add_point(points_data[i][0], points_data[i][1])
+
+	return g
+
+
 static func _create_default_world_gradient() -> Gradient:
 	var g := Gradient.new()
-	# Clear default points
-	while g.get_point_count() > 0:
-		g.remove_point(0)
-
-	# 00:00 (0.000) - Night: cool desaturated blue-slate, readable
-	g.add_point(0.000, Color(0.48, 0.52, 0.65, 1.0))
-	# 04:30 (0.188) - Pre-dawn: cold twilight
-	g.add_point(0.188, Color(0.55, 0.58, 0.70, 1.0))
-	# 06:00 (0.250) - Sunrise: warm golden/rose tint
-	g.add_point(0.250, Color(0.92, 0.75, 0.65, 1.0))
-	# 08:00 (0.333) - Morning: clear, slightly warm
-	g.add_point(0.333, Color(0.98, 0.95, 0.90, 1.0))
-	# 12:00 (0.500) - Neutral Day: pure white (1.0, 1.0, 1.0)
-	g.add_point(0.500, Color(1.00, 1.00, 1.00, 1.0))
-	# 17:00 (0.708) - Evening: warm amber/ochre
-	g.add_point(0.708, Color(0.98, 0.88, 0.78, 1.0))
-	# 18:30 (0.771) - Sunset: dusky reddish/terracotta
-	g.add_point(0.771, Color(0.85, 0.62, 0.52, 1.0))
-	# 20:00 (0.833) - Twilight / Night fall: dimming blue
-	g.add_point(0.833, Color(0.52, 0.55, 0.68, 1.0))
-	# 24:00 (1.000) - Night
-	g.add_point(1.000, Color(0.48, 0.52, 0.65, 1.0))
-	return g
+	return _setup_gradient(g, [
+		[0.000, Color(0.48, 0.52, 0.65, 1.0)], # 00:00 - Night
+		[0.188, Color(0.55, 0.58, 0.70, 1.0)], # 04:30 - Pre-dawn
+		[0.250, Color(0.92, 0.75, 0.65, 1.0)], # 06:00 - Sunrise
+		[0.333, Color(0.98, 0.95, 0.90, 1.0)], # 08:00 - Morning
+		[0.500, Color(1.00, 1.00, 1.00, 1.0)], # 12:00 - Neutral Day
+		[0.708, Color(0.98, 0.88, 0.78, 1.0)], # 17:00 - Evening
+		[0.771, Color(0.85, 0.62, 0.52, 1.0)], # 18:30 - Sunset
+		[0.833, Color(0.52, 0.55, 0.68, 1.0)], # 20:00 - Twilight
+		[1.000, Color(0.48, 0.52, 0.65, 1.0)]  # 24:00 - Night
+	])
 
 
 static func _create_default_sky_top_gradient() -> Gradient:
 	var g := Gradient.new()
-	while g.get_point_count() > 0:
-		g.remove_point(0)
-
-	# 00:00 (0.000) - Deep night sky top
-	g.add_point(0.000, Color(0.08, 0.10, 0.18, 1.0))
-	# 04:30 (0.188) - Pre-dawn
-	g.add_point(0.188, Color(0.14, 0.17, 0.28, 1.0))
-	# 06:00 (0.250) - Sunrise
-	g.add_point(0.250, Color(0.26, 0.35, 0.52, 1.0))
-	# 08:00 (0.333) - Morning
-	g.add_point(0.333, Color(0.26, 0.50, 0.74, 1.0))
-	# 12:00 (0.500) - Neutral day
-	g.add_point(0.500, Color(0.24, 0.49, 0.75, 1.0))
-	# 17:00 (0.708) - Evening
-	g.add_point(0.708, Color(0.28, 0.44, 0.66, 1.0))
-	# 18:30 (0.771) - Sunset
-	g.add_point(0.771, Color(0.22, 0.28, 0.45, 1.0))
-	# 20:00 (0.833) - Twilight
-	g.add_point(0.833, Color(0.12, 0.15, 0.25, 1.0))
-	# 24:00 (1.000) - Deep night
-	g.add_point(1.000, Color(0.08, 0.10, 0.18, 1.0))
-	return g
+	return _setup_gradient(g, [
+		[0.000, Color(0.08, 0.10, 0.18, 1.0)], # 00:00 - Deep night sky top
+		[0.188, Color(0.14, 0.17, 0.28, 1.0)], # 04:30 - Pre-dawn
+		[0.250, Color(0.26, 0.35, 0.52, 1.0)], # 06:00 - Sunrise
+		[0.333, Color(0.26, 0.50, 0.74, 1.0)], # 08:00 - Morning
+		[0.500, Color(0.24, 0.49, 0.75, 1.0)], # 12:00 - Neutral day
+		[0.708, Color(0.28, 0.44, 0.66, 1.0)], # 17:00 - Evening
+		[0.771, Color(0.22, 0.28, 0.45, 1.0)], # 18:30 - Sunset
+		[0.833, Color(0.12, 0.15, 0.25, 1.0)], # 20:00 - Twilight
+		[1.000, Color(0.08, 0.10, 0.18, 1.0)]  # 24:00 - Deep night
+	])
 
 
 static func _create_default_sky_bottom_gradient() -> Gradient:
 	var g := Gradient.new()
-	while g.get_point_count() > 0:
-		g.remove_point(0)
-
-	# 00:00 (0.000) - Night horizon
-	g.add_point(0.000, Color(0.18, 0.22, 0.32, 1.0))
-	# 04:30 (0.188) - Pre-dawn horizon
-	g.add_point(0.188, Color(0.32, 0.30, 0.40, 1.0))
-	# 06:00 (0.250) - Sunrise peach/pink horizon
-	g.add_point(0.250, Color(0.88, 0.58, 0.48, 1.0))
-	# 08:00 (0.333) - Morning light blue
-	g.add_point(0.333, Color(0.68, 0.82, 0.94, 1.0))
-	# 12:00 (0.500) - Day light blue horizon
-	g.add_point(0.500, Color(0.72, 0.86, 0.96, 1.0))
-	# 17:00 (0.708) - Evening warm horizon
-	g.add_point(0.708, Color(0.86, 0.72, 0.58, 1.0))
-	# 18:30 (0.771) - Sunset dusk horizon
-	g.add_point(0.771, Color(0.78, 0.46, 0.38, 1.0))
-	# 20:00 (0.833) - Twilight dusk horizon
-	g.add_point(0.833, Color(0.26, 0.26, 0.38, 1.0))
-	# 24:00 (1.000) - Night horizon
-	g.add_point(1.000, Color(0.18, 0.22, 0.32, 1.0))
-	return g
+	return _setup_gradient(g, [
+		[0.000, Color(0.18, 0.22, 0.32, 1.0)], # 00:00 - Night horizon
+		[0.188, Color(0.32, 0.30, 0.40, 1.0)], # 04:30 - Pre-dawn horizon
+		[0.250, Color(0.88, 0.58, 0.48, 1.0)], # 06:00 - Sunrise peach/pink
+		[0.333, Color(0.68, 0.82, 0.94, 1.0)], # 08:00 - Morning light blue
+		[0.500, Color(0.72, 0.86, 0.96, 1.0)], # 12:00 - Day light blue
+		[0.708, Color(0.86, 0.72, 0.58, 1.0)], # 17:00 - Evening warm
+		[0.771, Color(0.78, 0.46, 0.38, 1.0)], # 18:30 - Sunset dusk
+		[0.833, Color(0.26, 0.26, 0.38, 1.0)], # 20:00 - Twilight dusk
+		[1.000, Color(0.18, 0.22, 0.32, 1.0)]  # 24:00 - Night horizon
+	])

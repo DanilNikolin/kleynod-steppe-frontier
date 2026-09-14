@@ -47,6 +47,7 @@ var _camera: Camera2D
 var _buttons_by_interaction_id: Dictionary = {}
 var _display_text_overrides: Dictionary = {}
 var _visibility_overrides: Dictionary = {}
+var _resident_visuals_by_resident_id: Dictionary = {}
 var _anchors_by_interaction_id: Dictionary = {}
 var _last_time_of_day_minute: int = -1
 
@@ -251,6 +252,25 @@ func set_interaction_visibility_overrides(
 	)
 
 	_refresh_button_texts()
+
+
+func set_resident_visual_visibility(
+	states: Dictionary
+) -> void:
+	for resident_id in _resident_visuals_by_resident_id:
+		var present := bool(
+			states.get(resident_id, false)
+		)
+
+		var visuals: Array = (
+			_resident_visuals_by_resident_id[
+				resident_id
+			]
+		)
+
+		for visual in visuals:
+			if visual is LocalResidentPresenceVisual:
+				visual.set_present(present)
 
 
 func set_build_site_states(
@@ -491,6 +511,7 @@ func _reset_visual_stage_references() -> void:
 	_interactions_root = null
 	_camera = null
 	_anchors_by_interaction_id.clear()
+	_resident_visuals_by_resident_id.clear()
 
 
 func _instantiate_authored_visual_stage() -> bool:
@@ -600,8 +621,43 @@ func _bind_visual_stage_nodes() -> bool:
 		return false
 
 	_discover_interaction_anchors()
+	_discover_resident_presence_visuals()
 
 	return true
+
+
+func _discover_resident_presence_visuals() -> void:
+	_resident_visuals_by_resident_id.clear()
+
+	if _world_root == null:
+		return
+
+	var nodes := _world_root.find_children(
+		"*",
+		"LocalResidentPresenceVisual",
+		true,
+		false
+	)
+
+	for node in nodes:
+		if not node is LocalResidentPresenceVisual:
+			continue
+
+		var visual := node as LocalResidentPresenceVisual
+
+		if visual.resident_id.is_empty():
+			continue
+
+		if not _resident_visuals_by_resident_id.has(
+			visual.resident_id
+		):
+			_resident_visuals_by_resident_id[
+				visual.resident_id
+			] = []
+
+		_resident_visuals_by_resident_id[
+			visual.resident_id
+		].append(visual)
 
 
 func _discover_interaction_anchors() -> void:

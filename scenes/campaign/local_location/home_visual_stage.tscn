@@ -10,6 +10,8 @@
 [ext_resource type="Script" uid="uid://b3rup68wy2it8" path="res://presentation/campaign/local_location/local_time_of_day_visual.gd" id="8_time_of_day"]
 [ext_resource type="PackedScene" uid="uid://bstar710klynd" path="res://scenes/campaign/local_location/environment/home_stars.tscn" id="9_stars"]
 
+[ext_resource type="PackedScene" path="res://scenes/campaign/local_location/objects/carpenter_workshop.tscn" id="10_workshop"]
+
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
 
@@ -60,9 +62,9 @@ texture = ExtResource("1_q0qq8")
 position = Vector2(0, 320)
 
 [node name="GradientBand" type="TextureRect" parent="WorldContent/NightHorizonOverlay" unique_id=194729185]
-offset_left = -16.0
+offset_left = -56.0
 offset_top = -166.0
-offset_right = 8384.0
+offset_right = 8854.0
 offset_bottom = 534.0
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_horizon")
@@ -109,6 +111,8 @@ text = "Место отряда"
 position = Vector2(-316, 320)
 
 [node name="PartyShelter" parent="WorldContent/EarlyBuildSites/PartyShelterSite/BuildingVisual" unique_id=1481920381 instance=ExtResource("6_party_shelter")]
+position = Vector2(38.00003, -87)
+scale = Vector2(0.375, 0.375)
 
 [node name="CommonShelterSite" type="Marker2D" parent="WorldContent/EarlyBuildSites" unique_id=210000004]
 position = Vector2(2672, 756)
@@ -127,9 +131,12 @@ text = "Общее место лагеря"
 [node name="BuildingVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
 
 [node name="CommonShelter" parent="WorldContent/EarlyBuildSites/CommonShelterSite/BuildingVisual" unique_id=1481920382 instance=ExtResource("7_common_shelter")]
-position = Vector2(16, -24)
+position = Vector2(35.000004, -57)
+scale = Vector2(0.455, 0.455)
 
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
+
+[node name="CarpenterWorkshop" parent="WorldContent/Buildings" instance=ExtResource("10_workshop")]
 
 [node name="Props" type="Node2D" parent="WorldContent" unique_id=210000020]
 

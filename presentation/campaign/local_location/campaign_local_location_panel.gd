@@ -1279,6 +1279,7 @@ func _refresh_resident_visibility() -> void:
 	):
 		return
 
+	var resident_visual_states: Dictionary = {}
 	var overrides: Dictionary = {}
 	if _definition != null:
 		for interaction in _definition.interactions:
@@ -1313,9 +1314,7 @@ func _refresh_resident_visibility() -> void:
 				)
 		)
 
-		overrides[
-			definition.home_interaction_id
-		] = (
+		var home_present := (
 			_resident_service
 				.is_interaction_present(
 					definition,
@@ -1324,8 +1323,19 @@ func _refresh_resident_visibility() -> void:
 				)
 		)
 
+		overrides[
+			definition.home_interaction_id
+		] = home_present
+
+		resident_visual_states[
+			definition.resident_id
+		] = home_present
+
 	_canvas.set_interaction_visibility_overrides(
 		overrides
+	)
+	_canvas.set_resident_visual_visibility(
+		resident_visual_states
 	)
 
 	var selected_resident := (

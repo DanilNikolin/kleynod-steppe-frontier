@@ -131,7 +131,7 @@ text = "Общее место лагеря"
 
 [node name="CommonShelter" parent="WorldContent/EarlyBuildSites/CommonShelterSite/BuildingVisual" unique_id=1481920382 instance=ExtResource("7_common_shelter")]
 position = Vector2(35.000004, -57)
-scale = Vector2(0.455, 0.455)
+scale = Vector2(0.41, 0.41)
 
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 

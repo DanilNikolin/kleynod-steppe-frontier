@@ -1329,7 +1329,7 @@ func _refresh_resident_visibility() -> void:
 
 		resident_visual_states[
 			definition.resident_id
-		] = home_present
+		] = resident_state.is_at_home()
 
 	_canvas.set_interaction_visibility_overrides(
 		overrides

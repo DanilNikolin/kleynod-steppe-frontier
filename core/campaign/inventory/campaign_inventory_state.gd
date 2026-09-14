@@ -132,7 +132,7 @@ func add_material_bundles(definition: HeroEquipmentItemDefinition, amount: int) 
 		return true
 	if definition == null or not definition.is_valid_definition() or definition.material_value <= 0 or amount < 0 or amount % definition.material_value != 0:
 		return false
-	var count: int = amount / definition.material_value
+	var count: int = int(amount / float(definition.material_value))
 	if not can_add_items(count):
 		return false
 	for index in count:

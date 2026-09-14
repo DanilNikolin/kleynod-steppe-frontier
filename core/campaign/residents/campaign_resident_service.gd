@@ -209,7 +209,7 @@ func update_wandering(campaign: CampaignDefinition, state: CampaignState) -> voi
 		if now < resident.next_move_at_minute:
 			continue
 		var interval := definition.wandering_interval_minutes
-		var steps: int = (now - resident.next_move_at_minute) / interval + 1
+		var steps: int = int(float(now - resident.next_move_at_minute) / float(interval)) + 1
 		var index := definition.wandering_world_node_ids.find(resident.current_world_node_id)
 		resident.current_world_node_id = definition.wandering_world_node_ids[(index + steps) % definition.wandering_world_node_ids.size()]
 		resident.next_move_at_minute += steps * interval

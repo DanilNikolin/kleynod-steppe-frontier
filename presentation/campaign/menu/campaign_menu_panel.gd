@@ -205,7 +205,7 @@ func _get_slot_info(slot_index: int) -> Dictionary:
 func _format_slot_text(slot_index: int, info: Dictionary) -> String:
 	var day := int(info.get("day", 0))
 	var minute := int(info.get("minute_of_day", 0))
-	var hours := int(minute / 60)
+	var hours := int(float(minute) / 60.0)
 	var mins := int(minute % 60)
 	var time_str := "%02d:%02d" % [hours, mins]
 

@@ -432,16 +432,16 @@ static func _build_score_breakdown_text(
 				)
 		)
 
-		var sign := ""
+		var sign_str := ""
 
 		if value > 0.0:
-			sign = "+"
+			sign_str = "+"
 
 		parts.append(
 			"%s %s%.1f"
 			% [
 				String(component_id),
-				sign,
+				sign_str,
 				value,
 			]
 		)

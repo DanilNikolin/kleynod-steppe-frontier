@@ -2,6 +2,7 @@ class_name HeroCoreRuntimeState
 extends RefCounted
 
 
+@warning_ignore("unused_signal")
 signal state_changed
 
 

@@ -62,7 +62,7 @@ func roll_from_defeated_definitions(
 ) -> BattleLootRewardRoll:
 	var result := BattleLootRewardRoll.new()
 
-	var primary_source: CombatantDefinition
+	var primary_source: CombatantDefinition = null
 
 	for definition in defeated_definitions:
 		if definition == null:

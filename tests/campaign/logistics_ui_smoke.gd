@@ -3,7 +3,7 @@ var sandbox
 var runtime
 func _initialize() -> void:
 	call_deferred("run")
-func capture(label: String) -> void:
+func capture(_label: String) -> void:
 	await process_frame
 	await process_frame
 

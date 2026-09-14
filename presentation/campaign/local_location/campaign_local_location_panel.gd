@@ -532,7 +532,7 @@ func _build_debug_time_slider(stage: Control) -> void:
 	vbox.add_child(title)
 
 	var current_min := _state.current_minute_of_day if _state != null else 720
-	var hours := current_min / 60
+	var hours := int(float(current_min) / 60.0)
 	var mins := current_min % 60
 	title.text = "Время суток (Debug): %02d:%02d" % [hours, mins]
 
@@ -546,7 +546,7 @@ func _build_debug_time_slider(stage: Control) -> void:
 	slider.value_changed.connect(
 		func(val: float) -> void:
 			var m := int(val)
-			var h := m / 60
+			var h := int(float(m) / 60.0)
 			var mi := m % 60
 			title.text = "Время суток (Debug): %02d:%02d" % [h, mi]
 			if _canvas != null:

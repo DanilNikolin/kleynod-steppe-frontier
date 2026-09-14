@@ -54,7 +54,7 @@ func get_landmark_exploration_error(
 		var bundle := site_definition.material_bundle_definition
 		if bundle == null or bundle.material_value <= 0 or site_definition.material_reward % bundle.material_value != 0:
 			return "Неверная награда материалов."
-		var count: int = site_definition.material_reward / bundle.material_value
+		var count: int = int(site_definition.material_reward / float(bundle.material_value))
 		if not campaign_state.inventory_state.can_add_items(count):
 			return "Не хватает места: нужно %d свободных мест. Разгрузите груз в HOME." % count
 

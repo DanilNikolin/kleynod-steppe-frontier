@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://iadi6qb7ex2r" path="res://scenes/campaign/local_location/objects/common_shelter.tscn" id="7_common_shelter"]
 [ext_resource type="Script" uid="uid://b3rup68wy2it8" path="res://presentation/campaign/local_location/local_time_of_day_visual.gd" id="8_time_of_day"]
 [ext_resource type="PackedScene" uid="uid://bstar710klynd" path="res://scenes/campaign/local_location/environment/home_stars.tscn" id="9_stars"]
-[ext_resource type="PackedScene" uid="uid://cys8ugjavpi6u" path="res://scenes/campaign/local_location/objects/carpenter_workshop.tscn" id="10_workshop"]
+[ext_resource type="PackedScene" uid="uid://d30wuym8m0v0p" path="res://scenes/campaign/local_location/objects/carpenter_workshop.tscn" id="10_workshop"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -136,8 +136,8 @@ scale = Vector2(0.455, 0.455)
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 
 [node name="CarpenterWorkshop" parent="WorldContent/Buildings" unique_id=1891999143 instance=ExtResource("10_workshop")]
-position = Vector2(3744, 750)
-scale = Vector2(0.45, 0.45)
+position = Vector2(3234, 704)
+scale = Vector2(0.375, 0.375)
 
 [node name="Props" type="Node2D" parent="WorldContent" unique_id=210000020]
 

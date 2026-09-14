@@ -323,9 +323,9 @@ animations = [{
 script = ExtResource("1_buildable")
 
 [node name="Construction" type="Node2D" parent="." unique_id=892301142]
+visible = false
 
 [node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1944022590]
-visible = false
 position = Vector2(-24, -157)
 texture = ExtResource("3_stage30")
 script = ExtResource("2_stage")
@@ -333,7 +333,9 @@ script = ExtResource("2_stage")
 [node name="DetailAnimation" type="Node2D" parent="Construction/Stage30" unique_id=1564563405]
 
 [node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation" unique_id=1483188923]
-position = Vector2(-37, -59)
+position = Vector2(-268, -135)
+rotation = -0.2617994
+scale = Vector2(1.2729303, 1.2729303)
 sprite_frames = SubResource("SpriteFrames_detail_rope")
 animation = &"base_idle"
 
@@ -358,8 +360,8 @@ position = Vector2(-27, -152)
 texture = ExtResource("2_4a6x7")
 
 [node name="Flag" type="AnimatedSprite2D" parent="Built/Visual" unique_id=93530370]
-position = Vector2(171, -287)
-scale = Vector2(0.27794117, 0.2779412)
+position = Vector2(307, -434.00003)
+scale = Vector2(0.669853, 0.66985303)
 sprite_frames = SubResource("SpriteFrames_flag")
 animation = &"idle"
 autoplay = "idle"

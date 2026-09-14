@@ -1,56 +1,49 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d30wuym8m0v0p"]
 
-[ext_resource type="Script" path="res://presentation/campaign/local_location/local_resident_presence_visual.gd" id="1_presence"]
-[ext_resource type="Script" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+[ext_resource type="Script" uid="uid://8ku42t3o6jp4" path="res://presentation/campaign/local_location/local_resident_presence_visual.gd" id="1_presence"]
+[ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+[ext_resource type="Texture2D" uid="uid://4ewneqdgpv3" path="res://Graphics/home_village/carpenter_workshop/столярка.png" id="2_xdptq"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_workshop"]
 animations = [{
 "frames": [],
-"loop": true,
+"loop": 1,
 "name": &"base_idle",
 "speed": 2.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_2",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_3",
 "speed": 5.0
 }]
 
-[node name="CarpenterWorkshop" type="Node2D"]
+[node name="CarpenterWorkshop" type="Node2D" unique_id=1659103365]
 script = ExtResource("1_presence")
-resident_id = &"carpenter"
+resident_id = &"debug_carpenter"
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="Visual" type="Node2D" parent="." unique_id=748265958]
 
-[node name="Base" type="Sprite2D" parent="Visual"]
+[node name="Base" type="Sprite2D" parent="Visual" unique_id=55613810]
+texture = ExtResource("2_xdptq")
 
-[node name="DetailAnimation" type="Node2D" parent="Visual"]
+[node name="DetailAnimation" type="Node2D" parent="Visual" unique_id=446506220]
 
-[node name="Visual" type="AnimatedSprite2D" parent="Visual/DetailAnimation"]
+[node name="Visual" type="AnimatedSprite2D" parent="Visual/DetailAnimation" unique_id=954520438]
 sprite_frames = SubResource("SpriteFrames_workshop")
 animation = &"base_idle"
 
-[node name="IntermittentController" type="Node" parent="Visual/DetailAnimation"]
+[node name="IntermittentController" type="Node" parent="Visual/DetailAnimation" unique_id=152301481]
 script = ExtResource("2_intermittent")
 animated_sprite_path = NodePath("../Visual")
-base_animation_name = &"base_idle"
 animation_names = Array[StringName]([&"idle", &"idle_2", &"idle_3"])
 animation_weights = PackedFloat32Array(1, 3, 2)
-initial_min_pause = 0.2
-initial_max_pause = 1.2
-min_pause = 1.6
-max_pause = 4.8
-playback_speed_min = 0.9
-playback_speed_max = 1.15
-reset_to_first_frame_on_stop = true
-enabled = true

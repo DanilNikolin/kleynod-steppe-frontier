@@ -4,7 +4,8 @@ extends Node2D
 @export var resident_id: StringName = &""
 
 func _ready() -> void:
-	set_present(false)
+	if not Engine.is_editor_hint():
+		set_present(false)
 
 func set_present(present: bool) -> void:
 	visible = present

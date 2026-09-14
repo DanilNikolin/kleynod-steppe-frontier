@@ -98,6 +98,7 @@ var _interaction_title: Label
 var _interaction_description: Label
 var _actions_row: HBoxContainer
 var _status_label: Label
+var _carpenter_quick_button: Button
 var _is_bound: bool = false
 
 
@@ -386,6 +387,10 @@ func _build_interface() -> void:
 		_refresh_camera_navigation
 	)
 
+	_canvas.resident_selected.connect(
+		_on_canvas_resident_selected
+	)
+
 	stage.add_child(
 		_canvas
 	)
@@ -561,6 +566,23 @@ func _build_debug_time_slider(stage: Control) -> void:
 	)
 
 	stage.add_child(debug_panel)
+
+	_carpenter_quick_button = Button.new()
+	_carpenter_quick_button.name = "CarpenterQuickButton"
+	_carpenter_quick_button.anchor_left = 0.5
+	_carpenter_quick_button.anchor_right = 0.5
+	_carpenter_quick_button.anchor_top = 1.0
+	_carpenter_quick_button.anchor_bottom = 1.0
+	_carpenter_quick_button.offset_left = -130.0
+	_carpenter_quick_button.offset_right = 130.0
+	_carpenter_quick_button.offset_top = -82.0
+	_carpenter_quick_button.offset_bottom = -30.0
+	_carpenter_quick_button.custom_minimum_size = Vector2(260.0, 52.0)
+	var carpenter_def := _get_resident_definition(&"debug_carpenter")
+	_carpenter_quick_button.text = carpenter_def.display_name if carpenter_def != null else "Плотник"
+	_carpenter_quick_button.visible = false
+	_carpenter_quick_button.pressed.connect(_on_carpenter_quick_button_pressed)
+	stage.add_child(_carpenter_quick_button)
 
 
 func _refresh_camera_navigation() -> void:
@@ -1330,9 +1352,14 @@ func _refresh_resident_visibility() -> void:
 				)
 		)
 
-		overrides[
-			definition.home_interaction_id
-		] = home_present
+		if definition.resident_id == &"debug_carpenter":
+			overrides[definition.home_interaction_id] = false
+			if _carpenter_quick_button != null:
+				_carpenter_quick_button.visible = home_present
+		else:
+			overrides[
+				definition.home_interaction_id
+			] = home_present
 
 		resident_visual_states[
 			definition.resident_id
@@ -1369,6 +1396,19 @@ func _refresh_resident_visibility() -> void:
 		_canvas.set_selected_interaction(
 			&""
 		)
+
+
+func _get_resident_definition(
+	resident_id: StringName
+) -> CampaignResidentDefinition:
+	if resident_id == &"":
+		return null
+
+	for definition in _resident_definitions:
+		if definition != null and definition.resident_id == resident_id:
+			return definition
+
+	return null
 
 
 func _get_resident_for_interaction(
@@ -1672,6 +1712,33 @@ func _on_camera_right_pressed() -> void:
 
 func _on_exit_pressed() -> void:
 	exit_requested.emit()
+
+
+func _on_canvas_resident_selected(resident_id: StringName) -> void:
+	_open_resident_interaction(resident_id)
+
+
+func _open_resident_interaction(resident_id: StringName) -> void:
+	var definition := _get_resident_definition(resident_id)
+	if definition == null or definition.home_interaction_id.is_empty():
+		return
+
+	if _canvas != null:
+		_canvas.set_selected_interaction(definition.home_interaction_id)
+	_on_interaction_selected(definition.home_interaction_id)
+
+
+func _on_carpenter_quick_button_pressed() -> void:
+	if _canvas == null:
+		return
+
+	if not _canvas.is_resident_centered(&"debug_carpenter"):
+		_canvas.focus_resident(&"debug_carpenter")
+		_selected_interaction_id = &""
+		_canvas.set_selected_interaction(&"")
+		_refresh_interaction_panel()
+	else:
+		_open_resident_interaction(&"debug_carpenter")
 
 
 func _get_quests_for_giver(

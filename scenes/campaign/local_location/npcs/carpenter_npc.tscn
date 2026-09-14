@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://d3npc9carpenter"]
+
+[ext_resource type="Script" uid="uid://dnpc_carpenter_script" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
+[ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_carpenter"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"base_idle",
+"speed": 4.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle_2",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle_3",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"work",
+"speed": 6.0
+}]
+
+[node name="CarpenterNpc" type="Node2D"]
+script = ExtResource("1_visual")
+resident_id = &"debug_carpenter"
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("SpriteFrames_carpenter")
+animation = &"base_idle"
+
+[node name="IntermittentController" type="Node" parent="Visual/Body"]
+script = ExtResource("2_intermittent")
+animated_sprite_path = NodePath("..")
+base_animation_name = &"base_idle"
+animation_names = Array[StringName]([&"idle_2", &"idle_3"])
+animation_weights = PackedFloat32Array(2, 1)
+initial_min_pause = 2.0
+initial_max_pause = 5.0
+min_pause = 4.0
+max_pause = 9.0
+playback_speed_min = 0.95
+playback_speed_max = 1.05
+enabled = true
+
+[node name="ClickArea" type="Button" parent="."]
+offset_left = -90.0
+offset_top = -260.0
+offset_right = 90.0
+offset_bottom = 20.0
+focus_mode = 0
+flat = true

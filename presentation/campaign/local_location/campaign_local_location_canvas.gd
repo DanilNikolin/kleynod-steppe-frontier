@@ -7,6 +7,7 @@ signal interaction_selected(
 )
 
 signal camera_target_changed
+signal resident_selected(resident_id: StringName)
 
 
 const INTERACTION_SIZE := Vector2(
@@ -48,6 +49,7 @@ var _buttons_by_interaction_id: Dictionary = {}
 var _display_text_overrides: Dictionary = {}
 var _visibility_overrides: Dictionary = {}
 var _resident_visuals_by_resident_id: Dictionary = {}
+var _resident_npcs_by_resident_id: Dictionary = {}
 var _anchors_by_interaction_id: Dictionary = {}
 var _last_time_of_day_minute: int = -1
 
@@ -232,6 +234,33 @@ func set_selected_interaction(
 	)
 
 	_refresh_button_texts()
+
+
+func focus_resident(resident_id: StringName) -> bool:
+	if not _resident_npcs_by_resident_id.has(resident_id):
+		return false
+
+	var npc := _resident_npcs_by_resident_id[resident_id] as LocalResidentNpcVisual
+	if npc == null or not is_instance_valid(npc) or not npc.is_visible_in_tree():
+		return false
+
+	var raw_x := npc.get_camera_focus_position().x
+	var target_x := clampf(raw_x, _get_min_camera_x(), _get_max_camera_x())
+	_set_camera_target_x(target_x, false)
+	return true
+
+
+func is_resident_centered(resident_id: StringName, tolerance: float = 100.0) -> bool:
+	if _camera == null or not _resident_npcs_by_resident_id.has(resident_id):
+		return false
+
+	var npc := _resident_npcs_by_resident_id[resident_id] as LocalResidentNpcVisual
+	if npc == null or not is_instance_valid(npc) or not npc.is_visible_in_tree():
+		return false
+
+	var raw_x := npc.get_camera_focus_position().x
+	var clamped_resident_focus_x := clampf(raw_x, _get_min_camera_x(), _get_max_camera_x())
+	return absf(_camera.position.x - clamped_resident_focus_x) <= tolerance
 
 
 func set_interaction_display_overrides(
@@ -512,6 +541,7 @@ func _reset_visual_stage_references() -> void:
 	_camera = null
 	_anchors_by_interaction_id.clear()
 	_resident_visuals_by_resident_id.clear()
+	_resident_npcs_by_resident_id.clear()
 
 
 func _instantiate_authored_visual_stage() -> bool:
@@ -622,8 +652,39 @@ func _bind_visual_stage_nodes() -> bool:
 
 	_discover_interaction_anchors()
 	_discover_resident_presence_visuals()
+	_discover_resident_npcs()
 
 	return true
+
+
+func _discover_resident_npcs() -> void:
+	_resident_npcs_by_resident_id.clear()
+
+	if _world_root == null:
+		return
+
+	var nodes := _world_root.find_children(
+		"*",
+		"LocalResidentNpcVisual",
+		true,
+		false
+	)
+
+	for node in nodes:
+		if not node is LocalResidentNpcVisual:
+			continue
+
+		var npc := node as LocalResidentNpcVisual
+		if npc.resident_id.is_empty():
+			continue
+
+		_resident_npcs_by_resident_id[npc.resident_id] = npc
+		if not npc.resident_clicked.is_connected(_on_resident_npc_clicked):
+			npc.resident_clicked.connect(_on_resident_npc_clicked)
+
+
+func _on_resident_npc_clicked(resident_id: StringName) -> void:
+	resident_selected.emit(resident_id)
 
 
 func _discover_resident_presence_visuals() -> void:

@@ -65,6 +65,7 @@ func set_build_state(
 				construction_root.visible = false
 			if built_root != null:
 				built_root.visible = false
+				_set_stage_detail_animations_active(built_root, false)
 			if ambient != null:
 				ambient.set_active(false)
 			if _last_active_stage != null:
@@ -73,6 +74,7 @@ func set_build_state(
 		LocalBuildSiteView.BuildVisualState.CONSTRUCTING:
 			if built_root != null:
 				built_root.visible = false
+				_set_stage_detail_animations_active(built_root, false)
 			if construction_root != null:
 				construction_root.visible = true
 				active_stage = _apply_construction_stage(construction_progress)
@@ -94,6 +96,7 @@ func set_build_state(
 				construction_root.visible = false
 			if built_root != null:
 				built_root.visible = true
+				_set_stage_detail_animations_active(built_root, true)
 			if ambient != null:
 				ambient.set_active(false)
 			if _last_active_stage != null:

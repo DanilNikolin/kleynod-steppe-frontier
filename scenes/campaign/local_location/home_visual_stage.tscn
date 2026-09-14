@@ -145,8 +145,8 @@ scale = Vector2(0.44, 0.44)
 [node name="NPCs" type="Node2D" parent="WorldContent" unique_id=210000030]
 
 [node name="CarpenterNpc" parent="WorldContent/NPCs" unique_id=210000031 instance=ExtResource("11_carpenter_npc")]
-position = Vector2(3604, 739)
-scale = Vector2(0.675, 0.675)
+position = Vector2(3628.0002, 757.00006)
+scale = Vector2(0.725, 0.725)
 
 [node name="Foreground" type="Parallax2D" parent="." unique_id=941042337]
 z_index = 20

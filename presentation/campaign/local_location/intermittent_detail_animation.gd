@@ -45,6 +45,15 @@ func _ready() -> void:
 
 	_resolve_sprite()
 
+	if _is_active and enabled:
+		_pending_event = false
+		_is_playing_event = false
+		_start_base_idle_if_available()
+		_schedule_next_event(
+			initial_min_pause,
+			initial_max_pause
+		)
+
 
 func set_active(active: bool) -> void:
 	if _is_active == active:

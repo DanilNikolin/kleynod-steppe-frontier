@@ -137,6 +137,6 @@ days_per_season = 20
 starting_reputation = 5
 starting_materials = 0
 construction_resident_id = &"debug_carpenter"
-construction_worksite_interaction_id = &"debug_home_carpenter_worksite"
+construction_worksite_interaction_id = &"debug_home_carpenter"
 construction_projects = Array[ExtResource("40_project")]([ExtResource("construction_forge_shell"), ExtResource("construction_party_kurin"), ExtResource("construction_common_store"), ExtResource("construction_river_pier")])
 crew_sources = Array[ExtResource("41_source")]([ExtResource("construction_village_crew")])

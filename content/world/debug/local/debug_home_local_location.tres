@@ -39,18 +39,9 @@ action_labels = PackedStringArray("Поговорить", "ОТКРЫТЬ КУЗ
 script = ExtResource("2_interaction")
 interaction_id = &"debug_home_carpenter"
 display_name = "Плотник"
-action_labels = PackedStringArray("Поговорить")
+action_labels = PackedStringArray("ОТКРЫТЬ СТРОИТЕЛЬСТВО")
 description = "Бродячий мастер: берётся за крыши и стропила, а за словом в карман не лезет."
 local_position = Vector2(3744, 389)
-
-[sub_resource type="Resource" id="CarpenterWorksite"]
-script = ExtResource("2_interaction")
-interaction_id = &"debug_home_carpenter_worksite"
-display_name = "Временное рабочее место плотника"
-description = "Под навесом рядом стоят верстак, козлы, пила и топор; на досках разложен инструмент. Плотник подготовил этот угол сам, чтобы не работать на коленке. Это ещё не мастерская и не дом."
-local_position = Vector2(4013, 907)
-action_labels = PackedStringArray("ОТКРЫТЬ СТРОИТЕЛЬСТВО")
-required_home_resident_id = &"debug_carpenter"
 
 [sub_resource type="Resource" id="ForgeSite"]
 script = ExtResource("2_interaction")
@@ -68,4 +59,4 @@ description = "Пока это почти пустой участок степи
 reference_size = Vector2(8727, 1200)
 view_width = 1920.0
 visual_scene_path = "res://scenes/campaign/local_location/home_visual_stage.tscn"
-interactions = Array[ExtResource("2_interaction")]([SubResource("CarpenterWorksite"), SubResource("ForgeSite"), SubResource("Carpenter"), SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("ForgeSite"), SubResource("Carpenter"), SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])

@@ -1564,6 +1564,13 @@ func _refresh_resident_panel(
 		_create_dialogue_button()
 		if resident_state.is_at_origin():
 			return
+		for action_label in interaction.action_labels:
+			var action_button := Button.new()
+			action_button.text = action_label
+			action_button.pressed.connect(
+				_on_action_pressed.bind(action_label)
+			)
+			_actions_row.add_child(action_button)
 	else:
 		for action_label in (
 			interaction.action_labels

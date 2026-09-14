@@ -41,7 +41,7 @@ func run() -> void:
 	root.add_child(local)
 	local.construction_projects = campaign.construction_projects
 	local.bind(runtime.get_current_local_location_definition(), state, runtime.get_home_settlement_definition(), runtime.get_home_settlement_state(), campaign.residents, campaign.quests)
-	check(local._canvas._visibility_overrides.get(&"debug_home_carpenter_worksite") == false, "Worksite hidden before arrival")
+	check(not service.worksite_available(campaign, state), "Worksite unavailable before arrival")
 	local.free()
 	build(&"primitive_campfire")
 	state.current_world_node_id = &"debug_home_materials_node"
@@ -154,8 +154,8 @@ func run() -> void:
 	var local_panel := sandbox._shell._immersive_content_host.get_child(0) as CampaignLocalLocationPanel
 	check(local_panel != null, "HOME local panel instantiated")
 	if local_panel != null:
-		check(local_panel._canvas._visibility_overrides.get(&"debug_home_carpenter_worksite") == true, "Worksite visible after arrival")
-		sandbox._on_local_interaction_action_requested(&"debug_home_carpenter_worksite", "ОТКРЫТЬ СТРОИТЕЛЬСТВО", local_panel)
+		check(service.worksite_available(campaign, state), "Worksite available after arrival")
+		sandbox._on_local_interaction_action_requested(&"debug_home_carpenter", "ОТКРЫТЬ СТРОИТЕЛЬСТВО", local_panel)
 		check(sandbox._shell.has_modal(), "Worksite opens modal")
 		check(sandbox._shell._modal_layer.get_child(0) is CampaignConstructionPanel, "Construction uses separate panel, not dialogue")
 		sandbox._shell.clear_modal()

@@ -139,7 +139,7 @@ resident_id = &"debug_carpenter"
 [node name="Body" type="AnimatedSprite2D" parent="Visual" unique_id=1722300031]
 sprite_frames = SubResource("SpriteFrames_carpenter")
 animation = &"base_idle"
-frame_progress = 0.47995695
+frame_progress = 0.26966262
 
 [node name="IntermittentController" type="Node" parent="Visual/Body" unique_id=1698442691]
 script = ExtResource("2_intermittent")

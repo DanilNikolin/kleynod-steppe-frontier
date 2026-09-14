@@ -805,12 +805,25 @@ func _on_shell_menu_requested() -> void:
 		)
 	)
 
+	panel.save_slot_requested.connect(
+		_on_menu_save_slot_requested.bind(
+			panel
+		)
+	)
+
+	panel.load_slot_requested.connect(
+		_on_menu_load_slot_requested.bind(
+			panel
+		)
+	)
+
 	panel.new_debug_requested.connect(
 		_on_menu_new_debug_requested
 	)
 
 	panel.bind(
-		_save_status_text
+		_save_status_text,
+		CampaignRuntime.get_save_slot_infos()
 	)
 
 	_shell.show_modal(
@@ -828,13 +841,31 @@ func _on_menu_close_requested() -> void:
 func _on_menu_save_requested(
 	panel: CampaignMenuPanel
 ) -> void:
-	var result := (
-		CampaignRuntime.save_campaign()
+	if panel != null and is_instance_valid(panel):
+		panel.set_slot_infos(CampaignRuntime.get_save_slot_infos())
+
+
+func _on_menu_load_requested(
+	panel: CampaignMenuPanel
+) -> void:
+	if panel != null and is_instance_valid(panel):
+		panel.set_slot_infos(CampaignRuntime.get_save_slot_infos())
+
+
+func _on_menu_save_slot_requested(
+	slot_index: int,
+	panel: CampaignMenuPanel
+) -> void:
+	var result: CampaignSaveResult = (
+		CampaignRuntime.save_campaign_to_slot(slot_index)
 	)
 
 	_apply_save_result(
 		result
 	)
+
+	if result.is_successful:
+		_save_status_text = "Слот %d сохранён." % slot_index
 
 	if (
 		panel != null
@@ -843,15 +874,19 @@ func _on_menu_save_requested(
 		panel.set_status_message(
 			_save_status_text
 		)
+		panel.set_slot_infos(
+			CampaignRuntime.get_save_slot_infos()
+		)
 
 	_refresh_shell()
 
 
-func _on_menu_load_requested(
+func _on_menu_load_slot_requested(
+	slot_index: int,
 	panel: CampaignMenuPanel
 ) -> void:
-	var result := (
-		CampaignRuntime.load_campaign()
+	var result: CampaignSaveResult = (
+		CampaignRuntime.load_campaign_from_slot(slot_index)
 	)
 
 	_apply_save_result(

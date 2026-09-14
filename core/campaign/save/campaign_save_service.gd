@@ -4,6 +4,8 @@ extends RefCounted
 
 const CURRENT_SAVE_VERSION: int = 15
 const DEFAULT_SAVE_PATH: String = "user://campaign_save.json"
+const SLOT_COUNT: int = 5
+const SLOT_SAVE_DIR: String = "user://saves"
 
 const STATUS_SAVED: StringName = &"saved"
 const STATUS_LOADED: StringName = &"loaded"
@@ -39,10 +41,54 @@ func _init(
 	save_path = custom_save_path
 
 
+static func get_slot_save_path(slot_index: int) -> String:
+	return "%s/campaign_slot_%02d.json" % [SLOT_SAVE_DIR, slot_index]
+
+
 func has_save() -> bool:
 	return FileAccess.file_exists(
 		save_path
 	)
+
+
+func get_save_metadata() -> Dictionary:
+	if not has_save():
+		return {
+			"exists": false,
+			"valid": true,
+		}
+
+	var file := FileAccess.open(save_path, FileAccess.READ)
+	if file == null:
+		return {
+			"exists": true,
+			"valid": false,
+		}
+
+	var text := file.get_as_text()
+	file.close()
+
+	var json := JSON.new()
+	var parse_error := json.parse(text)
+	if parse_error != OK or typeof(json.data) != TYPE_DICTIONARY:
+		return {
+			"exists": true,
+			"valid": false,
+		}
+
+	var root: Dictionary = json.data
+	var modified_time := FileAccess.get_modified_time(save_path)
+
+	return {
+		"exists": true,
+		"valid": true,
+		"format_version": int(root.get("format_version", 0)),
+		"campaign_id": String(root.get("campaign_id", "")),
+		"day": int(root.get("current_day", 0)),
+		"minute_of_day": int(root.get("current_minute_of_day", 0)),
+		"world_node_id": String(root.get("current_world_node_id", "")),
+		"modified_time": modified_time,
+	}
 
 
 func save_campaign(

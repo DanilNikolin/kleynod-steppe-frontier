@@ -2347,7 +2347,83 @@ func get_loot_catalog() -> Array[HeroEquipmentItemDefinition]:
 	return result
 
 
+func is_valid_save_slot_index(slot_index: int) -> bool:
+	return slot_index >= 1 and slot_index <= CampaignSaveService.SLOT_COUNT
+
+
 func save_campaign() -> CampaignSaveResult:
+	return _save_campaign_with_service(save_service)
+
+
+func save_campaign_to_slot(slot_index: int) -> CampaignSaveResult:
+	if not is_valid_save_slot_index(slot_index):
+		return _create_save_failure(
+			CampaignSaveService.STATUS_SAVE_ERROR,
+			"Invalid save slot index: %d. Expected 1..%d."
+			% [slot_index, CampaignSaveService.SLOT_COUNT]
+		)
+
+	var dir_global := ProjectSettings.globalize_path(CampaignSaveService.SLOT_SAVE_DIR)
+	if not DirAccess.dir_exists_absolute(dir_global):
+		var err := DirAccess.make_dir_recursive_absolute(dir_global)
+		if err != OK:
+			return _create_save_failure(
+				CampaignSaveService.STATUS_SAVE_ERROR,
+				"Failed to create saves directory. Error: %d." % err
+			)
+
+	var slot_service := CampaignSaveService.new(
+		CampaignSaveService.get_slot_save_path(slot_index)
+	)
+	return _save_campaign_with_service(slot_service)
+
+
+func load_campaign() -> CampaignSaveResult:
+	return _load_campaign_with_service(save_service)
+
+
+func load_campaign_from_slot(slot_index: int) -> CampaignSaveResult:
+	if not is_valid_save_slot_index(slot_index):
+		return _create_save_failure(
+			CampaignSaveService.STATUS_LOAD_ERROR,
+			"Invalid save slot index: %d. Expected 1..%d."
+			% [slot_index, CampaignSaveService.SLOT_COUNT]
+		)
+
+	var slot_service := CampaignSaveService.new(
+		CampaignSaveService.get_slot_save_path(slot_index)
+	)
+	return _load_campaign_with_service(slot_service)
+
+
+func get_save_slot_infos() -> Array:
+	var infos: Array = []
+	for slot_idx in range(1, CampaignSaveService.SLOT_COUNT + 1):
+		var path := CampaignSaveService.get_slot_save_path(slot_idx)
+		var service := CampaignSaveService.new(path)
+		var meta := service.get_save_metadata()
+		meta["slot_index"] = slot_idx
+
+		if bool(meta.get("exists", false)) and bool(meta.get("valid", false)):
+			var world_node_id: String = meta.get("world_node_id", "")
+			var location_name := world_node_id
+			if (
+				campaign_definition != null
+				and campaign_definition.world_map_definition != null
+				and not world_node_id.is_empty()
+			):
+				var node := campaign_definition.world_map_definition.get_node(StringName(world_node_id))
+				if node != null and not node.display_name.is_empty():
+					location_name = node.display_name
+			meta["location_name"] = location_name
+
+		infos.append(meta)
+	return infos
+
+
+func _save_campaign_with_service(
+	service: CampaignSaveService
+) -> CampaignSaveResult:
 	if (
 		campaign_definition == null
 		or not campaign_definition.is_valid_definition()
@@ -2372,12 +2448,20 @@ func save_campaign() -> CampaignSaveResult:
 			"Mid-travel save is not supported."
 		)
 
-	return save_service.save_campaign(
+	if service == null:
+		return _create_save_failure(
+			CampaignSaveService.STATUS_SAVE_ERROR,
+			"Save service is missing."
+		)
+
+	return service.save_campaign(
 		campaign_state
 	)
 
 
-func load_campaign() -> CampaignSaveResult:
+func _load_campaign_with_service(
+	service: CampaignSaveService
+) -> CampaignSaveResult:
 	if (
 		campaign_definition == null
 		or not campaign_definition.is_valid_definition()
@@ -2399,8 +2483,14 @@ func load_campaign() -> CampaignSaveResult:
 			"Mid-travel load is not supported."
 		)
 
+	if service == null:
+		return _create_save_failure(
+			CampaignSaveService.STATUS_LOAD_ERROR,
+			"Save service is missing."
+		)
+
 	var result := (
-		save_service.load_campaign(
+		service.load_campaign(
 			campaign_definition
 		)
 	)

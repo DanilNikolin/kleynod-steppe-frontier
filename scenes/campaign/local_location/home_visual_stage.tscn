@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://b3rup68wy2it8" path="res://presentation/campaign/local_location/local_time_of_day_visual.gd" id="8_time_of_day"]
 [ext_resource type="PackedScene" uid="uid://bstar710klynd" path="res://scenes/campaign/local_location/environment/home_stars.tscn" id="9_stars"]
 [ext_resource type="PackedScene" uid="uid://d30wuym8m0v0p" path="res://scenes/campaign/local_location/objects/carpenter_workshop.tscn" id="10_workshop"]
-[ext_resource type="PackedScene" uid="uid://d3npc9carpenter" path="res://scenes/campaign/local_location/npcs/carpenter_npc.tscn" id="11_carpenter_npc"]
+[ext_resource type="PackedScene" uid="uid://mf1pjhrlpw7n" path="res://scenes/campaign/local_location/npcs/carpenter_npc.tscn" id="11_carpenter_npc"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -145,7 +145,8 @@ scale = Vector2(0.44, 0.44)
 [node name="NPCs" type="Node2D" parent="WorldContent" unique_id=210000030]
 
 [node name="CarpenterNpc" parent="WorldContent/NPCs" unique_id=210000031 instance=ExtResource("11_carpenter_npc")]
-position = Vector2(3440, 850)
+position = Vector2(3604, 739)
+scale = Vector2(0.25, 0.25)
 
 [node name="Foreground" type="Parallax2D" parent="." unique_id=941042337]
 z_index = 20

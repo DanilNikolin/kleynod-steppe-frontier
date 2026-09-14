@@ -1,45 +1,149 @@
-[gd_scene format=3 uid="uid://d3npc9carpenter"]
+[gd_scene format=3 uid="uid://mf1pjhrlpw7n"]
 
-[ext_resource type="Script" uid="uid://dnpc_carpenter_script" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
+[ext_resource type="Script" uid="uid://c3nnl6d4dlpu8" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+[ext_resource type="Texture2D" uid="uid://blu73wxofh8to" path="res://Graphics/home_village/npcs/carpenter/animation/0.png" id="2_qdh48"]
+[ext_resource type="Texture2D" uid="uid://d0dcht8q24gsp" path="res://Graphics/home_village/npcs/carpenter/animation/1.png" id="3_mplq2"]
+[ext_resource type="Texture2D" uid="uid://bjk3gsrmd0qf0" path="res://Graphics/home_village/npcs/carpenter/animation/2.png" id="4_415ft"]
+[ext_resource type="Texture2D" uid="uid://b7pt3sx4dni8q" path="res://Graphics/home_village/npcs/carpenter/animation/3.png" id="5_dvxnu"]
+[ext_resource type="Texture2D" uid="uid://dwtw6bhrmsd58" path="res://Graphics/home_village/npcs/carpenter/animation/4.png" id="6_jery6"]
+[ext_resource type="Texture2D" uid="uid://b7rn7ifnoea3m" path="res://Graphics/home_village/npcs/carpenter/animation/5.png" id="7_q2jej"]
+[ext_resource type="Texture2D" uid="uid://bn0xa5b1hh3do" path="res://Graphics/home_village/npcs/carpenter/animation/6.png" id="8_yjyqh"]
+[ext_resource type="Texture2D" uid="uid://diihk6j6u25tu" path="res://Graphics/home_village/npcs/carpenter/animation/7.png" id="9_oh0rl"]
+[ext_resource type="Texture2D" uid="uid://c0xag7cgm2ni2" path="res://Graphics/home_village/npcs/carpenter/animation/8.png" id="10_ej42r"]
+[ext_resource type="Texture2D" uid="uid://b4mylv15rvifp" path="res://Graphics/home_village/npcs/carpenter/animation/9.png" id="11_xe8bk"]
+[ext_resource type="Texture2D" uid="uid://5bquohvbpwa1" path="res://Graphics/home_village/npcs/carpenter/animation/10.png" id="12_erj8m"]
+[ext_resource type="Texture2D" uid="uid://c7xil6nx6uxw5" path="res://Graphics/home_village/npcs/carpenter/animation/11.png" id="13_3s3ms"]
+[ext_resource type="Texture2D" uid="uid://clbi37lqdd226" path="res://Graphics/home_village/npcs/carpenter/animation/12.png" id="14_7eg1d"]
+[ext_resource type="Texture2D" uid="uid://via76cu0u08o" path="res://Graphics/home_village/npcs/carpenter/animation/13.png" id="15_buhdo"]
+[ext_resource type="Texture2D" uid="uid://biqrxt7lj8yc1" path="res://Graphics/home_village/npcs/carpenter/animation/14.png" id="16_paolx"]
+[ext_resource type="Texture2D" uid="uid://bevgwbh4g11p8" path="res://Graphics/home_village/npcs/carpenter/animation/15.png" id="17_7ga1f"]
+[ext_resource type="Texture2D" uid="uid://vdvh7un0yvxk" path="res://Graphics/home_village/npcs/carpenter/animation/16.png" id="18_2n1nx"]
+[ext_resource type="Texture2D" uid="uid://3uxuu6es0aom" path="res://Graphics/home_village/npcs/carpenter/animation/17.png" id="19_o5lxv"]
+[ext_resource type="Texture2D" uid="uid://dn5v5aahg0iqy" path="res://Graphics/home_village/npcs/carpenter/animation/18.png" id="20_e767q"]
+[ext_resource type="Texture2D" uid="uid://wrciquttwvr8" path="res://Graphics/home_village/npcs/carpenter/animation/19.png" id="21_cbq6y"]
+[ext_resource type="Texture2D" uid="uid://ba5a5mqjynxq4" path="res://Graphics/home_village/npcs/carpenter/animation/20.png" id="22_f53j1"]
+[ext_resource type="Texture2D" uid="uid://dobbt40sta5r4" path="res://Graphics/home_village/npcs/carpenter/animation/21.png" id="23_78s6a"]
+[ext_resource type="Texture2D" uid="uid://b06ebg4h2of4h" path="res://Graphics/home_village/npcs/carpenter/animation/22.png" id="24_ad4p8"]
+[ext_resource type="Texture2D" uid="uid://7asdhypk51rx" path="res://Graphics/home_village/npcs/carpenter/animation/23.png" id="25_jf41g"]
+[ext_resource type="Texture2D" uid="uid://c8x1uxlrhjkoj" path="res://Graphics/home_village/npcs/carpenter/animation/24.png" id="26_wg1dq"]
+[ext_resource type="Texture2D" uid="uid://wsvk70xebyhp" path="res://Graphics/home_village/npcs/carpenter/animation/25.png" id="27_gulp6"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_carpenter"]
 animations = [{
-"frames": [],
-"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_qdh48")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mplq2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_415ft")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_dvxnu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_jery6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_q2jej")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_yjyqh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_oh0rl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ej42r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_xe8bk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_erj8m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_3s3ms")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_7eg1d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_buhdo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_paolx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_7ga1f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_2n1nx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_o5lxv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_e767q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_cbq6y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_f53j1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_78s6a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_ad4p8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_jf41g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_wg1dq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_gulp6")
+}],
+"loop": 1,
 "name": &"base_idle",
-"speed": 4.0
+"speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_2",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_3",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": true,
+"loop": 1,
 "name": &"work",
 "speed": 6.0
 }]
 
-[node name="CarpenterNpc" type="Node2D"]
+[node name="CarpenterNpc" type="Node2D" unique_id=2139605070]
 script = ExtResource("1_visual")
 resident_id = &"debug_carpenter"
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="Visual" type="Node2D" parent="." unique_id=31366144]
 
-[node name="Body" type="AnimatedSprite2D" parent="Visual"]
+[node name="Body" type="AnimatedSprite2D" parent="Visual" unique_id=1722300031]
 sprite_frames = SubResource("SpriteFrames_carpenter")
 animation = &"base_idle"
+frame_progress = 0.47995695
 
-[node name="IntermittentController" type="Node" parent="Visual/Body"]
+[node name="IntermittentController" type="Node" parent="Visual/Body" unique_id=1698442691]
 script = ExtResource("2_intermittent")
 animated_sprite_path = NodePath("..")
-base_animation_name = &"base_idle"
 animation_names = Array[StringName]([&"idle_2", &"idle_3"])
 animation_weights = PackedFloat32Array(2, 1)
 initial_min_pause = 2.0
@@ -48,9 +152,8 @@ min_pause = 4.0
 max_pause = 9.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
-enabled = true
 
-[node name="ClickArea" type="Button" parent="."]
+[node name="ClickArea" type="Button" parent="." unique_id=1239508482]
 offset_left = -90.0
 offset_top = -260.0
 offset_right = 90.0

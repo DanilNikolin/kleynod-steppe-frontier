@@ -98,6 +98,12 @@ var _interaction_title: Label
 var _interaction_description: Label
 var _actions_row: HBoxContainer
 var _status_label: Label
+var _is_bound: bool = false
+
+
+func _ready() -> void:
+	if _is_bound:
+		refresh_state()
 
 
 func bind(
@@ -134,6 +140,7 @@ func bind(
 
 	_selected_interaction_id = &""
 	_is_first_time_sync = true
+	_is_bound = true
 
 	_build_interface()
 	_refresh_camera_navigation()

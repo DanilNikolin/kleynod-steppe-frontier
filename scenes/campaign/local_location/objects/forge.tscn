@@ -1,15 +1,16 @@
-[gd_scene format=3 uid="uid://dforgeobjectscene"]
+[gd_scene format=3 uid="uid://iiap0xfjwuk1"]
 
 [ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="3_ambient"]
 [ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="4_transition"]
+[ext_resource type="Texture2D" uid="uid://dk53ib1iw4br3" path="res://Graphics/home_village/forge/construction/Кузня.png" id="5_63s6x"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="5_intermittent"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_construction_detail"]
 animations = [{
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 5.0
 }]
@@ -17,58 +18,57 @@ animations = [{
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_built_detail"]
 animations = [{
 "frames": [],
-"loop": true,
+"loop": 1,
 "name": &"base_idle",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 5.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_2",
 "speed": 5.0
 }]
 
-[node name="Forge" type="Node2D"]
+[node name="Forge" type="Node2D" unique_id=565658640]
 script = ExtResource("1_buildable")
 
-[node name="Construction" type="Node2D" parent="."]
+[node name="Construction" type="Node2D" parent="." unique_id=1614974099]
 
-[node name="Stage30" type="Sprite2D" parent="Construction"]
+[node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1624157524]
 script = ExtResource("2_stage")
 
-[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30"]
+[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30" unique_id=9797649]
 
-[node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation"]
+[node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation" unique_id=920596225]
 sprite_frames = SubResource("SpriteFrames_forge_construction_detail")
 animation = &"idle"
 
-[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation"]
+[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation" unique_id=1805861198]
 script = ExtResource("5_intermittent")
 animated_sprite_path = NodePath("../Visual")
-animation_name = &"idle"
 
-[node name="Ambient" parent="Construction" instance=ExtResource("3_ambient")]
+[node name="Ambient" parent="Construction" unique_id=1639963480 instance=ExtResource("3_ambient")]
 
-[node name="Built" type="Node2D" parent="."]
+[node name="Built" type="Node2D" parent="." unique_id=47334503]
 
-[node name="Visual" type="Node2D" parent="Built"]
+[node name="Visual" type="Node2D" parent="Built" unique_id=1952348115]
 
-[node name="Base" type="Sprite2D" parent="Built/Visual"]
+[node name="Base" type="Sprite2D" parent="Built/Visual" unique_id=387620770]
+texture = ExtResource("5_63s6x")
 
-[node name="DetailAnimation" type="Node2D" parent="Built/Visual"]
+[node name="DetailAnimation" type="Node2D" parent="Built/Visual" unique_id=197706535]
 
-[node name="Visual" type="AnimatedSprite2D" parent="Built/Visual/DetailAnimation"]
+[node name="Visual" type="AnimatedSprite2D" parent="Built/Visual/DetailAnimation" unique_id=1000485319]
 sprite_frames = SubResource("SpriteFrames_forge_built_detail")
 animation = &"base_idle"
 
-[node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation"]
+[node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation" unique_id=1160996564]
 script = ExtResource("5_intermittent")
 animated_sprite_path = NodePath("../Visual")
-base_animation_name = &"base_idle"
 animation_names = Array[StringName]([&"idle", &"idle_2"])
 animation_weights = PackedFloat32Array(2, 1)
 initial_min_pause = 1.0
@@ -77,6 +77,5 @@ min_pause = 3.0
 max_pause = 7.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
-enabled = true
 
-[node name="TransitionFX" parent="." instance=ExtResource("4_transition")]
+[node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]

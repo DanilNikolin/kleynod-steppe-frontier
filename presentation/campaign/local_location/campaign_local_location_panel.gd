@@ -1365,6 +1365,8 @@ func _refresh_resident_visibility() -> void:
 			definition.resident_id
 		] = resident_state.is_at_home()
 
+	overrides[&"home_forge_site"] = false
+
 	_canvas.set_interaction_visibility_overrides(
 		overrides
 	)

@@ -4,40 +4,40 @@
 [ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="2_ambient"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="Texture2D" uid="uid://c5td3smxrr81p" path="res://Graphics/home_village/common_shelter/склад_спрайт_стройка.png" id="2_yrdkc"]
-[ext_resource type="Texture2D" uid="uid://i4shvod40alk" path="res://Graphics/home_village/common_shelter/склад_спрайт.png" id="3_pdybp"]
 [ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="3_transition"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="4_intermittent"]
-[ext_resource type="Texture2D" uid="uid://3dgg5v8pp2rt" path="res://Graphics/home_village/common_shelter/анимация айдл/1.png" id="5_frame1"]
-[ext_resource type="Texture2D" uid="uid://d34sqqv51ywnb" path="res://Graphics/home_village/common_shelter/анимация айдл/2.png" id="6_frame2"]
-[ext_resource type="Texture2D" uid="uid://dxvglyd26ny3a" path="res://Graphics/home_village/common_shelter/анимация айдл/3.png" id="7_frame3"]
-[ext_resource type="Texture2D" uid="uid://co4a6ganjavbk" path="res://Graphics/home_village/common_shelter/анимация айдл/4.png" id="8_frame4"]
-[ext_resource type="Texture2D" uid="uid://0d60m8h3a5bb" path="res://Graphics/home_village/common_shelter/анимация айдл/5.png" id="9_frame5"]
-[ext_resource type="Texture2D" uid="uid://da17ve1wnmq53" path="res://Graphics/home_village/common_shelter/анимация айдл/6.png" id="10_frame6"]
-[ext_resource type="Texture2D" uid="uid://dj4rjw1wy3kv3" path="res://Graphics/home_village/common_shelter/анимация айдл/7.png" id="11_frame7"]
-[ext_resource type="Texture2D" uid="uid://gs0p7v62qrvq" path="res://Graphics/home_village/common_shelter/анимация айдл/8.png" id="12_frame8"]
-[ext_resource type="Texture2D" uid="uid://c8drv6igavtnx" path="res://Graphics/home_village/common_shelter/анимация айдл/9.png" id="13_frame9"]
-[ext_resource type="Texture2D" uid="uid://boibwgih8514x" path="res://Graphics/home_village/common_shelter/анимация айдл/10.png" id="14_frame10"]
-[ext_resource type="Texture2D" uid="uid://dgxmyqx724ejt" path="res://Graphics/home_village/common_shelter/анимация айдл/11.png" id="15_frame11"]
-[ext_resource type="Texture2D" uid="uid://ferrscml0umm" path="res://Graphics/home_village/common_shelter/анимация айдл/12.png" id="16_frame12"]
-[ext_resource type="Texture2D" uid="uid://tnmo83mc21rr" path="res://Graphics/home_village/common_shelter/анимация айдл/13.png" id="17_frame13"]
-[ext_resource type="Texture2D" uid="uid://bsbslade88dou" path="res://Graphics/home_village/common_shelter/анимация айдл/14.png" id="18_frame14"]
-[ext_resource type="Texture2D" uid="uid://c5bcbxira86i2" path="res://Graphics/home_village/common_shelter/анимация айдл/15.png" id="19_frame15"]
-[ext_resource type="Texture2D" uid="uid://c7sarik8fimd0" path="res://Graphics/home_village/common_shelter/анимация айдл/16.png" id="20_frame16"]
-[ext_resource type="Texture2D" uid="uid://csrv8vtmeju5j" path="res://Graphics/home_village/common_shelter/анимация айдл/17.png" id="21_frame17"]
-[ext_resource type="Texture2D" uid="uid://bgr8n1qip7jnb" path="res://Graphics/home_village/common_shelter/анимация айдл/18.png" id="22_frame18"]
-[ext_resource type="Texture2D" uid="uid://bwxa2an04jv4b" path="res://Graphics/home_village/common_shelter/анимация айдл/19.png" id="23_frame19"]
-[ext_resource type="Texture2D" uid="uid://d23hsgll2oga2" path="res://Graphics/home_village/common_shelter/анимация айдл/20.png" id="24_frame20"]
-[ext_resource type="Texture2D" uid="uid://mckni0mfoem4" path="res://Graphics/home_village/common_shelter/анимация айдл/21.png" id="25_frame21"]
-[ext_resource type="Texture2D" uid="uid://bn0ls8nep34nf" path="res://Graphics/home_village/common_shelter/анимация айдл/22.png" id="26_frame22"]
-[ext_resource type="Texture2D" uid="uid://npeggj17nwdp" path="res://Graphics/home_village/common_shelter/анимация айдл/23.png" id="27_frame23"]
-[ext_resource type="Texture2D" uid="uid://cuhhfsei0lgjc" path="res://Graphics/home_village/common_shelter/анимация айдл/24.png" id="28_frame24"]
-[ext_resource type="Texture2D" uid="uid://deydx3ut81tn3" path="res://Graphics/home_village/common_shelter/анимация айдл/25.png" id="29_frame25"]
-[ext_resource type="Texture2D" uid="uid://pu65np3nppqv" path="res://Graphics/home_village/common_shelter/анимация айдл/26.png" id="30_frame26"]
-[ext_resource type="Texture2D" uid="uid://cysx7bbx7youm" path="res://Graphics/home_village/common_shelter/анимация айдл/27.png" id="31_frame27"]
-[ext_resource type="Texture2D" uid="uid://c67pdghi56rb0" path="res://Graphics/home_village/common_shelter/анимация айдл/28.png" id="32_frame28"]
-[ext_resource type="Texture2D" uid="uid://cr5bipiui4ion" path="res://Graphics/home_village/common_shelter/анимация айдл/29.png" id="33_frame29"]
-[ext_resource type="Texture2D" uid="uid://biv7hp1ftetp8" path="res://Graphics/home_village/common_shelter/анимация айдл/30.png" id="34_frame30"]
-[ext_resource type="Texture2D" uid="uid://cf3gqk8vh24cq" path="res://Graphics/home_village/common_shelter/анимация айдл/31.png" id="35_frame31"]
+[ext_resource type="Texture2D" uid="uid://xlo1op4wt1fv" path="res://Graphics/home_village/common_shelter/анимация айдл/1.png" id="5_frame1"]
+[ext_resource type="Texture2D" uid="uid://cvfnevue65886" path="res://Graphics/home_village/common_shelter/подлоджка склад.png" id="6_dqrsv"]
+[ext_resource type="Texture2D" uid="uid://c1mwnqi0lw3o6" path="res://Graphics/home_village/common_shelter/анимация айдл/2.png" id="6_frame2"]
+[ext_resource type="Texture2D" uid="uid://ekir3bx3615y" path="res://Graphics/home_village/common_shelter/анимация айдл/3.png" id="7_frame3"]
+[ext_resource type="Texture2D" uid="uid://cjcle345w7dy1" path="res://Graphics/home_village/common_shelter/анимация айдл/4.png" id="8_frame4"]
+[ext_resource type="Texture2D" uid="uid://5kd7hofbr26u" path="res://Graphics/home_village/common_shelter/анимация айдл/5.png" id="9_frame5"]
+[ext_resource type="Texture2D" uid="uid://c818b2wo0rw32" path="res://Graphics/home_village/common_shelter/анимация айдл/6.png" id="10_frame6"]
+[ext_resource type="Texture2D" uid="uid://cu4jd5yyrxhje" path="res://Graphics/home_village/common_shelter/анимация айдл/7.png" id="11_frame7"]
+[ext_resource type="Texture2D" uid="uid://cir8c8j8srllv" path="res://Graphics/home_village/common_shelter/анимация айдл/8.png" id="12_frame8"]
+[ext_resource type="Texture2D" uid="uid://bxwa2jwlai7ch" path="res://Graphics/home_village/common_shelter/анимация айдл/9.png" id="13_frame9"]
+[ext_resource type="Texture2D" uid="uid://bpy8mnqukojot" path="res://Graphics/home_village/common_shelter/анимация айдл/10.png" id="14_frame10"]
+[ext_resource type="Texture2D" uid="uid://18yd4r0j7qjs" path="res://Graphics/home_village/common_shelter/анимация айдл/11.png" id="15_frame11"]
+[ext_resource type="Texture2D" uid="uid://djpscr3o3ts1g" path="res://Graphics/home_village/common_shelter/анимация айдл/12.png" id="16_frame12"]
+[ext_resource type="Texture2D" uid="uid://dm5q4kg3om6dk" path="res://Graphics/home_village/common_shelter/анимация айдл/13.png" id="17_frame13"]
+[ext_resource type="Texture2D" uid="uid://ct1q547480qfo" path="res://Graphics/home_village/common_shelter/анимация айдл/14.png" id="18_frame14"]
+[ext_resource type="Texture2D" uid="uid://dw0urb8ix0btl" path="res://Graphics/home_village/common_shelter/анимация айдл/15.png" id="19_frame15"]
+[ext_resource type="Texture2D" uid="uid://du3t0vy2gagq6" path="res://Graphics/home_village/common_shelter/анимация айдл/16.png" id="20_frame16"]
+[ext_resource type="Texture2D" uid="uid://70hgu00k0a2k" path="res://Graphics/home_village/common_shelter/анимация айдл/17.png" id="21_frame17"]
+[ext_resource type="Texture2D" uid="uid://ws34yfakj2lj" path="res://Graphics/home_village/common_shelter/анимация айдл/18.png" id="22_frame18"]
+[ext_resource type="Texture2D" uid="uid://ccqrjr54e3ggo" path="res://Graphics/home_village/common_shelter/анимация айдл/19.png" id="23_frame19"]
+[ext_resource type="Texture2D" uid="uid://dnmgf1k5w65yk" path="res://Graphics/home_village/common_shelter/анимация айдл/20.png" id="24_frame20"]
+[ext_resource type="Texture2D" uid="uid://dyqxdyp3jbbjr" path="res://Graphics/home_village/common_shelter/анимация айдл/21.png" id="25_frame21"]
+[ext_resource type="Texture2D" uid="uid://b0nillgf3uwhd" path="res://Graphics/home_village/common_shelter/анимация айдл/22.png" id="26_frame22"]
+[ext_resource type="Texture2D" uid="uid://mdrjo65wr0en" path="res://Graphics/home_village/common_shelter/анимация айдл/23.png" id="27_frame23"]
+[ext_resource type="Texture2D" uid="uid://cu4k6vl7l1hix" path="res://Graphics/home_village/common_shelter/анимация айдл/24.png" id="28_frame24"]
+[ext_resource type="Texture2D" uid="uid://djertftmamgmg" path="res://Graphics/home_village/common_shelter/анимация айдл/25.png" id="29_frame25"]
+[ext_resource type="Texture2D" uid="uid://cl66pk72y1ccp" path="res://Graphics/home_village/common_shelter/анимация айдл/26.png" id="30_frame26"]
+[ext_resource type="Texture2D" uid="uid://bfvdkg7213f4j" path="res://Graphics/home_village/common_shelter/анимация айдл/27.png" id="31_frame27"]
+[ext_resource type="Texture2D" uid="uid://8poig723ml6h" path="res://Graphics/home_village/common_shelter/анимация айдл/28.png" id="32_frame28"]
+[ext_resource type="Texture2D" uid="uid://bkfblahbod018" path="res://Graphics/home_village/common_shelter/анимация айдл/29.png" id="33_frame29"]
+[ext_resource type="Texture2D" uid="uid://d2ev1tngcevox" path="res://Graphics/home_village/common_shelter/анимация айдл/30.png" id="34_frame30"]
+[ext_resource type="Texture2D" uid="uid://dc1im5s5rlm16" path="res://Graphics/home_village/common_shelter/анимация айдл/31.png" id="35_frame31"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_common_detail"]
 animations = [{
@@ -142,6 +142,15 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("35_frame31")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_frame31")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_frame30")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_frame29")
 }],
 "loop": 0,
 "name": &"idle",
@@ -179,27 +188,24 @@ position = Vector2(-20, 18)
 [node name="Shadow" type="Sprite2D" parent="Built/Visual" unique_id=911533558]
 
 [node name="Base" type="Sprite2D" parent="Built/Visual" unique_id=935285257]
-visible = false
-texture = ExtResource("3_pdybp")
+texture = ExtResource("6_dqrsv")
 
 [node name="DetailAnimation" type="Node2D" parent="Built/Visual" unique_id=2105287043]
 
 [node name="Visual" type="AnimatedSprite2D" parent="Built/Visual/DetailAnimation" unique_id=2105287044]
 sprite_frames = SubResource("SpriteFrames_common_shelter_built_idle")
 animation = &"idle"
+frame_progress = 0.5975151
 
 [node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation" unique_id=2105287045]
 script = ExtResource("4_intermittent")
 animated_sprite_path = NodePath("../Visual")
-animation_name = &"idle"
 initial_min_pause = 1.0
 initial_max_pause = 3.0
 min_pause = 2.5
 max_pause = 6.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
-reset_to_first_frame_on_stop = true
-enabled = true
 
 [node name="TransitionFX" parent="." unique_id=2097136827 instance=ExtResource("3_transition")]
 position = Vector2(-1, 57)

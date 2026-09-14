@@ -43,14 +43,6 @@ action_labels = PackedStringArray("ОТКРЫТЬ СТРОИТЕЛЬСТВО")
 description = "Бродячий мастер: берётся за крыши и стропила, а за словом в карман не лезет."
 local_position = Vector2(3744, 389)
 
-[sub_resource type="Resource" id="ForgeSite"]
-script = ExtResource("2_interaction")
-interaction_id = &"home_forge_site"
-display_name = "Место будущей кузницы"
-description = "Здесь плотник поставит здание кузницы. Контракт оформляется на его временном рабочем месте."
-local_position = Vector2(4762, 756)
-action_labels = PackedStringArray("Осмотреть", "ОТКРЫТЬ КУЗНИЦУ")
-
 [resource]
 script = ExtResource("1_location")
 local_location_id = &"debug_home_local"
@@ -59,4 +51,4 @@ description = "Пока это почти пустой участок степи
 reference_size = Vector2(8727, 1200)
 view_width = 1920.0
 visual_scene_path = "res://scenes/campaign/local_location/home_visual_stage.tscn"
-interactions = Array[ExtResource("2_interaction")]([SubResource("ForgeSite"), SubResource("Carpenter"), SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])
+interactions = Array[ExtResource("2_interaction")]([SubResource("Carpenter"), SubResource("CentralCamp"), SubResource("PartyShelter"), SubResource("CommonShelter"), SubResource("ResidentBlacksmith")])

@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://dforgeobjectscene"]
+
+[ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
+[ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
+[ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="3_ambient"]
+[ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="4_transition"]
+[ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="5_intermittent"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_forge_construction_detail"]
+animations = [{
+"frames": [],
+"loop": false,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_forge_built_detail"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"base_idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"idle_2",
+"speed": 5.0
+}]
+
+[node name="Forge" type="Node2D"]
+script = ExtResource("1_buildable")
+
+[node name="Construction" type="Node2D" parent="."]
+
+[node name="Stage30" type="Sprite2D" parent="Construction"]
+script = ExtResource("2_stage")
+
+[node name="DetailAnimation" type="Node2D" parent="Construction/Stage30"]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Construction/Stage30/DetailAnimation"]
+sprite_frames = SubResource("SpriteFrames_forge_construction_detail")
+animation = &"idle"
+
+[node name="IntermittentController" type="Node" parent="Construction/Stage30/DetailAnimation"]
+script = ExtResource("5_intermittent")
+animated_sprite_path = NodePath("../Visual")
+animation_name = &"idle"
+
+[node name="Ambient" parent="Construction" instance=ExtResource("3_ambient")]
+
+[node name="Built" type="Node2D" parent="."]
+
+[node name="Visual" type="Node2D" parent="Built"]
+
+[node name="Base" type="Sprite2D" parent="Built/Visual"]
+
+[node name="DetailAnimation" type="Node2D" parent="Built/Visual"]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Built/Visual/DetailAnimation"]
+sprite_frames = SubResource("SpriteFrames_forge_built_detail")
+animation = &"base_idle"
+
+[node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation"]
+script = ExtResource("5_intermittent")
+animated_sprite_path = NodePath("../Visual")
+base_animation_name = &"base_idle"
+animation_names = Array[StringName]([&"idle", &"idle_2"])
+animation_weights = PackedFloat32Array(2, 1)
+initial_min_pause = 1.0
+initial_max_pause = 3.0
+min_pause = 3.0
+max_pause = 7.0
+playback_speed_min = 0.95
+playback_speed_max = 1.05
+enabled = true
+
+[node name="TransitionFX" parent="." instance=ExtResource("4_transition")]

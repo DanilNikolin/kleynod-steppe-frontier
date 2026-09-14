@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bstar710klynd" path="res://scenes/campaign/local_location/environment/home_stars.tscn" id="9_stars"]
 [ext_resource type="PackedScene" uid="uid://d30wuym8m0v0p" path="res://scenes/campaign/local_location/objects/carpenter_workshop.tscn" id="10_workshop"]
 [ext_resource type="PackedScene" uid="uid://mf1pjhrlpw7n" path="res://scenes/campaign/local_location/npcs/carpenter_npc.tscn" id="11_carpenter_npc"]
+[ext_resource type="PackedScene" uid="uid://dforgeobjectscene" path="res://scenes/campaign/local_location/objects/forge.tscn" id="12_forge"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.2355777, 0.49112815, 0.7506904, 1, 0.72, 0.86, 0.96, 1)
@@ -131,8 +132,19 @@ text = "Общее место лагеря"
 [node name="BuildingVisual" type="Node2D" parent="WorldContent/EarlyBuildSites/CommonShelterSite" unique_id=210000203]
 
 [node name="CommonShelter" parent="WorldContent/EarlyBuildSites/CommonShelterSite/BuildingVisual" unique_id=1481920382 instance=ExtResource("7_common_shelter")]
-position = Vector2(35.000004, -57)
-scale = Vector2(0.41, 0.41)
+position = Vector2(55.000004, -57)
+scale = Vector2(0.5, 0.5)
+
+[node name="BuildSites" type="Node2D" parent="WorldContent" unique_id=210000050]
+
+[node name="ForgeSite" type="Marker2D" parent="WorldContent/BuildSites" unique_id=210000051]
+position = Vector2(2500, 700)
+script = ExtResource("3_build_site")
+interaction_id = &"home_forge_site"
+
+[node name="BuildingVisual" type="Node2D" parent="WorldContent/BuildSites/ForgeSite" unique_id=210000052]
+
+[node name="Forge" parent="WorldContent/BuildSites/ForgeSite/BuildingVisual" unique_id=210000053 instance=ExtResource("12_forge")]
 
 [node name="Buildings" type="Node2D" parent="WorldContent" unique_id=210000010]
 

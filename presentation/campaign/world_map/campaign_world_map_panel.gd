@@ -12,6 +12,8 @@ signal enter_requested(
 	node_id: StringName
 )
 
+signal travel_progressed(progress: float)
+
 signal travel_animation_finished
 
 
@@ -19,6 +21,12 @@ var _world_map: CampaignWorldMapDefinition
 var _state: CampaignState
 
 var _pending_travel: CampaignPendingTravel
+
+const TRAVEL_PIXELS_PER_SECOND: float = 300.0
+const CLOCK_UPDATE_INTERVAL: float = 0.05
+var _animation_duration: float = 0.0
+var _animation_span: float = 1.0
+var _last_clock_progress: float = 0.0
 
 var _travel_tween: Tween
 
@@ -386,73 +394,20 @@ func _refresh_selection() -> void:
 
 		return
 
-	var route := _world_map.get_route_between(
-		current_node.node_id,
-		selected_node.node_id
-	)
-
-	if route == null:
-		_selection_label.text = (
-			"%s · Прямого маршрута отсюда нет."
-			% selected_node.display_name
-		)
-
+	var path := _travel_service.get_shortest_path(_world_map, current_node.node_id,
+		selected_node.node_id, _settlement_definition, _settlement_state)
+	if path.size() < 2:
+		_selection_label.text = "%s · Доступного маршрута нет." % selected_node.display_name
 		_travel_button.disabled = true
-
 		return
-
-	var route_access_error := (
-		_route_access_service
-			.get_route_access_error(
-				route,
-				_settlement_definition,
-				_settlement_state
-			)
-	)
-
-	if not route_access_error.is_empty():
-		_selection_label.text = (
-			"%s · %s"
-			% [
-				selected_node.display_name,
-				route_access_error,
-			]
-		)
-
-		_travel_button.disabled = true
-
-		return
-
-	var travel_days := (
-		_travel_service.get_travel_days(
-			_world_map,
-			current_node.node_id,
-			selected_node.node_id
-		)
-	)
-
-	if (
-		travel_days
-		== CampaignTravelService
-			.INVALID_TRAVEL_DAYS
-	):
-		_selection_label.text = (
-			"%s · Прямого маршрута отсюда нет."
-			% selected_node.display_name
-		)
-
-		_travel_button.disabled = true
-
-		return
-
-	_selection_label.text = (
-		"%s · %s: %d дн."
-		% [
-			selected_node.display_name,
-			route.get_travel_mode_display_name(),
-			travel_days,
-		]
-	)
+	var minutes: int = 0
+	var names := PackedStringArray()
+	for i in range(path.size()):
+		names.append(_world_map.get_node(path[i]).display_name)
+		if i > 0:
+			minutes += _travel_service.get_travel_minutes(_world_map, path[i - 1], path[i])
+	_selection_label.text = "%s\nВ пути: %d дн. %d ч. %d мин." % [
+		" → ".join(names), minutes / 1440, (minutes % 1440) / 60, minutes % 60]
 
 	_travel_button.disabled = false
 
@@ -507,16 +462,18 @@ func animate_pending_travel_to_next_stop() -> bool:
 		- from_progress
 	)
 
-	var duration := clampf(
-		distance * 2.0,
-		0.55,
-		1.8
-	)
+	var origin := _world_map.get_node(_pending_travel.from_node_id)
+	var destination := _world_map.get_node(_pending_travel.destination_node_id)
+	var pixels := _map_canvas.get_display_distance(origin.map_position, destination.map_position)
+	var duration := maxf(pixels * distance / TRAVEL_PIXELS_PER_SECOND, 0.001)
+	_animation_duration = duration
+	_animation_span = distance
+	_last_clock_progress = from_progress
 
 	_travel_tween = create_tween()
 
 	_travel_tween.set_trans(
-		Tween.TRANS_SINE
+		Tween.TRANS_LINEAR
 	)
 
 	_travel_tween.set_ease(
@@ -524,8 +481,7 @@ func animate_pending_travel_to_next_stop() -> bool:
 	)
 
 	_travel_tween.tween_method(
-		_map_canvas
-			.set_travel_display_progress,
+		_animate_progress,
 		from_progress,
 		to_progress,
 		duration
@@ -587,3 +543,13 @@ func _on_enter_pressed() -> void:
 	enter_requested.emit(
 		_state.current_world_node_id
 	)
+
+func _animate_progress(progress: float) -> void:
+	# Keep movement per-frame, but avoid full campaign validation and HUD layout
+	# on every rendered frame. Always settle the exact clock at a stop.
+	var elapsed := (progress - _last_clock_progress) * _animation_duration / maxf(_animation_span, 0.000001)
+	if elapsed >= CLOCK_UPDATE_INTERVAL or progress >= _pending_travel.get_next_stop_progress():
+		travel_progressed.emit(progress)
+		_last_clock_progress = progress
+		_refresh_selection()
+	_map_canvas.set_travel_display_progress(progress)

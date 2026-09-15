@@ -1,6 +1,8 @@
 class_name HeroAbilitiesPanel
 extends PanelContainer
 
+var read_only: bool = false
+
 
 signal state_changed
 signal ability_selected(ability_id: StringName)
@@ -220,6 +222,7 @@ func _rebuild_interface() -> void:
 		loadout_panel
 	)
 
+	loadout_panel.read_only = read_only
 	loadout_panel.bind(
 		hero_definition,
 		progression

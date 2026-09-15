@@ -23,6 +23,7 @@ extends Node
 @export var transition_duration: float = 0.8
 
 var _is_first_sync: bool = true
+var _visuals_initialized: bool = false
 var _tween: Tween
 var _current_minute_of_day: int = -1
 
@@ -63,8 +64,17 @@ func _ready() -> void:
 		stars_root.modulate = sc
 		stars_root.visible = false
 
+	# The panel can bind campaign time before this scene enters the tree.
+	# Apply it only after node references and working gradients are initialized.
+	_visuals_initialized = true
+	if _current_minute_of_day >= 0:
+		set_time_of_day(_current_minute_of_day, true)
+
 
 func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
+	if not _visuals_initialized:
+		_current_minute_of_day = minute_of_day
+		return
 	var should_be_immediate := immediate or _is_first_sync
 	_is_first_sync = false
 

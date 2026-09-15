@@ -5,6 +5,8 @@ extends RefCounted
 var from_node_id: StringName = &""
 var destination_node_id: StringName = &""
 
+var remaining_node_ids: Array[StringName] = []
+
 var route_id: StringName = &""
 
 ## Полное базовое время пути.

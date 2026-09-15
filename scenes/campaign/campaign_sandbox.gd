@@ -17,6 +17,7 @@ enum View {
 	TRADING,
 	HERO_PREPARATION,
 	LOGISTICS,
+	INVENTORY,
 }
 
 
@@ -151,7 +152,7 @@ func _show_view(
 		View.TRADING:
 			content = _create_trading_panel()
 
-		View.HERO_PREPARATION:
+		View.HERO_PREPARATION, View.INVENTORY:
 			content = _create_hero_preparation_panel()
 		View.LOGISTICS:
 			var panel := CampaignSupplyPanel.new()
@@ -281,6 +282,8 @@ func _is_party_management_available() -> bool:
 		_current_view == View.LOCAL_LOCATION
 		or _current_view == View.PARTY
 		or _current_view == View.HERO_PREPARATION
+		or (_current_view == View.INVENTORY and not _view_stack.is_empty()
+			and _view_stack.back() in [View.LOCAL_LOCATION, View.PARTY, View.HERO_PREPARATION])
 	)
 
 
@@ -296,6 +299,8 @@ func _get_active_section_id() -> StringName:
 				CampaignShell.SECTION_PARTY
 			)
 
+		View.INVENTORY:
+			return CampaignShell.SECTION_INVENTORY
 		View.HERO_PREPARATION:
 			return (
 				CampaignShell.SECTION_PARTY
@@ -423,6 +428,7 @@ func _create_world_map_panel() -> Control:
 		_on_world_travel_requested
 	)
 
+	panel.travel_progressed.connect(_on_world_travel_progressed)
 	panel.travel_animation_finished.connect(
 		_on_world_travel_animation_finished
 	)
@@ -530,9 +536,12 @@ func _create_hero_preparation_panel() -> Control:
 		_refresh_shell
 	)
 
+	panel.read_only_build = not _is_party_management_available()
+	if _current_view == View.INVENTORY:
+		panel._current_tab = HeroPreparationPanel.PreparationTab.EQUIPMENT
 	panel.bind_campaign(
 		CampaignRuntime.get_campaign_state(),
-		"← К ОТРЯДУ",
+		"← НАЗАД" if _current_view == View.INVENTORY else "← К ОТРЯДУ",
 		CampaignRuntime
 	)
 
@@ -738,6 +747,8 @@ func _on_shell_section_requested(
 		CampaignShell.SECTION_WORLD_MAP:
 			target_view = View.WORLD_MAP
 
+		CampaignShell.SECTION_INVENTORY:
+			target_view = View.INVENTORY
 		CampaignShell.SECTION_PARTY:
 			if not _is_party_management_available():
 				return
@@ -1966,3 +1977,12 @@ func _show_forge_panel(local_panel: CampaignLocalLocationPanel) -> void:
 	)
 	_shell.show_modal(panel)
 	panel.bind(CampaignRuntime)
+
+
+func _on_world_travel_progressed(progress: float) -> void:
+	if CampaignRuntime.advance_pending_travel_progress(progress):
+		_refresh_shell()
+	else:
+		_world_map_panel._travel_tween.kill()
+		_travel_animation_active = false
+		push_warning("Travel paused: campaign time could not advance.")

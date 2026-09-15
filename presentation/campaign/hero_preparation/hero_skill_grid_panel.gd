@@ -1,6 +1,8 @@
 class_name HeroSkillGridPanel
 extends PanelContainer
 
+var read_only: bool = false
+
 
 signal state_changed
 
@@ -356,6 +358,7 @@ func _create_node_row(
 			not purchase_result.is_successful
 		)
 
+		purchase_button.disabled = purchase_button.disabled or read_only
 		purchase_button.pressed.connect(
 			_on_purchase_pressed.bind(
 				node.node_id
@@ -533,6 +536,8 @@ func _get_node_name_list(
 func _on_purchase_pressed(
 	node_id: StringName
 ) -> void:
+	if read_only:
+		return
 	var result := purchase_service.purchase(
 		hero_definition.skill_grid,
 		progression,
@@ -580,6 +585,7 @@ func _rebuild_block_graph_interface() -> void:
 		block_view
 	)
 
+	block_view.read_only = read_only
 	block_view.bind(
 		hero_definition,
 		progression

@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="5_intermittent"]
 [ext_resource type="Texture2D" uid="uid://1jf1ekecfgmv" path="res://Graphics/home_village/forge/animation/0.png" id="6_n3d8g"]
 [ext_resource type="Texture2D" uid="uid://bcbicxjo0wsit" path="res://Graphics/home_village/forge/animation/1.png" id="7_ghje6"]
-[ext_resource type="Texture2D" uid="uid://b2ysv6v8ogysx" path="res://Graphics/home_village/forge/animation/2.png" id="8_xd4ep"]
+[ext_resource type="Texture2D" uid="uid://b8ourwt5l11ky" path="res://Graphics/home_village/forge/animation/2.png" id="8_xd4ep"]
 [ext_resource type="Texture2D" uid="uid://bm7ynhgvgqsde" path="res://Graphics/home_village/forge/animation/3.png" id="9_umbyi"]
 [ext_resource type="Texture2D" uid="uid://bd11w6pdn447q" path="res://Graphics/home_village/forge/animation/4.png" id="10_1as5q"]
 [ext_resource type="Texture2D" uid="uid://b243wgwsp00e4" path="res://Graphics/home_village/forge/animation/5.png" id="11_ic4h7"]
@@ -107,7 +107,7 @@ position = Vector2(-315, -37.000004)
 scale = Vector2(1.0498443, 1.0498443)
 sprite_frames = SubResource("SpriteFrames_forge_built_detail")
 animation = &"base_idle"
-frame_progress = 0.062303923
+frame_progress = 0.5585071
 
 [node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation" unique_id=1160996564]
 script = ExtResource("5_intermittent")
@@ -121,8 +121,4 @@ max_pause = 7.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
 
-[node name="Anvil" type="Sprite2D" parent="Built/Visual" unique_id=210000070]
-z_index = 5
-
 [node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]
-

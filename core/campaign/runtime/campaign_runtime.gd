@@ -1406,44 +1406,18 @@ func is_world_route_available(
 	)
 
 
-func get_travel_days_to(
-	destination_node_id: StringName
-) -> int:
+func get_travel_days_to(destination_node_id: StringName) -> int:
 	if campaign_state == null:
-		return (
-			CampaignTravelService
-				.INVALID_TRAVEL_DAYS
-		)
-
-	var world_map := get_world_map_definition()
-
-	if world_map == null:
-		return (
-			CampaignTravelService
-				.INVALID_TRAVEL_DAYS
-		)
-
-	var route := world_map.get_route_between(
-		campaign_state.current_world_node_id,
-		destination_node_id
-	)
-
-	if (
-		route == null
-		or not is_world_route_available(
-			route
-		)
-	):
-		return (
-			CampaignTravelService
-				.INVALID_TRAVEL_DAYS
-		)
-
-	return travel_service.get_travel_days(
-		world_map,
-		campaign_state.current_world_node_id,
-		destination_node_id
-	)
+		return CampaignTravelService.INVALID_TRAVEL_DAYS
+	var world := get_world_map_definition()
+	var path := travel_service.get_shortest_path(world, campaign_state.current_world_node_id,
+		destination_node_id, get_home_settlement_definition(), get_home_settlement_state())
+	if path.size() < 2:
+		return CampaignTravelService.INVALID_TRAVEL_DAYS
+	var minutes: int = 0
+	for i in range(1, path.size()):
+		minutes += travel_service.get_travel_minutes(world, path[i - 1], path[i])
+	return int(ceil(float(minutes) / CampaignTimeService.MINUTES_PER_DAY))
 
 
 func begin_travel(
@@ -1529,6 +1503,12 @@ func begin_travel(
 
 		return false
 
+	var path := travel_service.get_shortest_path(world_map, from_node_id, destination_node_id,
+		get_home_settlement_definition(), get_home_settlement_state())
+	if path.size() < 2:
+		return false
+	destination_node_id = path[1]
+
 	var route := (
 		world_map.get_route_between(
 			from_node_id,
@@ -1564,15 +1544,15 @@ func begin_travel(
 
 		return false
 
-	var travel_days := (
-		travel_service.get_travel_days(
+	var travel_minutes := (
+		travel_service.get_travel_minutes(
 			world_map,
 			from_node_id,
 			destination_node_id
 		)
 	)
 
-	if travel_days <= 0:
+	if travel_minutes <= 0:
 		push_warning(
 			"Travel duration is invalid."
 		)
@@ -1596,10 +1576,10 @@ func begin_travel(
 	)
 
 	travel.total_travel_minutes = (
-		travel_days
-		* CampaignTimeService.MINUTES_PER_DAY
+		travel_minutes
 	)
 
+	travel.remaining_node_ids.assign(path.slice(2))
 	travel.progress = 0.0
 
 	var profile := (
@@ -1704,47 +1684,8 @@ func advance_pending_travel_to_next_stop() -> bool:
 	):
 		return false
 
-	var current_elapsed_minutes := (
-		pending_travel
-			.get_elapsed_travel_minutes()
-	)
-
-	var target_elapsed_minutes := clampi(
-		int(
-			round(
-				float(
-					pending_travel
-						.total_travel_minutes
-				)
-				* target_progress
-			)
-		),
-		0,
-		pending_travel.total_travel_minutes
-	)
-
-	var minutes_to_advance := maxi(
-		target_elapsed_minutes
-			- current_elapsed_minutes,
-		0
-	)
-
-	if (
-		minutes_to_advance > 0
-		and not advance_time(
-			minutes_to_advance
-		)
-	):
-		push_warning(
-			"Pending travel time "
-			+"could not be advanced."
-		)
-
+	if not advance_pending_travel_progress(target_progress):
 		return false
-
-	pending_travel.progress = (
-		target_progress
-	)
 
 	if not pending_travel.is_valid_against_world_map(
 		world_map
@@ -1795,8 +1736,10 @@ func advance_pending_travel_to_next_stop() -> bool:
 
 		return false
 
+	var remaining := pending_travel.remaining_node_ids.duplicate()
 	pending_travel = null
-
+	if not remaining.is_empty():
+		return begin_travel(remaining.back())
 	return true
 
 func resolve_pending_travel_event() -> bool:
@@ -1942,15 +1885,15 @@ func travel_to_world_node(
 
 		return false
 
-	var travel_days := (
-		travel_service.get_travel_days(
+	var travel_minutes := (
+		travel_service.get_travel_minutes(
 			world_map,
 			campaign_state.current_world_node_id,
 			destination_node_id
 		)
 	)
 
-	if travel_days <= 0:
+	if travel_minutes <= 0:
 		push_warning(
 			"No valid route from '%s' to '%s'."
 			% [
@@ -1967,11 +1910,6 @@ func travel_to_world_node(
 
 	campaign_state.current_world_node_id = (
 		destination.node_id
-	)
-
-	var travel_minutes := (
-		travel_days
-		* CampaignTimeService.MINUTES_PER_DAY
 	)
 
 	if not advance_time(
@@ -3756,3 +3694,19 @@ func order_material_supply(id: StringName, package_id: StringName, expected_pric
 		campaign_state.inventory_state.gold += price
 		return "Заказ отменён."
 	return ""
+
+
+## Animation and completion charge only the unpaid fraction of this leg.
+func advance_pending_travel_progress(target: float) -> bool:
+	if pending_travel == null or campaign_state == null or has_pending_battle():
+		return false
+	if not is_finite(target) or target < pending_travel.progress or target > pending_travel.get_next_stop_progress():
+		return false
+	if campaign_state.current_world_node_id != pending_travel.from_node_id:
+		return false
+	var elapsed := int(round(pending_travel.total_travel_minutes * target))
+	var delta := elapsed - pending_travel.get_elapsed_travel_minutes()
+	if delta > 0 and not advance_time(delta):
+		return false
+	pending_travel.progress = target
+	return true

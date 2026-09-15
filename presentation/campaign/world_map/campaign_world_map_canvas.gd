@@ -591,7 +591,6 @@ func _refresh_travel_markers() -> void:
 		)
 	)
 
-	_party_marker.reset_size()
 
 	_party_marker.position = (
 		canvas_position
@@ -691,3 +690,6 @@ func _on_resized() -> void:
 	_refresh_travel_markers()
 
 	queue_redraw()
+
+func get_display_distance(origin: Vector2, destination: Vector2) -> float:
+	return _map_position_to_canvas(origin).distance_to(_map_position_to_canvas(destination))

@@ -1,18 +1,74 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dachgyxf6ramy"]
 
 [ext_resource type="Script" uid="uid://c3nnl6d4dlpu8" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
-[ext_resource type="Script" path="res://presentation/campaign/local_location/blacksmith_work_light_controller.gd" id="3_light_ctrl"]
+[ext_resource type="Texture2D" uid="uid://b5wcgra5sej11" path="res://Graphics/home_village/npcs/blacksmith/work/1.png" id="2_nmivi"]
+[ext_resource type="Texture2D" uid="uid://b5lb7s2bcerb7" path="res://Graphics/home_village/npcs/blacksmith/work/2.png" id="3_5yup4"]
+[ext_resource type="Script" uid="uid://dj8mfpyix7g72" path="res://presentation/campaign/local_location/blacksmith_work_light_controller.gd" id="3_light_ctrl"]
+[ext_resource type="Texture2D" uid="uid://cuqoxe8xr1e68" path="res://Graphics/home_village/npcs/blacksmith/work/3.png" id="4_yaidf"]
+[ext_resource type="Texture2D" uid="uid://d2tk85hx8he0" path="res://Graphics/home_village/npcs/blacksmith/work/4.png" id="5_x2367"]
+[ext_resource type="Texture2D" uid="uid://b53sxyorkecuy" path="res://Graphics/home_village/npcs/blacksmith/work/5.png" id="6_7x5wu"]
+[ext_resource type="Texture2D" uid="uid://dwe1tc4qkxe4o" path="res://Graphics/home_village/npcs/blacksmith/work/6.png" id="7_3iidj"]
+[ext_resource type="Texture2D" uid="uid://cur7y3w2kdugv" path="res://Graphics/home_village/npcs/blacksmith/work/7.png" id="8_bbpxx"]
+[ext_resource type="Texture2D" uid="uid://bygi185j0qukv" path="res://Graphics/home_village/npcs/blacksmith/work/8.png" id="9_yona8"]
+[ext_resource type="Texture2D" uid="uid://docv4gbalvam7" path="res://Graphics/home_village/npcs/blacksmith/work/9.png" id="10_4qs28"]
+[ext_resource type="Texture2D" uid="uid://cqa11v1okgkag" path="res://Graphics/home_village/npcs/blacksmith/work/10.png" id="11_04wu6"]
+[ext_resource type="Texture2D" uid="uid://bnxfqnpd0aiuj" path="res://Graphics/home_village/npcs/blacksmith/work/11.png" id="12_jojt8"]
+[ext_resource type="Texture2D" uid="uid://bgxordkfb3poa" path="res://Graphics/home_village/npcs/blacksmith/work/12.png" id="13_ix5rc"]
+[ext_resource type="Texture2D" uid="uid://bh2n8lby2wprg" path="res://Graphics/home_village/npcs/blacksmith/work/13.png" id="14_f36fb"]
+[ext_resource type="Texture2D" uid="uid://bu01ifw8gy0vu" path="res://Graphics/home_village/npcs/blacksmith/work/14.png" id="15_iuiqi"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_blacksmith"]
 animations = [{
 "frames": [],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
-"frames": [],
-"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_nmivi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_5yup4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_yaidf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_x2367")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_7x5wu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_3iidj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_bbpxx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_yona8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_4qs28")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_04wu6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_jojt8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_ix5rc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_f36fb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_iuiqi")
+}],
+"loop": 0,
 "name": &"work",
 "speed": 5.0
 }]
@@ -29,17 +85,19 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
-[node name="BlacksmithNpc" type="Node2D"]
+[node name="BlacksmithNpc" type="Node2D" unique_id=1091755292]
 script = ExtResource("1_visual")
 resident_id = &"resident_blacksmith_ostap"
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="Visual" type="Node2D" parent="." unique_id=1949704286]
 
-[node name="Body" type="AnimatedSprite2D" parent="Visual"]
+[node name="Body" type="AnimatedSprite2D" parent="Visual" unique_id=757234053]
 sprite_frames = SubResource("SpriteFrames_blacksmith")
-animation = &"idle"
+animation = &"work"
+frame = 13
+frame_progress = 1.0
 
-[node name="IntermittentController" type="Node" parent="Visual/Body"]
+[node name="IntermittentController" type="Node" parent="Visual/Body" unique_id=801335047]
 script = ExtResource("2_intermittent")
 animated_sprite_path = NodePath("..")
 base_animation_name = &"idle"
@@ -51,22 +109,21 @@ min_pause = 4.0
 max_pause = 9.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
-reset_to_first_frame_on_stop = true
 
-[node name="WorkLightAnchor" type="Node2D" parent="."]
+[node name="WorkLightAnchor" type="Node2D" parent="." unique_id=1185372233]
 script = ExtResource("3_light_ctrl")
 animated_sprite_path = NodePath("../Visual/Body")
 light_path = NodePath("WorkLight")
 
-[node name="WorkLight" type="PointLight2D" parent="WorkLightAnchor"]
-enabled = false
+[node name="WorkLight" type="PointLight2D" parent="WorkLightAnchor" unique_id=562625766]
+position = Vector2(15, 34)
+scale = Vector2(0.296875, 0.296875)
 color = Color(1, 0.478431, 0.270588, 1)
 energy = 0.45
-blend_mode = 0
 texture = SubResource("GradientTexture2D_light")
 texture_scale = 1.5
 
-[node name="ClickArea" type="Button" parent="."]
+[node name="ClickArea" type="Button" parent="." unique_id=287926676]
 offset_left = -120.0
 offset_top = -300.0
 offset_right = 120.0

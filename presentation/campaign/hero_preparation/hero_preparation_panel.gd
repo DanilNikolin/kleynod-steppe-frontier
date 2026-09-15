@@ -14,6 +14,8 @@ enum PreparationTab {
 }
 
 
+var read_only_build: bool = false
+
 var respec_runtime: CampaignRuntimeService
 var _respec_status: String = ""
 
@@ -173,7 +175,13 @@ func _rebuild_interface() -> void:
 
 		return
 
-	_create_respec_controls(root_column)
+	if read_only_build:
+		var notice := Label.new()
+		notice.text = "Просмотр героя · Настройка развития и умений доступна в обустроенном родном поселении."
+		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		root_column.add_child(notice)
+	else:
+		_create_respec_controls(root_column)
 
 	root_column.add_child(
 		_create_tabs()
@@ -568,11 +576,11 @@ func _create_progression_tab() -> Control:
 		10
 	)
 
-	root.add_child(
-		_create_progression_qa_bar()
-	)
+	if not read_only_build:
+		root.add_child(_create_progression_qa_bar())
 
 	var skill_grid_panel := HeroSkillGridPanel.new()
+	skill_grid_panel.read_only = read_only_build
 
 	skill_grid_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -600,6 +608,7 @@ func _create_progression_tab() -> Control:
 
 func _create_abilities_tab() -> Control:
 	var abilities_panel := HeroAbilitiesPanel.new()
+	abilities_panel.read_only = read_only_build
 
 	abilities_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -740,6 +749,8 @@ func _create_progression_qa_bar() -> Control:
 	return panel
 
 func _on_qa_add_skill_points_pressed() -> void:
+	if read_only_build:
+		return
 	if (
 		hero_state == null
 		or hero_state.progression_state == null
@@ -764,6 +775,8 @@ func _on_qa_add_skill_points_pressed() -> void:
 
 
 func _on_qa_reset_skill_grid_pressed() -> void:
+	if read_only_build:
+		return
 	if campaign_state != null:
 		return
 	if (
@@ -934,6 +947,8 @@ func _create_respec_controls(parent: Node) -> void:
 
 
 func _confirm_respec() -> void:
+	if read_only_build:
+		return
 	var hero_id := hero_state.get_hero_id()
 	var original := hero_state.progression_state
 	var dialog := ConfirmationDialog.new()

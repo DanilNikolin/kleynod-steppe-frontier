@@ -1,6 +1,8 @@
 class_name HeroSkillGridBlockView
 extends VBoxContainer
 
+var read_only: bool = false
+
 
 signal state_changed
 
@@ -364,6 +366,7 @@ func _create_attachment_picker(
 		44.0
 	)
 
+	confirm_button.disabled = confirm_button.disabled or read_only
 	confirm_button.pressed.connect(
 		_on_attachment_confirm_pressed
 	)
@@ -854,6 +857,7 @@ func _create_details_panel() -> Control:
 			not purchase_result.is_successful
 		)
 
+		purchase_button.disabled = purchase_button.disabled or read_only
 		purchase_button.pressed.connect(
 			_on_purchase_pressed.bind(
 				node.node_id
@@ -958,6 +962,8 @@ func _on_attachment_cancel_pressed() -> void:
 
 
 func _on_attachment_confirm_pressed() -> void:
+	if read_only:
+		return
 	if preview_block_id == &"":
 		return
 
@@ -992,6 +998,8 @@ func _on_node_selected(
 func _on_purchase_pressed(
 	node_id: StringName
 ) -> void:
+	if read_only:
+		return
 	var result := purchase_service.purchase(
 		hero_definition.skill_grid,
 		progression,

@@ -11,6 +11,7 @@ signal menu_requested
 
 
 const SECTION_WORLD_MAP: StringName = &"world_map"
+const SECTION_INVENTORY: StringName = &"inventory"
 const SECTION_PARTY: StringName = &"party"
 const SECTION_LOGISTICS: StringName = &"logistics"
 const SECTION_QUESTS: StringName = &"quests"
@@ -22,6 +23,7 @@ var _resources_label: Label
 
 var _back_button: Button
 var _map_button: Button
+var _inventory_button: Button
 var _party_button: Button
 var _quests_button: Button
 
@@ -110,6 +112,7 @@ func refresh_hud(
 		== SECTION_WORLD_MAP
 	)
 
+	_inventory_button.disabled = active_section_id == SECTION_INVENTORY
 	_party_button.disabled = (
 		not can_access_party
 		or active_section_id
@@ -519,6 +522,9 @@ func _create_navigation_panel() -> Control:
 	row.add_child(
 		_map_button
 	)
+
+	_inventory_button = _create_section_button("ИНВЕНТАРЬ", SECTION_INVENTORY)
+	row.add_child(_inventory_button)
 
 	_party_button = _create_section_button(
 		"ОТРЯД",

@@ -1,6 +1,8 @@
 class_name HeroLoadoutPanel
 extends PanelContainer
 
+var read_only: bool = false
+
 
 signal state_changed
 
@@ -198,6 +200,7 @@ func _create_ability_row(
 				not remove_result.is_successful
 			)
 
+			action_button.disabled = action_button.disabled or read_only
 			action_button.pressed.connect(
 				_on_remove_pressed.bind(
 					ability.ability_id
@@ -221,6 +224,7 @@ func _create_ability_row(
 			not add_result.is_successful
 		)
 
+		action_button.disabled = action_button.disabled or read_only
 		action_button.pressed.connect(
 			_on_add_pressed.bind(
 				ability.ability_id
@@ -278,6 +282,8 @@ func _get_add_button_text(
 func _on_add_pressed(
 	ability_id: StringName
 ) -> void:
+	if read_only:
+		return
 	var result := loadout_service.add_ability(
 		hero_definition,
 		progression,
@@ -298,6 +304,8 @@ func _on_add_pressed(
 func _on_remove_pressed(
 	ability_id: StringName
 ) -> void:
+	if read_only:
+		return
 	var result := loadout_service.remove_ability(
 		hero_definition,
 		progression,

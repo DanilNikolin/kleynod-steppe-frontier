@@ -344,6 +344,36 @@ func set_build_site_states(
 			site.set_build_state(val as LocalBuildSiteView.BuildVisualState)
 
 
+func set_build_site_major_module(
+	interaction_id: StringName,
+	module_id: StringName
+) -> void:
+	if not _anchors_by_interaction_id.has(
+		interaction_id
+	):
+		return
+
+	var site := (
+		_anchors_by_interaction_id[
+			interaction_id
+		] as LocalBuildSiteView
+	)
+
+	if site == null:
+		return
+
+	var visual := site.get_buildable_visual()
+
+	if (
+		visual != null
+		and visual.has_method("set_major_module")
+	):
+		visual.call(
+			"set_major_module",
+			module_id
+		)
+
+
 func set_time_of_day(minute_of_day: int, immediate: bool = false) -> void:
 	_last_time_of_day_minute = minute_of_day
 	if _world_root == null:

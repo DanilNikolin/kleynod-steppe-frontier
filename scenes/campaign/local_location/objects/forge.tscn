@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://iiap0xfjwuk1"]
 
-[ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/forge_visual.gd" id="1_buildable"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="Texture2D" uid="uid://ciifiy2e1n1he" path="res://Graphics/home_village/forge/construction/стройка 30.png" id="2_xd4ep"]
 [ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="3_ambient"]
@@ -158,5 +158,13 @@ energy = 1.52
 range_z_max = 3
 texture = SubResource("GradientTexture2D_furnace")
 texture_scale = 1.5
+
+[node name="EquipmentOverlay" type="Node2D" parent="Built/Visual" unique_id=220000090]
+
+[node name="WeaponEquipment" type="Sprite2D" parent="Built/Visual/EquipmentOverlay" unique_id=220000091]
+visible = false
+
+[node name="ArmorEquipment" type="Sprite2D" parent="Built/Visual/EquipmentOverlay" unique_id=220000092]
+visible = false
 
 [node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]

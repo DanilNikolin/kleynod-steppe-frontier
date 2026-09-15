@@ -358,6 +358,17 @@ func _refresh_settlement_visuals() -> void:
 		forge_is_not_built
 	)
 
+	var forge_major_module_id: StringName = &""
+	if _settlement_state != null:
+		forge_major_module_id = (
+			_settlement_state.forge_major_module_id
+		)
+
+	_canvas.set_build_site_major_module(
+		&"home_forge_site",
+		forge_major_module_id
+	)
+
 
 
 func _build_interface() -> void:

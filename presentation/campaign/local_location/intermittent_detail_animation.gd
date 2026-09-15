@@ -18,6 +18,7 @@ extends Node
 
 @export var reset_to_first_frame_on_stop: bool = true
 @export var enabled: bool = true
+@export var continuous_event_when_base_empty: bool = false
 
 var _timer: Timer
 var _rng: RandomNumberGenerator
@@ -43,16 +44,19 @@ func _ready() -> void:
 	if not _timer.timeout.is_connected(_on_timer_timeout):
 		_timer.timeout.connect(_on_timer_timeout)
 
-	_resolve_sprite()
+	var sprite := _resolve_sprite()
 
 	if _is_active and enabled:
 		_pending_event = false
 		_is_playing_event = false
-		_start_base_idle_if_available()
-		_schedule_next_event(
-			initial_min_pause,
-			initial_max_pause
-		)
+		if _should_continuously_play_event(sprite):
+			_trigger_event_animation(sprite)
+		else:
+			_start_base_idle_if_available()
+			_schedule_next_event(
+				initial_min_pause,
+				initial_max_pause
+			)
 
 
 func set_active(active: bool) -> void:
@@ -71,8 +75,12 @@ func set_active(active: bool) -> void:
 			return
 		_pending_event = false
 		_is_playing_event = false
-		_start_base_idle_if_available()
-		_schedule_next_event(initial_min_pause, initial_max_pause)
+		var sprite := _resolve_sprite()
+		if _should_continuously_play_event(sprite):
+			_trigger_event_animation(sprite)
+		else:
+			_start_base_idle_if_available()
+			_schedule_next_event(initial_min_pause, initial_max_pause)
 	else:
 		_stop_effects()
 
@@ -108,11 +116,34 @@ func _has_base_idle(sprite: AnimatedSprite2D) -> bool:
 	return sprite.sprite_frames.has_animation(base_animation_name) and sprite.sprite_frames.get_frame_count(base_animation_name) > 0
 
 
+func _has_valid_event_animation(sprite: AnimatedSprite2D) -> bool:
+	if sprite == null or sprite.sprite_frames == null:
+		return false
+	var frames := sprite.sprite_frames
+	if animation_names.is_empty():
+		return frames.has_animation(animation_name) and frames.get_frame_count(animation_name) > 0
+	for anim in animation_names:
+		if frames.has_animation(anim) and frames.get_frame_count(anim) > 0:
+			return true
+	return false
+
+
+func _should_continuously_play_event(sprite: AnimatedSprite2D) -> bool:
+	return (
+		continuous_event_when_base_empty
+		and not _has_base_idle(sprite)
+		and _has_valid_event_animation(sprite)
+	)
+
+
 func _start_base_idle_if_available() -> void:
 	var sprite := _resolve_sprite()
-	if sprite != null and _has_base_idle(sprite):
-		_current_animation = base_animation_name
+	if not _has_base_idle(sprite):
+		return
+
+	if sprite.animation != base_animation_name or not sprite.is_playing():
 		sprite.speed_scale = 1.0
+		sprite.animation = base_animation_name
 		sprite.play(base_animation_name)
 
 
@@ -166,7 +197,7 @@ func _choose_animation(sprite: AnimatedSprite2D) -> StringName:
 		if roll <= cumulative:
 			return valid_candidates[i]
 
-	return valid_candidates[valid_candidates.size() - 1]
+	return valid_candidates[0]
 
 
 func _on_timer_timeout() -> void:
@@ -225,6 +256,19 @@ func _trigger_event_animation(sprite: AnimatedSprite2D) -> void:
 
 func _on_animation_finished() -> void:
 	var sprite := _resolve_sprite()
+
+	if not _is_active or not enabled:
+		if sprite != null:
+			sprite.stop()
+		_is_playing_event = false
+		return
+
+	# If continuous event mode is active, trigger immediately without stop or pause
+	if sprite != null and _should_continuously_play_event(sprite):
+		_is_playing_event = false
+		_trigger_event_animation(sprite)
+		return
+
 	if sprite != null:
 		sprite.stop()
 		if reset_to_first_frame_on_stop and not _current_animation.is_empty():
@@ -234,9 +278,6 @@ func _on_animation_finished() -> void:
 			sprite.frame_progress = 0.0
 
 	_is_playing_event = false
-
-	if not _is_active or not enabled:
-		return
 
 	# Return to continuous base_idle if available
 	_start_base_idle_if_available()

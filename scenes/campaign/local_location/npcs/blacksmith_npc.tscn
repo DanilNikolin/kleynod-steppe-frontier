@@ -109,6 +109,7 @@ min_pause = 4.0
 max_pause = 9.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
+continuous_event_when_base_empty = true
 
 [node name="WorkLightAnchor" type="Node2D" parent="." unique_id=1185372233]
 script = ExtResource("3_light_ctrl")

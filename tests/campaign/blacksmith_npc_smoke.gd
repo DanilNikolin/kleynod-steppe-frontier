@@ -28,6 +28,17 @@ func run() -> void:
 	assert(intermittent != null, "IntermittentController must exist")
 	assert(intermittent.base_animation_name == &"idle", "base_animation_name must be idle")
 	assert(intermittent.animation_names == [&"work"], "animation_names must be [work]")
+	assert(intermittent.continuous_event_when_base_empty == true, "continuous_event_when_base_empty must be true")
+
+	# Test continuous work triggering when base idle is empty
+	assert(intermittent._should_continuously_play_event(body) == true, "Should continuously play work when idle is empty")
+
+	# Test automatic fallback when idle frames are added
+	body.sprite_frames.add_frame(&"idle", GradientTexture2D.new())
+	assert(intermittent._has_base_idle(body) == true, "Should detect base idle when frame exists")
+	assert(intermittent._should_continuously_play_event(body) == false, "Should not continuously play work when idle has frames")
+	body.sprite_frames.clear(&"idle")
+	assert(intermittent._should_continuously_play_event(body) == true, "Should return to continuous work when idle frames removed")
 
 	const BlacksmithWorkLightControllerScript = preload("res://presentation/campaign/local_location/blacksmith_work_light_controller.gd")
 	var light_anchor = blacksmith_npc.get_node_or_null("WorkLightAnchor")
@@ -60,14 +71,22 @@ func run() -> void:
 	assert(work_light.enabled == true, "WorkLight must be enabled when animation is work")
 	assert(work_light.energy > 0.3, "WorkLight energy must be around base_energy + flicker")
 
-	# Check Forge scene Anvil (if present)
+	# Check Forge scene
 	var forge_scene := load("res://scenes/campaign/local_location/objects/forge.tscn")
 	assert(forge_scene != null, "forge.tscn must load")
 	var forge: Node2D = forge_scene.instantiate()
 	root.add_child(forge)
-	var anvil := forge.get_node_or_null("Built/Visual/Anvil") as Sprite2D
-	if anvil != null:
-		assert(anvil.z_index == 5, "Anvil z_index must be 5")
+
+	var furnace_anchor := forge.get_node_or_null("Built/Visual/FurnaceLightAnchor")
+	assert(furnace_anchor != null, "FurnaceLightAnchor must exist under Built/Visual")
+	const AmbientFlickerLightScript = preload("res://presentation/campaign/local_location/ambient_flicker_light.gd")
+	assert(furnace_anchor.get_script() == AmbientFlickerLightScript, "Must have AmbientFlickerLight script")
+	var furnace_light := furnace_anchor.get_node_or_null("FurnaceLight") as PointLight2D
+	assert(furnace_light != null, "FurnaceLight PointLight2D must exist")
+
+	furnace_anchor._process(0.016)
+	assert(furnace_light.enabled == true, "Furnace light must be enabled when built visual is visible")
+	assert(furnace_light.energy > 0.3, "Furnace light energy must be around base_energy")
 
 	print("BLACKSMITH VERIFICATION SUCCESSFUL")
 	quit(0)

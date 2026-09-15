@@ -1,0 +1,75 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c3nnl6d4dlpu8" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
+[ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/blacksmith_work_light_controller.gd" id="3_light_ctrl"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_blacksmith"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"work",
+"speed": 5.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_radial_light"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_radial_light")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="BlacksmithNpc" type="Node2D"]
+script = ExtResource("1_visual")
+resident_id = &"resident_blacksmith_ostap"
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("SpriteFrames_blacksmith")
+animation = &"idle"
+
+[node name="IntermittentController" type="Node" parent="Visual/Body"]
+script = ExtResource("2_intermittent")
+animated_sprite_path = NodePath("..")
+base_animation_name = &"idle"
+animation_names = Array[StringName]([&"work"])
+animation_weights = PackedFloat32Array(1)
+initial_min_pause = 2.0
+initial_max_pause = 5.0
+min_pause = 4.0
+max_pause = 9.0
+playback_speed_min = 0.95
+playback_speed_max = 1.05
+reset_to_first_frame_on_stop = true
+
+[node name="WorkLightAnchor" type="Node2D" parent="."]
+script = ExtResource("3_light_ctrl")
+animated_sprite_path = NodePath("../Visual/Body")
+light_path = NodePath("WorkLight")
+
+[node name="WorkLight" type="PointLight2D" parent="WorkLightAnchor"]
+enabled = false
+color = Color(1, 0.478431, 0.270588, 1)
+energy = 0.45
+blend_mode = 0
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 1.5
+
+[node name="ClickArea" type="Button" parent="."]
+offset_left = -120.0
+offset_top = -300.0
+offset_right = 120.0
+offset_bottom = 20.0
+focus_mode = 0
+flat = true

@@ -6,6 +6,16 @@
 [ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="4_transition"]
 [ext_resource type="Texture2D" uid="uid://dk53ib1iw4br3" path="res://Graphics/home_village/forge/construction/Кузня.png" id="5_63s6x"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="5_intermittent"]
+[ext_resource type="Texture2D" uid="uid://1jf1ekecfgmv" path="res://Graphics/home_village/forge/animation/0.png" id="6_n3d8g"]
+[ext_resource type="Texture2D" uid="uid://bcbicxjo0wsit" path="res://Graphics/home_village/forge/animation/1.png" id="7_ghje6"]
+[ext_resource type="Texture2D" uid="uid://b2ysv6v8ogysx" path="res://Graphics/home_village/forge/animation/2.png" id="8_xd4ep"]
+[ext_resource type="Texture2D" uid="uid://bm7ynhgvgqsde" path="res://Graphics/home_village/forge/animation/3.png" id="9_umbyi"]
+[ext_resource type="Texture2D" uid="uid://bd11w6pdn447q" path="res://Graphics/home_village/forge/animation/4.png" id="10_1as5q"]
+[ext_resource type="Texture2D" uid="uid://b243wgwsp00e4" path="res://Graphics/home_village/forge/animation/5.png" id="11_ic4h7"]
+[ext_resource type="Texture2D" uid="uid://bxfpb6xxx4hsk" path="res://Graphics/home_village/forge/animation/6.png" id="12_y3aq0"]
+[ext_resource type="Texture2D" uid="uid://bfqcqarrrsjjp" path="res://Graphics/home_village/forge/animation/7.png" id="13_iarbg"]
+[ext_resource type="Texture2D" uid="uid://dqa24ag4ibqlm" path="res://Graphics/home_village/forge/animation/8.png" id="14_6p141"]
+[ext_resource type="Texture2D" uid="uid://8mmg84uy64cy" path="res://Graphics/home_village/forge/animation/9.png" id="15_3twx8"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_construction_detail"]
 animations = [{
@@ -17,7 +27,37 @@ animations = [{
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_built_detail"]
 animations = [{
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_n3d8g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ghje6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_xd4ep")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_umbyi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1as5q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_ic4h7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_y3aq0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_iarbg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_6p141")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_3twx8")
+}],
 "loop": 1,
 "name": &"base_idle",
 "speed": 5.0
@@ -63,8 +103,11 @@ texture = ExtResource("5_63s6x")
 [node name="DetailAnimation" type="Node2D" parent="Built/Visual" unique_id=197706535]
 
 [node name="Visual" type="AnimatedSprite2D" parent="Built/Visual/DetailAnimation" unique_id=1000485319]
+position = Vector2(-315, -37.000004)
+scale = Vector2(1.0498443, 1.0498443)
 sprite_frames = SubResource("SpriteFrames_forge_built_detail")
 animation = &"base_idle"
+frame_progress = 0.062303923
 
 [node name="IntermittentController" type="Node" parent="Built/Visual/DetailAnimation" unique_id=1160996564]
 script = ExtResource("5_intermittent")
@@ -78,4 +121,8 @@ max_pause = 7.0
 playback_speed_min = 0.95
 playback_speed_max = 1.05
 
+[node name="Anvil" type="Sprite2D" parent="Built/Visual" unique_id=210000070]
+z_index = 5
+
 [node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]
+

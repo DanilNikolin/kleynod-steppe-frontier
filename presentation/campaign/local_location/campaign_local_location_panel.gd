@@ -98,7 +98,9 @@ var _interaction_title: Label
 var _interaction_description: Label
 var _actions_row: HBoxContainer
 var _status_label: Label
+var _quick_bar: HBoxContainer
 var _carpenter_quick_button: Button
+var _blacksmith_quick_button: Button
 var _is_bound: bool = false
 
 
@@ -587,22 +589,37 @@ func _build_debug_time_slider(stage: Control) -> void:
 
 	stage.add_child(debug_panel)
 
+	_quick_bar = HBoxContainer.new()
+	_quick_bar.name = "ResidentQuickBar"
+	_quick_bar.anchor_left = 0.5
+	_quick_bar.anchor_right = 0.5
+	_quick_bar.anchor_top = 1.0
+	_quick_bar.anchor_bottom = 1.0
+	_quick_bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_quick_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_quick_bar.offset_top = -82.0
+	_quick_bar.offset_bottom = -30.0
+	_quick_bar.add_theme_constant_override("separation", 16)
+
 	_carpenter_quick_button = Button.new()
 	_carpenter_quick_button.name = "CarpenterQuickButton"
-	_carpenter_quick_button.anchor_left = 0.5
-	_carpenter_quick_button.anchor_right = 0.5
-	_carpenter_quick_button.anchor_top = 1.0
-	_carpenter_quick_button.anchor_bottom = 1.0
-	_carpenter_quick_button.offset_left = -130.0
-	_carpenter_quick_button.offset_right = 130.0
-	_carpenter_quick_button.offset_top = -82.0
-	_carpenter_quick_button.offset_bottom = -30.0
-	_carpenter_quick_button.custom_minimum_size = Vector2(260.0, 52.0)
+	_carpenter_quick_button.custom_minimum_size = Vector2(240.0, 52.0)
 	var carpenter_def := _get_resident_definition(&"debug_carpenter")
 	_carpenter_quick_button.text = carpenter_def.display_name if carpenter_def != null else "Плотник"
 	_carpenter_quick_button.visible = false
 	_carpenter_quick_button.pressed.connect(_on_carpenter_quick_button_pressed)
-	stage.add_child(_carpenter_quick_button)
+	_quick_bar.add_child(_carpenter_quick_button)
+
+	_blacksmith_quick_button = Button.new()
+	_blacksmith_quick_button.name = "BlacksmithQuickButton"
+	_blacksmith_quick_button.custom_minimum_size = Vector2(240.0, 52.0)
+	var blacksmith_def := _get_resident_definition(&"resident_blacksmith_ostap")
+	_blacksmith_quick_button.text = blacksmith_def.display_name if blacksmith_def != null else "Стецько Коваль"
+	_blacksmith_quick_button.visible = false
+	_blacksmith_quick_button.pressed.connect(_on_blacksmith_quick_button_pressed)
+	_quick_bar.add_child(_blacksmith_quick_button)
+
+	stage.add_child(_quick_bar)
 
 
 func _refresh_camera_navigation() -> void:
@@ -1376,6 +1393,10 @@ func _refresh_resident_visibility() -> void:
 			overrides[definition.home_interaction_id] = false
 			if _carpenter_quick_button != null:
 				_carpenter_quick_button.visible = home_present
+		elif definition.resident_id == &"resident_blacksmith_ostap":
+			overrides[definition.home_interaction_id] = false
+			if _blacksmith_quick_button != null:
+				_blacksmith_quick_button.visible = home_present
 		else:
 			overrides[
 				definition.home_interaction_id
@@ -1587,6 +1608,11 @@ func _refresh_resident_panel(
 		if resident_state.is_at_origin():
 			return
 		for action_label in interaction.action_labels:
+			var normalized_label := action_label.strip_edges().to_upper()
+			if normalized_label == "ПОГОВОРИТЬ":
+				continue
+			if definition.is_forge_master and normalized_label == "ОТКРЫТЬ КУЗНИЦУ":
+				continue
 			var action_button := Button.new()
 			action_button.text = action_label
 			action_button.pressed.connect(
@@ -1597,6 +1623,9 @@ func _refresh_resident_panel(
 		for action_label in (
 			interaction.action_labels
 		):
+			var normalized_label := action_label.strip_edges().to_upper()
+			if definition.is_forge_master and normalized_label == "ОТКРЫТЬ КУЗНИЦУ":
+				continue
 			var action_button := Button.new()
 
 			action_button.text = action_label
@@ -1768,6 +1797,19 @@ func _on_carpenter_quick_button_pressed() -> void:
 		_refresh_interaction_panel()
 	else:
 		_open_resident_interaction(&"debug_carpenter")
+
+
+func _on_blacksmith_quick_button_pressed() -> void:
+	if _canvas == null:
+		return
+
+	if not _canvas.is_resident_centered(&"resident_blacksmith_ostap"):
+		_canvas.focus_resident(&"resident_blacksmith_ostap")
+		_selected_interaction_id = &""
+		_canvas.set_selected_interaction(&"")
+		_refresh_interaction_panel()
+	else:
+		_open_resident_interaction(&"resident_blacksmith_ostap")
 
 
 func _get_quests_for_giver(

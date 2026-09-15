@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dachgyxf6ramy"]
 
-[ext_resource type="Script" path="res://presentation/campaign/local_location/blacksmith_npc_visual.gd" id="1_visual"]
+[ext_resource type="Script" uid="uid://b4yw58c1uc4oh" path="res://presentation/campaign/local_location/blacksmith_npc_visual.gd" id="1_visual"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
 [ext_resource type="Texture2D" uid="uid://cxws6sqn6g2pk" path="res://Graphics/home_village/forge/animation_1/1.png" id="2_ix5rc"]
 [ext_resource type="Texture2D" uid="uid://b5wcgra5sej11" path="res://Graphics/home_village/npcs/blacksmith/work/1.png" id="2_nmivi"]
@@ -32,11 +32,6 @@
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_blacksmith"]
 animations = [{
-"frames": [],
-"loop": 1,
-"name": &"idle",
-"speed": 5.0
-}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("2_ix5rc")
@@ -76,6 +71,11 @@ animations = [{
 }],
 "loop": 1,
 "name": &"Sitting",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"idle",
 "speed": 5.0
 }, {
 "frames": [{
@@ -146,8 +146,7 @@ resident_id = &"resident_blacksmith_ostap"
 
 [node name="Body" type="AnimatedSprite2D" parent="Visual" unique_id=757234053]
 sprite_frames = SubResource("SpriteFrames_blacksmith")
-animation = &"Sitting"
-frame_progress = 0.7469809
+animation = &"work"
 
 [node name="IntermittentController" type="Node" parent="Visual/Body" unique_id=801335047]
 script = ExtResource("2_intermittent")

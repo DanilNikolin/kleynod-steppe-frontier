@@ -40,6 +40,8 @@ func _ready() -> void:
 		_light = get_node_or_null(light_path) as PointLight2D
 
 	if _light != null:
+		if _light.energy > 0.0:
+			base_energy = _light.energy
 		_light.enabled = false
 
 

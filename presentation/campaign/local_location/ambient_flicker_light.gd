@@ -23,6 +23,11 @@ func _ready() -> void:
 	if not light_path.is_empty():
 		_light = get_node_or_null(light_path) as PointLight2D
 
+	if _light != null:
+		# If user adjusted energy directly on the PointLight2D node and not on controller, use node energy
+		if _light.energy != 1.0 and base_energy == 0.40:
+			base_energy = _light.energy
+
 
 func _process(delta: float) -> void:
 	if _light == null:
@@ -37,7 +42,8 @@ func _process(delta: float) -> void:
 
 	var flicker := (
 		sin(_time * flicker_speed) * flicker_strength
-		+ sin(_time * flicker_speed * 1.73) * flicker_strength * secondary_flicker_strength
+		+ sin(_time * flicker_speed * 1.73) * (flicker_strength * secondary_flicker_strength)
 	)
 
 	_light.energy = maxf(0.0, base_energy + flicker)
+

@@ -16,19 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://bfqcqarrrsjjp" path="res://Graphics/home_village/forge/animation/7.png" id="13_iarbg"]
 [ext_resource type="Texture2D" uid="uid://dqa24ag4ibqlm" path="res://Graphics/home_village/forge/animation/8.png" id="14_6p141"]
 [ext_resource type="Texture2D" uid="uid://8mmg84uy64cy" path="res://Graphics/home_village/forge/animation/9.png" id="15_3twx8"]
-[ext_resource type="Script" path="res://presentation/campaign/local_location/ambient_flicker_light.gd" id="16_flicker"]
-
-[sub_resource type="Gradient" id="Gradient_furnace_light"]
-offsets = PackedFloat32Array(0, 0.48, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.45, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_furnace"]
-gradient = SubResource("Gradient_furnace_light")
-width = 512
-height = 512
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(1, 0.5)
+[ext_resource type="Script" uid="uid://b668lcqrudtf2" path="res://presentation/campaign/local_location/ambient_flicker_light.gd" id="16_flicker"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_construction_detail"]
 animations = [{
@@ -86,6 +74,18 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="Gradient" id="Gradient_furnace_light"]
+offsets = PackedFloat32Array(0, 0.48, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.45, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_furnace"]
+gradient = SubResource("Gradient_furnace_light")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
 [node name="Forge" type="Node2D" unique_id=565658640]
 script = ExtResource("1_buildable")
 
@@ -139,10 +139,13 @@ script = ExtResource("16_flicker")
 light_path = NodePath("FurnaceLight")
 
 [node name="FurnaceLight" type="PointLight2D" parent="Built/Visual/FurnaceLightAnchor" unique_id=210000081]
+position = Vector2(14, 15.000002)
 color = Color(1, 0.443137, 0.219608, 1)
-energy = 0.4
+energy = 1.85
+blend_mode = 1
+range_z_max = 4
 texture = SubResource("GradientTexture2D_furnace")
-texture_scale = 2.0
+texture_scale = 1.5
 
 [node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]
 

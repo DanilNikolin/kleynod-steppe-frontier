@@ -91,6 +91,7 @@ var grid: BattleGrid
 
 var combatant_presenter: BattleCombatantPresenter
 var grid_overlay_presenter: BattleGridOverlayPresenter
+var tactical_state := BattleTacticalState.new()
 
 var movement_runner: BattleMovementRunner
 var action_runner: BattleActionRunner
@@ -133,6 +134,9 @@ func _ready() -> void:
 	_refresh_surface_effect_presentation()
 	_create_combatant_presenter()
 	_connect_defeated_view_cleanup()
+	var overlay_adapter := BattleDebugOverlayAdapter.new()
+	add_child(overlay_adapter)
+	overlay_adapter.bind(tactical_state, grid_view)
 	_create_action_preview_system()
 	_create_movement_runner()
 	_create_action_runner()
@@ -384,8 +388,10 @@ func _connect_surface_effect_signals() -> void:
 
 
 func _create_combatant_presenter() -> void:
+	var slot_resolver := BattleGridSlotResolver.new(grid_view)
+	grid_view.add_child(slot_resolver)
 	combatant_presenter = BattleCombatantPresenter.new(
-		grid_view,
+		slot_resolver,
 		combatant_layer,
 		combatant_view_scene
 	)
@@ -419,7 +425,7 @@ func _create_action_preview_system() -> void:
 	action_preview_presenter = (
 		BattleActionPreviewPresenter.new(
 			combatant_presenter,
-			grid_view
+			tactical_state
 		)
 	)
 
@@ -441,7 +447,7 @@ func _create_action_runner() -> void:
 func _create_grid_overlay_presenter() -> void:
 	grid_overlay_presenter = (
 		BattleGridOverlayPresenter.new(
-			grid_view,
+			tactical_state,
 			movement_service,
 			action_service,
 			targeting_service,
@@ -515,6 +521,8 @@ func _create_interaction_controller() -> void:
 			animate_actions
 		)
 	)
+
+	interaction_controller.debug_tools_enabled = true
 
 
 func _connect_grid_signals() -> void:

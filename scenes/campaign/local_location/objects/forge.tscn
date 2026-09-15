@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://iiap0xfjwuk1"]
 
-[ext_resource type="Script" path="res://presentation/campaign/local_location/forge_visual.gd" id="1_buildable"]
+[ext_resource type="Script" uid="uid://d07cwqae06dyx" path="res://presentation/campaign/local_location/forge_visual.gd" id="1_buildable"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
 [ext_resource type="Texture2D" uid="uid://ciifiy2e1n1he" path="res://Graphics/home_village/forge/construction/стройка 30.png" id="2_xd4ep"]
 [ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="3_ambient"]
@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://dqa24ag4ibqlm" path="res://Graphics/home_village/forge/animation/8.png" id="14_6p141"]
 [ext_resource type="Texture2D" uid="uid://8mmg84uy64cy" path="res://Graphics/home_village/forge/animation/9.png" id="15_3twx8"]
 [ext_resource type="Script" uid="uid://b668lcqrudtf2" path="res://presentation/campaign/local_location/ambient_flicker_light.gd" id="16_flicker"]
+[ext_resource type="Texture2D" uid="uid://d2d4ckl4jsr84" path="res://Graphics/home_village/forge/construction/оружейная оснастка.png" id="18_umbyi"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_forge_construction_detail"]
 animations = [{
@@ -162,7 +163,7 @@ texture_scale = 1.5
 [node name="EquipmentOverlay" type="Node2D" parent="Built/Visual" unique_id=220000090]
 
 [node name="WeaponEquipment" type="Sprite2D" parent="Built/Visual/EquipmentOverlay" unique_id=220000091]
-visible = false
+texture = ExtResource("18_umbyi")
 
 [node name="ArmorEquipment" type="Sprite2D" parent="Built/Visual/EquipmentOverlay" unique_id=220000092]
 visible = false

@@ -15,23 +15,25 @@ signal sound_requested(
 )
 
 
-var grid_view: BattleGridView
+var slot_resolver: BattleSlotResolver
 var combatant_layer: Node2D
 var combatant_view_scene: PackedScene
+## Optional production fallback; debug keeps its existing empty-hook behavior.
+var default_impact_vfx_id: StringName = &""
 
 var _views: Dictionary = {}
 
 
 func _init(
-	p_grid_view: BattleGridView,
+	p_slot_resolver: BattleSlotResolver,
 	p_combatant_layer: Node2D,
 	p_combatant_view_scene: PackedScene
 ) -> void:
-	assert(p_grid_view != null, "Grid view is required.")
+	assert(p_slot_resolver != null, "Slot resolver is required.")
 	assert(p_combatant_layer != null, "Combatant layer is required.")
 	assert(p_combatant_view_scene != null, "Combatant view scene is required.")
 
-	grid_view = p_grid_view
+	slot_resolver = p_slot_resolver
 	combatant_layer = p_combatant_layer
 	combatant_view_scene = p_combatant_view_scene
 
@@ -41,6 +43,10 @@ func add_combatant(
 	selected: bool = false
 ) -> CombatantView:
 	if state == null or state.instance_id == &"":
+		return null
+
+	if not slot_resolver.has_slot(state.grid_position):
+		push_error("Cannot spawn combatant '%s': missing slot %s." % [state.instance_id, state.grid_position])
 		return null
 
 	if has_view(state.instance_id):
@@ -61,7 +67,7 @@ func add_combatant(
 	view.bind_state(state)
 	view.set_selected_state(selected)
 	view.snap_to_local_position(
-		grid_view.get_cell_center(state.grid_position)
+		_get_slot_local_position(state.grid_position)
 	)
 
 	_views[state.instance_id] = view
@@ -98,11 +104,11 @@ func move_along_grid_path(
 	var local_path: Array[Vector2] = []
 
 	for coordinate in grid_path:
-		if not grid_view.is_valid_coordinate(coordinate):
+		if not slot_resolver.has_slot(coordinate):
 			return false
 
 		local_path.append(
-			grid_view.get_cell_center(coordinate)
+			_get_slot_local_position(coordinate)
 		)
 
 	view.move_along_local_path(local_path, animated)
@@ -132,23 +138,23 @@ func present_swap(
 		return false
 
 	if (
-		not grid_view.is_valid_coordinate(
+		not slot_resolver.has_slot(
 			first_destination
 		)
-		or not grid_view.is_valid_coordinate(
+		or not slot_resolver.has_slot(
 			second_destination
 		)
 	):
 		return false
 
 	var first_target_position := (
-		grid_view.get_cell_center(
+		_get_slot_local_position(
 			first_destination
 		)
 	)
 
 	var second_target_position := (
-		grid_view.get_cell_center(
+		_get_slot_local_position(
 			second_destination
 		)
 	)
@@ -270,14 +276,14 @@ func present_teleport(
 
 	if (
 		view == null
-		or not grid_view.is_valid_coordinate(
+		or not slot_resolver.has_slot(
 			destination
 		)
 	):
 		return false
 
 	var target_position := (
-		grid_view.get_cell_center(
+		_get_slot_local_position(
 			destination
 		)
 	)
@@ -737,12 +743,15 @@ func _emit_ability_presentation_hooks(
 			actor_id
 		)
 
-	if profile.impact_vfx_id == &"":
+	var impact_vfx_id := profile.impact_vfx_id
+	if impact_vfx_id == &"" and profile.feedback_kind != BattleAbilityPresentationProfile.FeedbackKind.NONE:
+		impact_vfx_id = default_impact_vfx_id
+	if impact_vfx_id == &"":
 		return
 
 	if feedback_views.is_empty():
 		vfx_requested.emit(
-			profile.impact_vfx_id,
+			impact_vfx_id,
 			_get_effects_anchor_position(
 				actor_view
 			),
@@ -756,7 +765,7 @@ func _emit_ability_presentation_hooks(
 		feedback_views.size()
 	):
 		vfx_requested.emit(
-			profile.impact_vfx_id,
+			impact_vfx_id,
 			_get_effects_anchor_position(
 				feedback_views[
 					feedback_index
@@ -868,3 +877,7 @@ func _finish_ability_feedback(
 				&"idle",
 				&""
 			)
+
+## Resolver positions are global; views move in their own parent space.
+func _get_slot_local_position(coordinate: Vector2i) -> Vector2:
+	return combatant_layer.to_local(slot_resolver.get_slot_position(coordinate))

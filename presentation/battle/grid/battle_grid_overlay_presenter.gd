@@ -2,50 +2,7 @@ class_name BattleGridOverlayPresenter
 extends RefCounted
 
 
-const REACHABLE_OVERLAY_COLOR := Color(
-	0.20,
-	0.72,
-	0.88,
-	0.28
-)
-
-const PATH_OVERLAY_COLOR := Color(
-	1.0,
-	0.82,
-	0.24,
-	0.52
-)
-
-const OBSTACLE_OVERLAY_COLOR := Color(
-	0.82,
-	0.26,
-	0.18,
-	0.62
-)
-
-const ENEMY_OVERLAY_COLOR := Color(
-	0.82,
-	0.18,
-	0.14,
-	0.30
-)
-
-const SWAPPABLE_ALLY_OVERLAY_COLOR := Color(
-	0.28,
-	0.92,
-	0.48,
-	0.58
-)
-
-const ATTACKABLE_OVERLAY_COLOR := Color(
-	1.0,
-	0.46,
-	0.12,
-	0.70
-)
-
-
-var grid_view: BattleGridView
+var overlay_state: BattleTacticalState
 
 var movement_service: BattleMovementService
 var action_service: BattleActionService
@@ -55,14 +12,14 @@ var show_targeting_debug: bool = true
 
 
 func _init(
-	p_grid_view: BattleGridView,
+	p_overlay_state: BattleTacticalState,
 	p_movement_service: BattleMovementService,
 	p_action_service: BattleActionService,
 	p_targeting_service: BattleTargetingService,
 	p_show_targeting_debug: bool = true
 ) -> void:
 	assert(
-		p_grid_view != null,
+		p_overlay_state != null,
 		"BattleGridOverlayPresenter requires a grid view."
 	)
 
@@ -84,7 +41,7 @@ func _init(
 		+"a targeting service."
 	)
 
-	grid_view = p_grid_view
+	overlay_state = p_overlay_state
 	movement_service = p_movement_service
 	action_service = p_action_service
 	targeting_service = p_targeting_service
@@ -174,15 +131,13 @@ func refresh(
 	if grid.is_inside(
 		selected_combatant.grid_position
 	):
-		grid_view.set_selected_cell(
-			selected_combatant.grid_position
+		overlay_state.add_state(
+			selected_combatant.grid_position, BattleTacticalState.Kind.SELECTED
 		)
 
 
 func clear() -> void:
-	grid_view.clear_cell_overlays()
-	grid_view.clear_selected_cell()
-	grid_view.clear_targeting_debug_markers()
+	overlay_state.clear_tactical()
 
 
 func _draw_targeting_debug(
@@ -197,7 +152,7 @@ func _draw_targeting_debug(
 		or ability == null
 		or ability.targeting == null
 	):
-		grid_view.clear_targeting_debug_markers()
+		overlay_state.clear_targeting_markers()
 		return
 
 	var aim_coordinates := (
@@ -224,7 +179,7 @@ func _draw_targeting_debug(
 
 	if (
 		hovered_coordinate
-		!= BattleGridView.INVALID_COORDINATE
+		!= BattleGrid.INVALID_COORDINATE
 		and aim_coordinates.has(
 			hovered_coordinate
 		)
@@ -239,10 +194,16 @@ func _draw_targeting_debug(
 			)
 		)
 
-	grid_view.set_targeting_debug_markers(
+	overlay_state.set_targeting_markers(
 		aim_coordinates,
 		impact_coordinates
 	)
+	# Range markers used to be debug-only. Production's VALID_TARGET means
+	# executable, so resolve the semantic state through the existing action service.
+	for coordinate in aim_coordinates:
+		var executable := action_service.can_execute(session, BattleActionCommand.new(actor, ability, coordinate))
+		overlay_state.add_state(coordinate, BattleTacticalState.Kind.VALID_TARGET
+			if executable else BattleTacticalState.Kind.INVALID_TARGET)
 
 
 func _filter_executable_teleport_coordinates(
@@ -315,9 +276,9 @@ func _draw_reachable_coordinates(
 	)
 
 	for coordinate in reachable_coordinates:
-		grid_view.set_cell_overlay(
+		overlay_state.add_state(
 			coordinate,
-			REACHABLE_OVERLAY_COLOR
+			BattleTacticalState.Kind.REACHABLE
 		)
 
 
@@ -330,9 +291,9 @@ func _draw_obstacles(
 		if cell == null or not cell.has_obstacle():
 			continue
 
-		grid_view.set_cell_overlay(
+		overlay_state.add_state(
 			coordinate,
-			OBSTACLE_OVERLAY_COLOR
+			BattleTacticalState.Kind.OBSTACLE
 		)
 
 
@@ -359,9 +320,9 @@ func _draw_swappable_allies(
 		):
 			continue
 
-		grid_view.set_cell_overlay(
+		overlay_state.add_state(
 			ally.grid_position,
-			SWAPPABLE_ALLY_OVERLAY_COLOR
+			BattleTacticalState.Kind.SWAP
 		)
 
 
@@ -385,8 +346,8 @@ func _draw_target_candidates(
 		):
 			continue
 
-		var overlay_color := (
-			ENEMY_OVERLAY_COLOR
+		var slot_kind := (
+			BattleTacticalState.Kind.INVALID_TARGET
 		)
 
 		if ability != null:
@@ -400,13 +361,13 @@ func _draw_target_candidates(
 				session,
 				command
 			):
-				overlay_color = (
-					ATTACKABLE_OVERLAY_COLOR
+				slot_kind = (
+					BattleTacticalState.Kind.VALID_TARGET
 				)
 
-		grid_view.set_cell_overlay(
+		overlay_state.add_state(
 			target.grid_position,
-			overlay_color
+			slot_kind
 		)
 
 
@@ -419,7 +380,7 @@ func _draw_hovered_path(
 ) -> void:
 	if (
 		hovered_coordinate
-		== BattleGridView.INVALID_COORDINATE
+		== BattleGrid.INVALID_COORDINATE
 	):
 		return
 
@@ -440,9 +401,9 @@ func _draw_hovered_path(
 		return
 
 	for path_coordinate in hover_plan.path:
-		grid_view.set_cell_overlay(
+		overlay_state.add_state(
 			path_coordinate,
-			PATH_OVERLAY_COLOR
+			BattleTacticalState.Kind.PATH
 		)
 
 

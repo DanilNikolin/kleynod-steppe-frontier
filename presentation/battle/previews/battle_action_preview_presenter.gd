@@ -2,23 +2,15 @@ class_name BattleActionPreviewPresenter
 extends RefCounted
 
 
-const BLOCKED_SURFACE_PREVIEW_COLOR := Color(
-	0.95,
-	0.16,
-	0.10,
-	1.0
-)
-
-
 var combatant_presenter: BattleCombatantPresenter
-var grid_view: BattleGridView
+var overlay_state: BattleTacticalState
 
 var _shown_target_ids: Array[StringName] = []
 
 
 func _init(
 	p_combatant_presenter: BattleCombatantPresenter,
-	p_grid_view: BattleGridView
+	p_overlay_state: BattleTacticalState
 ) -> void:
 	assert(
 		p_combatant_presenter != null,
@@ -27,7 +19,7 @@ func _init(
 	)
 
 	assert(
-		p_grid_view != null,
+		p_overlay_state != null,
 		"Action preview presenter requires "
 		+"a battle grid view."
 	)
@@ -36,7 +28,7 @@ func _init(
 		p_combatant_presenter
 	)
 
-	grid_view = p_grid_view
+	overlay_state = p_overlay_state
 
 
 func show_preview(
@@ -71,8 +63,8 @@ func clear() -> void:
 
 	_shown_target_ids.clear()
 
-	if grid_view != null:
-		grid_view.clear_action_preview_cells()
+	if overlay_state != null:
+		overlay_state.clear_surface_previews()
 
 
 func _show_target_previews(
@@ -113,97 +105,4 @@ func _show_target_previews(
 func _show_surface_placement_previews(
 	placement_previews: Array[BattleSurfacePlacementPreview]
 ) -> void:
-	var text_lines_by_coordinate: Dictionary = {}
-	var color_by_coordinate: Dictionary = {}
-
-	for placement_preview in placement_previews:
-		if placement_preview == null:
-			continue
-
-		var coordinate := (
-			placement_preview.coordinate
-		)
-
-		if not grid_view.is_valid_coordinate(
-			coordinate
-		):
-			continue
-
-		var text := (
-			BattleActionPreviewFormatter
-			.build_surface_placement_text(
-				placement_preview
-			)
-		)
-
-		if text.strip_edges().is_empty():
-			continue
-
-		var text_lines: PackedStringArray = (
-			text_lines_by_coordinate.get(
-				coordinate,
-				PackedStringArray()
-			)
-		)
-
-		text_lines.append(
-			text
-		)
-
-		text_lines_by_coordinate[
-			coordinate
-		] = text_lines
-
-		var preview_color := (
-			placement_preview
-				.presentation_color
-		)
-
-		if not placement_preview.can_place:
-			preview_color = (
-				BLOCKED_SURFACE_PREVIEW_COLOR
-			)
-
-		preview_color.a = 1.0
-
-		if color_by_coordinate.has(
-			coordinate
-		):
-			var existing_color: Color = (
-				color_by_coordinate[
-					coordinate
-				]
-			)
-
-			preview_color = existing_color.lerp(
-				preview_color,
-				0.5
-			)
-
-		color_by_coordinate[
-			coordinate
-		] = preview_color
-
-	for value in text_lines_by_coordinate.keys():
-		var coordinate: Vector2i = value
-
-		var text_lines: PackedStringArray = (
-			text_lines_by_coordinate[
-				coordinate
-			]
-		)
-
-		var preview_color: Color = (
-			color_by_coordinate.get(
-				coordinate,
-				Color.WHITE
-			)
-		)
-
-		grid_view.set_action_preview_cell(
-			coordinate,
-			"\n".join(
-				text_lines
-			),
-			preview_color
-		)
+	overlay_state.set_surface_previews(placement_previews)

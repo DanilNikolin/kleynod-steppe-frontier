@@ -1,0 +1,122 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/battle_screen.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/battle/environments/steppe_environment.tscn" id="2"]
+
+[ext_resource type="Script" path="res://presentation/battle/environment/battle_slot_interaction.gd" id="3"]
+
+[ext_resource type="Script" path="res://presentation/battle/overlay/battle_tactical_overlay.gd" id="overlay"]
+[ext_resource type="Script" path="res://presentation/battle/surfaces/battle_surface_presenter.gd" id="surfaces"]
+[ext_resource type="Script" path="res://presentation/battle/effects/battle_effects_layer.gd" id="effects"]
+[ext_resource type="Script" path="res://presentation/battle/effects/battle_vfx_definition.gd" id="vfx_def"]
+[ext_resource type="PackedScene" path="res://presentation/battle/effects/impact_vfx.tscn" id="impact"]
+[ext_resource type="Script" path="res://presentation/battle/camera/battle_camera_director.gd" id="director"]
+[ext_resource type="Script" path="res://presentation/battle/effects/battle_screen_feedback.gd" id="feedback"]
+[ext_resource type="Resource" path="res://content/encounters/debug/debug_duel_encounter.tres" id="encounter"]
+[ext_resource type="PackedScene" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="abilities"]
+[ext_resource type="PackedScene" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="hover"]
+[ext_resource type="PackedScene" path="res://presentation/battle/surfaces/battle_surface_hover_panel.tscn" id="surface_hover"]
+
+[sub_resource type="Resource" id="ImpactDefinition"]
+script = ExtResource("vfx_def")
+effect_id = &"impact"
+scene = ExtResource("impact")
+lifetime = 0.5
+
+[node name="BattleScreen" type="Node2D"]
+script = ExtResource("1")
+environment_scene = ExtResource("2")
+encounter_definition = ExtResource("encounter")
+
+[node name="BattleWorld" type="Node2D" parent="."]
+
+[node name="EnvironmentHost" type="Node2D" parent="BattleWorld"]
+
+[node name="SurfaceLayer" type="Node2D" parent="BattleWorld"]
+script = ExtResource("surfaces")
+z_index = -100
+z_as_relative = false
+
+[node name="CombatantLayer" type="Node2D" parent="BattleWorld"]
+y_sort_enabled = true
+z_as_relative = false
+
+[node name="BattleEffectsLayer" type="Node2D" parent="BattleWorld"]
+script = ExtResource("effects")
+effects = Array[ExtResource("vfx_def")]([SubResource("ImpactDefinition")])
+z_index = 100
+z_as_relative = false
+
+[node name="TacticalOverlay" type="Node2D" parent="BattleWorld"]
+script = ExtResource("overlay")
+z_index = 200
+z_as_relative = false
+
+[node name="SlotInteraction" type="Node2D" parent="BattleWorld/TacticalOverlay"]
+script = ExtResource("3")
+
+[node name="BattleCamera" type="Camera2D" parent="."]
+position = Vector2(0, 150)
+
+[node name="CameraDirector" type="Node" parent="."]
+script = ExtResource("director")
+
+[node name="BattleUI" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="ScreenFeedback" type="ColorRect" parent="BattleUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("feedback")
+
+[node name="Root" type="Control" parent="BattleUI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+
+[node name="StatusLabel" type="Label" parent="BattleUI/Root"]
+offset_left = 28.0
+offset_top = 20.0
+offset_right = 1100.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+
+[node name="AbilityPanel" parent="BattleUI/Root" instance=ExtResource("abilities")]
+offset_top = -300.0
+
+[node name="CombatantHoverPanel" parent="BattleUI/Root" instance=ExtResource("hover")]
+
+[node name="SurfaceHoverPanel" parent="BattleUI/Root" instance=ExtResource("surface_hover")]
+
+[node name="EndTurn" type="Button" parent="BattleUI/Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -270.0
+offset_top = -72.0
+offset_right = -24.0
+offset_bottom = -24.0
+text = "Завершить ход · Space"
+
+[node name="TestShake" type="Button" parent="BattleUI/Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -270.0
+offset_top = -132.0
+offset_right = -24.0
+offset_bottom = -84.0
+text = "Тест камеры"

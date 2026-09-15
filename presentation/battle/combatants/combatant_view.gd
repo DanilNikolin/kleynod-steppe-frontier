@@ -2,6 +2,9 @@
 class_name CombatantView
 extends Node2D
 
+## Root origin is the feet / ground contact. Keep artwork above this origin
+## inside VisualContainer; CombatantLayer Y-sorts these roots as whole actors.
+
 
 signal movement_finished
 

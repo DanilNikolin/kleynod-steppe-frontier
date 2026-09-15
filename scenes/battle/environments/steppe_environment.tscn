@@ -1,0 +1,174 @@
+[gd_scene format=3 uid="uid://qcdvolnufcbi"]
+
+[ext_resource type="Script" uid="uid://b84qoru2o4og2" path="res://presentation/battle/environment/battle_environment.gd" id="1"]
+[ext_resource type="Script" uid="uid://b0hfuxpck3gff" path="res://presentation/battle/environment/battle_arena_layout.gd" id="2"]
+[ext_resource type="Script" uid="uid://clt8k6awi4urh" path="res://presentation/battle/environment/battle_slot_anchor.gd" id="3"]
+
+[node name="SteppeEnvironment" type="Node2D" unique_id=287626472]
+script = ExtResource("1")
+
+[node name="BackgroundLayer" type="Node2D" parent="." unique_id=1174992998]
+z_index = -400
+z_as_relative = false
+
+[node name="PlaceholderSky" type="Polygon2D" parent="BackgroundLayer" unique_id=1078192023]
+color = Color(0.24, 0.3, 0.34, 1)
+polygon = PackedVector2Array(-2000, -1200, 2000, -1200, 2000, 1200, -2000, 1200)
+
+[node name="GroundLayer" type="Node2D" parent="." unique_id=1323682834]
+z_index = -300
+z_as_relative = false
+
+[node name="PlaceholderGround" type="Polygon2D" parent="GroundLayer" unique_id=1702016702]
+color = Color(0.32, 0.34, 0.23, 1)
+polygon = PackedVector2Array(-2000, -220, 2000, -220, 2000, 1200, -2000, 1200)
+
+[node name="ArenaLayout" type="Node2D" parent="." unique_id=932490352]
+script = ExtResource("2")
+
+[node name="Slot_0_0" type="Marker2D" parent="ArenaLayout" unique_id=998218447]
+z_index = 900
+z_as_relative = false
+position = Vector2(-380, -100)
+gizmo_extents = 24.0
+script = ExtResource("3")
+
+[node name="Slot_1_0" type="Marker2D" parent="ArenaLayout" unique_id=1434184399]
+z_index = 900
+z_as_relative = false
+position = Vector2(-245, -115)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(1, 0)
+
+[node name="Slot_2_0" type="Marker2D" parent="ArenaLayout" unique_id=606670661]
+z_index = 900
+z_as_relative = false
+position = Vector2(-100, -95)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(2, 0)
+
+[node name="Slot_3_0" type="Marker2D" parent="ArenaLayout" unique_id=1242400225]
+z_index = 900
+z_as_relative = false
+position = Vector2(95, -108)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(3, 0)
+
+[node name="Slot_4_0" type="Marker2D" parent="ArenaLayout" unique_id=733183096]
+z_index = 900
+z_as_relative = false
+position = Vector2(240, -90)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(4, 0)
+
+[node name="Slot_5_0" type="Marker2D" parent="ArenaLayout" unique_id=941620822]
+z_index = 900
+z_as_relative = false
+position = Vector2(375, -105)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(5, 0)
+
+[node name="Slot_0_1" type="Marker2D" parent="ArenaLayout" unique_id=832553812]
+z_index = 900
+z_as_relative = false
+position = Vector2(-420, 30)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(0, 1)
+
+[node name="Slot_1_1" type="Marker2D" parent="ArenaLayout" unique_id=4405167]
+z_index = 900
+z_as_relative = false
+position = Vector2(-260, 48)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(1, 1)
+
+[node name="Slot_2_1" type="Marker2D" parent="ArenaLayout" unique_id=1520495333]
+z_index = 900
+z_as_relative = false
+position = Vector2(-90, 35)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(2, 1)
+
+[node name="Slot_3_1" type="Marker2D" parent="ArenaLayout" unique_id=615549446]
+z_index = 900
+z_as_relative = false
+position = Vector2(110, 55)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(3, 1)
+
+[node name="Slot_4_1" type="Marker2D" parent="ArenaLayout" unique_id=1918837504]
+z_index = 900
+z_as_relative = false
+position = Vector2(275, 32)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(4, 1)
+
+[node name="Slot_5_1" type="Marker2D" parent="ArenaLayout" unique_id=1384467073]
+z_index = 900
+z_as_relative = false
+position = Vector2(435, 45)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(5, 1)
+
+[node name="Slot_0_2" type="Marker2D" parent="ArenaLayout" unique_id=364203363]
+z_index = 900
+z_as_relative = false
+position = Vector2(-469, 205)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(0, 2)
+
+[node name="Slot_1_2" type="Marker2D" parent="ArenaLayout" unique_id=1367234118]
+z_index = 900
+z_as_relative = false
+position = Vector2(-285, 185)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(1, 2)
+
+[node name="Slot_2_2" type="Marker2D" parent="ArenaLayout" unique_id=234040967]
+z_index = 900
+z_as_relative = false
+position = Vector2(-85, 218)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(2, 2)
+
+[node name="Slot_3_2" type="Marker2D" parent="ArenaLayout" unique_id=1940673693]
+z_index = 900
+z_as_relative = false
+position = Vector2(135, 193)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(3, 2)
+
+[node name="Slot_4_2" type="Marker2D" parent="ArenaLayout" unique_id=1334470716]
+z_index = 900
+z_as_relative = false
+position = Vector2(315, 220)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(4, 2)
+
+[node name="Slot_5_2" type="Marker2D" parent="ArenaLayout" unique_id=1475256736]
+z_index = 900
+z_as_relative = false
+position = Vector2(500, 200)
+gizmo_extents = 24.0
+script = ExtResource("3")
+coordinate = Vector2i(5, 2)
+
+[node name="ForegroundLayer" type="Node2D" parent="." unique_id=1280010755]
+z_index = 400
+z_as_relative = false

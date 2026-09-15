@@ -164,6 +164,7 @@ position = Vector2(3628.0002, 757.00006)
 scale = Vector2(0.725, 0.725)
 
 [node name="BlacksmithNpc" parent="WorldContent/NPCs" unique_id=210000032 instance=ExtResource("13_blacksmith_npc")]
+z_index = 5
 position = Vector2(2308, 691)
 scale = Vector2(0.75, 0.75)
 

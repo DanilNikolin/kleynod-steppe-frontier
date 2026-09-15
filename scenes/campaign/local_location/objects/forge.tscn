@@ -139,13 +139,13 @@ script = ExtResource("16_flicker")
 light_path = NodePath("FurnaceLight")
 
 [node name="FurnaceLight" type="PointLight2D" parent="Built/Visual/FurnaceLightAnchor" unique_id=210000081]
-position = Vector2(14, 15.000002)
+position = Vector2(8.999985, 29.999985)
+scale = Vector2(0.4518229, 0.4518229)
 color = Color(1, 0.443137, 0.219608, 1)
-energy = 1.85
+energy = 1.52
 blend_mode = 1
-range_z_max = 4
+range_z_max = 3
 texture = SubResource("GradientTexture2D_furnace")
 texture_scale = 1.5
 
 [node name="TransitionFX" parent="." unique_id=1013929902 instance=ExtResource("4_transition")]
-

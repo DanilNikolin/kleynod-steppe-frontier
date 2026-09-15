@@ -302,6 +302,22 @@ func set_resident_visual_visibility(
 				visual.set_present(present)
 
 
+func set_resident_waiting_for_workplace(
+	resident_id: StringName,
+	waiting: bool
+) -> void:
+	if not _resident_npcs_by_resident_id.has(resident_id):
+		return
+
+	var npc = _resident_npcs_by_resident_id[resident_id]
+	if (
+		npc != null
+		and is_instance_valid(npc)
+		and npc.has_method("set_waiting_for_workplace")
+	):
+		npc.call("set_waiting_for_workplace", waiting)
+
+
 func set_build_site_states(
 	states: Dictionary
 ) -> void:

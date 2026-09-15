@@ -1,20 +1,32 @@
 [gd_scene format=3 uid="uid://dachgyxf6ramy"]
 
-[ext_resource type="Script" uid="uid://c3nnl6d4dlpu8" path="res://presentation/campaign/local_location/local_resident_npc_visual.gd" id="1_visual"]
+[ext_resource type="Script" path="res://presentation/campaign/local_location/blacksmith_npc_visual.gd" id="1_visual"]
 [ext_resource type="Script" uid="uid://dj0vx218bbmw0" path="res://presentation/campaign/local_location/intermittent_detail_animation.gd" id="2_intermittent"]
+[ext_resource type="Texture2D" uid="uid://cxws6sqn6g2pk" path="res://Graphics/home_village/forge/animation_1/1.png" id="2_ix5rc"]
 [ext_resource type="Texture2D" uid="uid://b5wcgra5sej11" path="res://Graphics/home_village/npcs/blacksmith/work/1.png" id="2_nmivi"]
 [ext_resource type="Texture2D" uid="uid://b5lb7s2bcerb7" path="res://Graphics/home_village/npcs/blacksmith/work/2.png" id="3_5yup4"]
+[ext_resource type="Texture2D" uid="uid://bo4sxtkqmoxjw" path="res://Graphics/home_village/forge/animation_1/2.png" id="3_f36fb"]
 [ext_resource type="Script" uid="uid://dj8mfpyix7g72" path="res://presentation/campaign/local_location/blacksmith_work_light_controller.gd" id="3_light_ctrl"]
+[ext_resource type="Texture2D" uid="uid://c0jikyuw4dicr" path="res://Graphics/home_village/forge/animation_1/3.png" id="4_iuiqi"]
 [ext_resource type="Texture2D" uid="uid://cuqoxe8xr1e68" path="res://Graphics/home_village/npcs/blacksmith/work/3.png" id="4_yaidf"]
+[ext_resource type="Texture2D" uid="uid://cfb4c14fqq1h1" path="res://Graphics/home_village/forge/animation_1/4.png" id="5_wxvfi"]
 [ext_resource type="Texture2D" uid="uid://d2tk85hx8he0" path="res://Graphics/home_village/npcs/blacksmith/work/4.png" id="5_x2367"]
 [ext_resource type="Texture2D" uid="uid://b53sxyorkecuy" path="res://Graphics/home_village/npcs/blacksmith/work/5.png" id="6_7x5wu"]
+[ext_resource type="Texture2D" uid="uid://cnh4t1y2bu6ic" path="res://Graphics/home_village/forge/animation_1/5.png" id="6_y7av1"]
 [ext_resource type="Texture2D" uid="uid://dwe1tc4qkxe4o" path="res://Graphics/home_village/npcs/blacksmith/work/6.png" id="7_3iidj"]
+[ext_resource type="Texture2D" uid="uid://dew83ywbe11oa" path="res://Graphics/home_village/forge/animation_1/6.png" id="7_t10xo"]
 [ext_resource type="Texture2D" uid="uid://cur7y3w2kdugv" path="res://Graphics/home_village/npcs/blacksmith/work/7.png" id="8_bbpxx"]
+[ext_resource type="Texture2D" uid="uid://bcbcjao6delex" path="res://Graphics/home_village/forge/animation_1/7.png" id="8_w2ref"]
+[ext_resource type="Texture2D" uid="uid://c126af0q46vqx" path="res://Graphics/home_village/forge/animation_1/8.png" id="9_yb24i"]
 [ext_resource type="Texture2D" uid="uid://bygi185j0qukv" path="res://Graphics/home_village/npcs/blacksmith/work/8.png" id="9_yona8"]
 [ext_resource type="Texture2D" uid="uid://docv4gbalvam7" path="res://Graphics/home_village/npcs/blacksmith/work/9.png" id="10_4qs28"]
+[ext_resource type="Texture2D" uid="uid://7qcukhyyxool" path="res://Graphics/home_village/forge/animation_1/9.png" id="10_qt5gk"]
 [ext_resource type="Texture2D" uid="uid://cqa11v1okgkag" path="res://Graphics/home_village/npcs/blacksmith/work/10.png" id="11_04wu6"]
+[ext_resource type="Texture2D" uid="uid://duehv8u2mi2j" path="res://Graphics/home_village/forge/animation_1/10.png" id="11_a3r8e"]
+[ext_resource type="Texture2D" uid="uid://bxsevle2e7hi8" path="res://Graphics/home_village/forge/animation_1/11.png" id="12_bqrl0"]
 [ext_resource type="Texture2D" uid="uid://bnxfqnpd0aiuj" path="res://Graphics/home_village/npcs/blacksmith/work/11.png" id="12_jojt8"]
 [ext_resource type="Texture2D" uid="uid://bgxordkfb3poa" path="res://Graphics/home_village/npcs/blacksmith/work/12.png" id="13_ix5rc"]
+[ext_resource type="Texture2D" uid="uid://cxu7t23ruo2lj" path="res://Graphics/home_village/forge/animation_1/12.png" id="13_kw13m"]
 [ext_resource type="Texture2D" uid="uid://bh2n8lby2wprg" path="res://Graphics/home_village/npcs/blacksmith/work/13.png" id="14_f36fb"]
 [ext_resource type="Texture2D" uid="uid://bu01ifw8gy0vu" path="res://Graphics/home_village/npcs/blacksmith/work/14.png" id="15_iuiqi"]
 
@@ -23,6 +35,47 @@ animations = [{
 "frames": [],
 "loop": 1,
 "name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ix5rc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_f36fb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_iuiqi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_wxvfi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_y7av1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_t10xo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_w2ref")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_yb24i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_qt5gk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_a3r8e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_bqrl0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_kw13m")
+}],
+"loop": 1,
+"name": &"Sitting",
 "speed": 5.0
 }, {
 "frames": [{
@@ -93,9 +146,8 @@ resident_id = &"resident_blacksmith_ostap"
 
 [node name="Body" type="AnimatedSprite2D" parent="Visual" unique_id=757234053]
 sprite_frames = SubResource("SpriteFrames_blacksmith")
-animation = &"work"
-frame = 13
-frame_progress = 1.0
+animation = &"Sitting"
+frame_progress = 0.7469809
 
 [node name="IntermittentController" type="Node" parent="Visual/Body" unique_id=801335047]
 script = ExtResource("2_intermittent")

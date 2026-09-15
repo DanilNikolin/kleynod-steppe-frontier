@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cl0mishnroqgk" path="res://presentation/campaign/local_location/local_buildable_visual.gd" id="1_buildable"]
 [ext_resource type="Script" uid="uid://brr3u1m3cdqam" path="res://presentation/campaign/local_location/local_construction_stage_visual.gd" id="2_stage"]
+[ext_resource type="Texture2D" uid="uid://ciifiy2e1n1he" path="res://Graphics/home_village/forge/construction/стройка 30.png" id="2_xd4ep"]
 [ext_resource type="PackedScene" uid="uid://do66edvroxke8" path="res://scenes/campaign/local_location/effects/construction_ambient.tscn" id="3_ambient"]
 [ext_resource type="PackedScene" uid="uid://btnqmvkc71wgj" path="res://scenes/campaign/local_location/effects/construction_transition_fx.tscn" id="4_transition"]
 [ext_resource type="Texture2D" uid="uid://dk53ib1iw4br3" path="res://Graphics/home_village/forge/construction/Кузня.png" id="5_63s6x"]
@@ -92,6 +93,7 @@ script = ExtResource("1_buildable")
 [node name="Construction" type="Node2D" parent="." unique_id=1614974099]
 
 [node name="Stage30" type="Sprite2D" parent="Construction" unique_id=1624157524]
+texture = ExtResource("2_xd4ep")
 script = ExtResource("2_stage")
 
 [node name="DetailAnimation" type="Node2D" parent="Construction/Stage30" unique_id=9797649]
@@ -107,6 +109,7 @@ animated_sprite_path = NodePath("../Visual")
 [node name="Ambient" parent="Construction" unique_id=1639963480 instance=ExtResource("3_ambient")]
 
 [node name="Built" type="Node2D" parent="." unique_id=47334503]
+visible = false
 
 [node name="Visual" type="Node2D" parent="Built" unique_id=1952348115]
 
@@ -143,7 +146,15 @@ position = Vector2(8.999985, 29.999985)
 scale = Vector2(0.4518229, 0.4518229)
 color = Color(1, 0.443137, 0.219608, 1)
 energy = 1.52
-blend_mode = 1
+range_z_max = 3
+texture = SubResource("GradientTexture2D_furnace")
+texture_scale = 1.5
+
+[node name="FurnaceLight" type="PointLight2D" parent="Built/Visual/FurnaceLightAnchor/FurnaceLight" unique_id=667096421]
+position = Vector2(13.279575, -13.279503)
+scale = Vector2(0.43897665, 0.27330437)
+color = Color(1, 0.443137, 0.219608, 1)
+energy = 1.52
 range_z_max = 3
 texture = SubResource("GradientTexture2D_furnace")
 texture_scale = 1.5

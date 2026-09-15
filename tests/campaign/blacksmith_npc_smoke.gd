@@ -52,12 +52,31 @@ func run() -> void:
 	assert(click_area != null, "ClickArea Button must exist")
 	assert(click_area.flat == true, "ClickArea must be flat")
 
+	const BlacksmithNpcVisualScript = preload("res://presentation/campaign/local_location/blacksmith_npc_visual.gd")
+	assert(blacksmith_npc.get_script() == BlacksmithNpcVisualScript, "BlacksmithNpc must use BlacksmithNpcVisual script")
+	assert(body.sprite_frames.has_animation(&"Sitting"), "Sitting animation must exist")
+	assert(body.sprite_frames.get_animation_loop(&"Sitting") == true, "Sitting must loop")
+
 	# Test presence
 	blacksmith_npc.set_present(false)
 	assert(blacksmith_npc.visible == false, "NPC must be hidden when absent")
 
 	blacksmith_npc.set_present(true)
 	assert(blacksmith_npc.visible == true, "NPC must be visible when present")
+
+	# Test waiting for workplace (Sitting during construction)
+	blacksmith_npc.set_waiting_for_workplace(true)
+	assert(intermittent.is_active() == false, "IntermittentController must be disabled during Sitting")
+	assert(body.animation == &"Sitting", "Body animation must be Sitting when waiting for workplace")
+	assert(body.is_playing() == true, "Body must be playing Sitting")
+
+	# WorkLight must remain disabled during Sitting
+	light_anchor._process(0.016)
+	assert(work_light.enabled == false, "WorkLight must be disabled during Sitting")
+
+	# Resuming normal mode after construction completes
+	blacksmith_npc.set_waiting_for_workplace(false)
+	assert(intermittent.is_active() == true, "IntermittentController must reactivate after construction")
 
 	# Test light controller logic on idle vs work
 	body.animation = &"idle"
@@ -84,6 +103,8 @@ func run() -> void:
 	var furnace_light := furnace_anchor.get_node_or_null("FurnaceLight") as PointLight2D
 	assert(furnace_light != null, "FurnaceLight PointLight2D must exist")
 
+	const LocalBuildSiteViewScript = preload("res://presentation/campaign/local_location/local_build_site_view.gd")
+	forge.set_build_state(LocalBuildSiteViewScript.BuildVisualState.BUILT)
 	furnace_anchor._process(0.016)
 	assert(furnace_light.enabled == true, "Furnace light must be enabled when built visual is visible")
 	assert(furnace_light.energy > 0.3, "Furnace light energy must be around base_energy")

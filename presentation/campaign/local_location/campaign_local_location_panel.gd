@@ -337,23 +337,23 @@ func _refresh_settlement_visuals() -> void:
 		site_states
 	)
 
-	var forge_is_constructing := false
+	var forge_is_not_built := false
 	var forge_visual_data = site_states.get(
 		&"home_forge_site",
 		null
 	)
 	if forge_visual_data is Dictionary:
-		forge_is_constructing = (
-			forge_visual_data.get(
-				"state",
-				LocalBuildSiteView.BuildVisualState.EMPTY
-			)
-			== LocalBuildSiteView.BuildVisualState.CONSTRUCTING
+		var forge_state = forge_visual_data.get(
+			"state",
+			LocalBuildSiteView.BuildVisualState.EMPTY
+		)
+		forge_is_not_built = (
+			forge_state != LocalBuildSiteView.BuildVisualState.BUILT
 		)
 
 	_canvas.set_resident_waiting_for_workplace(
 		&"resident_blacksmith_ostap",
-		forge_is_constructing
+		forge_is_not_built
 	)
 
 

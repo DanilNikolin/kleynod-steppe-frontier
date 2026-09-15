@@ -17,7 +17,7 @@ dialogue = ExtResource("3_dialogue")
 [sub_resource type="Resource" id="Blacksmith"]
 script = ExtResource("2_interaction")
 interaction_id = &"debug_village_blacksmith"
-display_name = "Остап Коваль"
+display_name = "Стецько Коваль"
 description = "Местный коваль. Пока живёт и работает в Малом селе."
 local_position = Vector2(630, 350)
 action_labels = PackedStringArray("Поговорить", "Осмотреть товары")

@@ -30,7 +30,7 @@ action_labels = PackedStringArray("Осмотреть место")
 [sub_resource type="Resource" id="ResidentBlacksmith"]
 script = ExtResource("2_interaction")
 interaction_id = &"debug_home_blacksmith"
-display_name = "Остап Коваль"
+display_name = "Стецько Коваль"
 description = "Приглашённый коваль родного поселения."
 local_position = Vector2(4224, 648)
 action_labels = PackedStringArray("Поговорить", "ОТКРЫТЬ КУЗНИЦУ")

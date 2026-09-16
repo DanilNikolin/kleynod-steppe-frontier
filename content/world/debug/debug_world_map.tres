@@ -121,9 +121,26 @@ node_a_id = &"debug_village"
 node_b_id = &"debug_carpenter_homestead"
 travel_days_override = 1
 
+[sub_resource type="Resource" id="NodeDeepForest"]
+script = ExtResource("2_node")
+node_id = &"debug_deep_forest_node"
+display_name = "Дремучий лес"
+description = "Глухая лесная чаща. Здесь всегда можно найти новую шайку противников."
+node_type = 3
+map_position = Vector2(275, 560)
+campaign_location_id = &"debug_deep_forest"
+adventure_area_id = &""
+
+[sub_resource type="Resource" id="RouteHomeDeepForest"]
+script = ExtResource("3_route")
+route_id = &"debug_route_home_deep_forest"
+node_a_id = &"debug_home"
+node_b_id = &"debug_deep_forest_node"
+travel_days_override = 1
+
 [resource]
 script = ExtResource("1_map")
 map_units_per_day = 120.0
 starting_node_id = &"debug_home"
-nodes = Array[ExtResource("2_node")]([SubResource("NodeCarpenterHomestead"), SubResource("NodeHome"), SubResource("NodeHomeMaterials"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest")])
-routes = Array[ExtResource("3_route")]([SubResource("RouteCarpenterHomestead"), SubResource("RouteHomeMaterials"), SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest")])
+nodes = Array[ExtResource("2_node")]([SubResource("NodeCarpenterHomestead"), SubResource("NodeHome"), SubResource("NodeHomeMaterials"), SubResource("NodeVillage"), SubResource("NodeCity"), SubResource("NodeForest"), SubResource("NodeDeepForest")])
+routes = Array[ExtResource("3_route")]([SubResource("RouteCarpenterHomestead"), SubResource("RouteHomeMaterials"), SubResource("RouteHomeVillage"), SubResource("RouteVillageCity"), SubResource("RouteHomeCityRiver"), SubResource("RouteVillageForest"), SubResource("RouteHomeForest"), SubResource("RouteHomeDeepForest")])

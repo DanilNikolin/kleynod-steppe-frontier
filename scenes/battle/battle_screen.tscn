@@ -120,3 +120,36 @@ offset_top = -132.0
 offset_right = -24.0
 offset_bottom = -84.0
 text = "Тест камеры"
+
+[node name="DebugTimePanel" type="PanelContainer" parent="BattleUI/Root"]
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -290.0
+offset_top = 120.0
+offset_right = -20.0
+offset_bottom = 192.0
+grow_horizontal = 0
+
+[node name="Margin" type="MarginContainer" parent="BattleUI/Root/DebugTimePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="BattleUI/Root/DebugTimePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TimeLabel" type="Label" parent="BattleUI/Root/DebugTimePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Время суток (Debug): 12:00"
+
+[node name="TimeSlider" type="HSlider" parent="BattleUI/Root/DebugTimePanel/Margin/VBox"]
+layout_mode = 2
+max_value = 1439.0
+step = 10.0
+value = 720.0

@@ -26,6 +26,29 @@ func get_arena_layout() -> BattleArenaLayout:
 	return get_node_or_null("ArenaLayout") as BattleArenaLayout
 
 
+func get_time_of_day_visual() -> LocalTimeOfDayVisual:
+	return get_node_or_null("TimeOfDay") as LocalTimeOfDayVisual
+
+
+func has_time_of_day_visual() -> bool:
+	return get_time_of_day_visual() != null
+
+
+func set_time_of_day(minute_of_day: int, immediate: bool = false) -> bool:
+	var visual := get_time_of_day_visual()
+	if visual == null:
+		return false
+	visual.set_time_of_day(clampi(minute_of_day, 0, 1439), immediate)
+	return true
+
+
+func get_minute_of_day() -> int:
+	var visual := get_time_of_day_visual()
+	if visual == null:
+		return -1
+	return visual._current_minute_of_day
+
+
 func get_validation_errors(grid_size: Vector2i = Vector2i(6, 3)) -> PackedStringArray:
 	var errors := PackedStringArray()
 	if get_arena_layout() == null:

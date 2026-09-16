@@ -119,6 +119,16 @@ Godot command: --headless --path . --script followed by any of:
 - res://tests/battle/marker_surface_smoke.gd
 - res://tests/battle/campaign_production_smoke.gd
 - res://tests/battle/hero_core_lifecycle_smoke.gd
+- res://tests/battle/repeatable_deep_forest_smoke.gd
+- res://tests/battle/battle_time_of_day_smoke.gd
+
+repeatable_deep_forest_smoke checks the direct world node «Дремучий лес», free route
+access from Home without requirements, fresh duplicated encounters upon sequential
+battles, and that no adventure area progression or completion flags are touched.
+battle_time_of_day_smoke verifies BattleEnvironment TimeOfDay components, day/night
+color shifts via LocalTimeOfDayVisual, standalone BattleScreen F6 debug slider behavior,
+campaign minute initialization on entry, and confirms that the battle debug time slider
+does not mutate CampaignState.current_minute_of_day.
 
 production_battle_smoke plays the existing encounter to completion with player
 interaction and enemy AI. Add -- --animated to exercise animated presentation.

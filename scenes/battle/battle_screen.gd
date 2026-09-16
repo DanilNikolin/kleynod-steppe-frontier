@@ -14,6 +14,9 @@ signal slot_clicked(coordinate: Vector2i, mouse_button: int)
 @export var animate_movement: bool = true
 @export var animate_actions: bool = true
 @export_range(0.0, 2.0) var ai_think_delay: float = 0.3
+@export_range(0, 1439, 10) var standalone_preview_minute_of_day: int = 720
+
+var _visual_minute_of_day: int = 720
 
 var environment: BattleEnvironment
 var session: BattleSession
@@ -29,6 +32,12 @@ func _ready() -> void:
 		campaign_bridge = BattleCampaignBridge.new()
 		add_child(campaign_bridge)
 		campaign_bridge.configure(self, campaign, campaign.pending_battle_request)
+		if campaign.get_campaign_state() != null:
+			_visual_minute_of_day = campaign.get_campaign_state().current_minute_of_day
+	else:
+		_visual_minute_of_day = standalone_preview_minute_of_day
+
+	_setup_debug_time_slider()
 	var interaction := get_node("BattleWorld/TacticalOverlay/SlotInteraction") as BattleSlotInteraction
 	interaction.slot_hovered.connect(slot_hovered.emit)
 	interaction.slot_clicked.connect(slot_clicked.emit)
@@ -96,6 +105,7 @@ func load_environment(scene: PackedScene) -> bool:
 			if view != null:
 				view.snap_to_local_position(combatant_presenter.combatant_layer.to_local(
 					layout.get_slot_position(state.grid_position)))
+	environment.set_time_of_day(_visual_minute_of_day, true)
 	return true
 
 
@@ -175,3 +185,33 @@ func _configure_preview(layout: BattleArenaLayout) -> void:
 	elif encounter_definition != null and encounter_definition.side_rules != null:
 		layout.preview_divider_column = encounter_definition.side_rules.get_effective_divider_column(
 			encounter_definition.columns)
+
+
+func _setup_debug_time_slider() -> void:
+	var panel := get_node_or_null("BattleUI/Root/DebugTimePanel")
+	if panel == null:
+		return
+	var slider := panel.find_child("TimeSlider", true, false) as HSlider
+	var label := panel.find_child("TimeLabel", true, false) as Label
+	if slider != null:
+		slider.min_value = 0
+		slider.max_value = 1439
+		slider.step = 10
+		slider.set_value_no_signal(_visual_minute_of_day)
+		slider.value_changed.connect(func(value: float) -> void:
+			var minute := int(value)
+			_visual_minute_of_day = minute
+			_update_debug_time_label(label, minute)
+			if environment != null:
+				environment.set_time_of_day(minute, false)
+		)
+	if label != null:
+		_update_debug_time_label(label, _visual_minute_of_day)
+
+
+func _update_debug_time_label(label: Label, minute: int) -> void:
+	if label == null:
+		return
+	var hours := int(float(minute) / 60.0)
+	var minutes := minute % 60
+	label.text = "Время суток (Debug): %02d:%02d" % [hours, minutes]

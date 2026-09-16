@@ -38,6 +38,7 @@
 [ext_resource type="Resource" path="res://content/quests/debug/debug_village_board_abandoned_cart_quest.tres" id="34_board_quest"]
 [ext_resource type="Resource" path="res://content/locations/debug/debug_overturned_cart_ambush_location.tres" id="35_travel_ambush_location"]
 [ext_resource type="Resource" path="res://content/adventure/debug/debug_home_outskirts_materials_area.tres" id="36_home_materials_area"]
+[ext_resource type="Resource" path="res://content/locations/debug/debug_deep_forest_location.tres" id="36_deep_forest_location"]
 
 
 [ext_resource type="Resource" path="res://content/residents/debug/debug_carpenter_resident.tres" id="37_carpenter"]
@@ -124,7 +125,7 @@ starting_party_member_hero_ids = Array[StringName]([&"hero_bayda"])
 starting_gold = 500
 starting_inventory_items = Array[ExtResource("debug_item_instance")]([ExtResource("debug_testing_sabre")])
 loot_catalog = Array[ExtResource("20_item_definition_script")]([ExtResource("21_loot_sabre"), ExtResource("22_loot_armor"), ExtResource("23_loot_charm"), ExtResource("24_loot_berdysh")])
-locations = Array[ExtResource("4_location_script")]([ExtResource("5_location"), ExtResource("33_abandoned_cart_location"), ExtResource("35_travel_ambush_location")])
+locations = Array[ExtResource("4_location_script")]([ExtResource("5_location"), ExtResource("33_abandoned_cart_location"), ExtResource("35_travel_ambush_location"), ExtResource("36_deep_forest_location")])
 adventure_areas = Array[ExtResource("29_adventure_area_script")]([ExtResource("38_homestead"), ExtResource("30_forest_area"), ExtResource("36_home_materials_area")])
 world_map_definition = ExtResource("6_world_map")
 home_settlement_definition = ExtResource("7_home_settlement")

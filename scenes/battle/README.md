@@ -118,6 +118,7 @@ Godot command: --headless --path . --script followed by any of:
 - res://tests/battle/universal_feedback_smoke.gd
 - res://tests/battle/marker_surface_smoke.gd
 - res://tests/battle/campaign_production_smoke.gd
+- res://tests/battle/hero_core_lifecycle_smoke.gd
 
 production_battle_smoke plays the existing encounter to completion with player
 interaction and enemy AI. Add -- --animated to exercise animated presentation.
@@ -132,11 +133,11 @@ It uses an existing reserve hero and the existing debug sabre for a quick victor
 Add `-- --animated` to cover awaited presentation. `-- --default-party` exercises
 the unmodified Bayda party and defeat return instead.
 
-Known pre-existing core limitation: Bayda's HeroCoreRuntimeState holds a strong
-owner reference back to CombatantState. The default-party test reports leaked
-objects/resources at shutdown, including AI simulation copies. A standalone core
-probe reproduces this without BattleScreen or campaign presentation. Core lifetime
-semantics were not changed as part of this presentation task.
+hero_core_lifecycle_smoke verifies that original and copied combatant/core pairs
+are released, a retained core does not retain its owner, and expired owners resolve
+to null. HeroCoreRuntimeState.owner uses a WeakRef-backed compatibility property;
+CombatantState remains the strong owner of its core. This also fixes the previous
+Bayda/AI-copy ObjectDB leaks in the default-party campaign scenario.
 
 The production turn orchestrator detaches the turn controller's session callback
 when disposed because the existing controller has no public stop/dispose API.

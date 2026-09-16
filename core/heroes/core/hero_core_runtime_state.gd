@@ -20,7 +20,20 @@ const FAILURE_INVALID_CORE_OWNER: StringName = (
 
 
 var definition
-var owner
+
+## CombatantState owns its core; the back-reference must not retain the combatant.
+var _owner_ref: WeakRef
+
+var owner:
+	get:
+		if _owner_ref == null:
+			return null
+		return _owner_ref.get_ref()
+	set(value):
+		if value == null:
+			_owner_ref = null
+			return
+		_owner_ref = weakref(value)
 
 
 func initialize(

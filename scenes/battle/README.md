@@ -181,6 +181,24 @@ Godot command: --headless --path . --script followed by any of:
 - res://tests/battle/hero_core_lifecycle_smoke.gd
 - res://tests/battle/repeatable_deep_forest_smoke.gd
 - res://tests/battle/battle_time_of_day_smoke.gd
+- res://tests/battle/tactical_marker_sprite_smoke.gd
+
+## Tactical Marker Art
+
+Tactical markers use `Sprite2D` nodes under each state layer in
+`presentation/battle/overlay/battle_tactical_marker_view.tscn`:
+- Open `battle_tactical_marker_view.tscn` in Godot editor.
+- Select the state layer you wish to reskin (`Reachable`, `Path`, `ValidTarget`, `InvalidTarget`, `AoE`, `Obstacle`, `Swap`, `Selected`, `Hover`).
+- Select the child `Sprite` node (`Sprite2D`).
+- Drag your PNG into the `Texture` property slot.
+- Adjust local position, scale, rotation or modulate if desired.
+
+### Recommended Final PNG Properties
+- Transparent background (PNG-32).
+- Same canvas dimensions for all states (e.g. 512x256 or 1024x512).
+- Same center/pivot (ground contact center at canvas center).
+- Same ground ellipse perspective.
+- Composability: because tactical flags are bitwise and can coexist (e.g. `VALID_TARGET | AOE` or `SELECTED | HOVER`), design accents to layer cleanly (e.g. soft base for reachable, outer ornament for selected, edge highlight for hover, inner glow for AoE, clean cross for invalid target).
 
 repeatable_deep_forest_smoke checks the direct world node «Дремучий лес», free route
 access from Home without requirements, fresh duplicated encounters upon sequential

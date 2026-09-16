@@ -1,76 +1,68 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cn312ot2y0153"]
 
-[ext_resource type="Script" path="res://presentation/battle/overlay/battle_tactical_marker_view.gd" id="1"]
+[ext_resource type="Script" uid="uid://dt3lfxp45v2ou" path="res://presentation/battle/overlay/battle_tactical_marker_view.gd" id="1"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/reachable.svg" id="2_reachable"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/path.svg" id="3_path"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/valid_target.svg" id="4_valid_target"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/invalid_target.svg" id="5_invalid_target"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/aoe.svg" id="6_aoe"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/obstacle.svg" id="7_obstacle"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/swap.svg" id="8_swap"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/selected.svg" id="9_selected"]
+[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/hover.svg" id="10_hover"]
 
-[node name="BattleTacticalMarkerView" type="Node2D"]
+[node name="BattleTacticalMarkerView" type="Node2D" unique_id=1959601666]
 script = ExtResource("1")
 
-[node name="Reachable" type="Node2D" parent="."]
+[node name="Reachable" type="Node2D" parent="." unique_id=1106098680]
 
-[node name="Placeholder" type="Polygon2D" parent="Reachable"]
-color = Color(0.2, 0.75, 0.9, 0.12)
-polygon = PackedVector2Array(50, 0, 46, 10, 35, 19, 19, 25, 0, 27, -19, 25, -35, 19, -46, 10, -50, 0, -46, -10, -35, -19, -19, -25, 0, -27, 19, -25, 35, -19, 46, -10)
+[node name="Sprite" type="Sprite2D" parent="Reachable"]
+texture = ExtResource("2_reachable")
 
-[node name="Path" type="Node2D" parent="."]
+[node name="Path" type="Node2D" parent="." unique_id=819506585]
+visible = false
 
-[node name="Placeholder" type="Line2D" parent="Path"]
-points = PackedVector2Array(-18, -6, -5, 0, -18, 6, -5, 0, 7, 0, 0, -6, 13, 0, 0, 6)
-width = 2.0
-default_color = Color(1, 0.8, 0.2, 0.8)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="Path"]
+texture = ExtResource("3_path")
 
-[node name="ValidTarget" type="Node2D" parent="."]
+[node name="ValidTarget" type="Node2D" parent="." unique_id=515508376]
 
-[node name="Placeholder" type="Line2D" parent="ValidTarget"]
-points = PackedVector2Array(50, 0, 46, 10, 35, 19, 19, 25, 0, 27, -19, 25, -35, 19, -46, 10, -50, 0, -46, -10, -35, -19, -19, -25, 0, -27, 19, -25, 35, -19, 46, -10, 50, 0)
-width = 2.0
-default_color = Color(0.35, 1, 0.5, 0.65)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="ValidTarget"]
+texture = ExtResource("4_valid_target")
 
-[node name="InvalidTarget" type="Node2D" parent="."]
+[node name="InvalidTarget" type="Node2D" parent="." unique_id=1818108390]
+visible = false
 
-[node name="Placeholder" type="Line2D" parent="InvalidTarget"]
-points = PackedVector2Array(-12, -8, 12, 8, 0, 0, 12, -8, -12, 8)
-width = 2.0
-default_color = Color(1, 0.25, 0.2, 0.6)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="InvalidTarget"]
+texture = ExtResource("5_invalid_target")
 
-[node name="AoE" type="Node2D" parent="."]
+[node name="AoE" type="Node2D" parent="." unique_id=268202721]
+visible = false
 
-[node name="Placeholder" type="Polygon2D" parent="AoE"]
-color = Color(0.7, 0.4, 1, 0.14)
-polygon = PackedVector2Array(50, 0, 46, 10, 35, 19, 19, 25, 0, 27, -19, 25, -35, 19, -46, 10, -50, 0, -46, -10, -35, -19, -19, -25, 0, -27, 19, -25, 35, -19, 46, -10)
+[node name="Sprite" type="Sprite2D" parent="AoE"]
+texture = ExtResource("6_aoe")
 
-[node name="Obstacle" type="Node2D" parent="."]
+[node name="Obstacle" type="Node2D" parent="." unique_id=1613673553]
+visible = false
 
-[node name="Placeholder" type="Line2D" parent="Obstacle"]
-points = PackedVector2Array(-14, -8, -14, 8, 14, 8, 14, -8, -14, -8, 14, 8)
-width = 2.0
-default_color = Color(0.6, 0.6, 0.65, 0.9)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="Obstacle"]
+texture = ExtResource("7_obstacle")
 
-[node name="Swap" type="Node2D" parent="."]
+[node name="Swap" type="Node2D" parent="." unique_id=850816943]
+visible = false
 
-[node name="Placeholder" type="Line2D" parent="Swap"]
-points = PackedVector2Array(-22, -5, 20, -5, 13, -11, 20, -5, 13, 1, 20, -5, -22, -5, -15, 1, -22, 7, 20, 7)
-width = 2.0
-default_color = Color(0.3, 0.9, 0.7, 0.9)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="Swap"]
+texture = ExtResource("8_swap")
 
-[node name="Selected" type="Node2D" parent="."]
+[node name="Selected" type="Node2D" parent="." unique_id=1308005037]
+visible = false
 scale = Vector2(1.08, 1.08)
 
-[node name="Placeholder" type="Line2D" parent="Selected"]
-points = PackedVector2Array(50, 0, 46, 10, 35, 19, 19, 25, 0, 27, -19, 25, -35, 19, -46, 10, -50, 0, -46, -10, -35, -19, -19, -25, 0, -27, 19, -25, 35, -19, 46, -10, 50, 0)
-width = 2.0
-default_color = Color(1, 0.82, 0.22, 0.9)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="Selected"]
+texture = ExtResource("9_selected")
 
-[node name="Hover" type="Node2D" parent="."]
+[node name="Hover" type="Node2D" parent="." unique_id=396798711]
 scale = Vector2(1.2, 1.2)
 
-[node name="Placeholder" type="Line2D" parent="Hover"]
-points = PackedVector2Array(50, 0, 46, 10, 35, 19, 19, 25, 0, 27, -19, 25, -35, 19, -46, 10, -50, 0, -46, -10, -35, -19, -19, -25, 0, -27, 19, -25, 35, -19, 46, -10, 50, 0)
-width = 2.0
-default_color = Color(0.9, 0.98, 1, 0.95)
-antialiased = true
+[node name="Sprite" type="Sprite2D" parent="Hover"]
+texture = ExtResource("10_hover")

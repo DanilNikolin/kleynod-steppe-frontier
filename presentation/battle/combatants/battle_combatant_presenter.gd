@@ -435,9 +435,13 @@ func play_ability_feedback(
 		)
 	)
 
+	# Generic attack fallback belongs to action semantics, not arbitrary visual keys.
+	var actor_fallback: StringName = &"idle"
+	if feedback_kind in [BattleAbilityPresentationProfile.FeedbackKind.DAMAGE, BattleAbilityPresentationProfile.FeedbackKind.CONTROL]:
+		actor_fallback = &"attack"
 	actor_view.play_visual_animation(
 		actor_animation,
-		&"idle",
+		actor_fallback,
 		restart_actor_animation
 	)
 

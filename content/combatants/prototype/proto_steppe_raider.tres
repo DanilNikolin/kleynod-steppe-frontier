@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CombatantDefinition" format=3 uid="uid://cvjqcjyhusucr"]
 
 [ext_resource type="Script" uid="uid://djbs8im0vo51" path="res://core/battle/combatants/combatant_definition.gd" id="1_definition"]
-[ext_resource type="PackedScene" uid="uid://frc3c1tiqsau" path="res://presentation/battle/combatants/placeholder_combatant_visual.tscn" id="2_visual"]
+[ext_resource type="PackedScene" path="res://presentation/battle/combatants/visuals/steppe_raider_battle_visual.tscn" id="2_visual"]
 [ext_resource type="Resource" uid="uid://dsebu43qiuvca" path="res://content/loadouts/prototype/proto_steppe_raider_loadout.tres" id="3_loadout"]
 [ext_resource type="Resource" path="res://content/ai/profiles/steppe_raider_ai_profile.tres" id="4_ai"]
 
@@ -25,4 +25,4 @@ loot_budget = 35
 loot_tier = 1
 loot_tags = Array[StringName]([&"bandit", &"military"])
 visual_scene = ExtResource("2_visual")
-visual_tint = Color(1, 0.32, 0.26, 1)
+visual_tint = Color(1, 1, 1, 1)

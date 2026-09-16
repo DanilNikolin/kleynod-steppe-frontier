@@ -1,0 +1,139 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://presentation/battle/combatants/combatant_visual.gd" id="1"]
+
+[sub_resource type="Gradient" id="g0"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.08, 1)
+colors = PackedColorArray(0.6, 0.7, 0.8, 0, 0.6, 0.7, 0.8, 1, 0.6, 0.7, 0.8, 1)
+
+[sub_resource type="GradientTexture2D" id="t0"]
+gradient = SubResource("g0")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g1"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.06, 1)
+colors = PackedColorArray(0.6, 0.7, 0.8, 0, 0.6, 0.7, 0.8, 1, 0.6, 0.7, 0.8, 1)
+
+[sub_resource type="GradientTexture2D" id="t1"]
+gradient = SubResource("g1")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g2"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.14, 1)
+colors = PackedColorArray(0.6, 0.7, 0.8, 0, 0.6, 0.7, 0.8, 1, 0.6, 0.7, 0.8, 1)
+
+[sub_resource type="GradientTexture2D" id="t2"]
+gradient = SubResource("g2")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g3"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.18, 1)
+colors = PackedColorArray(0.9, 0.75, 0.4, 0, 0.9, 0.75, 0.4, 1, 0.9, 0.75, 0.4, 1)
+
+[sub_resource type="GradientTexture2D" id="t3"]
+gradient = SubResource("g3")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g4"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.22, 1)
+colors = PackedColorArray(1, 0.7, 0.65, 0, 1, 0.7, 0.65, 1, 1, 0.7, 0.65, 1)
+
+[sub_resource type="GradientTexture2D" id="t4"]
+gradient = SubResource("g4")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g5"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.12, 1)
+colors = PackedColorArray(0.6, 0.7, 0.8, 0, 0.6, 0.7, 0.8, 1, 0.6, 0.7, 0.8, 1)
+
+[sub_resource type="GradientTexture2D" id="t5"]
+gradient = SubResource("g5")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g6"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.6, 0.7, 0.8, 0, 0.6, 0.7, 0.8, 1, 0.6, 0.7, 0.8, 1)
+
+[sub_resource type="GradientTexture2D" id="t6"]
+gradient = SubResource("g6")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="g7"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.82, 1)
+colors = PackedColorArray(0.3, 0.3, 0.32, 0, 0.3, 0.3, 0.32, 1, 0.3, 0.3, 0.32, 1)
+
+[sub_resource type="GradientTexture2D" id="t7"]
+gradient = SubResource("g7")
+width = 40
+height = 80
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="SpriteFrames" id="frames"]
+resource_local_to_scene = true
+animations = [
+{"frames": [{"duration": 1.0, "texture": SubResource("t0")}, {"duration": 1.0, "texture": SubResource("t1")}], "loop": true, "name": &"idle", "speed": 3.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("t2")}, {"duration": 1.0, "texture": SubResource("t3")}], "loop": false, "name": &"attack", "speed": 8.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("t4")}, {"duration": 1.0, "texture": SubResource("t5")}], "loop": false, "name": &"hit", "speed": 8.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("t6")}, {"duration": 1.0, "texture": SubResource("t7")}], "loop": false, "name": &"death", "speed": 8.0}
+]
+
+[node name="AnimatedCombatantVisualTemplate" type="Node2D"]
+script = ExtResource("1")
+visual_root_path = NodePath("Forward")
+hit_anchor_path = NodePath("Forward/HitAnchor")
+projectile_anchor_path = NodePath("Forward/ProjectileAnchor")
+effects_anchor_path = NodePath("Forward/EffectsAnchor")
+
+[node name="Forward" type="Node2D" parent="."]
+
+[node name="Shadow" type="Polygon2D" parent="Forward"]
+color = Color(0.04, 0.04, 0.06, 0.4)
+polygon = PackedVector2Array(-26, 0, -18, -7, 18, -7, 26, 0, 18, 7, -18, 7)
+
+[node name="BodyPivot" type="Node2D" parent="Forward"]
+
+[node name="Character" type="AnimatedSprite2D" parent="Forward/BodyPivot"]
+sprite_frames = SubResource("frames")
+animation = &"idle"
+autoplay = "idle"
+centered = false
+offset = Vector2(-20, -80)
+
+[node name="HitAnchor" type="Marker2D" parent="Forward"]
+position = Vector2(0, -42)
+
+[node name="ProjectileAnchor" type="Marker2D" parent="Forward"]
+position = Vector2(32, -55)
+
+[node name="EffectsAnchor" type="Marker2D" parent="Forward"]
+position = Vector2(0, -30)

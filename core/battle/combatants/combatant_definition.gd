@@ -370,7 +370,6 @@ func get_validation_errors() -> PackedStringArray:
 				% profile_error
 			)
 
-	if visual_scene == null:
-		errors.append("Visual scene is not assigned.")
+	# A missing custom visual uses the presentation placeholder.
 
 	return errors

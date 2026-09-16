@@ -40,7 +40,67 @@ The forest_edge, abandoned_cart and overturned_cart_ambush environments are
 independent editable copies of steppe, assigned to their corresponding locations.
 Their art is intentionally still shared placeholder content.
 
-## Playing
+## Editable character visuals
+
+Canonical mapping stays `CombatantDefinition.visual_scene -> CombatantView ->
+CombatantVisual`. No registry is needed. Bayda and the prototype Steppe Raider
+now have independent scenes in `presentation/battle/combatants/visuals/`.
+The template is `presentation/battle/combatants/animated_combatant_visual_template.tscn`.
+The initial frames are deliberately simple scene-authored GradientTexture2D blocks,
+not final character art. No generated/imported character images are required.
+
+### Create another enemy visual
+
+1. Duplicate `steppe_raider_battle_visual.tscn` and rename the copy.
+2. Open it and select `Forward/BodyPivot/Character` (AnimatedSprite2D).
+3. Open SpriteFrames and replace the textures in `idle`, `attack`, `hit`, `death`
+   with your PNG frames. Keep idle looping; disable looping for the other three.
+4. Set FPS and optional per-frame durations in SpriteFrames.
+5. Adjust Character's position/offset/scale or BodyPivot so the feet meet root `(0,0)`.
+   The placeholder uses an uncentered 40x80 canvas with offset `(-20,-80)`; replace
+   that offset visually for your art dimensions. Root remains the ground contact.
+6. Adjust `Forward/Shadow` independently (polygon, position, scale, opacity).
+7. Assign the new scene to the enemy's existing `CombatantDefinition.visual_scene`.
+8. Run the campaign or BattleScreen. No presenter or battle-code changes are needed.
+
+Facing mirrors the entire Forward node; do not use Character.flip_h as the facing
+system. Character visuals stay in the world canvas and receive environment time tint.
+Health/selection/hover/flash and movement remain owned by the existing wrapper/feedback.
+Only one visual child is installed. Missing visual_scene uses the existing placeholder;
+its absence is no longer a content validation error. Invalid assigned scene types
+still report an error.
+
+CombatantVisual supports both SpriteFrames and AnimationPlayer. For a key present
+in both, SpriteFrames wins. `has_animation`, `get_animation_duration` (FPS, frame
+weights, absolute speed scale), and `is_animation_looping` inspect actual resources.
+Zero playback speed reports infinite duration. `get_animation_mixer` returns only
+the optional AnimationPlayer; AnimatedSprite2D is never treated as an AnimationMixer.
+
+Idle loops; attack/hit finish natively and return to idle. Hit may restart and takes
+priority over action; idle/move cannot truncate active non-loop feedback. Death locks
+the visual, rejects subsequent feedback and holds the last frame until view removal.
+Revision/key guards reject stale completion callbacks. No corpse lifetime was added.
+Movement remains a whole-view tween; absent `move` falls back to idle, with no walk
+frames or procedural movement. Gameplay commits never wait for SpriteFrames.
+
+Specific actor animation keys still win. Only DAMAGE/CONTROL actor feedback uses
+generic `attack` when its requested key is missing. Other/unknown keys keep their
+normal fallback, so an arbitrary `celebrate` request does not become an attack.
+Existing generic flash/VFX feedback remains in BattleCombatantPresenter.
+
+The checked-in baseline did not have CombatantView.play_hit or an AnimationMixer
+wait path: HP-loss feedback was added to the existing wrapper HP callback, and the
+existing death callback is reused. No new gameplay subscriptions or event service
+were added to character visuals.
+
+### Character tests
+
+`--headless --path . --script tests/battle/combatant_visual_animation_smoke.gd`
+checks both scenes, completion/priority, frame timing, real action runner damage and
+death, specific-action fallback, optional-art fallback and AnimationPlayer compatibility.
+It compares HP/stamina/cooldown with short and long visual attack durations.
+
+## Controls
 
 - Click an ability or press 1–9 to select it.
 - Left-click a legal target to use the selected ability.

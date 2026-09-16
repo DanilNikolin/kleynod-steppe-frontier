@@ -3,6 +3,9 @@ class_name CombatantVisual
 extends Node2D
 
 
+signal animation_finished(animation_key: StringName)
+
+
 const EMPTY_ANIMATION: StringName = &""
 
 
@@ -24,11 +27,20 @@ var projectile_anchor_path: NodePath = ^"ProjectileAnchor"
 var effects_anchor_path: NodePath = ^"EffectsAnchor"
 
 
+@export var animated_sprite: AnimatedSprite2D
+
+
 @export_group("Facing")
 
 @export
 var faces_right_by_default: bool = true
 
+
+var _is_dead: bool = false
+var _animation_revision: int = 0
+var _current_key: StringName = &""
+var _completion_source: Object
+var _completion_callback: Callable
 
 var _visual_root: Node2D
 var _animation_player: AnimationPlayer
@@ -42,6 +54,8 @@ func _ready() -> void:
 
 
 func _cache_nodes() -> void:
+	if animated_sprite == null:
+		animated_sprite = get_node_or_null("Forward/BodyPivot/Character") as AnimatedSprite2D
 	_visual_root = (
 		get_node_or_null(visual_root_path)
 		as Node2D
@@ -98,53 +112,107 @@ func set_facing_direction(direction: int) -> void:
 	_visual_root.scale = current_scale
 
 
-func play_animation(
-	animation_key: StringName,
-	fallback_key: StringName = &"idle",
-	restart_if_same: bool = false
-) -> bool:
-	if _animation_player == null:
-		_cache_nodes()
+func has_animation(key: StringName) -> bool:
+	_cache_nodes()
+	return _uses_sprite(key) or (_animation_player != null and _animation_player.has_animation(key))
 
-	if _animation_player == null:
+
+func _uses_sprite(key: StringName) -> bool:
+	return animated_sprite != null and animated_sprite.sprite_frames != null and animated_sprite.sprite_frames.has_animation(key)
+
+
+func get_animation_duration(key: StringName) -> float:
+	if not has_animation(key):
+		return 0.0
+	if _uses_sprite(key):
+		var frames := animated_sprite.sprite_frames
+		var rate := frames.get_animation_speed(key) * absf(animated_sprite.speed_scale)
+		if is_zero_approx(rate):
+			return INF
+		var duration := 0.0
+		for index in range(frames.get_frame_count(key)):
+			duration += frames.get_frame_duration(key, index)
+		return duration / rate
+	var rate := absf(_animation_player.speed_scale)
+	return _animation_player.get_animation(key).length / rate if rate > 0.0 else INF
+
+
+func is_animation_looping(key: StringName) -> bool:
+	if not has_animation(key):
 		return false
+	if _uses_sprite(key):
+		return animated_sprite.sprite_frames.get_animation_loop(key)
+	return _animation_player.get_animation(key).loop_mode != Animation.LOOP_NONE
 
-	var resolved_key: StringName = EMPTY_ANIMATION
 
-	if (
-		animation_key != EMPTY_ANIMATION
-		and _animation_player.has_animation(
-			animation_key
-		)
-	):
-		resolved_key = animation_key
+func get_animation_mixer() -> AnimationMixer:
+	_cache_nodes()
+	return _animation_player
 
-	elif (
-		fallback_key != EMPTY_ANIMATION
-		and _animation_player.has_animation(
-			fallback_key
-		)
-	):
-		resolved_key = fallback_key
 
-	if resolved_key == EMPTY_ANIMATION:
+func set_facing(direction: int) -> void:
+	set_facing_direction(direction)
+
+
+func play_animation(key: StringName, fallback_key: StringName = &"idle", restart_if_same: bool = false) -> bool:
+	if _is_dead:
 		return false
-
-	## Реакции могут подряд запускать один и тот же
-	## animation key. Обычный play() не обязан
-	## перезапускать уже играющую ту же анимацию.
-	if (
-		restart_if_same
-		and _animation_player.assigned_animation
-			== resolved_key
-	):
+	if key == &"death":
+		_is_dead = true
+	var resolved := key if has_animation(key) else fallback_key
+	if not has_animation(resolved):
+		return false
+	# Cosmetic feedback completion must not truncate a newer hit/action.
+	if not _is_dead and _current_key != &"" and not is_animation_looping(_current_key):
+		if resolved in [&"idle", &"move"] or (_current_key == &"hit" and resolved != &"hit"):
+			return false
+	if resolved == _current_key and not restart_if_same and resolved != &"hit":
+		return true
+	_animation_revision += 1
+	_disconnect_completion()
+	_current_key = resolved
+	if _uses_sprite(resolved):
+		if _animation_player != null:
+			_animation_player.stop()
+		_completion_source = animated_sprite
+		_completion_callback = _on_sprite_finished.bind(resolved, _animation_revision)
+		animated_sprite.animation_finished.connect(_completion_callback)
+		animated_sprite.stop()
+		animated_sprite.play(resolved)
+	else:
+		if animated_sprite != null:
+			animated_sprite.stop()
+		_completion_source = _animation_player
+		_completion_callback = _on_player_finished.bind(_animation_revision)
+		_animation_player.animation_finished.connect(_completion_callback)
 		_animation_player.stop()
-
-	_animation_player.play(
-		resolved_key
-	)
-
+		_animation_player.play(resolved)
 	return true
+
+
+func _disconnect_completion() -> void:
+	if is_instance_valid(_completion_source) and _completion_source.is_connected(&"animation_finished", _completion_callback):
+		_completion_source.disconnect(&"animation_finished", _completion_callback)
+	_completion_source = null
+
+
+func _on_sprite_finished(key: StringName, revision: int) -> void:
+	_finish_animation(key, revision)
+
+
+func _on_player_finished(key: StringName, revision: int) -> void:
+	_finish_animation(key, revision)
+
+
+func _finish_animation(key: StringName, revision: int) -> void:
+	if revision != _animation_revision or key != _current_key:
+		return
+	_disconnect_completion()
+	if not _is_dead:
+		_current_key = &""
+		play_idle()
+	# Death remains stopped at its native last frame; never reset it with stop().
+	animation_finished.emit(key)
 
 
 func play_idle() -> bool:
@@ -156,7 +224,7 @@ func play_move() -> bool:
 
 
 func play_hit() -> bool:
-	return play_animation(&"hit", &"idle")
+	return play_animation(&"hit", &"idle", true)
 
 
 func play_block() -> bool:

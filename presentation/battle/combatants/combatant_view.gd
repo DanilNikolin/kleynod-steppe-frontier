@@ -283,6 +283,7 @@ func _disconnect_hero_core_signal() -> void:
 
 func _rebuild_visual() -> void:
 	if visual != null:
+		visual.get_parent().remove_child(visual)
 		visual.queue_free()
 		visual = null
 
@@ -294,16 +295,10 @@ func _rebuild_visual() -> void:
 	if definition == null:
 		return
 
-	if definition.visual_scene == null:
-		push_error(
-			"Combatant '%s' has no visual scene."
-			% state.instance_id
-		)
-		return
-
-	var visual_instance := (
-		definition.visual_scene.instantiate()
-	)
+	var scene := definition.visual_scene
+	if scene == null:
+		scene = preload("res://presentation/battle/combatants/placeholder_combatant_visual.tscn")
+	var visual_instance := scene.instantiate()
 
 	if not (visual_instance is CombatantVisual):
 		push_error(
@@ -556,10 +551,22 @@ func _on_movement_tween_finished() -> void:
 	movement_finished.emit()
 
 
+func play_hit() -> void:
+	if visual != null:
+		visual.play_hit()
+
+
+func play_death() -> void:
+	if visual != null:
+		visual.play_death()
+
+
 func _on_health_changed(
 	_previous_value: int,
 	_current_value: int
 ) -> void:
+	if _current_value > 0 and _current_value < _previous_value:
+		play_hit()
 	refresh_from_state()
 
 

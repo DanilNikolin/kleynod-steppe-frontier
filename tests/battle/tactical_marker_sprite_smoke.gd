@@ -21,15 +21,41 @@ func run() -> void:
 	root.add_child(marker)
 	await process_frame
 
-	# 1. Base layer exists and has Sprite2D
-	var base_layer := marker.get_node_or_null("Base")
-	check(base_layer != null, "Base layer node exists")
-	if base_layer != null:
-		var base_sprite := base_layer.get_node_or_null("Sprite") as Sprite2D
-		check(base_sprite != null, "Base/Sprite exists and is Sprite2D")
-		if base_sprite != null:
-			check(base_sprite.texture != null, "Base/Sprite has texture")
-			check(base_sprite.centered == true, "Base/Sprite is centered")
+	# 1. BaseFriendly and BaseEnemy layers exist and have Sprite2D
+	for base_name in ["BaseFriendly", "BaseEnemy"]:
+		var base_layer := marker.get_node_or_null(base_name)
+		check(base_layer != null, base_name + " layer node exists")
+		if base_layer != null:
+			var base_sprite := base_layer.get_node_or_null("Sprite") as Sprite2D
+			check(base_sprite != null, base_name + "/Sprite exists and is Sprite2D")
+			if base_sprite != null:
+				check(base_sprite.texture != null, base_name + "/Sprite has texture")
+				check(base_sprite.centered == true, base_name + "/Sprite is centered")
+
+	# 1b. Focused base side switching & flag independence test
+	marker.set_base_side(true)
+	check(marker.get_node("BaseFriendly").visible == true, "BaseFriendly visible when base side is true")
+	check(marker.get_node("BaseEnemy").visible == false, "BaseEnemy hidden when base side is true")
+
+	marker.set_base_side(false)
+	check(marker.get_node("BaseFriendly").visible == false, "BaseFriendly hidden when base side is false")
+	check(marker.get_node("BaseEnemy").visible == true, "BaseEnemy visible when base side is false")
+
+	marker.set_flags(0)
+	check(marker.get_node("BaseEnemy").visible == true, "BaseEnemy remains visible after set_flags(0)")
+	check(marker.get_node("BaseFriendly").visible == false, "BaseFriendly remains hidden after set_flags(0)")
+	for layer_name in BattleTacticalMarkerView.LAYERS:
+		check(marker.get_node(NodePath(layer_name)).visible == false, layer_name + " is invisible after set_flags(0)")
+
+	marker.set_base_side(false)
+	marker.set_flags(BattleTacticalState.Kind.VALID_TARGET | BattleTacticalState.Kind.HOVER)
+	check(marker.get_node("BaseEnemy").visible == true, "BaseEnemy visible with VALID_TARGET | HOVER")
+	check(marker.get_node("ValidTarget").visible == true, "ValidTarget visible in compositing")
+	check(marker.get_node("Hover").visible == true, "Hover visible in compositing")
+	check(marker.get_node("BaseFriendly").visible == false, "BaseFriendly hidden in enemy compositing")
+
+	# Reset to friendly for remaining tests
+	marker.set_base_side(true)
 
 	# 2. Structure check: 8 canonical dynamic layers exist, each has child "Sprite" of type Sprite2D with non-null texture
 	for layer_name in BattleTacticalMarkerView.LAYERS:
@@ -66,23 +92,23 @@ func run() -> void:
 		var flag: int = BattleTacticalMarkerView.LAYERS[layer_name]
 		marker.set_flags(flag)
 		check(marker.visible == true, "Marker is visible when flag is active: " + layer_name)
-		check(marker.get_node("Base").visible == true, "Base remains visible under layer: " + layer_name)
+		check(marker.get_node("BaseFriendly").visible == true, "BaseFriendly remains visible under layer: " + layer_name)
 		for other_name in BattleTacticalMarkerView.LAYERS:
 			var target_vis: bool = (other_name == layer_name)
 			var node := marker.get_node(NodePath(other_name)) as CanvasItem
 			check(node.visible == target_vis, "Visibility of %s when flag is %s (expected: %s, got: %s)" % [other_name, layer_name, str(target_vis), str(node.visible)])
 
-	# 6. Zero flags test: Base is visible, all 8 dynamic layers invisible, marker.visible is true
+	# 6. Zero flags test: BaseFriendly is visible, all 8 dynamic layers invisible, marker.visible is true
 	marker.set_flags(0)
 	check(marker.visible == true, "Marker is visible with 0 flags (shows neutral Base)")
-	check(marker.get_node("Base").visible == true, "Base is visible with 0 flags")
+	check(marker.get_node("BaseFriendly").visible == true, "BaseFriendly is visible with 0 flags")
 	for layer_name in BattleTacticalMarkerView.LAYERS:
 		check(marker.get_node(NodePath(layer_name)).visible == false, layer_name + " is invisible with 0 flags")
 
 	# 7. Combined flags test
 	marker.set_flags(BattleTacticalState.Kind.VALID_TARGET | BattleTacticalState.Kind.AOE)
 	check(marker.visible == true, "Combined VALID_TARGET | AOE is visible")
-	check(marker.get_node("Base").visible == true, "Base is visible in combination")
+	check(marker.get_node("BaseFriendly").visible == true, "BaseFriendly is visible in combination")
 	check(marker.get_node("ValidTarget").visible == true, "ValidTarget is visible in combination")
 	check(marker.get_node("AoE").visible == true, "AoE is visible in combination")
 	check(marker.get_node("Hover").visible == false, "Hover remains invisible")
@@ -116,12 +142,29 @@ func run() -> void:
 	check(overlay.z_index == -50, "TacticalOverlay z_index is -50 (beneath CombatantLayer)")
 	check(overlay._markers.size() == 18, "18 tactical marker instances bound to authored anchors")
 
+	var divider := overlay.layout.preview_divider_column
+	var friendly_count := 0
+	var enemy_count := 0
+
 	for coord in overlay._markers:
 		var m := overlay.get_marker(coord)
 		check(m is BattleTacticalMarkerView, "Marker is BattleTacticalMarkerView at " + str(coord))
-		var base_sprite := m.get_node_or_null("Base/Sprite") as Sprite2D
-		check(base_sprite != null, "Base/Sprite exists in runtime overlay instance at " + str(coord))
-		check(m.get_node("Base").visible == true, "Base is visible at " + str(coord))
+		var friendly_sprite := m.get_node_or_null("BaseFriendly/Sprite") as Sprite2D
+		var enemy_sprite := m.get_node_or_null("BaseEnemy/Sprite") as Sprite2D
+		check(friendly_sprite != null, "BaseFriendly/Sprite exists in runtime overlay instance at " + str(coord))
+		check(enemy_sprite != null, "BaseEnemy/Sprite exists in runtime overlay instance at " + str(coord))
+
+		if coord.x < divider:
+			check(m.get_node("BaseFriendly").visible == true, "BaseFriendly visible at friendly slot " + str(coord))
+			check(m.get_node("BaseEnemy").visible == false, "BaseEnemy hidden at friendly slot " + str(coord))
+			friendly_count += 1
+		else:
+			check(m.get_node("BaseFriendly").visible == false, "BaseFriendly hidden at enemy slot " + str(coord))
+			check(m.get_node("BaseEnemy").visible == true, "BaseEnemy visible at enemy slot " + str(coord))
+			enemy_count += 1
+
+	check(friendly_count == 9, "Exactly 9 friendly base markers in 6x3 arena (got: %d)" % friendly_count)
+	check(enemy_count == 9, "Exactly 9 enemy base markers in 6x3 arena (got: %d)" % enemy_count)
 
 	# 10. Deep forest environment integration check
 	var deep_forest_env := load("res://scenes/battle/environments/deep_forest_environment.tscn") as PackedScene

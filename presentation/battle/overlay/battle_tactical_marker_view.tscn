@@ -13,9 +13,18 @@
 [node name="BattleTacticalMarkerView" type="Node2D" unique_id=1959601666]
 script = ExtResource("1")
 
-[node name="Base" type="Node2D" parent="." unique_id=1106098680]
+[node name="BaseFriendly" type="Node2D" parent="." unique_id=1106098680]
 
-[node name="Sprite" type="Sprite2D" parent="Base" unique_id=1614279033]
+[node name="Sprite" type="Sprite2D" parent="BaseFriendly" unique_id=1614279033]
+modulate = Color(1, 1, 1, 0.5372549)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_ql5iv")
+
+[node name="BaseEnemy" type="Node2D" parent="." unique_id=1106098681]
+visible = false
+
+[node name="Sprite" type="Sprite2D" parent="BaseEnemy" unique_id=1614279034]
+modulate = Color(1, 1, 1, 0.5372549)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_ql5iv")
 
@@ -27,6 +36,7 @@ scale = Vector2(0.5, 0.5)
 texture = ExtResource("3_hoo0i")
 
 [node name="ValidTarget" type="Node2D" parent="." unique_id=515508376]
+visible = false
 
 [node name="Sprite" type="Sprite2D" parent="ValidTarget" unique_id=1079800221]
 scale = Vector2(0.5, 0.5)
@@ -68,6 +78,7 @@ scale = Vector2(0.5, 0.5)
 texture = ExtResource("9_yc6vo")
 
 [node name="Hover" type="Node2D" parent="." unique_id=396798711]
+visible = false
 
 [node name="Sprite" type="Sprite2D" parent="Hover" unique_id=1696584236]
 scale = Vector2(0.5, 0.5)

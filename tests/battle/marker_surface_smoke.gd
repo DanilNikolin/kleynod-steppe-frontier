@@ -24,7 +24,7 @@ func run() -> void:
 		marker.set_flags(BattleTacticalMarkerView.LAYERS[layer])
 		for other in BattleTacticalMarkerView.LAYERS:
 			check(marker.get_node(NodePath(other)).visible == (other == layer), "Independent layer " + layer)
-		check(marker.get_node("Base").visible, "Base remains visible under layer " + layer)
+		check(marker.get_node("BaseFriendly").visible, "BaseFriendly remains visible under layer " + layer)
 	screen.tactical_state.add_state(coordinate, BattleTacticalState.Kind.VALID_TARGET)
 	screen.tactical_state.add_state(coordinate, BattleTacticalState.Kind.AOE)
 	screen.tactical_state.add_state(coordinate, BattleTacticalState.Kind.HOVER)
@@ -32,7 +32,7 @@ func run() -> void:
 	screen.tactical_state.clear_tactical()
 	screen.tactical_state.set_hover(BattleGrid.INVALID_COORDINATE)
 	screen.tactical_state.set_surfaces([coordinate])
-	check(marker.get_node("Base").visible and not marker.get_node("ValidTarget").visible, "SURFACE alone leaves only neutral Base visual")
+	check(marker.get_node("BaseFriendly").visible and not marker.get_node("ValidTarget").visible, "SURFACE alone leaves only BaseFriendly visual")
 	var anchor := screen.get_arena_layout().get_slot_anchor(coordinate)
 	anchor.position += Vector2(19, -27)
 	anchor.interaction_radii *= 1.5

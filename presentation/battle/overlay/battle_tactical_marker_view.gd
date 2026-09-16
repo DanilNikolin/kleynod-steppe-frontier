@@ -37,6 +37,7 @@ var editor_preview_flags: int = 0:
 
 
 var flags: int = 0
+var _friendly_base: bool = true
 
 
 func _ready() -> void:
@@ -47,16 +48,33 @@ func _ready() -> void:
 	)
 
 
-func set_flags(value: int) -> void:
-	flags = value
+func set_base_side(is_friendly: bool) -> void:
+	_friendly_base = is_friendly
+	_refresh_base_visibility()
 
-	var base := (
-		get_node_or_null(^"Base")
+
+func _refresh_base_visibility() -> void:
+	var friendly := (
+		get_node_or_null(^"BaseFriendly")
 		as CanvasItem
 	)
 
-	if base != null:
-		base.visible = true
+	var enemy := (
+		get_node_or_null(^"BaseEnemy")
+		as CanvasItem
+	)
+
+	if friendly != null:
+		friendly.visible = _friendly_base
+
+	if enemy != null:
+		enemy.visible = not _friendly_base
+
+
+func set_flags(value: int) -> void:
+	flags = value
+
+	_refresh_base_visibility()
 
 	for layer_name in LAYERS:
 		var layer := (

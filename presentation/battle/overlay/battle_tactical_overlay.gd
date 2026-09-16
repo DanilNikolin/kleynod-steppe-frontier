@@ -25,6 +25,7 @@ func bind(value: BattleTacticalState, arena: BattleArenaLayout) -> void:
 			continue
 		add_child(instance)
 		instance.bind_anchor(anchor)
+		instance.set_base_side(anchor.coordinate.x < arena.preview_divider_column)
 		_markers[anchor.coordinate] = instance
 	state.changed.connect(_refresh)
 	_refresh()
@@ -43,6 +44,7 @@ func _refresh() -> void:
 		preview_flags[preview.coordinate] = int(preview_flags.get(preview.coordinate, 0)) | kind | BattleTacticalState.Kind.AOE
 	for coordinate in _markers:
 		var marker: BattleTacticalMarkerView = _markers[coordinate]
+		marker.set_base_side(coordinate.x < layout.preview_divider_column)
 		marker.set_flags(state.get_flags(coordinate) | int(preview_flags.get(coordinate, 0)))
 
 

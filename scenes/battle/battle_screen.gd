@@ -41,7 +41,6 @@ func _ready() -> void:
 	var interaction := get_node("BattleWorld/TacticalOverlay/SlotInteraction") as BattleSlotInteraction
 	interaction.slot_hovered.connect(slot_hovered.emit)
 	interaction.slot_clicked.connect(slot_clicked.emit)
-	interaction.slot_hovered.connect(tactical_state.set_hover)
 	if environment == null and environment_scene != null:
 		load_environment(environment_scene)
 	if auto_start_battle and encounter_definition != null:

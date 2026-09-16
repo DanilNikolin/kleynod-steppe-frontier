@@ -8,7 +8,7 @@ var movement_service: BattleMovementService
 var action_service: BattleActionService
 var targeting_service: BattleTargetingService
 
-var show_targeting_debug: bool = true
+var show_targeting_debug: bool = false
 
 
 func _init(
@@ -16,7 +16,7 @@ func _init(
 	p_movement_service: BattleMovementService,
 	p_action_service: BattleActionService,
 	p_targeting_service: BattleTargetingService,
-	p_show_targeting_debug: bool = true
+	p_show_targeting_debug: bool = false
 ) -> void:
 	assert(
 		p_overlay_state != null,
@@ -73,31 +73,23 @@ func refresh(
 		return
 
 	var movement_restricted := (
-		selected_combatant
-		.is_movement_restricted()
+		selected_combatant.is_movement_restricted()
 	)
 
 	var ability_restricted := (
 		selected_ability != null
-		and selected_combatant
-		.is_ability_restricted(
+		and selected_combatant.is_ability_restricted(
 			selected_ability.ability_id
 		)
 	)
 
-	if not movement_restricted:
-		_draw_reachable_coordinates(
-			grid,
-			selected_combatant,
-			stamina_cost_per_cell
-		)
-
 	_draw_obstacles(grid)
 
 	if not movement_restricted:
-		_draw_swappable_allies(
+		_draw_hovered_swap(
 			session,
 			selected_combatant,
+			hovered_coordinate,
 			stamina_cost_per_cell
 		)
 
@@ -105,24 +97,32 @@ func refresh(
 		session,
 		selected_combatant,
 		target_candidates,
-		selected_ability
+		selected_ability,
+		hovered_coordinate
 	)
 
-	if (
-		show_targeting_debug
-		and not ability_restricted
-	):
-		_draw_targeting_debug(
-			session,
-			selected_combatant,
-			selected_ability,
-			hovered_coordinate
-		)
+	if not ability_restricted:
+		if show_targeting_debug:
+			_draw_targeting_debug(
+				session,
+				selected_combatant,
+				selected_ability,
+				hovered_coordinate
+			)
+		else:
+			_draw_hovered_ability_preview(
+				session,
+				selected_combatant,
+				selected_ability,
+				hovered_coordinate
+			)
 
 	if not movement_restricted:
 		_draw_hovered_path(
+			session,
 			grid,
 			selected_combatant,
+			selected_ability,
 			target_candidates,
 			hovered_coordinate,
 			stamina_cost_per_cell
@@ -132,12 +132,70 @@ func refresh(
 		selected_combatant.grid_position
 	):
 		overlay_state.add_state(
-			selected_combatant.grid_position, BattleTacticalState.Kind.SELECTED
+			selected_combatant.grid_position,
+			BattleTacticalState.Kind.SELECTED
 		)
 
 
 func clear() -> void:
 	overlay_state.clear_tactical()
+
+
+func _draw_hovered_ability_preview(
+	session: BattleSession,
+	actor: CombatantState,
+	ability: AbilityDefinition,
+	hovered_coordinate: Vector2i
+) -> void:
+	overlay_state.clear_targeting_markers()
+
+	if (
+		session == null
+		or actor == null
+		or ability == null
+		or hovered_coordinate
+			== BattleGrid.INVALID_COORDINATE
+	):
+		return
+
+	var command := BattleActionCommand.new(
+		actor,
+		ability,
+		hovered_coordinate
+	)
+
+	if not action_service.can_execute(
+		session,
+		command
+	):
+		return
+
+	overlay_state.add_state(
+		hovered_coordinate,
+		BattleTacticalState.Kind.VALID_TARGET
+	)
+
+	overlay_state.add_state(
+		hovered_coordinate,
+		BattleTacticalState.Kind.HOVER
+	)
+
+	var impact_coordinates := (
+		targeting_service.get_impact_coordinates(
+			session,
+			actor,
+			ability,
+			hovered_coordinate
+		)
+	)
+
+	# Single-target attacks should not suddenly look like AoE.
+	# AOE layer is reserved for a real multi-cell impact preview.
+	if impact_coordinates.size() > 1:
+		overlay_state.set_targeting_markers(
+			[],
+			impact_coordinates
+		)
 
 
 func _draw_targeting_debug(
@@ -253,34 +311,6 @@ func _has_teleport_effect(
 
 	return false
 
-func _draw_reachable_coordinates(
-	grid: BattleGrid,
-	combatant: CombatantState,
-	stamina_cost_per_cell: int
-) -> void:
-	if stamina_cost_per_cell <= 0:
-		return
-
-	var maximum_steps := floori(
-		float(combatant.current_stamina)
-		/ float(stamina_cost_per_cell)
-	)
-
-	var reachable_coordinates := (
-				movement_service.get_reachable_coordinates(
-			grid,
-			combatant.grid_position,
-			maximum_steps,
-			combatant.team_id
-		)
-	)
-
-	for coordinate in reachable_coordinates:
-		overlay_state.add_state(
-			coordinate,
-			BattleTacticalState.Kind.REACHABLE
-		)
-
 
 func _draw_obstacles(
 	grid: BattleGrid
@@ -297,12 +327,16 @@ func _draw_obstacles(
 		)
 
 
-func _draw_swappable_allies(
+func _draw_hovered_swap(
 	session: BattleSession,
 	active: CombatantState,
+	hovered_coordinate: Vector2i,
 	stamina_cost: int
 ) -> void:
 	if session == null or active == null:
+		return
+
+	if hovered_coordinate == BattleGrid.INVALID_COORDINATE:
 		return
 
 	for ally in session.get_team_combatants(
@@ -312,25 +346,36 @@ func _draw_swappable_allies(
 		if ally == null or ally == active:
 			continue
 
+		if ally.grid_position != hovered_coordinate:
+			continue
+
 		if not movement_service.can_swap_with_ally(
 			session,
 			active,
 			ally,
 			stamina_cost
 		):
-			continue
+			return
 
 		overlay_state.add_state(
 			ally.grid_position,
 			BattleTacticalState.Kind.SWAP
 		)
 
+		overlay_state.add_state(
+			ally.grid_position,
+			BattleTacticalState.Kind.HOVER
+		)
+
+		return
+
 
 func _draw_target_candidates(
 	session: BattleSession,
 	actor: CombatantState,
 	target_candidates: Array[CombatantState],
-	ability: AbilityDefinition
+	ability: AbilityDefinition,
+	hovered_coordinate: Vector2i
 ) -> void:
 	if session == null or session.grid == null:
 		return
@@ -346,9 +391,7 @@ func _draw_target_candidates(
 		):
 			continue
 
-		var slot_kind := (
-			BattleTacticalState.Kind.INVALID_TARGET
-		)
+		var executable := false
 
 		if ability != null:
 			var command := BattleActionCommand.new(
@@ -357,23 +400,37 @@ func _draw_target_candidates(
 				target.grid_position
 			)
 
-			if action_service.can_execute(
+			executable = action_service.can_execute(
 				session,
 				command
-			):
-				slot_kind = (
-					BattleTacticalState.Kind.VALID_TARGET
-				)
+			)
+
+		if executable:
+			overlay_state.add_state(
+				target.grid_position,
+				BattleTacticalState.Kind.VALID_TARGET
+			)
+
+		if target.grid_position != hovered_coordinate:
+			continue
+
+		if not executable:
+			overlay_state.add_state(
+				target.grid_position,
+				BattleTacticalState.Kind.INVALID_TARGET
+			)
 
 		overlay_state.add_state(
 			target.grid_position,
-			slot_kind
+			BattleTacticalState.Kind.HOVER
 		)
 
 
 func _draw_hovered_path(
+	session: BattleSession,
 	grid: BattleGrid,
 	combatant: CombatantState,
+	ability: AbilityDefinition,
 	target_candidates: Array[CombatantState],
 	hovered_coordinate: Vector2i,
 	stamina_cost_per_cell: int
@@ -390,6 +447,20 @@ func _draw_hovered_path(
 	):
 		return
 
+	# Ability interaction has priority over movement.
+	if ability != null:
+		var command := BattleActionCommand.new(
+			combatant,
+			ability,
+			hovered_coordinate
+		)
+
+		if action_service.can_execute(
+			session,
+			command
+		):
+			return
+
 	var hover_plan := movement_service.create_plan(
 		grid,
 		combatant,
@@ -405,6 +476,11 @@ func _draw_hovered_path(
 			path_coordinate,
 			BattleTacticalState.Kind.PATH
 		)
+
+	overlay_state.add_state(
+		hovered_coordinate,
+		BattleTacticalState.Kind.HOVER
+	)
 
 
 func _is_living_target_coordinate(

@@ -78,17 +78,9 @@ func _end_turn() -> void:
 
 func _on_hover(coordinate: Vector2i) -> void:
 	interaction.on_grid_cell_hovered(coordinate)
-	for state in session.get_all_combatants():
-		var view := screen.combatant_presenter.get_view(state.instance_id)
-		if view != null:
-			view.set_hovered_state(state.grid_position == coordinate)
 
 
 func _on_turn_started(actor: CombatantState, round_number: int, _index: int) -> void:
-	for state in session.get_all_combatants():
-		var view := screen.combatant_presenter.get_view(state.instance_id)
-		if view != null:
-			view.set_selected_state(state == actor)
 	var player_turn := actor.team_id == screen.player_team_id
 	screen.get_node("BattleUI/Root/EndTurn").disabled = not player_turn
 	log_presenter.set_headline("Раунд %d · %s · %s" % [
@@ -132,10 +124,6 @@ func _on_finished(winner: StringName) -> void:
 	screen.tactical_state.set_hover(BattleGrid.INVALID_COORDINATE)
 	screen.get_node("BattleUI/Root/EndTurn").disabled = true
 	log_presenter.set_headline("Победа!" if winner == screen.player_team_id else "Бой завершён · поражение")
-	for state in session.get_all_combatants():
-		var view := screen.combatant_presenter.get_view(state.instance_id)
-		if view != null:
-			view.set_selected_state(false)
 	completed.emit(winner)
 
 

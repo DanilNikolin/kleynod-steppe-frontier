@@ -42,7 +42,7 @@ func run() -> void:
 	var ordered_layers: Array[Node2D] = []
 	for layer_name in ["BackgroundLayer", "GroundLayer", "BackAtmosphereLayer"]:
 		ordered_layers.append(screen.environment.get_node(layer_name))
-	for layer_name in ["SurfaceLayer", "CombatantLayer", "BattleEffectsLayer", "TacticalOverlay"]:
+	for layer_name in ["SurfaceLayer", "TacticalOverlay", "CombatantLayer", "BattleEffectsLayer"]:
 		ordered_layers.append(screen.get_node("BattleWorld/" + layer_name))
 	for layer_name in ["ForegroundLayer", "FrontAtmosphereLayer", "LightingLayer"]:
 		ordered_layers.append(screen.environment.get_node(layer_name))

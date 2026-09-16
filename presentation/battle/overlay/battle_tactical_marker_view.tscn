@@ -1,68 +1,74 @@
 [gd_scene format=3 uid="uid://cn312ot2y0153"]
 
 [ext_resource type="Script" uid="uid://dt3lfxp45v2ou" path="res://presentation/battle/overlay/battle_tactical_marker_view.gd" id="1"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/reachable.svg" id="2_reachable"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/path.svg" id="3_path"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/valid_target.svg" id="4_valid_target"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/invalid_target.svg" id="5_invalid_target"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/aoe.svg" id="6_aoe"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/obstacle.svg" id="7_obstacle"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/swap.svg" id="8_swap"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/selected.svg" id="9_selected"]
-[ext_resource type="Texture2D" path="res://presentation/battle/overlay/marker_art/placeholders/hover.svg" id="10_hover"]
+[ext_resource type="Texture2D" uid="uid://bfri0jpihp2ji" path="res://Graphics/battle/Markers/Reachable.png" id="2_ql5iv"]
+[ext_resource type="Texture2D" uid="uid://dgw7ib25xiak5" path="res://Graphics/battle/Markers/Path.png" id="3_hoo0i"]
+[ext_resource type="Texture2D" uid="uid://crmyjfigb47gw" path="res://Graphics/battle/Markers/ValidTarget.png" id="4_tvaoy"]
+[ext_resource type="Texture2D" uid="uid://blwkmvimt3xko" path="res://Graphics/battle/Markers/InvalidTarget.png" id="5_88qsd"]
+[ext_resource type="Texture2D" uid="uid://b8wbm8j8d4qfg" path="res://Graphics/battle/Markers/Obstacle.png" id="7_53kvy"]
+[ext_resource type="Texture2D" uid="uid://dus51pwj7743q" path="res://Graphics/battle/Markers/Swap.png" id="8_vsxnd"]
+[ext_resource type="Texture2D" uid="uid://bejjt4c4c43pf" path="res://Graphics/battle/Markers/Selected.png" id="9_yc6vo"]
+[ext_resource type="Texture2D" uid="uid://b8u63i3epir12" path="res://Graphics/battle/Markers/Hover.png" id="10_tf7sr"]
 
 [node name="BattleTacticalMarkerView" type="Node2D" unique_id=1959601666]
 script = ExtResource("1")
 
-[node name="Reachable" type="Node2D" parent="." unique_id=1106098680]
+[node name="Base" type="Node2D" parent="." unique_id=1106098680]
 
-[node name="Sprite" type="Sprite2D" parent="Reachable"]
-texture = ExtResource("2_reachable")
+[node name="Sprite" type="Sprite2D" parent="Base" unique_id=1614279033]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_ql5iv")
 
 [node name="Path" type="Node2D" parent="." unique_id=819506585]
 visible = false
 
-[node name="Sprite" type="Sprite2D" parent="Path"]
-texture = ExtResource("3_path")
+[node name="Sprite" type="Sprite2D" parent="Path" unique_id=1235816535]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_hoo0i")
 
 [node name="ValidTarget" type="Node2D" parent="." unique_id=515508376]
 
-[node name="Sprite" type="Sprite2D" parent="ValidTarget"]
-texture = ExtResource("4_valid_target")
+[node name="Sprite" type="Sprite2D" parent="ValidTarget" unique_id=1079800221]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_tvaoy")
 
 [node name="InvalidTarget" type="Node2D" parent="." unique_id=1818108390]
 visible = false
 
-[node name="Sprite" type="Sprite2D" parent="InvalidTarget"]
-texture = ExtResource("5_invalid_target")
+[node name="Sprite" type="Sprite2D" parent="InvalidTarget" unique_id=909655068]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("5_88qsd")
 
 [node name="AoE" type="Node2D" parent="." unique_id=268202721]
 visible = false
 
-[node name="Sprite" type="Sprite2D" parent="AoE"]
-texture = ExtResource("6_aoe")
+[node name="Sprite" type="Sprite2D" parent="AoE" unique_id=581211627]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_tvaoy")
 
 [node name="Obstacle" type="Node2D" parent="." unique_id=1613673553]
 visible = false
 
-[node name="Sprite" type="Sprite2D" parent="Obstacle"]
-texture = ExtResource("7_obstacle")
+[node name="Sprite" type="Sprite2D" parent="Obstacle" unique_id=1257757117]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("7_53kvy")
 
 [node name="Swap" type="Node2D" parent="." unique_id=850816943]
 visible = false
 
-[node name="Sprite" type="Sprite2D" parent="Swap"]
-texture = ExtResource("8_swap")
+[node name="Sprite" type="Sprite2D" parent="Swap" unique_id=1937007373]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("8_vsxnd")
 
 [node name="Selected" type="Node2D" parent="." unique_id=1308005037]
 visible = false
-scale = Vector2(1.08, 1.08)
 
-[node name="Sprite" type="Sprite2D" parent="Selected"]
-texture = ExtResource("9_selected")
+[node name="Sprite" type="Sprite2D" parent="Selected" unique_id=1080240420]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("9_yc6vo")
 
 [node name="Hover" type="Node2D" parent="." unique_id=396798711]
-scale = Vector2(1.2, 1.2)
 
-[node name="Sprite" type="Sprite2D" parent="Hover"]
-texture = ExtResource("10_hover")
+[node name="Sprite" type="Sprite2D" parent="Hover" unique_id=1696584236]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("10_tf7sr")

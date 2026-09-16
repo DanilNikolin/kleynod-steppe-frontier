@@ -24,6 +24,8 @@ var description: String = ""
 @export
 var encounter_definition: BattleEncounterDefinition
 
+@export var battle_environment_scene: PackedScene
+
 ## Упорядоченные placeholder-spawn ID.
 ## Первый герой отряда получает первый spawn,
 ## второй — второй, третий — третий.
@@ -57,6 +59,9 @@ func get_validation_errors() -> PackedStringArray:
 		errors.append(
 			"Campaign location encounter is invalid."
 		)
+
+	if battle_environment_scene == null:
+		errors.append("Campaign location battle environment is not assigned.")
 
 	if party_spawn_instance_ids.is_empty():
 		errors.append(

@@ -9,7 +9,7 @@ const CAMPAIGN_SCENE_PATH: String = (
 )
 
 const BATTLE_SCENE_PATH: String = (
-	"res://scenes/debug/battle_grid_sandbox.tscn"
+	"res://scenes/battle/battle_screen.tscn"
 )
 
 const DEBUG_CAMPAIGN_DEFINITION_PATH: String = (
@@ -2921,6 +2921,7 @@ func start_location(
 		runtime_encounter
 	)
 
+	request.battle_environment_scene = location.battle_environment_scene
 	pending_battle_request = request
 
 	var scene_error := get_tree().change_scene_to_file(
@@ -2977,6 +2978,16 @@ func apply_travel_event_battle_outcome(
 			return true
 
 	return false
+
+
+## Uses the same reward services and completion path as the debug battle.
+func complete_pending_battle_from_session_and_return(session: BattleSession, winner: StringName) -> bool:
+	if session == null or not has_pending_battle():
+		return false
+	var experience := BattleExperienceRewardService.new().get_defeated_team_experience(session, &"team_enemy")
+	var loot := BattleLootRewardService.new().roll_from_session(
+		session, &"team_enemy", get_loot_catalog(), winner == PLAYER_TEAM_ID)
+	return complete_pending_battle_and_return(winner, experience, loot)
 
 
 func complete_pending_battle_and_return(

@@ -1,7 +1,44 @@
 # Production battle integration
 
 Open battle_screen.tscn and run the current scene (F6). The main campaign scene
-and independent debug sandbox are unchanged as entry points.
+now launches this same production screen for battles. The debug sandbox remains
+an independent testing entry point. F6 uses exported defaults when no campaign
+battle request is pending.
+
+## Editable slot and surface visuals
+
+Open `presentation/battle/overlay/battle_tactical_marker_view.tscn`. Each named
+child is an independent semantic layer. Replace its placeholder children with
+sprites, animated sprites, particles or shaders; retain the named layer wrapper.
+`editor_preview_flags` previews combinations in the editor only. Runtime flags
+come from BattleTacticalState; SURFACE never draws a tactical ground effect.
+
+SurfaceLayer owns `BattleSurfaceView` instances, keyed by runtime surface instance.
+Its exported `surface_scenes` registry maps the two existing surface IDs to scenes
+in `presentation/battle/surfaces/visuals/`. Replace children under Visuals to author
+their appearance. The generic `battle_surface_view.tscn` is an explicit fallback
+for unknown IDs, not a new gameplay surface. Both presenters have no `_draw()`.
+
+Artwork is centered at the ground origin and authored for `design_radii` (60,32).
+Views follow the complete anchor transform and interaction radii. Continue moving
+the 18 BattleSlotAnchor nodes directly in each environment's ArenaLayout.
+
+## Campaign composition
+
+CampaignLocationDefinition selects a PackedScene; start_location copies it to
+CampaignBattleRequest. BattleScreen consumes that encounter/environment pair
+without resolving location IDs or branching on environment types.
+
+BattleCampaignBridge listens to the existing flow completion signal, waits for
+action/movement presentation to finish, then asks CampaignRuntime to calculate
+rewards using the existing reward services and complete_pending_battle_and_return.
+The existing XP, loot, quest, adventure and travel result path is unchanged.
+Standalone battles have no campaign bridge. Screen-owned sessions are cleared
+when the screen exits; externally bound sessions remain caller-owned.
+
+The forest_edge, abandoned_cart and overturned_cart_ambush environments are
+independent editable copies of steppe, assigned to their corresponding locations.
+Their art is intentionally still shared placeholder content.
 
 ## Playing
 
@@ -79,12 +116,27 @@ Godot command: --headless --path . --script followed by any of:
 - res://tests/battle/production_battle_smoke.gd
 - res://tests/battle/production_features_smoke.gd
 - res://tests/battle/universal_feedback_smoke.gd
+- res://tests/battle/marker_surface_smoke.gd
+- res://tests/battle/campaign_production_smoke.gd
 
 production_battle_smoke plays the existing encounter to completion with player
 interaction and enemy AI. Add -- --animated to exercise animated presentation.
 production_features_smoke uses real runners/services for ability swap, normal swap,
 teleport, forced movement, surfaces and round-two reinforcements.
 universal_feedback_smoke checks all VFX placements, audio hook, cleanup and camera restoration.
+marker_surface_smoke checks independent/combinable flags, anchor transforms,
+surface registry lookup, coexistence, update/removal and unknown-ID fallback.
+campaign_production_smoke launches a real location, plays through production
+interaction/AI, checks XP/loot/result and observes the actual return to campaign.
+It uses an existing reserve hero and the existing debug sabre for a quick victory.
+Add `-- --animated` to cover awaited presentation. `-- --default-party` exercises
+the unmodified Bayda party and defeat return instead.
+
+Known pre-existing core limitation: Bayda's HeroCoreRuntimeState holds a strong
+owner reference back to CombatantState. The default-party test reports leaked
+objects/resources at shutdown, including AI simulation copies. A standalone core
+probe reproduces this without BattleScreen or campaign presentation. Core lifetime
+semantics were not changed as part of this presentation task.
 
 The production turn orchestrator detaches the turn controller's session callback
 when disposed because the existing controller has no public stop/dispose API.

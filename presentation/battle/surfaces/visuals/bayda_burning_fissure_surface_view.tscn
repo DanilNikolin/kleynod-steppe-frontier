@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://presentation/battle/surfaces/battle_surface_view.gd" id="1"]
+
+[node name="BaydaBurningFissureSurfaceView" type="Node2D"]
+script = ExtResource("1")
+
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="CrackGlow" type="Line2D" parent="Visuals"]
+points = PackedVector2Array(-48, 8, -30, -8, -12, 6, 4, -9, 20, 4, 44, -7)
+width = 12.0
+default_color = Color(0.8, 0.12, 0.01, 0.4)
+antialiased = true
+
+[node name="CrackCore" type="Line2D" parent="Visuals"]
+points = PackedVector2Array(-48, 8, -30, -8, -12, 6, 4, -9, 20, 4, 44, -7)
+width = 3.0
+default_color = Color(1, 0.8, 0.14, 0.9)
+antialiased = true

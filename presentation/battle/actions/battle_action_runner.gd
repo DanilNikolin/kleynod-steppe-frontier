@@ -1,6 +1,9 @@
 class_name BattleActionRunner
 extends RefCounted
 
+## Includes awaited presentation, so scene transitions can wait for the final action.
+var active_executions: int = 0
+
 
 const FAILURE_INVALID_SESSION: StringName = (
 	&"invalid_session"
@@ -87,7 +90,14 @@ func get_validation_failure(
 	)
 
 
-func execute_action(
+func execute_action(session: BattleSession, command: BattleActionCommand, animated: bool = true, remove_defeated_views: bool = true) -> BattleActionOutcome:
+	active_executions += 1
+	var outcome := await _execute_action(session, command, animated, remove_defeated_views)
+	active_executions -= 1
+	return outcome
+
+
+func _execute_action(
 	session: BattleSession,
 	command: BattleActionCommand,
 	animated: bool = true,

@@ -10,6 +10,7 @@ var party_member_hero_ids: Array[StringName] = []
 var player_spawn_instance_ids: Array[StringName] = []
 
 var encounter_definition: BattleEncounterDefinition
+var battle_environment_scene: PackedScene
 
 ## Не сохраняется.
 ## Контекст боя, начатого из Adventure Area.

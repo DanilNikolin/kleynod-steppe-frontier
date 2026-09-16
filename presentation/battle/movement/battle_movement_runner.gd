@@ -1,6 +1,9 @@
 class_name BattleMovementRunner
 extends RefCounted
 
+## Includes awaited presentation, so scene transitions can wait for the final action.
+var active_executions: int = 0
+
 
 const FAILURE_INVALID_SESSION: StringName = &"invalid_session"
 const FAILURE_INVALID_GRID: StringName = &"invalid_grid"
@@ -48,7 +51,14 @@ func _init(
 	combatant_presenter = p_combatant_presenter
 
 
-func execute(
+func execute(grid: BattleGrid, combatant: CombatantState, plan: BattleMovementPlan, animated: bool = true) -> BattleMovementOutcome:
+	active_executions += 1
+	var outcome := await _execute(grid, combatant, plan, animated)
+	active_executions -= 1
+	return outcome
+
+
+func _execute(
 	grid: BattleGrid,
 	combatant: CombatantState,
 	plan: BattleMovementPlan,
@@ -185,7 +195,14 @@ func execute(
 	return outcome
 
 
-func execute_ally_swap(
+func execute_ally_swap(active: CombatantState, ally: CombatantState, stamina_cost: int, animated: bool = true) -> BattleMovementOutcome:
+	active_executions += 1
+	var outcome := await _execute_ally_swap(active, ally, stamina_cost, animated)
+	active_executions -= 1
+	return outcome
+
+
+func _execute_ally_swap(
 	active: CombatantState,
 	ally: CombatantState,
 	stamina_cost: int,

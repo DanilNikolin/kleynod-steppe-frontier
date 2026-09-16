@@ -20,9 +20,15 @@ var session: BattleSession
 var combatant_presenter: BattleCombatantPresenter
 var tactical_state := BattleTacticalState.new()
 var flow: BattleFlowController
+var campaign_bridge: BattleCampaignBridge
 
 
 func _ready() -> void:
+	var campaign := get_node_or_null("/root/CampaignRuntime") as CampaignRuntimeService
+	if campaign != null and campaign.has_pending_battle():
+		campaign_bridge = BattleCampaignBridge.new()
+		add_child(campaign_bridge)
+		campaign_bridge.configure(self, campaign, campaign.pending_battle_request)
 	var interaction := get_node("BattleWorld/TacticalOverlay/SlotInteraction") as BattleSlotInteraction
 	interaction.slot_hovered.connect(slot_hovered.emit)
 	interaction.slot_clicked.connect(slot_clicked.emit)
@@ -46,6 +52,8 @@ func start_battle() -> bool:
 	flow = BattleFlowController.new()
 	flow.name = "BattleFlow"
 	add_child(flow)
+	if campaign_bridge != null:
+		flow.completed.connect(campaign_bridge.complete)
 	return flow.start(self, encounter_definition)
 
 
@@ -147,6 +155,9 @@ func _disconnect_session() -> void:
 
 func _exit_tree() -> void:
 	_disconnect_session()
+	# Only sessions created by start_battle belong to this screen.
+	if flow != null and session != null:
+		session.clear()
 
 
 func _get_grid_size() -> Vector2i:

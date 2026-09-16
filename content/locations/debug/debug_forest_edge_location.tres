@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://b057wdv6pu3ma" path="res://core/campaign/locations/campaign_location_definition.gd" id="1_location"]
 [ext_resource type="Resource" uid="uid://8hxioc2t5t4n" path="res://content/encounters/debug/debug_campaign_party_encounter.tres" id="2_encounter"]
 
+[ext_resource type="PackedScene" path="res://scenes/battle/environments/forest_edge_environment.tscn" id="3_environment"]
+
 [resource]
 script = ExtResource("1_location")
 location_id = &"debug_forest_edge"
@@ -10,3 +12,5 @@ display_name = "Разбойничий лагерь"
 description = "Боевая локация разбойничьего лагеря внутри лесного региона."
 encounter_definition = ExtResource("2_encounter")
 party_spawn_instance_ids = Array[StringName]([&"party_slot_1", &"party_slot_2", &"party_slot_3"])
+
+battle_environment_scene = ExtResource("3_environment")

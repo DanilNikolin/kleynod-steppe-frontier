@@ -1,189 +1,304 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://1m506rvq3p4k"]
 
-[ext_resource type="Script" path="res://presentation/battle/environment/battle_environment.gd" id="1"]
-[ext_resource type="Script" path="res://presentation/battle/environment/battle_arena_layout.gd" id="2"]
-[ext_resource type="Script" path="res://presentation/battle/environment/battle_slot_anchor.gd" id="3"]
+[ext_resource type="Script" uid="uid://b84qoru2o4og2" path="res://presentation/battle/environment/battle_environment.gd" id="1"]
+[ext_resource type="Script" uid="uid://b0hfuxpck3gff" path="res://presentation/battle/environment/battle_arena_layout.gd" id="2"]
+[ext_resource type="Script" uid="uid://clt8k6awi4urh" path="res://presentation/battle/environment/battle_slot_anchor.gd" id="3"]
+[ext_resource type="Texture2D" uid="uid://cu6cfg1bxe141" path="res://Graphics/battle/environments/deep_forest/background/deep_forest_2(верх).png" id="3_c64t1"]
+[ext_resource type="Texture2D" uid="uid://dlvoq36f3sg6q" path="res://Graphics/battle/environments/deep_forest/background/deep_forest_2.png" id="4_2pmsa"]
 [ext_resource type="PackedScene" path="res://presentation/battle/environment/battle_time_of_day_visual.tscn" id="4_tod"]
+[ext_resource type="Script" uid="uid://bxj1a1t6vo0ay" path="res://presentation/battle/environment/battle_environment_animated_prop.gd" id="5_anim_prop"]
+[ext_resource type="Texture2D" uid="uid://dgh8xspnny8ws" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/1.png" id="7_8gerh"]
+[ext_resource type="Texture2D" uid="uid://ccvu0d7e0waeh" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/2.png" id="8_c64t1"]
+[ext_resource type="Texture2D" uid="uid://chcekfx2n0gb7" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/3.png" id="9_2pmsa"]
+[ext_resource type="Texture2D" uid="uid://v5p3gtctgsqi" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/4.png" id="10_hwntc"]
+[ext_resource type="Texture2D" uid="uid://cyub4cu4gojwo" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/5.png" id="11_x6hdi"]
+[ext_resource type="Texture2D" uid="uid://c5cvewihmgapx" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/6.png" id="12_mxi2x"]
+[ext_resource type="Texture2D" uid="uid://ofsdsqh7uau4" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/7.png" id="13_crmky"]
+[ext_resource type="Texture2D" uid="uid://dl8upsyl0sbju" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/8.png" id="14_t1dog"]
+[ext_resource type="Texture2D" uid="uid://baxjily6dn4e2" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/9.png" id="15_f2ayu"]
+[ext_resource type="Texture2D" uid="uid://c2vejfc1xdpse" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/10.png" id="16_512xi"]
+[ext_resource type="Texture2D" uid="uid://di6upou3s7wax" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/11.png" id="17_bha0h"]
+[ext_resource type="Texture2D" uid="uid://drvvovpr37asx" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/12.png" id="18_m2mbr"]
+[ext_resource type="Texture2D" uid="uid://cc2d5is8vajms" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/13.png" id="19_hoe8y"]
+[ext_resource type="Texture2D" uid="uid://cc24x115n8182" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/14.png" id="20_62d7k"]
+[ext_resource type="Texture2D" uid="uid://dcrvh5nrwotv2" path="res://Graphics/battle/environments/deep_forest/animations/GrassAnim_BottomRight/15.png" id="21_xb6fu"]
 
-[node name="DeepForestEnvironment" type="Node2D"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_top_left"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_top_right"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bottom_left"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bottom_right"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_8gerh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_c64t1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_2pmsa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_hwntc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_x6hdi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_mxi2x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_crmky")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_t1dog")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_f2ayu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_512xi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_bha0h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_m2mbr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_hoe8y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_62d7k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_xb6fu")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 1.0
+}]
+
+[node name="DeepForestEnvironment" type="Node2D" unique_id=2116419008]
 script = ExtResource("1")
+metadata/_edit_vertical_guides_ = [-442.0, -1007.0, 1012.0]
 
-[node name="TimeOfDay" parent="." instance=ExtResource("4_tod")]
+[node name="TimeOfDay" parent="." unique_id=1418625391 instance=ExtResource("4_tod")]
 
-[node name="BackgroundLayer" type="Node2D" parent="."]
+[node name="BackgroundLayer" type="Node2D" parent="." unique_id=2088538406]
 z_index = -400
 z_as_relative = false
 
-[node name="PlaceholderSky" type="Polygon2D" parent="BackgroundLayer"]
-color = Color(0.18, 0.24, 0.22, 1)
-polygon = PackedVector2Array(-2000, -1200, 2000, -1200, 2000, 1200, -2000, 1200)
+[node name="PlaceholderSky" type="Sprite2D" parent="BackgroundLayer" unique_id=1133829901]
+position = Vector2(0, 100)
+texture = ExtResource("3_c64t1")
 
-[node name="GroundLayer" type="Node2D" parent="."]
+[node name="GroundLayer" type="Node2D" parent="." unique_id=102523075]
 z_index = -300
 z_as_relative = false
 
-[node name="PlaceholderGround" type="Polygon2D" parent="GroundLayer"]
-color = Color(0.18, 0.26, 0.16, 1)
-polygon = PackedVector2Array(-2000, -220, 2000, -220, 2000, 1200, -2000, 1200)
+[node name="PlaceholderGround" type="Sprite2D" parent="GroundLayer" unique_id=1303641462]
+position = Vector2(0, 150)
+texture = ExtResource("4_2pmsa")
 
-[node name="BackAtmosphereLayer" type="Node2D" parent="."]
+[node name="BackAtmosphereLayer" type="Node2D" parent="." unique_id=1415091071]
 z_index = -200
 z_as_relative = false
+position = Vector2(0, 156)
 
-[node name="ArenaLayout" type="Node2D" parent="."]
+[node name="GrassAnim_TopLeft" type="AnimatedSprite2D" parent="BackAtmosphereLayer" unique_id=310000001]
+visible = false
+position = Vector2(-550, -250)
+sprite_frames = SubResource("SpriteFrames_top_left")
+autoplay = "default"
+script = ExtResource("5_anim_prop")
+
+[node name="GrassAnim_TopRight" type="AnimatedSprite2D" parent="BackAtmosphereLayer" unique_id=310000002]
+visible = false
+position = Vector2(550, -250)
+sprite_frames = SubResource("SpriteFrames_top_right")
+autoplay = "default"
+script = ExtResource("5_anim_prop")
+
+[node name="ArenaLayout" type="Node2D" parent="." unique_id=2048864937]
+position = Vector2(0, 156)
 script = ExtResource("2")
 
-[node name="Slot_0_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_0_0" type="Marker2D" parent="ArenaLayout" unique_id=437358051]
 z_index = 900
 z_as_relative = false
-position = Vector2(-380, -100)
+position = Vector2(-360, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 
-[node name="Slot_1_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_1_0" type="Marker2D" parent="ArenaLayout" unique_id=1961093394]
 z_index = 900
 z_as_relative = false
-position = Vector2(-245, -115)
+position = Vector2(-190, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(1, 0)
 
-[node name="Slot_2_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_2_0" type="Marker2D" parent="ArenaLayout" unique_id=1255621677]
 z_index = 900
 z_as_relative = false
-position = Vector2(-100, -95)
+position = Vector2(-10, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(2, 0)
 
-[node name="Slot_3_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_3_0" type="Marker2D" parent="ArenaLayout" unique_id=1401252354]
 z_index = 900
 z_as_relative = false
-position = Vector2(95, -108)
+position = Vector2(230, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(3, 0)
 
-[node name="Slot_4_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_4_0" type="Marker2D" parent="ArenaLayout" unique_id=1797637218]
 z_index = 900
 z_as_relative = false
-position = Vector2(240, -90)
+position = Vector2(410, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(4, 0)
 
-[node name="Slot_5_0" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_5_0" type="Marker2D" parent="ArenaLayout" unique_id=1172477781]
 z_index = 900
 z_as_relative = false
-position = Vector2(375, -105)
+position = Vector2(590, -110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(5, 0)
 
-[node name="Slot_0_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_0_1" type="Marker2D" parent="ArenaLayout" unique_id=903974819]
 z_index = 900
 z_as_relative = false
-position = Vector2(-420, 30)
+position = Vector2(-480, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(0, 1)
 
-[node name="Slot_1_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_1_1" type="Marker2D" parent="ArenaLayout" unique_id=1863244340]
 z_index = 900
 z_as_relative = false
-position = Vector2(-260, 48)
+position = Vector2(-300, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(1, 1)
 
-[node name="Slot_2_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_2_1" type="Marker2D" parent="ArenaLayout" unique_id=1670432429]
 z_index = 900
 z_as_relative = false
-position = Vector2(-90, 35)
+position = Vector2(-120, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(2, 1)
 
-[node name="Slot_3_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_3_1" type="Marker2D" parent="ArenaLayout" unique_id=1566219721]
 z_index = 900
 z_as_relative = false
-position = Vector2(110, 55)
+position = Vector2(120, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(3, 1)
 
-[node name="Slot_4_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_4_1" type="Marker2D" parent="ArenaLayout" unique_id=2054039882]
 z_index = 900
 z_as_relative = false
-position = Vector2(275, 32)
+position = Vector2(300, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(4, 1)
 
-[node name="Slot_5_1" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_5_1" type="Marker2D" parent="ArenaLayout" unique_id=1739213541]
 z_index = 900
 z_as_relative = false
-position = Vector2(435, 45)
+position = Vector2(480, 0)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(5, 1)
 
-[node name="Slot_0_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_0_2" type="Marker2D" parent="ArenaLayout" unique_id=290812093]
 z_index = 900
 z_as_relative = false
-position = Vector2(-469, 205)
+position = Vector2(-590, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(0, 2)
 
-[node name="Slot_1_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_1_2" type="Marker2D" parent="ArenaLayout" unique_id=1292852880]
 z_index = 900
 z_as_relative = false
-position = Vector2(-283, 228)
+position = Vector2(-410, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(1, 2)
 
-[node name="Slot_2_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_2_2" type="Marker2D" parent="ArenaLayout" unique_id=231458330]
 z_index = 900
 z_as_relative = false
-position = Vector2(-85, 218)
+position = Vector2(-230, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(2, 2)
 
-[node name="Slot_3_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_3_2" type="Marker2D" parent="ArenaLayout" unique_id=1869254673]
 z_index = 900
 z_as_relative = false
-position = Vector2(135, 193)
+position = Vector2(10, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(3, 2)
 
-[node name="Slot_4_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_4_2" type="Marker2D" parent="ArenaLayout" unique_id=419959197]
 z_index = 900
 z_as_relative = false
-position = Vector2(315, 220)
+position = Vector2(190, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(4, 2)
 
-[node name="Slot_5_2" type="Marker2D" parent="ArenaLayout"]
+[node name="Slot_5_2" type="Marker2D" parent="ArenaLayout" unique_id=1285087390]
 z_index = 900
 z_as_relative = false
-position = Vector2(500, 200)
+position = Vector2(370, 110)
 gizmo_extents = 24.0
 script = ExtResource("3")
 coordinate = Vector2i(5, 2)
 
-[node name="ForegroundLayer" type="Node2D" parent="."]
+[node name="ForegroundLayer" type="Node2D" parent="." unique_id=1773850563]
 z_index = 400
 z_as_relative = false
+position = Vector2(0, 156)
 
-[node name="FrontAtmosphereLayer" type="Node2D" parent="."]
+[node name="GrassAnim_BottomLeft" type="AnimatedSprite2D" parent="ForegroundLayer" unique_id=310000003]
+visible = false
+position = Vector2(-650, 250)
+sprite_frames = SubResource("SpriteFrames_bottom_left")
+autoplay = "default"
+script = ExtResource("5_anim_prop")
+
+[node name="GrassAnim_BottomRight" type="AnimatedSprite2D" parent="ForegroundLayer" unique_id=310000004]
+visible = false
+self_modulate = Color(0.735357, 0.735357, 0.653097, 1)
+position = Vector2(484.00003, 273)
+scale = Vector2(1.2, 1.2)
+sprite_frames = SubResource("SpriteFrames_bottom_right")
+autoplay = "default"
+frame = 4
+frame_progress = 0.73100716
+script = ExtResource("5_anim_prop")
+
+[node name="FrontAtmosphereLayer" type="Node2D" parent="." unique_id=284416469]
 z_index = 500
 z_as_relative = false
+position = Vector2(0, 156)
 
-[node name="LightingLayer" type="Node2D" parent="."]
+[node name="LightingLayer" type="Node2D" parent="." unique_id=1963009354]
 z_index = 600
 z_as_relative = false
+position = Vector2(0, 156)

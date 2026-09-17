@@ -51,6 +51,37 @@ func _ready() -> void:
 func set_base_side(is_friendly: bool) -> void:
 	_friendly_base = is_friendly
 	_refresh_base_visibility()
+	_refresh_side_mirroring()
+
+
+func _refresh_side_mirroring() -> void:
+	var layer_names: Array[String] = [
+		"BaseFriendly",
+		"BaseEnemy",
+		"Path",
+		"ValidTarget",
+		"InvalidTarget",
+		"AoE",
+		"Obstacle",
+		"Swap",
+		"Selected",
+		"Hover",
+	]
+
+	for layer_name in layer_names:
+		var layer := get_node_or_null(
+			NodePath(layer_name)
+		)
+
+		if layer == null:
+			continue
+
+		var sprite := layer.get_node_or_null(
+			^"Sprite"
+		) as Sprite2D
+
+		if sprite != null:
+			sprite.flip_h = _friendly_base
 
 
 func _refresh_base_visibility() -> void:

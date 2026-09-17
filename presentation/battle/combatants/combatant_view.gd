@@ -89,37 +89,37 @@ var action_preview_badge: BattleActionPreviewBadge = (
 
 @onready
 var name_label: Label = (
-	$InterfaceRoot/VBoxContainer/NameLabel
+	$InterfaceRoot/NameLabel
 )
 
 @onready
 var health_bar: ProgressBar = (
-	$InterfaceRoot/VBoxContainer/HealthRow/HealthBar
+	$InterfaceRoot/HealthBar
 )
 
 @onready
 var health_value_label: Label = (
-	$InterfaceRoot/VBoxContainer/HealthRow/HealthValueLabel
+	$InterfaceRoot/HealthValueLabel
 )
 
 @onready
 var guard_bar: ProgressBar = (
-	$InterfaceRoot/VBoxContainer/GuardRow/GuardBar
+	$InterfaceRoot/GuardBar
 )
 
 @onready
 var guard_value_label: Label = (
-	$InterfaceRoot/VBoxContainer/GuardRow/GuardValueLabel
+	$InterfaceRoot/GuardValueLabel
 )
 
 @onready
 var stamina_bar: ProgressBar = (
-	$InterfaceRoot/VBoxContainer/StaminaRow/StaminaBar
+	$InterfaceRoot/StaminaBar
 )
 
 @onready
 var stamina_value_label: Label = (
-	$InterfaceRoot/VBoxContainer/StaminaRow/StaminaValueLabel
+	$InterfaceRoot/StaminaValueLabel
 )
 
 

@@ -110,16 +110,30 @@ offset_right = -24.0
 offset_bottom = -24.0
 text = "Завершить ход · Space"
 
-[node name="TestShake" type="Button" parent="BattleUI/Root"]
+[node name="ShakeTestPanel" type="VBoxContainer" parent="BattleUI/Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -270.0
-offset_top = -132.0
+offset_top = -252.0
 offset_right = -24.0
 offset_bottom = -84.0
-text = "Тест камеры"
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="Weak" type="Button" parent="BattleUI/Root/ShakeTestPanel"]
+layout_mode = 2
+text = "Impact · Weak"
+
+[node name="Medium" type="Button" parent="BattleUI/Root/ShakeTestPanel"]
+layout_mode = 2
+text = "Impact · Medium"
+
+[node name="Strong" type="Button" parent="BattleUI/Root/ShakeTestPanel"]
+layout_mode = 2
+text = "Impact · Strong"
 
 [node name="DebugTimePanel" type="PanelContainer" parent="BattleUI/Root"]
 anchor_left = 1.0

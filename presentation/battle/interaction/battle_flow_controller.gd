@@ -52,7 +52,10 @@ func start(value: BattleScreen, encounter: BattleEncounterDefinition) -> bool:
 	screen.slot_hovered.connect(_on_hover)
 	screen.get_node("BattleUI/Root/AbilityPanel").ability_selected.connect(interaction.on_ability_selected)
 	screen.get_node("BattleUI/Root/EndTurn").pressed.connect(_end_turn)
-	screen.get_node("BattleUI/Root/TestShake").pressed.connect(screen.get_node("CameraDirector").impact_shake)
+	var camera_director := screen.get_node("CameraDirector") as BattleCameraDirector
+	screen.get_node("BattleUI/Root/ShakeTestPanel/Weak").pressed.connect(camera_director.impact_shake_weak)
+	screen.get_node("BattleUI/Root/ShakeTestPanel/Medium").pressed.connect(camera_director.impact_shake_medium)
+	screen.get_node("BattleUI/Root/ShakeTestPanel/Strong").pressed.connect(camera_director.impact_shake_strong)
 	turn_controller.turn_started.connect(_on_turn_started)
 	turn_controller.turn_skipped.connect(_on_turn_skipped)
 	turn_controller.periodic_status_effects_resolved.connect(_on_periodic)

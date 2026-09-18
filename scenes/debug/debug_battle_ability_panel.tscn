@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/debug/debug_battle_ability_panel.gd" id="1_panel"]
+[ext_resource type="Script" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="2_collapse"]
+
+[node name="BattleAbilityPanel" type="PanelContainer" unique_id=445475881]
+visible = false
+custom_minimum_size = Vector2(780, 300)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -390.0
+offset_top = -460.0
+offset_right = 390.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 1
+script = ExtResource("1_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="." unique_id=734203702]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin" unique_id=709900004]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer" unique_id=216726426]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ActorLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow" unique_id=1019874741]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Боец | Выносливость"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CollapseButton" type="Button" parent="ContentMargin/VBoxContainer/HeaderRow" unique_id=489371056]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+tooltip_text = "Свернуть"
+mouse_default_cursor_shape = 2
+text = "−"
+
+[node name="CollapsibleContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer" unique_id=1189089518]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="AbilityScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent" unique_id=2070682099]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AbilityGrid" type="GridContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/AbilityScroll" unique_id=1128130161]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="CardPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent" unique_id=252160814]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CardScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel" unique_id=1167844396]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CardMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll" unique_id=1637362543]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="CardVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin" unique_id=1106340744]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="CardTitleLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=414100367]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Название способности"
+
+[node name="CardMetaLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1860455927]
+layout_mode = 2
+text = "Цена • Цель • Дальность"
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1303173939]
+layout_mode = 2
+
+[node name="CardDescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=604811073]
+layout_mode = 2
+text = "Описание способности."
+autowrap_mode = 2
+
+[node name="CardEffectsLabel" type="Label" parent="ContentMargin/VBoxContainer/CollapsibleContent/CardPanel/CardScroll/CardMargin/CardVBox" unique_id=1425989010]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Эффекты способности."
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CollapsibleController" type="Node" parent="." unique_id=2026715361]
+script = ExtResource("2_collapse")
+target_control_path = NodePath("..")
+content_control_path = NodePath("../ContentMargin/VBoxContainer/CollapsibleContent")
+toggle_button_path = NodePath("../ContentMargin/VBoxContainer/HeaderRow/CollapseButton")
+fixed_edge = 1
+collapsed_height = 52.0

@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cm5m1q7ed87gu" path="res://presentation/battle/grid/battle_grid_view.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://dogan5u1eqtfl" path="res://presentation/battle/combatants/combatant_view.tscn" id="3_combatant_view"]
 [ext_resource type="Resource" uid="uid://dgp7p6h0tjn5n" path="res://content/encounters/debug/debug_duel_encounter.tres" id="3_wc5i2"]
-[ext_resource type="PackedScene" uid="uid://bgg8ap77su8v1" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="5_ability_panel"]
+[ext_resource type="PackedScene" path="res://scenes/debug/debug_battle_ability_panel.tscn" id="5_ability_panel"]
 [ext_resource type="Resource" uid="uid://biy4yp5jjdsj0" path="res://content/statuses/debug/debug_cracked_defense.tres" id="6_debug_status"]
 [ext_resource type="PackedScene" uid="uid://btsbnmv4wxefl" path="res://presentation/battle/combatants/battle_combatant_hover_panel.tscn" id="7_hover_panel"]
 [ext_resource type="Script" uid="uid://btdu08wkb7o5t" path="res://presentation/common/controls/collapsible_panel_controller.gd" id="8_collapse"]

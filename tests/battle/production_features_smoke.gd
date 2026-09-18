@@ -19,6 +19,15 @@ func spawn(id: StringName, definition: CombatantDefinition, team: StringName, co
 	value.combatant_definition = definition
 	value.team_id = team
 	value.coordinate = coordinate
+	if team == &"team_player":
+		# Production fixtures equip only the abilities exercised here; the sandbox
+		# retains its full 17-ability debug loadout and separate visual panel.
+		var loadout := CombatantLoadoutDefinition.new()
+		loadout.loadout_id = &"production_feature_test"
+		for key in ["sabre_slash", "swap_positions", "teleport", "shield_bash", "place_fire_surface"]:
+			loadout.abilities.append(load("res://content/abilities/debug/debug_%s.tres" % key))
+		loadout.default_ability_id = loadout.abilities[0].ability_id
+		value.loadout_override = loadout
 	return value
 
 

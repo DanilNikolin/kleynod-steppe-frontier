@@ -2,11 +2,11 @@ class_name BattleSurfaceHoverPanel
 extends PanelContainer
 
 
-const STANDALONE_LEFT: float = -404.0
-const STANDALONE_RIGHT: float = -24.0
+@export var standalone_left: float = -404.0
+@export var standalone_right: float = -24.0
 
-const COMPANION_LEFT: float = -808.0
-const COMPANION_RIGHT: float = -428.0
+@export var companion_left: float = -808.0
+@export var companion_right: float = -428.0
 
 
 @onready
@@ -98,12 +98,12 @@ func _apply_layout(
 	has_combatant_neighbor: bool
 ) -> void:
 	if has_combatant_neighbor:
-		offset_left = COMPANION_LEFT
-		offset_right = COMPANION_RIGHT
+		offset_left = companion_left
+		offset_right = companion_right
 
 	else:
-		offset_left = STANDALONE_LEFT
-		offset_right = STANDALONE_RIGHT
+		offset_left = standalone_left
+		offset_right = standalone_right
 
 
 func _build_effects_text() -> String:

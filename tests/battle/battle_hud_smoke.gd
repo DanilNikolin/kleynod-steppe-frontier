@@ -1,0 +1,106 @@
+extends SceneTree
+
+var failures: int = 0
+var selections: int = 0
+var end_turns: int = 0
+func _initialize() -> void:
+	call_deferred("run")
+func check(ok: bool, message: String) -> void:
+	if not ok:
+		failures += 1
+		push_error(message)
+func run() -> void:
+	var screen := load("res://scenes/battle/battle_screen.tscn").instantiate() as BattleScreen
+	screen.environment_scene = load("res://scenes/battle/environments/deep_forest_environment.tscn")
+	screen.ai_think_delay = 0
+	root.add_child(screen)
+	var hud := screen.battle_hud
+	var actor := hud.player_combatant
+	var enemy := screen.session.get_combatant(&"debug_enemy")
+	check(hud != null and actor != null and screen.environment != null, "Deep Forest and bound HUD load.")
+	check(hud.ability_panel.hud_slots.size() == 6, "Exactly six slots.")
+	for i in range(6):
+		var slot := hud.ability_panel.hud_slots[i]
+		check(slot.get_node("HotkeyLabel").text == str(i + 1), "Hotkey numbering.")
+		if slot.ability == null:
+			check(slot.disabled and slot.get_node("Backing").texture == BattleAbilitySlot.INACTIVE and not slot.get_node("CostBadge").visible, "Empty slot inactive.")
+		else:
+			check(slot.get_node("CostLabel").text == str(slot.ability.stamina_cost), "Stamina cost bound.")
+	var portrait := hud.get_node("PortraitPanel/CharacterPortrait") as TextureRect
+	check(portrait.texture == actor.definition.portrait, "Portrait comes from model definition.")
+	check(hud.get_node("PortraitPanel/PortraitBackground").get_index() < portrait.get_index() and portrait.get_index() < hud.get_node("PortraitPanel/PortraitFrame").get_index(), "Portrait draw order.")
+	actor.pay_health_cost(1)
+	actor.spend_stamina(1)
+	actor.grant_guard(3)
+	actor.set_max_stamina(actor.max_stamina + 2)
+	check(hud.get_node("PortraitPanel/Health/Bar").value == actor.current_health, "HP signal updates bar.")
+	check(hud.get_node("PortraitPanel/Stamina/Bar").value == actor.current_stamina and hud.get_node("PortraitPanel/Stamina/Bar").max_value == actor.max_stamina, "Stamina signals update bar.")
+	check(hud.get_node("PortraitPanel/Guard/Value").text == str(actor.current_guard), "Guard signal updates label.")
+	hud.ability_panel.ability_selected.connect(func(_ability): selections += 1)
+	actor.restore_stamina(actor.max_stamina)
+	check(hud.ability_panel.select_ability_by_index(0) and selections == 1, "Selection contract.")
+	hud.end_turn_pressed.connect(func(): end_turns += 1)
+	hud.end_turn_pressed.disconnect(screen.flow._end_turn)
+	hud.end_turn_button.pressed.emit()
+	check(end_turns == 1, "End turn button forwards the public signal exactly once.")
+	hud.end_turn_pressed.connect(screen.flow._end_turn)
+	check(hud.get_node("TurnOrderArea/CurrentEntry/Frame").texture.resource_path.ends_with("turn_current_frame.png"), "Current actor uses the large current frame.")
+	for item in hud.get_node("TurnOrderArea/PastEntries").get_children():
+		check(item.position.x < 918, "Past entries are left of current.")
+	for item in hud.get_node("TurnOrderArea/FutureEntries").get_children():
+		check(item.position.x > 1023, "Future entries are right of current.")
+	# Keep this test deterministic; directly enter enemy presentation without scheduling AI.
+	screen.flow.interaction.begin_enemy_turn()
+	hud.set_player_controls_enabled(false)
+	check(hud.player_combatant == actor and hud.ability_panel.hud_actor == actor, "Enemy turn keeps player panel bound.")
+	check(hud.end_turn_button.disabled and not hud.ability_panel.select_ability_by_index(0), "Enemy turn blocks player actions.")
+	for slot in hud.ability_panel.hud_slots:
+		check(slot.disabled, "Enemy turn disables slots.")
+	check(hud.get_node("EndTurnArea/RoundLabel").text == str(screen.flow.turn_controller.round_number), "Round displayed numerically.")
+	var waves := BattleReinforcementWaveDefinition.new()
+	waves.wave_id = &"hud_rows"
+	var spawn := CombatantSpawnDefinition.new()
+	spawn.instance_id = &"incoming"
+	spawn.team_id = &"team_enemy"
+	spawn.combatant_definition = enemy.definition
+	spawn.coordinate = Vector2i(5, 0)
+	spawn.fallback_coordinates = [Vector2i(4, 0), Vector2i(5, 2)]
+	waves.combatant_spawns = [spawn]
+	var query := BattleReinforcementController.new(screen.session, [waves])
+	check(query.get_pending_opposition_rows(&"team_player") == PackedInt32Array([0, 2]), "Unique rows include all spawn candidates.")
+	check(query.get_pending_opposition_rows(&"team_enemy").is_empty(), "Own reinforcement excluded.")
+	# Rebind also tests cleanup of old battle signal connections.
+	hud.bind_battle(screen.session, screen.flow.turn_controller, query, &"team_player")
+	check(hud.get_node("ReinforcementArea/Row0").visible and hud.get_node("ReinforcementArea/Row2").visible and not hud.get_node("ReinforcementArea/Row1").visible, "Multiple row flags simultaneously visible.")
+	query.process_round(99)
+	hud.refresh_reinforcements()
+	check(not hud.get_node("ReinforcementArea/Row0").visible and not hud.get_node("ReinforcementArea/Row2").visible, "Completed spawns remove flags.")
+	var entry := load("res://presentation/battle/ui/battle_turn_order_entry.tscn").instantiate() as BattleTurnOrderEntry
+	root.add_child(entry)
+	entry.bind_combatant(actor, true)
+	check(entry.get_node("Frame").texture == BattleTurnOrderEntry.FRIENDLY, "Friendly frame.")
+	entry.bind_combatant(enemy, false)
+	check(entry.get_node("Frame").texture == BattleTurnOrderEntry.ENEMY, "Enemy frame.")
+	entry.queue_free()
+	var transform := hud.get_global_transform_with_canvas()
+	var director := screen.get_node("CameraDirector") as BattleCameraDirector
+	director.impact_shake_strong()
+	director._process(0.03)
+	check(hud.get_global_transform_with_canvas() == transform, "World effects do not move HUD.")
+	director.reset()
+	hud.open_menu()
+	check(paused and is_instance_valid(hud.menu_panel), "Menu opens and pauses battle.")
+	check(hud.get_node("ContextLayer").size == hud.size and hud.menu_panel.size == hud.size, "Menu context fills the HUD viewport.")
+	hud.menu_panel.save_requested.emit()
+	check(hud.menu_panel.get("_status_message").contains("во время боя"), "Save limitation explained.")
+	hud.close_menu()
+	check(not paused, "Menu close resumes battle.")
+	# Root and all decorative textures ignore mouse; only buttons/card interactions consume it.
+	check(hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "HUD passes battlefield clicks.")
+	for node in hud.find_children("*", "TextureRect", true, false):
+		check(node.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Art does not intercept battlefield clicks.")
+	check(screen.get_node("BattleUI/Root/CombatantHoverPanel") != null and screen.get_node("BattleUI/Root/SurfaceHoverPanel") != null, "Context panels retained.")
+	screen.queue_free()
+	await process_frame
+	print("BATTLE HUD SMOKE: ", "GREEN" if failures == 0 else "FAILED")
+	quit(0 if failures == 0 else 1)

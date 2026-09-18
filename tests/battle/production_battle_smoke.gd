@@ -92,7 +92,7 @@ func run() -> void:
 	check(player_actions > 0 and player_moves > 0, "Player used movement and ability interactions.")
 	check(flow.ai_turns_completed > 0, "Enemy AI completed turns.")
 	check(vfx_count > 0, "CombatantPresenter VFX hooks spawned reusable effects.")
-	check(screen.get_node("BattleUI/Root/EndTurn").disabled, "Finished battle disables turn action.")
+	check(screen.battle_hud.end_turn_button.disabled, "Finished battle disables turn action.")
 
 	var camera := screen.get_node("BattleCamera") as Camera2D
 	var director := screen.get_node("CameraDirector") as BattleCameraDirector

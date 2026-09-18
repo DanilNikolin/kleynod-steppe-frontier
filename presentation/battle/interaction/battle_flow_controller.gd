@@ -42,7 +42,7 @@ func start(value: BattleScreen, encounter: BattleEncounterDefinition) -> bool:
 	log_presenter = BattleLogPresenter.new(screen.get_node("BattleUI/Root/StatusLabel"), session, null, 2)
 	interaction = BattleInteractionController.new(
 		screen.player_team_id, session, turn_controller,
-		screen.get_node("BattleUI/Root/AbilityPanel"),
+		screen.battle_hud.ability_panel,
 		screen.get_node("BattleUI/Root/CombatantHoverPanel"),
 		screen.get_node("BattleUI/Root/SurfaceHoverPanel"),
 		movement_service, targeting_service, BattleActionPreviewService.new(action_service),
@@ -50,8 +50,8 @@ func start(value: BattleScreen, encounter: BattleEncounterDefinition) -> bool:
 		1, screen.animate_movement, screen.animate_actions)
 	screen.slot_clicked.connect(interaction.on_grid_cell_clicked)
 	screen.slot_hovered.connect(_on_hover)
-	screen.get_node("BattleUI/Root/AbilityPanel").ability_selected.connect(interaction.on_ability_selected)
-	screen.get_node("BattleUI/Root/EndTurn").pressed.connect(_end_turn)
+	screen.battle_hud.ability_panel.ability_selected.connect(interaction.on_ability_selected)
+	screen.battle_hud.end_turn_pressed.connect(_end_turn)
 	var camera_director := screen.get_node("CameraDirector") as BattleCameraDirector
 	screen.get_node("BattleUI/Root/ShakeTestPanel/Weak").pressed.connect(camera_director.impact_shake_weak)
 	screen.get_node("BattleUI/Root/ShakeTestPanel/Medium").pressed.connect(camera_director.impact_shake_medium)
@@ -64,6 +64,7 @@ func start(value: BattleScreen, encounter: BattleEncounterDefinition) -> bool:
 	session.combatant_defeated.connect(_on_defeated)
 	for state in session.get_all_combatants():
 		_on_added(state)
+	screen.battle_hud.bind_battle(session, turn_controller, reinforcement_controller, screen.player_team_id)
 	return turn_controller.start(session, reinforcement_controller)
 
 
@@ -85,25 +86,28 @@ func _on_hover(coordinate: Vector2i) -> void:
 
 func _on_turn_started(actor: CombatantState, round_number: int, _index: int) -> void:
 	var player_turn := actor.team_id == screen.player_team_id
-	screen.get_node("BattleUI/Root/EndTurn").disabled = not player_turn
+	screen.battle_hud.set_player_controls_enabled(player_turn)
 	log_presenter.set_headline("Раунд %d · %s · %s" % [
 		round_number, actor.definition.display_name, "Ваш ход" if player_turn else "Ход противника"])
 	if player_turn:
+		screen.battle_hud.bind_player_combatant(actor)
 		interaction.begin_player_turn(actor)
 	else:
 		interaction.begin_enemy_turn()
+		screen.battle_hud.set_player_controls_enabled(false)
 		_run_ai.call_deferred(actor)
 
 
 func _on_turn_skipped(_actor: CombatantState, _round: int, _index: int, _statuses: Array[StringName]) -> void:
 	interaction.begin_skipped_turn()
+	screen.battle_hud.set_player_controls_enabled(false)
 
 
 func _run_ai(actor: CombatantState) -> void:
 	if _closing or not turn_controller.is_combatant_active(actor):
 		return
 	if screen.ai_think_delay > 0:
-		await get_tree().create_timer(screen.ai_think_delay).timeout
+		await get_tree().create_timer(screen.ai_think_delay, false).timeout
 	if _closing or not is_inside_tree() or not turn_controller.is_running or not turn_controller.is_combatant_active(actor):
 		return
 	overlay_presenter.clear()
@@ -125,7 +129,7 @@ func _on_periodic(actor: CombatantState, timing: int, results: Array[BattleStatu
 func _on_finished(winner: StringName) -> void:
 	interaction.finish_battle()
 	screen.tactical_state.set_hover(BattleGrid.INVALID_COORDINATE)
-	screen.get_node("BattleUI/Root/EndTurn").disabled = true
+	screen.battle_hud.set_player_controls_enabled(false)
 	log_presenter.set_headline("Победа!" if winner == screen.player_team_id else "Бой завершён · поражение")
 	completed.emit(winner)
 

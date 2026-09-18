@@ -22,6 +22,8 @@ var environment: BattleEnvironment
 var session: BattleSession
 var combatant_presenter: BattleCombatantPresenter
 var tactical_state := BattleTacticalState.new()
+@onready var battle_hud: BattleHUD = $BattleUI/Root/BattleHUD
+
 var flow: BattleFlowController
 var campaign_bridge: BattleCampaignBridge
 
@@ -105,6 +107,8 @@ func load_environment(scene: PackedScene) -> bool:
 				view.snap_to_local_position(combatant_presenter.combatant_layer.to_local(
 					layout.get_slot_position(state.grid_position)))
 	environment.set_time_of_day(_visual_minute_of_day, true)
+	var hud := get_node("BattleUI/Root/BattleHUD") as BattleHUD
+	hud.configure_arena_layout(layout, _get_grid_size(), (get_node("BattleCamera") as Camera2D).zoom)
 	return true
 
 

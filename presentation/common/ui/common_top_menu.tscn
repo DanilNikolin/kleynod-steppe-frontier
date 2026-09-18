@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://presentation/common/ui/common_top_menu.gd" id="1"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_background.png" id="2"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_menu_idle.png" id="3"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_menu_hover.png" id="4"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_menu_pressed.png" id="5"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_skills_idle.png" id="6"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_skills_hover.png" id="7"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_skills_pressed.png" id="8"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_skills_disabled.png" id="9"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_quests_idle.png" id="10"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_quests_hover.png" id="11"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_quests_pressed.png" id="12"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_quests_disabled.png" id="13"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_map_idle.png" id="14"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_map_hover.png" id="15"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_map_pressed.png" id="16"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_map_disabled.png" id="17"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_inventory_idle.png" id="18"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_inventory_hover.png" id="19"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_inventory_pressed.png" id="20"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/common/top_menu/menu_inventory_disabled.png" id="21"]
+
+[node name="CommonTopMenu" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Background" type="TextureRect" parent="."]
+offset_left = 1444.0
+offset_top = 4.0
+offset_right = 1908.0
+offset_bottom = 119.0
+mouse_filter = 2
+texture = ExtResource("2")
+
+
+[node name="Buttons" type="Control" parent="."]
+mouse_filter = 2
+
+[node name="Menu" type="TextureButton" parent="Buttons"]
+offset_left = 1803.0
+offset_top = 12.0
+offset_right = 1894.0
+offset_bottom = 156.0
+texture_normal = ExtResource("3")
+texture_hover = ExtResource("4")
+texture_pressed = ExtResource("5")
+disabled = false
+
+
+[node name="Skills" type="TextureButton" parent="Buttons"]
+offset_left = 1733.0
+offset_top = 24.0
+offset_right = 1793.0
+offset_bottom = 82.0
+texture_normal = ExtResource("6")
+texture_hover = ExtResource("7")
+texture_pressed = ExtResource("8")
+texture_disabled = ExtResource("9")
+disabled = true
+
+
+[node name="Quests" type="TextureButton" parent="Buttons"]
+offset_left = 1665.0
+offset_top = 24.0
+offset_right = 1723.0
+offset_bottom = 82.0
+texture_normal = ExtResource("10")
+texture_hover = ExtResource("11")
+texture_pressed = ExtResource("12")
+texture_disabled = ExtResource("13")
+disabled = true
+
+
+[node name="Map" type="TextureButton" parent="Buttons"]
+offset_left = 1595.0
+offset_top = 24.0
+offset_right = 1654.0
+offset_bottom = 82.0
+texture_normal = ExtResource("14")
+texture_hover = ExtResource("15")
+texture_pressed = ExtResource("16")
+texture_disabled = ExtResource("17")
+disabled = true
+
+
+[node name="Inventory" type="TextureButton" parent="Buttons"]
+offset_left = 1528.0
+offset_top = 24.0
+offset_right = 1588.0
+offset_bottom = 82.0
+texture_normal = ExtResource("18")
+texture_hover = ExtResource("19")
+texture_pressed = ExtResource("20")
+texture_disabled = ExtResource("21")
+disabled = true

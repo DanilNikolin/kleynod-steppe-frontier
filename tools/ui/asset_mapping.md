@@ -1,0 +1,51 @@
+# Battle HUD asset mapping
+
+47 original exports, all 1920 x 1080. No byte-identical duplicates. Menu intentionally has no disabled state; end turn uses idle when disabled. No separate portrait decor export. Crops preserve original pixels; button families share union bounds.
+
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000_подложка-под-меню.png` → `Graphics/UI/common/top_menu/menu_background.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0000_рушнык-кнопка-меню-ховер.png` → `Graphics/UI/common/top_menu/menu_menu_hover.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0001_рушнык-кнопка-меню-нажата.png` → `Graphics/UI/common/top_menu/menu_menu_pressed.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0002_рушнык-кнопка-меню.png` → `Graphics/UI/common/top_menu/menu_menu_idle.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0000_Скилы-ховер.png` → `Graphics/UI/common/top_menu/menu_skills_hover.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0001_Скилы-нажата.png` → `Graphics/UI/common/top_menu/menu_skills_pressed.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0002_Скилы-недоступна.png` → `Graphics/UI/common/top_menu/menu_skills_disabled.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0003_Скилы.png` → `Graphics/UI/common/top_menu/menu_skills_idle.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0000_Квест-ховер.png` → `Graphics/UI/common/top_menu/menu_quests_hover.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0001_Квест-нажата.png` → `Graphics/UI/common/top_menu/menu_quests_pressed.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0002_Квест-недоступна.png` → `Graphics/UI/common/top_menu/menu_quests_disabled.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0003_Квест.png` → `Graphics/UI/common/top_menu/menu_quests_idle.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0000_Карта-ховер.png` → `Graphics/UI/common/top_menu/menu_map_hover.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0001_Карта-нажата.png` → `Graphics/UI/common/top_menu/menu_map_pressed.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0002_Карта-недоступна.png` → `Graphics/UI/common/top_menu/menu_map_disabled.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0003_Карта.png` → `Graphics/UI/common/top_menu/menu_map_idle.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0000_Инвентарь-ховер.png` → `Graphics/UI/common/top_menu/menu_inventory_hover.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0001_Инвентарь-нажата.png` → `Graphics/UI/common/top_menu/menu_inventory_pressed.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0002_Инвентарь-недоступна.png` → `Graphics/UI/common/top_menu/menu_inventory_disabled.png`
+- `Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0003_Инвентарь.png` → `Graphics/UI/common/top_menu/menu_inventory_idle.png`
+- `Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0000_кнопка-Ход-копия-нажата.png` → `Graphics/UI/battle/end_turn/end_turn_pressed.png`
+- `Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0001_кнопка-Ход-айдл-ховер.png` → `Graphics/UI/battle/end_turn/end_turn_hover.png`
+- `Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0002_кнопка-Ход-айдл.png` → `Graphics/UI/battle/end_turn/end_turn_idle.png`
+- `Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0003_Подложка-под-кнопку-хода.png` → `Graphics/UI/battle/end_turn/end_turn_background.png`
+- `Graphics/UI elements/UI_next_wave_flag/UI-battle__0000s_0000_флаг-подкрепления.png` → `Graphics/UI/battle/reinforcements/reinforcement_flag.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0000_оборона(Щит).png` → `Graphics/UI/battle/portrait/guard_icon.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0001_Bar_sp-копия.png` → `Graphics/UI/battle/portrait/stamina_bar_fill.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0002_Bar_hp.png` → `Graphics/UI/battle/portrait/health_bar_fill.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0003_bar_frame-копия.png` → `Graphics/UI/battle/portrait/stamina_bar_frame.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0004_bar_frame.png` → `Graphics/UI/battle/portrait/health_bar_frame.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0005_portret_frame.png` → `Graphics/UI/battle/portrait/portrait_frame.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0006_portret_bg.png` → `Graphics/UI/battle/portrait/portrait_background.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0007_Сердце.png` → `Graphics/UI/battle/portrait/health_icon.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0008_молния.png` → `Graphics/UI/battle/portrait/stamina_icon.png`
+- `Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0009_Полка-для-баров.png` → `Graphics/UI/battle/portrait/portrait_stats_shelf.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0000_кулдаун.png` → `Graphics/UI/battle/abilities/ability_cooldown_badge_reserve.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0001_хоткей.png` → `Graphics/UI/battle/abilities/ability_hotkey_frame.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0002_стоимость-скила.png` → `Graphics/UI/battle/abilities/ability_cost_badge.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0003_подложка-скила-неактивный.png` → `Graphics/UI/battle/abilities/ability_slot_inactive.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0004_скил-подложка.png` → `Graphics/UI/battle/abilities/ability_slot_active.png`
+- `Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0005_скил_БГ-.png` → `Graphics/UI/battle/abilities/ability_bar_background.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0000_Круг-кто-был-друг.png` → `Graphics/UI/battle/turn_order/turn_friendly_frame.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0001_Круг-кто-был-Враг.png` → `Graphics/UI/battle/turn_order/turn_enemy_frame.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0002_Круг-кто-след-Сейча.png` → `Graphics/UI/battle/turn_order/turn_current_frame.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0003_portret-кто-был.png` → `Graphics/UI/battle/turn_order/turn_entry_backing.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0004_portret-кто-сейчас.png` → `Graphics/UI/battle/turn_order/turn_current_backing.png`
+- `Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0005_подложка-кто-след-копия-3.png` → `Graphics/UI/battle/turn_order/turn_order_background.png`

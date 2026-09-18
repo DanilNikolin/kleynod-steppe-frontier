@@ -293,6 +293,23 @@ func has_pending_opposition_to(
 	return false
 
 
+## Read-only presentation query: include every candidate row of pending opposition.
+func get_pending_opposition_rows(team_id: StringName) -> PackedInt32Array:
+	var rows := PackedInt32Array()
+	for wave in _waves:
+		if wave == null:
+			continue
+		for index in _pending_spawn_indices.get(wave.wave_id, []):
+			var spawn: CombatantSpawnDefinition = wave.combatant_spawns[int(index)]
+			if spawn == null or spawn.team_id == team_id:
+				continue
+			for coordinate in spawn.get_candidate_coordinates():
+				if not rows.has(coordinate.y):
+					rows.append(coordinate.y)
+	rows.sort()
+	return rows
+
+
 func get_pending_combatant_count() -> int:
 	var result: int = 0
 

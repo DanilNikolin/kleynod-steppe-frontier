@@ -2,6 +2,8 @@
 class_name BattleAbilityPresentationProfile
 extends Resource
 
+@export var icon: Texture2D
+
 
 enum FeedbackKind {
 	AUTO,

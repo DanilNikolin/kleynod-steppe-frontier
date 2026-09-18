@@ -1,0 +1,326 @@
+[gd_scene format=3 uid="uid://b6fpioer1a7gp"]
+
+[ext_resource type="Script" uid="uid://dqdige0sffj0d" path="res://presentation/battle/ui/battle_hud.gd" id="1"]
+[ext_resource type="PackedScene" path="res://presentation/battle/abilities/battle_ability_panel.tscn" id="2"]
+[ext_resource type="Texture2D" uid="uid://01deyvskfybh" path="res://Graphics/UI/battle/portrait/portrait_background.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://dov2kqte463g7" path="res://Graphics/UI/battle/portrait/portrait_frame.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://c6qs8g0882lk0" path="res://Graphics/UI/battle/portrait/portrait_stats_shelf.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://bvapesw2pjoj8" path="res://Graphics/UI/battle/portrait/health_icon.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://cvpyrc3hxy22i" path="res://Graphics/UI/battle/portrait/health_bar_frame.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://b4w2gciftkgkj" path="res://Graphics/UI/battle/portrait/health_bar_fill.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://cwnydlk34ospe" path="res://Graphics/UI/battle/portrait/stamina_icon.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://bmktn5qkeg5ms" path="res://Graphics/UI/battle/portrait/stamina_bar_frame.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://qqi2y518t6by" path="res://Graphics/UI/battle/portrait/stamina_bar_fill.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://bvbrkb528i57y" path="res://Graphics/UI/battle/portrait/guard_icon.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://cf07h1q3odfsb" path="res://Graphics/UI/battle/turn_order/turn_order_background.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://bo47j1qioqlbu" path="res://Graphics/UI/battle/turn_order/turn_current_backing.png" id="14"]
+[ext_resource type="Texture2D" uid="uid://chrnhbg1dj4op" path="res://Graphics/UI/battle/turn_order/turn_current_frame.png" id="15"]
+[ext_resource type="Texture2D" uid="uid://di51axsj4hb23" path="res://Graphics/UI/battle/reinforcements/reinforcement_flag.png" id="18"]
+[ext_resource type="Texture2D" uid="uid://b4lgl2xjylnks" path="res://Graphics/UI/battle/end_turn/end_turn_background.png" id="19"]
+[ext_resource type="Texture2D" uid="uid://ceup0uwhddydi" path="res://Graphics/UI/battle/end_turn/end_turn_hover.png" id="21"]
+[ext_resource type="Texture2D" uid="uid://drncajouushka" path="res://Graphics/UI/battle/end_turn/end_turn_pressed.png" id="22"]
+[ext_resource type="Texture2D" uid="uid://vjh4tx6xnfbm" path="res://Graphics/UI/battle/end_turn/end_turn_idle.png" id="23"]
+[ext_resource type="PackedScene" path="res://presentation/common/ui/common_top_menu.tscn" id="24"]
+
+[node name="BattleHUD" type="Control" unique_id=1377347901]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="AbilityPanel" parent="." unique_id=335321633 instance=ExtResource("2")]
+anchors_preset = 0
+
+[node name="PortraitPanel" type="Control" parent="." unique_id=904931660]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="DecorBottom" type="Control" parent="PortraitPanel" unique_id=2010075706]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="PortraitBackground" type="TextureRect" parent="PortraitPanel" unique_id=840737868]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 727.0
+offset_right = 249.0
+offset_bottom = 1017.0
+mouse_filter = 2
+texture = ExtResource("3")
+
+[node name="CharacterPortrait" type="TextureRect" parent="PortraitPanel" unique_id=119195453]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 727.0
+offset_right = 249.0
+offset_bottom = 1017.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PortraitFrame" type="TextureRect" parent="PortraitPanel" unique_id=1929726929]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 701.0
+offset_right = 264.0
+offset_bottom = 1079.0
+mouse_filter = 2
+texture = ExtResource("4")
+
+[node name="StatsShelf" type="TextureRect" parent="PortraitPanel" unique_id=2092471942]
+layout_mode = 0
+offset_left = 246.0
+offset_top = 822.0
+offset_right = 474.0
+offset_bottom = 1063.0
+mouse_filter = 2
+texture = ExtResource("5")
+
+[node name="Health" type="Control" parent="PortraitPanel" unique_id=468623108]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PortraitPanel/Health" unique_id=1591057733]
+layout_mode = 0
+offset_left = 275.0
+offset_top = 858.0
+offset_right = 298.0
+offset_bottom = 880.0
+mouse_filter = 2
+texture = ExtResource("6")
+
+[node name="Bar" type="TextureProgressBar" parent="PortraitPanel/Health" unique_id=1499577471]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 856.0
+offset_right = 445.0
+offset_bottom = 882.0
+mouse_filter = 2
+texture_under = ExtResource("7")
+texture_progress = ExtResource("8")
+texture_progress_offset = Vector2(6, 5)
+
+[node name="Value" type="Label" parent="PortraitPanel/Health" unique_id=602545065]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 856.0
+offset_right = 445.0
+offset_bottom = 882.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stamina" type="Control" parent="PortraitPanel" unique_id=211016441]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PortraitPanel/Stamina" unique_id=1468309651]
+layout_mode = 0
+offset_left = 279.0
+offset_top = 889.0
+offset_right = 295.0
+offset_bottom = 910.0
+mouse_filter = 2
+texture = ExtResource("9")
+
+[node name="Bar" type="TextureProgressBar" parent="PortraitPanel/Stamina" unique_id=1938695034]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 887.0
+offset_right = 445.0
+offset_bottom = 913.0
+mouse_filter = 2
+texture_under = ExtResource("10")
+texture_progress = ExtResource("11")
+texture_progress_offset = Vector2(6, 5)
+
+[node name="Value" type="Label" parent="PortraitPanel/Stamina" unique_id=1845235026]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 887.0
+offset_right = 445.0
+offset_bottom = 913.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Guard" type="Control" parent="PortraitPanel" unique_id=1596388719]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PortraitPanel/Guard" unique_id=22333534]
+layout_mode = 0
+offset_left = 277.0
+offset_top = 922.0
+offset_right = 297.0
+offset_bottom = 944.0
+mouse_filter = 2
+texture = ExtResource("12")
+
+[node name="Value" type="Label" parent="PortraitPanel/Guard" unique_id=274247012]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 920.0
+offset_right = 445.0
+offset_bottom = 946.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=2040645016]
+layout_mode = 0
+offset_left = 270.0
+offset_top = 950.0
+offset_right = 445.0
+offset_bottom = 976.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DebuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=416419464]
+layout_mode = 0
+offset_left = 270.0
+offset_top = 986.0
+offset_right = 445.0
+offset_bottom = 1012.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TurnOrderArea" type="Control" parent="." unique_id=263887030]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="TurnOrderArea" unique_id=188604609]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 4.0
+offset_right = 1300.0
+offset_bottom = 72.0
+mouse_filter = 2
+texture = ExtResource("13")
+
+[node name="PastEntries" type="Control" parent="TurnOrderArea" unique_id=687667979]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="CurrentEntry" type="Control" parent="TurnOrderArea" unique_id=1746235048]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="PortraitBacking" type="TextureRect" parent="TurnOrderArea/CurrentEntry" unique_id=2092845205]
+layout_mode = 0
+offset_left = 926.0
+offset_top = 19.0
+offset_right = 1015.0
+offset_bottom = 111.0
+mouse_filter = 2
+texture = ExtResource("14")
+
+[node name="Portrait" type="TextureRect" parent="TurnOrderArea/CurrentEntry" unique_id=1399529775]
+layout_mode = 0
+offset_left = 926.0
+offset_top = 19.0
+offset_right = 1015.0
+offset_bottom = 111.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="TextureRect" parent="TurnOrderArea/CurrentEntry" unique_id=690142027]
+layout_mode = 0
+offset_left = 918.0
+offset_top = 5.0
+offset_right = 1023.0
+offset_bottom = 112.0
+mouse_filter = 2
+texture = ExtResource("15")
+
+[node name="FutureEntries" type="Control" parent="TurnOrderArea" unique_id=1874740586]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="ReinforcementArea" type="Control" parent="." unique_id=1930089819]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Row0" type="TextureRect" parent="ReinforcementArea" unique_id=177540199]
+layout_mode = 0
+offset_left = 1713.0
+offset_top = 380.0
+offset_right = 1903.0
+offset_bottom = 512.0
+mouse_filter = 2
+texture = ExtResource("18")
+
+[node name="Row1" type="TextureRect" parent="ReinforcementArea" unique_id=1454857176]
+layout_mode = 0
+offset_left = 1713.0
+offset_top = 512.0
+offset_right = 1903.0
+offset_bottom = 644.0
+mouse_filter = 2
+texture = ExtResource("18")
+
+[node name="Row2" type="TextureRect" parent="ReinforcementArea" unique_id=1258217630]
+layout_mode = 0
+offset_left = 1713.0
+offset_top = 644.0
+offset_right = 1903.0
+offset_bottom = 776.0
+mouse_filter = 2
+texture = ExtResource("18")
+
+[node name="EndTurnArea" type="Control" parent="." unique_id=238791607]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="EndTurnArea" unique_id=767074001]
+layout_mode = 0
+offset_left = 1626.0
+offset_top = 833.0
+offset_right = 1919.0
+offset_bottom = 1080.0
+mouse_filter = 2
+texture = ExtResource("19")
+
+[node name="Button" type="TextureButton" parent="EndTurnArea" unique_id=564155873]
+layout_mode = 0
+offset_left = 1704.0
+offset_top = 858.0
+offset_right = 1854.0
+offset_bottom = 1010.0
+texture_normal = ExtResource("23")
+texture_pressed = ExtResource("22")
+texture_hover = ExtResource("21")
+texture_disabled = ExtResource("23")
+
+[node name="RoundLabel" type="Label" parent="EndTurnArea" unique_id=1721211579]
+layout_mode = 0
+offset_left = 1646.0
+offset_top = 1010.0
+offset_right = 1706.0
+offset_bottom = 1044.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 24
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CommonTopMenu" parent="." unique_id=1884357505 instance=ExtResource("24")]
+anchors_preset = 0
+
+[node name="ContextLayer" type="Control" parent="." unique_id=1227555562]
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

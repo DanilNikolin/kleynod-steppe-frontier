@@ -1,0 +1,807 @@
+{
+  "source_canvas": [
+    1920,
+    1080
+  ],
+  "assets": {
+    "menu_background": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000_подложка-под-меню.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0000_подложка-под-меню.png",
+      "production": "Graphics/UI/common/top_menu/menu_background.png",
+      "alpha_bbox": [
+        1444,
+        4,
+        1908,
+        119
+      ],
+      "family": null,
+      "sha256": "12258246fecbfae198cd06e1731264a9f0175a4fed092fbf77b59d7e11cb43dd",
+      "x": 1444,
+      "y": 4,
+      "width": 464,
+      "height": 115
+    },
+    "menu_menu_hover": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0000_рушнык-кнопка-меню-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0000s_0000_рушнык-кнопка-меню-ховер.png",
+      "production": "Graphics/UI/common/top_menu/menu_menu_hover.png",
+      "alpha_bbox": [
+        1803,
+        12,
+        1894,
+        156
+      ],
+      "family": "menu_menu",
+      "sha256": "358c29ae367a1bf49546c6e810c1fcce589c661fe8a08a935fcb0e09f9bd3fef",
+      "x": 1803,
+      "y": 12,
+      "width": 91,
+      "height": 144
+    },
+    "menu_menu_pressed": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0001_рушнык-кнопка-меню-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0000s_0001_рушнык-кнопка-меню-нажата.png",
+      "production": "Graphics/UI/common/top_menu/menu_menu_pressed.png",
+      "alpha_bbox": [
+        1803,
+        12,
+        1894,
+        156
+      ],
+      "family": "menu_menu",
+      "sha256": "ee1bd6f8abf978250b24e1929200358eefe87782223b98e04cbd70cdf4c43bb2",
+      "x": 1803,
+      "y": 12,
+      "width": 91,
+      "height": 144
+    },
+    "menu_menu_idle": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0000s_0002_рушнык-кнопка-меню.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0000s_0002_рушнык-кнопка-меню.png",
+      "production": "Graphics/UI/common/top_menu/menu_menu_idle.png",
+      "alpha_bbox": [
+        1803,
+        12,
+        1894,
+        156
+      ],
+      "family": "menu_menu",
+      "sha256": "e6acaa63899e87bf6a35c3b755876b7afe6cff2005cf28f887889e7e7c1f16c1",
+      "x": 1803,
+      "y": 12,
+      "width": 91,
+      "height": 144
+    },
+    "menu_skills_hover": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0000_Скилы-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0001s_0000_Скилы-ховер.png",
+      "production": "Graphics/UI/common/top_menu/menu_skills_hover.png",
+      "alpha_bbox": [
+        1733,
+        24,
+        1793,
+        82
+      ],
+      "family": "menu_skills",
+      "sha256": "8c374866bcbc4294ad04ef9558fccd76f512d3cf84fba908b5cbd8813f8f4a8d",
+      "x": 1733,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_skills_pressed": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0001_Скилы-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0001s_0001_Скилы-нажата.png",
+      "production": "Graphics/UI/common/top_menu/menu_skills_pressed.png",
+      "alpha_bbox": [
+        1733,
+        24,
+        1793,
+        82
+      ],
+      "family": "menu_skills",
+      "sha256": "265a6f5337b9e7d3af17326a18647e2656abced8b8cfc9df41cde683a1f17fe2",
+      "x": 1733,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_skills_disabled": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0002_Скилы-недоступна.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0001s_0002_Скилы-недоступна.png",
+      "production": "Graphics/UI/common/top_menu/menu_skills_disabled.png",
+      "alpha_bbox": [
+        1733,
+        24,
+        1793,
+        82
+      ],
+      "family": "menu_skills",
+      "sha256": "27d61c03417e1ea527dbeba9a3b625922c006849ee66587aef285ad56fff89ee",
+      "x": 1733,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_skills_idle": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0001s_0003_Скилы.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0001s_0003_Скилы.png",
+      "production": "Graphics/UI/common/top_menu/menu_skills_idle.png",
+      "alpha_bbox": [
+        1733,
+        24,
+        1793,
+        82
+      ],
+      "family": "menu_skills",
+      "sha256": "ace5bcc06b3da489ff1aa9deb674963e36ac33d78f7ced31237fd99916ec9b96",
+      "x": 1733,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_quests_hover": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0000_Квест-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0002s_0000_Квест-ховер.png",
+      "production": "Graphics/UI/common/top_menu/menu_quests_hover.png",
+      "alpha_bbox": [
+        1665,
+        24,
+        1723,
+        82
+      ],
+      "family": "menu_quests",
+      "sha256": "694a7ffb73cebbe0ef8b492a44127b95b0bd0110418bf326cfb774efdd6f4a34",
+      "x": 1665,
+      "y": 24,
+      "width": 58,
+      "height": 58
+    },
+    "menu_quests_pressed": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0001_Квест-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0002s_0001_Квест-нажата.png",
+      "production": "Graphics/UI/common/top_menu/menu_quests_pressed.png",
+      "alpha_bbox": [
+        1665,
+        24,
+        1723,
+        82
+      ],
+      "family": "menu_quests",
+      "sha256": "ab0ea551b87a0ce8847b0b45679d2af2925aee272a8c7e6b5694641fba4dfeec",
+      "x": 1665,
+      "y": 24,
+      "width": 58,
+      "height": 58
+    },
+    "menu_quests_disabled": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0002_Квест-недоступна.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0002s_0002_Квест-недоступна.png",
+      "production": "Graphics/UI/common/top_menu/menu_quests_disabled.png",
+      "alpha_bbox": [
+        1665,
+        24,
+        1723,
+        82
+      ],
+      "family": "menu_quests",
+      "sha256": "43ef305b6bf0d7d102818420290d57c2ca70dabbd2b78f8d4d0e2af95f6e1f38",
+      "x": 1665,
+      "y": 24,
+      "width": 58,
+      "height": 58
+    },
+    "menu_quests_idle": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0002s_0003_Квест.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0002s_0003_Квест.png",
+      "production": "Graphics/UI/common/top_menu/menu_quests_idle.png",
+      "alpha_bbox": [
+        1665,
+        24,
+        1723,
+        82
+      ],
+      "family": "menu_quests",
+      "sha256": "135c7662b926a1a31c65d5823a0d9003b53b1134ae5e86b2805819a1df2ff6f2",
+      "x": 1665,
+      "y": 24,
+      "width": 58,
+      "height": 58
+    },
+    "menu_map_hover": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0000_Карта-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0003s_0000_Карта-ховер.png",
+      "production": "Graphics/UI/common/top_menu/menu_map_hover.png",
+      "alpha_bbox": [
+        1595,
+        24,
+        1654,
+        82
+      ],
+      "family": "menu_map",
+      "sha256": "3087a1127324420f0fcb16249c3bafbc6bf7e19022cac88d278007d9114369bf",
+      "x": 1595,
+      "y": 24,
+      "width": 59,
+      "height": 58
+    },
+    "menu_map_pressed": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0001_Карта-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0003s_0001_Карта-нажата.png",
+      "production": "Graphics/UI/common/top_menu/menu_map_pressed.png",
+      "alpha_bbox": [
+        1595,
+        24,
+        1654,
+        82
+      ],
+      "family": "menu_map",
+      "sha256": "03b67604af40c407930ba1fe0c021ce213953e1b3341b0868a1eabea2d9ef6e5",
+      "x": 1595,
+      "y": 24,
+      "width": 59,
+      "height": 58
+    },
+    "menu_map_disabled": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0002_Карта-недоступна.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0003s_0002_Карта-недоступна.png",
+      "production": "Graphics/UI/common/top_menu/menu_map_disabled.png",
+      "alpha_bbox": [
+        1595,
+        24,
+        1654,
+        82
+      ],
+      "family": "menu_map",
+      "sha256": "549c6dc4c854a50cdff3051f8674c8754207f673214b9fdebaa6694adcce2cb0",
+      "x": 1595,
+      "y": 24,
+      "width": 59,
+      "height": 58
+    },
+    "menu_map_idle": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0003s_0003_Карта.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0003s_0003_Карта.png",
+      "production": "Graphics/UI/common/top_menu/menu_map_idle.png",
+      "alpha_bbox": [
+        1595,
+        24,
+        1654,
+        82
+      ],
+      "family": "menu_map",
+      "sha256": "07d33040803103884ad5033a3eb7d02d0e54ad057ec052f0c56409d492cb32a4",
+      "x": 1595,
+      "y": 24,
+      "width": 59,
+      "height": 58
+    },
+    "menu_inventory_hover": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0000_Инвентарь-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0004s_0000_Инвентарь-ховер.png",
+      "production": "Graphics/UI/common/top_menu/menu_inventory_hover.png",
+      "alpha_bbox": [
+        1528,
+        24,
+        1588,
+        82
+      ],
+      "family": "menu_inventory",
+      "sha256": "1938db519c885dcfc6335e0ba7086a66f71793df9a69cc4f8e249c557b528f3c",
+      "x": 1528,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_inventory_pressed": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0001_Инвентарь-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0004s_0001_Инвентарь-нажата.png",
+      "production": "Graphics/UI/common/top_menu/menu_inventory_pressed.png",
+      "alpha_bbox": [
+        1528,
+        24,
+        1588,
+        82
+      ],
+      "family": "menu_inventory",
+      "sha256": "6300bc3f4aecc46b20d83d80c33e8520c39766b30cf7a22a4a4ce2334a8d326e",
+      "x": 1528,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_inventory_disabled": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0002_Инвентарь-недоступна.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0004s_0002_Инвентарь-недоступна.png",
+      "production": "Graphics/UI/common/top_menu/menu_inventory_disabled.png",
+      "alpha_bbox": [
+        1528,
+        24,
+        1588,
+        82
+      ],
+      "family": "menu_inventory",
+      "sha256": "3a5865c8f474ede690480732c4b8d46213c5b03d8e9a83d3797108711bf3852e",
+      "x": 1528,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "menu_inventory_idle": {
+      "source": "Graphics/UI elements/UI_menu/UI-battle__0000s_0003s_0004s_0003_Инвентарь.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_menu/UI-battle__0000s_0003s_0004s_0003_Инвентарь.png",
+      "production": "Graphics/UI/common/top_menu/menu_inventory_idle.png",
+      "alpha_bbox": [
+        1528,
+        24,
+        1588,
+        82
+      ],
+      "family": "menu_inventory",
+      "sha256": "e23e51401d568bda78a31b64c6532e2f80075301f5b4d11aed695bf4162d8bbe",
+      "x": 1528,
+      "y": 24,
+      "width": 60,
+      "height": 58
+    },
+    "end_turn_pressed": {
+      "source": "Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0000_кнопка-Ход-копия-нажата.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_next_step/UI-battle__0000s_0002s_0000_кнопка-Ход-копия-нажата.png",
+      "production": "Graphics/UI/battle/end_turn/end_turn_pressed.png",
+      "alpha_bbox": [
+        1704,
+        858,
+        1854,
+        1010
+      ],
+      "family": "end_turn",
+      "sha256": "49a4caacf6bcad3b657cf2a48dfc511fbeed32acede27750bf242784f29f13d7",
+      "x": 1704,
+      "y": 858,
+      "width": 150,
+      "height": 152
+    },
+    "end_turn_hover": {
+      "source": "Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0001_кнопка-Ход-айдл-ховер.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_next_step/UI-battle__0000s_0002s_0001_кнопка-Ход-айдл-ховер.png",
+      "production": "Graphics/UI/battle/end_turn/end_turn_hover.png",
+      "alpha_bbox": [
+        1704,
+        858,
+        1854,
+        1010
+      ],
+      "family": "end_turn",
+      "sha256": "4f26e212733efd8e90c9d963de5599f57b62bcc3f9d296ecd63f437397fdb974",
+      "x": 1704,
+      "y": 858,
+      "width": 150,
+      "height": 152
+    },
+    "end_turn_idle": {
+      "source": "Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0002_кнопка-Ход-айдл.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_next_step/UI-battle__0000s_0002s_0002_кнопка-Ход-айдл.png",
+      "production": "Graphics/UI/battle/end_turn/end_turn_idle.png",
+      "alpha_bbox": [
+        1704,
+        858,
+        1854,
+        1010
+      ],
+      "family": "end_turn",
+      "sha256": "d5ec45e512212d4714256e6e4e56f19cf8b99ecdc603b9b6abdda6261aee6637",
+      "x": 1704,
+      "y": 858,
+      "width": 150,
+      "height": 152
+    },
+    "end_turn_background": {
+      "source": "Graphics/UI elements/UI_next_step/UI-battle__0000s_0002s_0003_Подложка-под-кнопку-хода.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_next_step/UI-battle__0000s_0002s_0003_Подложка-под-кнопку-хода.png",
+      "production": "Graphics/UI/battle/end_turn/end_turn_background.png",
+      "alpha_bbox": [
+        1626,
+        833,
+        1919,
+        1080
+      ],
+      "family": null,
+      "sha256": "7149f7e97708a9c37312c86d5ad891fb6c0b0163284f99e5c554b805924267dd",
+      "x": 1626,
+      "y": 833,
+      "width": 293,
+      "height": 247
+    },
+    "reinforcement_flag": {
+      "source": "Graphics/UI elements/UI_next_wave_flag/UI-battle__0000s_0000_флаг-подкрепления.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_next_wave_flag/UI-battle__0000s_0000_флаг-подкрепления.png",
+      "production": "Graphics/UI/battle/reinforcements/reinforcement_flag.png",
+      "alpha_bbox": [
+        1713,
+        380,
+        1903,
+        512
+      ],
+      "family": null,
+      "sha256": "5126565211d00ffbf935bc80d01c3f36bc75442f5055403f704cf2fc3e61a027",
+      "x": 1713,
+      "y": 380,
+      "width": 190,
+      "height": 132
+    },
+    "guard_icon": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0000_оборона(Щит).png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0000_оборона(Щит).png",
+      "production": "Graphics/UI/battle/portrait/guard_icon.png",
+      "alpha_bbox": [
+        277,
+        922,
+        297,
+        944
+      ],
+      "family": null,
+      "sha256": "acb394afad8bf8d33e74a5ee6c129ddce91a32db5477c5a382f514fd1bfc47d5",
+      "x": 277,
+      "y": 922,
+      "width": 20,
+      "height": 22
+    },
+    "stamina_bar_fill": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0001_Bar_sp-копия.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0001_Bar_sp-копия.png",
+      "production": "Graphics/UI/battle/portrait/stamina_bar_fill.png",
+      "alpha_bbox": [
+        310,
+        892,
+        440,
+        909
+      ],
+      "family": null,
+      "sha256": "e28fd3186cb0ba14d87230a206952eddb49b6385c82bc4dd60aa4f1d9f1e1502",
+      "x": 310,
+      "y": 892,
+      "width": 130,
+      "height": 17
+    },
+    "health_bar_fill": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0002_Bar_hp.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0002_Bar_hp.png",
+      "production": "Graphics/UI/battle/portrait/health_bar_fill.png",
+      "alpha_bbox": [
+        310,
+        861,
+        440,
+        878
+      ],
+      "family": null,
+      "sha256": "6d93d4735b2779a9d40e7ae3434a4ef075d9c79afd3565908d4097f0143b0888",
+      "x": 310,
+      "y": 861,
+      "width": 130,
+      "height": 17
+    },
+    "stamina_bar_frame": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0003_bar_frame-копия.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0003_bar_frame-копия.png",
+      "production": "Graphics/UI/battle/portrait/stamina_bar_frame.png",
+      "alpha_bbox": [
+        304,
+        887,
+        445,
+        913
+      ],
+      "family": null,
+      "sha256": "8c98c7bc929f0d1a63a8d97e7b0898b2d55e987e2735128f27418ed233918294",
+      "x": 304,
+      "y": 887,
+      "width": 141,
+      "height": 26
+    },
+    "health_bar_frame": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0004_bar_frame.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0004_bar_frame.png",
+      "production": "Graphics/UI/battle/portrait/health_bar_frame.png",
+      "alpha_bbox": [
+        304,
+        856,
+        445,
+        882
+      ],
+      "family": null,
+      "sha256": "8a7785f7840013446d0578cdec39c3c550232264d3e3ea9e536a43642305e30d",
+      "x": 304,
+      "y": 856,
+      "width": 141,
+      "height": 26
+    },
+    "portrait_frame": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0005_portret_frame.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0005_portret_frame.png",
+      "production": "Graphics/UI/battle/portrait/portrait_frame.png",
+      "alpha_bbox": [
+        1,
+        701,
+        264,
+        1079
+      ],
+      "family": null,
+      "sha256": "c04f12bca2a1c5dafd6d29b3e0eb6826be18d9c86549220754e5a01a2331b2a7",
+      "x": 1,
+      "y": 701,
+      "width": 263,
+      "height": 378
+    },
+    "portrait_background": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0006_portret_bg.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0006_portret_bg.png",
+      "production": "Graphics/UI/battle/portrait/portrait_background.png",
+      "alpha_bbox": [
+        16,
+        727,
+        249,
+        1017
+      ],
+      "family": null,
+      "sha256": "82788b947f10260df2737e5a3dc62f8363dc72ba4a99722fbfab66e052e15c4e",
+      "x": 16,
+      "y": 727,
+      "width": 233,
+      "height": 290
+    },
+    "health_icon": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0007_Сердце.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0007_Сердце.png",
+      "production": "Graphics/UI/battle/portrait/health_icon.png",
+      "alpha_bbox": [
+        275,
+        858,
+        298,
+        880
+      ],
+      "family": null,
+      "sha256": "0fe86473cdc121bcccb6987a575cad821f1c0efecec786920caf7891dd5ec366",
+      "x": 275,
+      "y": 858,
+      "width": 23,
+      "height": 22
+    },
+    "stamina_icon": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0008_молния.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0008_молния.png",
+      "production": "Graphics/UI/battle/portrait/stamina_icon.png",
+      "alpha_bbox": [
+        279,
+        889,
+        295,
+        910
+      ],
+      "family": null,
+      "sha256": "0360e4e2b25b37d1e875a782d433f9931d4b8868c2b3ed7704cc684ebcd6432e",
+      "x": 279,
+      "y": 889,
+      "width": 16,
+      "height": 21
+    },
+    "portrait_stats_shelf": {
+      "source": "Graphics/UI elements/UI_portret/UI-battle__0000s_0001s_0009_Полка-для-баров.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_portret/UI-battle__0000s_0001s_0009_Полка-для-баров.png",
+      "production": "Graphics/UI/battle/portrait/portrait_stats_shelf.png",
+      "alpha_bbox": [
+        246,
+        822,
+        474,
+        1063
+      ],
+      "family": null,
+      "sha256": "47a5cd780821d5d54eb4f72cf78332ecad60ba4593ccfb8b0223fa58218685b5",
+      "x": 246,
+      "y": 822,
+      "width": 228,
+      "height": 241
+    },
+    "ability_cooldown_badge_reserve": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0000_кулдаун.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0000_кулдаун.png",
+      "production": "Graphics/UI/battle/abilities/ability_cooldown_badge_reserve.png",
+      "alpha_bbox": [
+        544,
+        957,
+        565,
+        979
+      ],
+      "family": null,
+      "sha256": "8352e3e1344abc20ee66f43ed2064c4a61e4799944ded834b1064e9794f30c07",
+      "x": 544,
+      "y": 957,
+      "width": 21,
+      "height": 22
+    },
+    "ability_hotkey_frame": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0001_хоткей.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0001_хоткей.png",
+      "production": "Graphics/UI/battle/abilities/ability_hotkey_frame.png",
+      "alpha_bbox": [
+        506,
+        1030,
+        544,
+        1067
+      ],
+      "family": null,
+      "sha256": "3c56754d6c7669937ee8eb442a19b9e472c5c279c9eab386adb235bdc240bdd5",
+      "x": 506,
+      "y": 1030,
+      "width": 38,
+      "height": 37
+    },
+    "ability_cost_badge": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0002_стоимость-скила.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0002_стоимость-скила.png",
+      "production": "Graphics/UI/battle/abilities/ability_cost_badge.png",
+      "alpha_bbox": [
+        516,
+        1013,
+        562,
+        1027
+      ],
+      "family": null,
+      "sha256": "1f23e6bca64411feec6165fc40ef5e24b51e5a9b2b31dc62e89452d8e7d2c0f1",
+      "x": 516,
+      "y": 1013,
+      "width": 46,
+      "height": 14
+    },
+    "ability_slot_inactive": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0003_подложка-скила-неактивный.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0003_подложка-скила-неактивный.png",
+      "production": "Graphics/UI/battle/abilities/ability_slot_inactive.png",
+      "alpha_bbox": [
+        484,
+        957,
+        568,
+        1037
+      ],
+      "family": "ability_slot",
+      "sha256": "c4be388a276e17fb717f99e56c8c319e4351150f04a8711925b5ad63361338d9",
+      "x": 482,
+      "y": 954,
+      "width": 86,
+      "height": 86
+    },
+    "ability_slot_active": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0004_скил-подложка.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0004_скил-подложка.png",
+      "production": "Graphics/UI/battle/abilities/ability_slot_active.png",
+      "alpha_bbox": [
+        482,
+        954,
+        568,
+        1040
+      ],
+      "family": "ability_slot",
+      "sha256": "4c1fb4d41d80b67a17ee30ecdd15477c3184919e50ab2804ea75c22e420125b1",
+      "x": 482,
+      "y": 954,
+      "width": 86,
+      "height": 86
+    },
+    "ability_bar_background": {
+      "source": "Graphics/UI elements/UI_Skills/UI-battle__0000s_0004s_0005_скил_БГ-.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_Skills/UI-battle__0000s_0004s_0005_скил_БГ-.png",
+      "production": "Graphics/UI/battle/abilities/ability_bar_background.png",
+      "alpha_bbox": [
+        338,
+        917,
+        1807,
+        1070
+      ],
+      "family": null,
+      "sha256": "ff104c8d7ae1e67d41f7136641d66492df45af39e43a9f2247640f75a0a43a12",
+      "x": 338,
+      "y": 917,
+      "width": 1469,
+      "height": 153
+    },
+    "turn_friendly_frame": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0000_Круг-кто-был-друг.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0000_Круг-кто-был-друг.png",
+      "production": "Graphics/UI/battle/turn_order/turn_friendly_frame.png",
+      "alpha_bbox": [
+        741,
+        5,
+        819,
+        84
+      ],
+      "family": null,
+      "sha256": "0b39a7fd88dd673ce7d5e9afd1eeed4d90ee68a40f6f006c255f8d6f91f250ed",
+      "x": 741,
+      "y": 5,
+      "width": 78,
+      "height": 79
+    },
+    "turn_enemy_frame": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0001_Круг-кто-был-Враг.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0001_Круг-кто-был-Враг.png",
+      "production": "Graphics/UI/battle/turn_order/turn_enemy_frame.png",
+      "alpha_bbox": [
+        824,
+        5,
+        903,
+        84
+      ],
+      "family": null,
+      "sha256": "1908a5a7649d2c891defdc66d1f1a1e02f1847f5287e96c407d02b3896005fa4",
+      "x": 824,
+      "y": 5,
+      "width": 79,
+      "height": 79
+    },
+    "turn_current_frame": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0002_Круг-кто-след-Сейча.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0002_Круг-кто-след-Сейча.png",
+      "production": "Graphics/UI/battle/turn_order/turn_current_frame.png",
+      "alpha_bbox": [
+        918,
+        5,
+        1023,
+        112
+      ],
+      "family": null,
+      "sha256": "59fcd21eccac71ff9d06a9d15040fc469feedad070a81f2e29908e42ff8bc27f",
+      "x": 918,
+      "y": 5,
+      "width": 105,
+      "height": 107
+    },
+    "turn_entry_backing": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0003_portret-кто-был.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0003_portret-кто-был.png",
+      "production": "Graphics/UI/battle/turn_order/turn_entry_backing.png",
+      "alpha_bbox": [
+        828,
+        8,
+        900,
+        82
+      ],
+      "family": null,
+      "sha256": "cc7f67c17fe9b37b950d1ffb4c59cc339966105b41b58a12c6779139deec003f",
+      "x": 828,
+      "y": 8,
+      "width": 72,
+      "height": 74
+    },
+    "turn_current_backing": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0004_portret-кто-сейчас.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0004_portret-кто-сейчас.png",
+      "production": "Graphics/UI/battle/turn_order/turn_current_backing.png",
+      "alpha_bbox": [
+        926,
+        19,
+        1015,
+        111
+      ],
+      "family": null,
+      "sha256": "4e2baebcada1e72224d39e2ec87a5b262114da6aee38234ac4b450295a87433a",
+      "x": 926,
+      "y": 19,
+      "width": 89,
+      "height": 92
+    },
+    "turn_order_background": {
+      "source": "Graphics/UI elements/UI_who next_turn/UI-battle__0000s_0000s_0005_подложка-кто-след-копия-3.png",
+      "archive": "Graphics/UI/_source_full_canvas/UI_who next_turn/UI-battle__0000s_0000s_0005_подложка-кто-след-копия-3.png",
+      "production": "Graphics/UI/battle/turn_order/turn_order_background.png",
+      "alpha_bbox": [
+        620,
+        4,
+        1300,
+        72
+      ],
+      "family": null,
+      "sha256": "b800b1b96b81c13cb20b3471990d68f4da219267aa9f68601813c0049949c09a",
+      "x": 620,
+      "y": 4,
+      "width": 680,
+      "height": 68
+    }
+  }
+}

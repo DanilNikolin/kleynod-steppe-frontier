@@ -87,7 +87,7 @@ func _refresh_hud_slots() -> void:
 		var ability := hud_abilities[i]
 		slot.bind_ability(hud_actor, ability, i)
 		slot.disabled = not hud_interactable or not hud_actor.is_alive or hud_actor.is_ability_locked(ability.ability_id) or hud_actor.is_ability_restricted(ability.ability_id) or not hud_actor.can_spend_stamina(ability.stamina_cost)
-		slot.set_pressed_no_signal(ability == hud_selected)
+		slot.set_selected(ability == hud_selected)
 
 func _show_hud_card(index: int) -> void:
 	if hud_actor == null or index >= hud_abilities.size():

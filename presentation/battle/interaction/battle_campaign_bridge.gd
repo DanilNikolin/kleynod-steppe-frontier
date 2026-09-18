@@ -14,6 +14,10 @@ func configure(value: BattleScreen, runtime: CampaignRuntimeService, context: Ca
 	request = context
 	screen.encounter_definition = request.encounter_definition
 	screen.environment_scene = request.battle_environment_scene
+	for i in range(request.player_spawn_instance_ids.size()):
+		var hero := campaign.get_campaign_state().get_hero(request.party_member_hero_ids[i])
+		if hero != null and hero.progression_state != null:
+			screen.battle_hud.progression_by_combatant_id[request.player_spawn_instance_ids[i]] = hero.progression_state
 
 
 func complete(winner: StringName) -> void:

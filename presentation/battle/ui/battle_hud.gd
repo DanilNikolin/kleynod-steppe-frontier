@@ -7,6 +7,8 @@ const ENTRY_SCENE = preload("res://presentation/battle/ui/battle_turn_order_entr
 @onready var ability_panel: BattleAbilityPanel = $AbilityPanel
 @onready var end_turn_button: TextureButton = $EndTurnArea/Button
 @onready var top_menu: CommonTopMenu = $CommonTopMenu
+## Campaign progression keyed by battle instance ID; standalone actors may have no level.
+var progression_by_combatant_id: Dictionary[StringName, HeroProgressionState] = {}
 var player_combatant: CombatantState
 var player_team_id: StringName
 var session: BattleSession
@@ -50,6 +52,7 @@ func bind_player_combatant(combatant: CombatantState) -> void:
 		ability_panel.clear_combatant()
 		$PortraitPanel/CharacterPortrait.texture = null
 		$PortraitPanel/CharacterPortrait.hide()
+		$PortraitPanel/LevelValue.text = ""
 		return
 	for event in [&"health_changed", &"stamina_changed", &"max_stamina_changed", &"guard_changed", &"status_added", &"status_updated", &"status_removed"]:
 		combatant.connect(event, _refresh_player)
@@ -66,6 +69,8 @@ func _refresh_player(_a: Variant = null, _b: Variant = null, _c: Variant = null)
 	if player_combatant == null:
 		return
 	var actor := player_combatant
+	var progression := progression_by_combatant_id.get(actor.instance_id) as HeroProgressionState
+	$PortraitPanel/LevelValue.text = str(progression.level) if progression != null else ""
 	$PortraitPanel/CharacterPortrait.texture = actor.definition.portrait
 	$PortraitPanel/CharacterPortrait.visible = actor.definition.portrait != null
 	$PortraitPanel/Health/Bar.max_value = actor.max_health

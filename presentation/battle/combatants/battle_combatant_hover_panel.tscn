@@ -7,13 +7,14 @@
 
 [node name="BattleCombatantHoverPanel" type="PanelContainer" unique_id=1733116733]
 visible = false
+custom_minimum_size = Vector2(380, 0)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -404.0
-offset_top = 24.0
+offset_top = 96.0
 offset_right = -24.0
-offset_bottom = 440.0
+offset_bottom = 512.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_combatant")
@@ -77,7 +78,6 @@ layout_mode = 2
 
 [node name="StatusesLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=50122377]
 layout_mode = 2
-size_flags_vertical = 3
 text = "Статусы: нет"
 vertical_alignment = 1
 autowrap_mode = 2

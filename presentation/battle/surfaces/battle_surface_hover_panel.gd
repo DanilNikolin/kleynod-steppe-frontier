@@ -97,13 +97,22 @@ func clear_surfaces() -> void:
 func _apply_layout(
 	has_combatant_neighbor: bool
 ) -> void:
-	if has_combatant_neighbor:
-		offset_left = companion_left
-		offset_right = companion_right
+	anchor_left = 1.0
+	anchor_right = 1.0
+	offset_left = standalone_left
+	offset_right = standalone_right
 
+	const TOP_MARGIN: float = 96.0
+	const STACK_GAP: float = 14.0
+
+	var combatant_panel: Control = get_node_or_null("../CombatantHoverPanel") as Control
+	if has_combatant_neighbor and combatant_panel != null and combatant_panel.visible:
+		var c_bottom: float = combatant_panel.offset_top + combatant_panel.size.y
+		offset_top = c_bottom + STACK_GAP
 	else:
-		offset_left = standalone_left
-		offset_right = standalone_right
+		offset_top = TOP_MARGIN
+
+	reset_size()
 
 
 func _build_effects_text() -> String:

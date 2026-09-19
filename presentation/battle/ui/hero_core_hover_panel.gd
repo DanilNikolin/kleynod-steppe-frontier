@@ -28,40 +28,42 @@ func show_for_control(
 	description: String,
 	value_text: String = ""
 ) -> void:
+	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	custom_minimum_size = Vector2(310, 0)
+	size.x = 310
+
 	show_info(title, description, value_text)
 	if source == null or not source.is_inside_tree():
 		return
 
-	# Force layout update to determine real size
+	# Force layout update to determine real height based on wrapped text
 	reset_size()
 
 	var panel_size: Vector2 = get_combined_minimum_size()
-	panel_size.x = maxf(panel_size.x, size.x)
+	panel_size.x = maxf(panel_size.x, 310.0)
 	panel_size.y = maxf(panel_size.y, size.y)
 
 	var vp_rect: Rect2 = get_viewport_rect()
 	var src_rect: Rect2 = source.get_global_rect()
 
 	const OFFSET: float = 10.0
-	const PADDING: float = 10.0
+	const PADDING: float = 12.0
 
-	# 1. Try above source
+	# 1. Preferred: above source, aligned to source center
 	var target_pos := Vector2(
 		src_rect.position.x + (src_rect.size.x - panel_size.x) * 0.5,
 		src_rect.position.y - panel_size.y - OFFSET
 	)
 
-	# 2. If not enough room on top, check below or right
+	# 2. If not enough room on top, check to the right, then below
 	if target_pos.y < PADDING:
-		# If below fits:
-		if src_rect.end.y + OFFSET + panel_size.y <= vp_rect.size.y - PADDING:
-			target_pos.y = src_rect.end.y + OFFSET
-		# Else try to right:
-		elif src_rect.end.x + OFFSET + panel_size.x <= vp_rect.size.x - PADDING:
+		if src_rect.end.x + OFFSET + panel_size.x <= vp_rect.size.x - PADDING:
 			target_pos.x = src_rect.end.x + OFFSET
 			target_pos.y = src_rect.position.y + (src_rect.size.y - panel_size.y) * 0.5
+		elif src_rect.end.y + OFFSET + panel_size.y <= vp_rect.size.y - PADDING:
+			target_pos.y = src_rect.end.y + OFFSET
 
-	# 3. Clamp to viewport
+	# 3. Strict clamp to viewport with safe margin ~12px
 	target_pos.x = clampf(target_pos.x, PADDING, maxf(PADDING, vp_rect.size.x - panel_size.x - PADDING))
 	target_pos.y = clampf(target_pos.y, PADDING, maxf(PADDING, vp_rect.size.y - panel_size.y - PADDING))
 

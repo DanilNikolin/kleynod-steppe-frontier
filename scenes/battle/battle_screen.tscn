@@ -95,22 +95,24 @@ autowrap_mode = 2
 [node name="BattleHUD" parent="BattleUI/Root" instance=ExtResource("abilities")]
 
 [node name="CombatantHoverPanel" parent="BattleUI/Root" instance=ExtResource("hover")]
-anchor_left = 0.0
-anchor_right = 0.0
-offset_left = 280.0
-offset_right = 660.0
-offset_top = 240.0
-offset_bottom = 656.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -404.0
+offset_right = -24.0
+offset_top = 96.0
+offset_bottom = 512.0
 
 [node name="SurfaceHoverPanel" parent="BattleUI/Root" instance=ExtResource("surface_hover")]
-anchor_left = 0.0
-anchor_right = 0.0
-offset_top = 240.0
-offset_bottom = 656.0
-standalone_left = 280.0
-standalone_right = 660.0
-companion_left = 680.0
-companion_right = 1060.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -404.0
+offset_right = -24.0
+offset_top = 96.0
+offset_bottom = 400.0
+standalone_left = -404.0
+standalone_right = -24.0
+companion_left = -404.0
+companion_right = -24.0
 
 [node name="ShakeTestPanel" type="VBoxContainer" parent="BattleUI/Root"]
 offset_left = 24.0

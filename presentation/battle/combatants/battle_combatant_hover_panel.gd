@@ -228,6 +228,7 @@ func refresh() -> void:
 		)
 
 	statuses_label.text = statuses_text
+	reset_size()
 
 func _build_hero_core_text() -> String:
 	if (

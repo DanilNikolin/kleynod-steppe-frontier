@@ -7,13 +7,14 @@
 
 [node name="BattleSurfaceHoverPanel" type="PanelContainer" unique_id=1065704886]
 visible = false
+custom_minimum_size = Vector2(380, 0)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -404.0
-offset_top = 24.0
+offset_top = 96.0
 offset_right = -24.0
-offset_bottom = 570.0
+offset_bottom = 400.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_surface")
@@ -49,7 +50,6 @@ layout_mode = 2
 
 [node name="EffectsLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=587929965]
 layout_mode = 2
-size_flags_vertical = 3
 text = "Описание поверхности"
 vertical_alignment = 1
 autowrap_mode = 2

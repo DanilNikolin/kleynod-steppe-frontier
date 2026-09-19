@@ -3,10 +3,13 @@ extends Control
 
 signal end_turn_pressed
 const ENTRY_SCENE = preload("res://presentation/battle/ui/battle_turn_order_entry.tscn")
+const HeroCoreIndicatorType = preload("res://presentation/battle/ui/hero_core_indicator.gd")
+const HeroCoreHoverPanelType = preload("res://presentation/battle/ui/hero_core_hover_panel.gd")
 
 @onready var ability_panel: BattleAbilityPanel = $AbilityPanel
 @onready var end_turn_button: TextureButton = $EndTurnArea/Button
 @onready var top_menu: CommonTopMenu = $CommonTopMenu
+@onready var hero_core_hover_panel: HeroCoreHoverPanelType = $ContextLayer/HeroCoreHoverPanel
 ## Campaign progression keyed by battle instance ID; standalone actors may have no level.
 var progression_by_combatant_id: Dictionary[StringName, HeroProgressionState] = {}
 var player_combatant: CombatantState
@@ -27,6 +30,15 @@ func _ready() -> void:
 	for row in $ReinforcementArea.get_children():
 		row.hide()
 	end_turn_button.disabled = true
+
+	var unbroken := $PortraitPanel/HeroCoreIndicators/Unbroken as HeroCoreIndicatorType
+	var fractured := $PortraitPanel/HeroCoreIndicators/Fractured as HeroCoreIndicatorType
+	var debt := $PortraitPanel/HeroCoreIndicators/ExhaustionDebt as HeroCoreIndicatorType
+	var penalty := $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty as HeroCoreIndicatorType
+	for ind in [unbroken, fractured, debt, penalty]:
+		ind.hover_started.connect(_on_hero_core_indicator_hover_started)
+		ind.hover_ended.connect(_on_hero_core_indicator_hover_ended)
+		ind.hover_content_changed.connect(_on_hero_core_indicator_hover_started)
 
 func bind_battle(model: BattleSession, controller: BattleTurnController, waves: BattleReinforcementController, team: StringName) -> void:
 	_disconnect_battle()
@@ -108,20 +120,33 @@ func _refresh_hero_core_indicators() -> void:
 	panel.show()
 
 	# UNBROKEN
-	($PortraitPanel/HeroCoreIndicators/Unbroken as HeroCoreIndicator).set_active(core.unbroken_available)
+	($PortraitPanel/HeroCoreIndicators/Unbroken as HeroCoreIndicatorType).set_active(core.unbroken_available)
 
 	# FRACTURED
-	($PortraitPanel/HeroCoreIndicators/Fractured as HeroCoreIndicator).set_active(core.is_fractured)
+	($PortraitPanel/HeroCoreIndicators/Fractured as HeroCoreIndicatorType).set_active(core.is_fractured)
 
 	# EXHAUSTION DEBT
-	var debt_ind := $PortraitPanel/HeroCoreIndicators/ExhaustionDebt as HeroCoreIndicator
+	var debt_ind: HeroCoreIndicatorType = $PortraitPanel/HeroCoreIndicators/ExhaustionDebt as HeroCoreIndicatorType
 	debt_ind.set_active(core.exhaustion_debt > 0)
 	debt_ind.set_magnitude(core.exhaustion_debt)
 
 	# MAX STAMINA PENALTY
-	var penalty_ind := $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty as HeroCoreIndicator
+	var penalty_ind: HeroCoreIndicatorType = $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty as HeroCoreIndicatorType
 	penalty_ind.set_active(core.grit_teeth_max_stamina_penalty > 0)
 	penalty_ind.set_magnitude(core.grit_teeth_max_stamina_penalty)
+
+func _on_hero_core_indicator_hover_started(indicator: HeroCoreIndicatorType) -> void:
+	if indicator == null:
+		hero_core_hover_panel.hide_panel()
+		return
+	hero_core_hover_panel.show_info(
+		indicator.get_hover_title(),
+		indicator.get_hover_description(),
+		indicator.get_hover_value_text()
+	)
+
+func _on_hero_core_indicator_hover_ended(_indicator: HeroCoreIndicatorType) -> void:
+	hero_core_hover_panel.hide_panel()
 
 func refresh_turn_order(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	if turns == null:

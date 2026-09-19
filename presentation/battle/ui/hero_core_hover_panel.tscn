@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://presentation/battle/ui/hero_core_hover_panel.gd" id="1_hover"]
+
+[node name="HeroCoreHoverPanel" type="PanelContainer"]
+visible = false
+offset_left = 275.0
+offset_top = 690.0
+offset_right = 645.0
+offset_bottom = 810.0
+mouse_filter = 2
+script = ExtResource("1_hover")
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TitleLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DescriptionLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="ValueLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2

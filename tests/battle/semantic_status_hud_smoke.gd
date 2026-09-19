@@ -6,7 +6,11 @@ func check(ok: bool, message: String) -> void:
 	if not ok:
 		failures += 1
 		push_error(message)
-func definition(id: StringName, tags: Array[StringName], polarity: int = 2) -> BattleStatusDefinition:
+func definition(
+	id: StringName,
+	tags: Array[StringName],
+	polarity: BattleStatusDefinition.Polarity = BattleStatusDefinition.Polarity.HARMFUL
+) -> BattleStatusDefinition:
 	var result := BattleStatusDefinition.new()
 	result.status_id = id
 	result.display_name = String(id)
@@ -14,7 +18,10 @@ func definition(id: StringName, tags: Array[StringName], polarity: int = 2) -> B
 	result.polarity = polarity
 	result.duration_turns = 3
 	return result
-func modifier(stat: int, amount: int) -> BattleStatModifier:
+func modifier(
+	stat: BattleStatModifier.Stat,
+	amount: int
+) -> BattleStatModifier:
 	var result := BattleStatModifier.new()
 	result.stat = stat
 	result.amount_per_stack = amount
@@ -33,7 +40,7 @@ func run() -> void:
 	var actor := hud.player_combatant
 	var enemy := screen.session.get_combatant(&"debug_enemy")
 	actor.clear_statuses()
-	var buff := definition(&"armor_up_test", [&"armor_buff"], 1)
+	var buff := definition(&"armor_up_test", [&"armor_buff"], BattleStatusDefinition.Polarity.BENEFICIAL)
 	buff.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, 4)]
 	actor.add_status(buff)
 	check(hud.get_node("PortraitPanel/Armor/Value").text == str(actor.armor + 4), "Armor Up updates effective HUD armor.")
@@ -53,17 +60,17 @@ func run() -> void:
 	check(not debuffs.get_child(1).get_node("MagnitudeLabel").visible, "Single stack has no count.")
 	actor.add_status(bleed)
 	check(debuffs.get_child(1).get_node("MagnitudeLabel").visible and debuffs.get_child(1).get_node("MagnitudeLabel").text == "2", "Stack count updates via signal.")
-	var regen := definition(&"regen", [&"stamina_regeneration_buff"], 1)
+	var regen := definition(&"regen", [&"stamina_regeneration_buff"], BattleStatusDefinition.Polarity.BENEFICIAL)
 	regen.stat_modifiers = [modifier(BattleStatModifier.Stat.STAMINA_REGENERATION, 2)]
 	actor.add_status(regen)
 	check(hud.get_node("PortraitPanel/StaminaRegen/Value").text == "+%d" % (actor.stamina_regeneration + 2), "Effective stamina regeneration in HUD.")
 	actor.spend_stamina(actor.current_stamina)
 	check(actor.restore_round_stamina() == mini(actor.max_stamina, actor.stamina_regeneration + 2), "Round regeneration uses modifier pipeline.")
-	actor.add_status(definition(&"reactive", [&"stamina_reaction"], 1))
+	actor.add_status(definition(&"reactive", [&"stamina_reaction"], BattleStatusDefinition.Polarity.BENEFICIAL))
 	check(actor.get_effective_stamina_regeneration() == actor.stamina_regeneration + 2, "Reactive gain does not change normal regen.")
 	actor.grant_guard(5)
 	check(hud.get_node("PortraitPanel/Guard/Value").text == str(actor.current_guard), "Guard still updates.")
-	actor.add_status(definition(&"unknown", [&"unknown_tag"], 1))
+	actor.add_status(definition(&"unknown", [&"unknown_tag"], BattleStatusDefinition.Polarity.BENEFICIAL))
 	check(buffs.get_child(buffs.get_child_count()-1) is BattleStatusChip, "Unmapped status has visible text fallback.")
 	var world_count := 0
 	for view in screen.get_node("BattleWorld/CombatantLayer").get_children():
@@ -285,7 +292,7 @@ func run() -> void:
 
 	# 2. Armor Up: +3 with 1 stack -> magnitude 3
 	actor.clear_statuses()
-	var armor_up_3 := definition(&"armor_up_3", [&"armor_buff"], 1)
+	var armor_up_3 := definition(&"armor_up_3", [&"armor_buff"], BattleStatusDefinition.Polarity.BENEFICIAL)
 	armor_up_3.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, 3)]
 	actor.add_status(armor_up_3)
 	var hud_au = func() -> BattleStatusIcon: return buffs.get_child(0) as BattleStatusIcon
@@ -295,7 +302,7 @@ func run() -> void:
 
 	# 3. Stamina Regen Up: +2 with 1 stack -> magnitude 2, +2 with 3 stacks -> magnitude 6
 	actor.clear_statuses()
-	var s_regen := definition(&"s_regen", [&"stamina_regeneration_buff"], 1)
+	var s_regen := definition(&"s_regen", [&"stamina_regeneration_buff"], BattleStatusDefinition.Polarity.BENEFICIAL)
 	s_regen.stat_modifiers = [modifier(BattleStatModifier.Stat.STAMINA_REGENERATION, 2)]
 	s_regen.max_stacks = 3
 	s_regen.reapply_rule = BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH
@@ -321,7 +328,7 @@ func run() -> void:
 	actor.clear_statuses()
 	actor.add_status(definition(&"test_stun", [&"stun"]))
 	actor.add_status(definition(&"test_immob", [&"immobilized"]))
-	actor.add_status(definition(&"test_counter", [&"counterattack"], 1))
+	actor.add_status(definition(&"test_counter", [&"counterattack"], BattleStatusDefinition.Polarity.BENEFICIAL))
 	check(not (debuffs.get_child(0) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Stun has no badge.")
 	check(not (debuffs.get_child(1) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Immobilized has no badge.")
 	check(not (buffs.get_child(0) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Counterattack has no badge.")

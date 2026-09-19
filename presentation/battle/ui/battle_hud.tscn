@@ -32,6 +32,7 @@
 [ext_resource type="Texture2D" uid="uid://bhjuc6f7dxm8t" path="res://Graphics/UI/battle/hero_core/bayda/unbroken_inactive.png" id="core_unbroken_inactive"]
 [ext_resource type="Script" uid="uid://2s17hdn5e3wb" path="res://presentation/battle/ui/hero_core_indicator.gd" id="hero_core_indicator_script"]
 [ext_resource type="Texture2D" uid="uid://kcau6l1fghdr" path="res://Graphics/UI/battle/portrait/stats/stamina_regen_icon.png" id="regen_stat"]
+[ext_resource type="PackedScene" path="res://presentation/battle/ui/hero_core_hover_panel.tscn" id="hero_core_hover_panel_scene"]
 
 [node name="BattleHUD" type="Control" unique_id=1377347901]
 layout_mode = 3
@@ -299,11 +300,11 @@ offset_left = 28.0
 offset_top = 857.0
 offset_right = 64.0
 offset_bottom = 893.0
-mouse_filter = 1
 script = ExtResource("hero_core_indicator_script")
 active_texture = ExtResource("core_unbroken_active")
 inactive_texture = ExtResource("core_unbroken_inactive")
-tooltip_description = "Несломленность — смертельный прямой удар может быть пережит ценой выносливости."
+indicator_title = "Несломленность"
+indicator_description = "Уникальная защитная механика Байды. Пока Несломленность готова, смертельный прямой удар можно пережить ценой выносливости."
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/Unbroken" unique_id=314159267]
 layout_mode = 1
@@ -323,11 +324,11 @@ offset_left = 34.0
 offset_top = 896.0
 offset_right = 70.0
 offset_bottom = 932.0
-mouse_filter = 1
 script = ExtResource("hero_core_indicator_script")
 active_texture = ExtResource("core_fractured_active")
 inactive_texture = ExtResource("core_fractured_inactive")
-tooltip_description = "Надлом — Несломленность уже сработала и сейчас недоступна."
+indicator_title = "Надлом"
+indicator_description = "Несломленность уже сработала. Пока Байда находится в Надломе, он не сможет снова пережить смертельный прямой удар с помощью Несломленности."
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/Fractured" unique_id=314159269]
 layout_mode = 1
@@ -347,11 +348,12 @@ offset_left = 52.0
 offset_top = 928.0
 offset_right = 88.0
 offset_bottom = 964.0
-mouse_filter = 1
 script = ExtResource("hero_core_indicator_script")
 active_texture = ExtResource("core_debt_active")
 inactive_texture = ExtResource("core_debt_inactive")
-tooltip_description = "Долг истощения — следующее восстановление выносливости сначала погашает этот долг."
+indicator_title = "Долг истощения"
+indicator_description = "Накопленная цена за пережитый периодический урон на пределе сил. Следующее восстановление выносливости сначала погашает этот долг."
+magnitude_caption = "Текущий долг"
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/ExhaustionDebt" unique_id=314159271]
 layout_mode = 1
@@ -388,11 +390,12 @@ offset_left = 84.0
 offset_top = 948.0
 offset_right = 120.0
 offset_bottom = 984.0
-mouse_filter = 1
 script = ExtResource("hero_core_indicator_script")
 active_texture = ExtResource("core_penalty_active")
 inactive_texture = ExtResource("core_penalty_inactive")
-tooltip_description = "Снижение максимальной выносливости от «Стиснуть зубы» до конца текущего боя."
+indicator_title = "Потеря максимальной выносливости"
+indicator_description = "Постоянное до конца текущего боя уменьшение максимального запаса выносливости Байды, полученное после использования «Стиснуть зубы»."
+magnitude_caption = "Текущий штраф"
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty" unique_id=314159274]
 layout_mode = 1
@@ -555,4 +558,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroCoreHoverPanel" parent="ContextLayer" unique_id=314159299 instance=ExtResource("hero_core_hover_panel_scene")]
+visible = false
+layout_mode = 0
+offset_left = 275.0
+offset_top = 690.0
+offset_right = 645.0
+offset_bottom = 810.0
 mouse_filter = 2

@@ -142,10 +142,11 @@ func run() -> void:
 	var penalty_icon := hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/Icon") as TextureRect
 	var penalty_label := hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/MagnitudeLabel") as Label
 
-	var unbroken_ind: HeroCoreIndicator = hud.get_node("PortraitPanel/HeroCoreIndicators/Unbroken")
-	var fractured_ind: HeroCoreIndicator = hud.get_node("PortraitPanel/HeroCoreIndicators/Fractured")
-	var debt_ind: HeroCoreIndicator = hud.get_node("PortraitPanel/HeroCoreIndicators/ExhaustionDebt")
-	var penalty_ind: HeroCoreIndicator = hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty")
+	const HeroCoreIndicatorType = preload("res://presentation/battle/ui/hero_core_indicator.gd")
+	var unbroken_ind: HeroCoreIndicatorType = hud.get_node("PortraitPanel/HeroCoreIndicators/Unbroken")
+	var fractured_ind: HeroCoreIndicatorType = hud.get_node("PortraitPanel/HeroCoreIndicators/Fractured")
+	var debt_ind: HeroCoreIndicatorType = hud.get_node("PortraitPanel/HeroCoreIndicators/ExhaustionDebt")
+	var penalty_ind: HeroCoreIndicatorType = hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty")
 
 	var bayda_core := bayda_combatant.hero_core_runtime_state as BaydaCoreRuntimeState
 	check(bayda_core != null, "Bayda combatant has BaydaCoreRuntimeState.")
@@ -194,21 +195,53 @@ func run() -> void:
 	check(penalty_icon.texture == penalty_ind.inactive_texture, "Reset: Penalty back to INACTIVE.")
 	check(not penalty_label.visible, "Reset: Penalty MagnitudeLabel hidden.")
 
-	# 6. Check tooltips and mouse filters
-	check(unbroken_ind.mouse_filter == Control.MOUSE_FILTER_PASS, "Unbroken has MOUSE_FILTER_PASS.")
+	# 6. Check HeroCoreHoverPanel instant hover behavior
+	const HeroCoreHoverPanelType = preload("res://presentation/battle/ui/hero_core_hover_panel.gd")
+	var hover_panel: HeroCoreHoverPanelType = hud.hero_core_hover_panel
+	check(hover_panel != null, "HeroCoreHoverPanel exists in BattleHUD.")
+	check(not hover_panel.visible, "1. HeroCoreHoverPanel starts hidden.")
+	check(hover_panel.mouse_filter == Control.MOUSE_FILTER_IGNORE, "9. Custom panel uses MOUSE_FILTER_IGNORE.")
+	check(unbroken_ind.mouse_filter == Control.MOUSE_FILTER_STOP, "Unbroken has MOUSE_FILTER_STOP.")
 	check(unbroken_icon.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Unbroken icon has MOUSE_FILTER_IGNORE.")
-	check(unbroken_ind.tooltip_text.begins_with("Несломленность"), "Unbroken has expected tooltip text.")
+	check(unbroken_ind.tooltip_text.is_empty(), "10. No standard tooltip_text on Unbroken.")
 
-	check(fractured_ind.mouse_filter == Control.MOUSE_FILTER_PASS, "Fractured has MOUSE_FILTER_PASS.")
-	check(fractured_ind.tooltip_text.begins_with("Надлом"), "Fractured has expected tooltip text.")
+	# 2. Hover Unbroken
+	unbroken_ind._on_mouse_entered()
+	check(hover_panel.visible, "2. Hover Unbroken: panel becomes visible immediately.")
+	check(hover_panel.title_label.text == "Несломленность", "2. Title is 'Несломленность'.")
+	check(not hover_panel.description_label.text.is_empty(), "2. Description is non-empty.")
+	check(not hover_panel.value_label.visible, "2. ValueLabel hidden.")
+	unbroken_ind._on_mouse_exited()
+	check(not hover_panel.visible, "7. Mouse exit: panel immediately hidden.")
 
-	bayda_core.exhaustion_debt = 5
-	bayda_core.state_changed.emit()
-	check(debt_ind.tooltip_text.contains("Текущий долг: 5"), "ExhaustionDebt tooltip reflects debt amount.")
+	# 3. Hover Fractured (inactive icon remains hoverable)
+	fractured_ind._on_mouse_entered()
+	check(hover_panel.visible, "3. Hover Fractured: panel becomes visible immediately.")
+	check(hover_panel.title_label.text == "Надлом", "3. Title is 'Надлом'.")
+	check(not hover_panel.value_label.visible, "3. ValueLabel hidden.")
+	fractured_ind._on_mouse_exited()
+	check(not hover_panel.visible, "Mouse exit Fractured hides panel.")
 
-	bayda_core.grit_teeth_max_stamina_penalty = 2
-	bayda_core.state_changed.emit()
-	check(penalty_ind.tooltip_text.contains("Текущий штраф: 2"), "MaxStaminaPenalty tooltip reflects penalty amount.")
+	# 4. Hover ExhaustionDebt with value 4
+	debt_ind.set_magnitude(4)
+	debt_ind._on_mouse_entered()
+	check(hover_panel.visible, "4. Hover ExhaustionDebt: panel visible.")
+	check(hover_panel.title_label.text == "Долг истощения", "4. Title is 'Долг истощения'.")
+	check(hover_panel.value_label.visible and hover_panel.value_label.text == "Текущий долг: 4", "4. ValueLabel is 'Текущий долг: 4'.")
+
+	# 5. Live value refresh while hovered (4 -> 2)
+	debt_ind.set_magnitude(2)
+	check(hover_panel.value_label.text == "Текущий долг: 2", "5. Live update while hovered: 'Текущий долг: 2'.")
+	debt_ind._on_mouse_exited()
+	check(not hover_panel.visible, "Mouse exit Debt hides panel.")
+
+	# 6. Hover MaxStaminaPenalty with value 3
+	penalty_ind.set_magnitude(3)
+	penalty_ind._on_mouse_entered()
+	check(hover_panel.visible, "6. Hover MaxStaminaPenalty: panel visible.")
+	check(hover_panel.value_label.visible and hover_panel.value_label.text == "Текущий штраф: 3", "6. ValueLabel is 'Текущий штраф: 3'.")
+	penalty_ind._on_mouse_exited()
+	check(not hover_panel.visible, "Mouse exit Penalty hides panel.")
 
 	# 7. Non-Bayda combatant hides HeroCoreIndicators
 	hud.bind_player_combatant(enemy)

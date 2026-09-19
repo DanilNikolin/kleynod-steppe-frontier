@@ -18,22 +18,6 @@ position = Vector2(7, -16)
 
 [node name="BattleStatusStrip" parent="StatusAnchor" unique_id=598865094 instance=ExtResource("2_status_strip")]
 
-[node name="HeroCoreAnchor" type="Node2D" parent="." unique_id=76470177]
-position = Vector2(127, -347)
-
-[node name="HeroCoreIndicatorLabel" type="Label" parent="HeroCoreAnchor" unique_id=1426048962]
-visible = false
-offset_left = -160.0
-offset_top = -12.0
-offset_right = 160.0
-offset_bottom = 12.0
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 14
-text = "НЕСЛОМЛЕН ✓"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="IntentAnchor" type="Node2D" parent="." unique_id=1702609525]
 position = Vector2(0, -240)
 

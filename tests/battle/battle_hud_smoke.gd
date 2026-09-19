@@ -194,7 +194,23 @@ func run() -> void:
 	check(penalty_icon.texture == penalty_ind.inactive_texture, "Reset: Penalty back to INACTIVE.")
 	check(not penalty_label.visible, "Reset: Penalty MagnitudeLabel hidden.")
 
-	# 6. Non-Bayda combatant hides HeroCoreIndicators
+	# 6. Check tooltips and mouse filters
+	check(unbroken_ind.mouse_filter == Control.MOUSE_FILTER_PASS, "Unbroken has MOUSE_FILTER_PASS.")
+	check(unbroken_icon.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Unbroken icon has MOUSE_FILTER_IGNORE.")
+	check(unbroken_ind.tooltip_text.begins_with("Несломленность"), "Unbroken has expected tooltip text.")
+
+	check(fractured_ind.mouse_filter == Control.MOUSE_FILTER_PASS, "Fractured has MOUSE_FILTER_PASS.")
+	check(fractured_ind.tooltip_text.begins_with("Надлом"), "Fractured has expected tooltip text.")
+
+	bayda_core.exhaustion_debt = 5
+	bayda_core.state_changed.emit()
+	check(debt_ind.tooltip_text.contains("Текущий долг: 5"), "ExhaustionDebt tooltip reflects debt amount.")
+
+	bayda_core.grit_teeth_max_stamina_penalty = 2
+	bayda_core.state_changed.emit()
+	check(penalty_ind.tooltip_text.contains("Текущий штраф: 2"), "MaxStaminaPenalty tooltip reflects penalty amount.")
+
+	# 7. Non-Bayda combatant hides HeroCoreIndicators
 	hud.bind_player_combatant(enemy)
 	check(not core_panel.visible, "Non-Bayda combatant hides HeroCoreIndicators.")
 

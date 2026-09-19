@@ -53,6 +53,9 @@ func bind_player_combatant(combatant: CombatantState) -> void:
 		$PortraitPanel/CharacterPortrait.texture = null
 		$PortraitPanel/CharacterPortrait.hide()
 		$PortraitPanel/LevelValue.text = ""
+		BattleStatusStrip.render_into($PortraitPanel/BuffStrip, null)
+		BattleStatusStrip.render_into($PortraitPanel/DebuffStrip, null)
+		$PortraitPanel/NeutralStatuses.text = ""
 		return
 	for event in [&"health_changed", &"stamina_changed", &"max_stamina_changed", &"guard_changed", &"status_added", &"status_updated", &"status_removed"]:
 		combatant.connect(event, _refresh_player)
@@ -80,28 +83,15 @@ func _refresh_player(_a: Variant = null, _b: Variant = null, _c: Variant = null)
 	$PortraitPanel/Stamina/Bar.value = actor.current_stamina
 	$PortraitPanel/Stamina/Value.text = "%d/%d" % [actor.current_stamina, actor.max_stamina]
 	$PortraitPanel/Guard/Value.text = str(actor.current_guard)
-	var positive := PackedStringArray()
-	var negative := PackedStringArray()
+	$PortraitPanel/Armor/Value.text = str(actor.get_effective_armor())
+	$PortraitPanel/StaminaRegen/Value.text = "+%d" % actor.get_effective_stamina_regeneration()
+	BattleStatusStrip.render_into($PortraitPanel/BuffStrip, actor, BattleStatusDefinition.Polarity.BENEFICIAL, 20, true)
+	BattleStatusStrip.render_into($PortraitPanel/DebuffStrip, actor, BattleStatusDefinition.Polarity.HARMFUL, 20, true)
 	var neutral := PackedStringArray()
 	for status in actor.get_active_statuses():
-		match status.definition.polarity:
-			BattleStatusDefinition.Polarity.BENEFICIAL: positive.append(status.definition.display_name)
-			BattleStatusDefinition.Polarity.HARMFUL: negative.append(status.definition.display_name)
-			_: neutral.append(status.definition.display_name)
-	_update_status_text($PortraitPanel/BuffStrip, positive)
-	_update_status_text($PortraitPanel/DebuffStrip, negative)
-	$PortraitPanel/CharacterPortrait.tooltip_text = ", ".join(neutral)
-
-func _update_status_text(strip: HBoxContainer, names: PackedStringArray) -> void:
-	if strip.get_child_count() == 0:
-		var label := Label.new()
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		label.add_theme_font_size_override("font_size", 12)
-		strip.add_child(label)
-	strip.get_child(0).text = ", ".join(names)
-	strip.get_child(0).tooltip_text = ", ".join(names)
+		if status.definition.polarity == BattleStatusDefinition.Polarity.NEUTRAL:
+			neutral.append(status.definition.display_name)
+	$PortraitPanel/NeutralStatuses.text = ", ".join(neutral)
 
 func refresh_turn_order(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	if turns == null:

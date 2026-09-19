@@ -1,0 +1,15 @@
+{
+  "броня.png": "portrait/stats/armor_icon.png",
+  "востановление выносливости.png": "portrait/stats/stamina_regen_icon.png",
+  "Кровотечение.png": "statuses/status_bleeding.png",
+  "горение.png": "statuses/status_burning.png",
+  "яд.png": "statuses/status_poison.png",
+  "Снижение брони.png": "statuses/status_armor_down.png",
+  "Обездвиживание.png": "statuses/status_immobilized.png",
+  "Оглушение.png": "statuses/status_stun.png",
+  "контратака.png": "statuses/status_counterattack.png",
+  "повышение брони.png": "statuses/status_armor_up.png",
+  "Реактивная оборона.png": "statuses/status_reactive_guard.png",
+  "Реактивное восстановление выносливости.png": "statuses/status_reactive_stamina.png",
+  "Восстановление стамины за ход увеличивается.png": "statuses/status_stamina_regen_up.png"
+}

@@ -14,7 +14,7 @@ metadata/_edit_horizontal_guides_ = [-226.0]
 position = Vector2(0, -38)
 
 [node name="StatusAnchor" type="Node2D" parent="." unique_id=2087696527]
-position = Vector2(127, -315)
+position = Vector2(7, -16)
 
 [node name="BattleStatusStrip" parent="StatusAnchor" unique_id=598865094 instance=ExtResource("2_status_strip")]
 

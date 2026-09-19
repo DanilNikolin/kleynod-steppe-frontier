@@ -8,6 +8,7 @@ enum Stat {
 	STRENGTH,
 	AGILITY,
 	SPIRIT,
+	STAMINA_REGENERATION,
 }
 
 

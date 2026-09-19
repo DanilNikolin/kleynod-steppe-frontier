@@ -9,6 +9,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1")
 
@@ -23,6 +25,8 @@ texture = ExtResource("2")
 
 [node name="Slots" type="Control" parent="." unique_id=650025503]
 anchors_preset = 0
+offset_left = 27.0
+offset_right = 27.0
 mouse_filter = 2
 
 [node name="Slot1" parent="Slots" unique_id=1225330227 instance=ExtResource("3")]

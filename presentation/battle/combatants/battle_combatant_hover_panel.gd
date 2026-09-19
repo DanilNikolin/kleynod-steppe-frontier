@@ -131,7 +131,7 @@ func refresh() -> void:
 		% [
 			_combatant.current_stamina,
 			_combatant.max_stamina,
-			_combatant.stamina_regeneration,
+			_combatant.get_effective_stamina_regeneration(),
 		]
 		+"Мораль: %d/%d"
 		% [
@@ -676,6 +676,9 @@ func _get_stat_name(
 
 		BattleStatModifier.Stat.SPIRIT:
 			return "дух"
+
+		BattleStatModifier.Stat.STAMINA_REGENERATION:
+			return "восстановление выносливости"
 
 
 	return "характеристика"

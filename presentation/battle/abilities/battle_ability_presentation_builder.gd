@@ -590,6 +590,9 @@ static func _get_stat_name(
 		BattleStatModifier.Stat.SPIRIT:
 			return "дух"
 
+		BattleStatModifier.Stat.STAMINA_REGENERATION:
+			return "восстановление выносливости"
+
 
 	return "характеристика"
 

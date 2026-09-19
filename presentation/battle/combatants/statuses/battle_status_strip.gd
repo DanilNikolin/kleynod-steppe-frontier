@@ -2,8 +2,11 @@ class_name BattleStatusStrip
 extends Control
 
 
-@export
-var chip_scene: PackedScene
+const ICON_SCENE = preload("res://presentation/battle/combatants/statuses/battle_status_icon.tscn")
+const FALLBACK_SCENE = preload("res://presentation/battle/combatants/statuses/battle_status_chip.tscn")
+@export var polarity_filter: int = -1
+@export var icon_size: int = 20
+@export var interactive_icons: bool = false
 
 
 @onready
@@ -43,61 +46,28 @@ func refresh_from_state() -> void:
 	if not is_node_ready():
 		return
 
-	_clear_chips()
+	render_into(chip_container, state, polarity_filter, icon_size, interactive_icons)
+	visible = chip_container.get_child_count() > 0
 
-	if state == null:
-		visible = false
-		return
 
-	if chip_scene == null:
-		push_error(
-			"BattleStatusStrip requires a chip scene."
-		)
-
-		visible = false
-		return
-
-	var statuses := state.get_active_statuses()
-
-	statuses.sort_custom(
-		Callable(
-			self,
-			"_is_status_before"
-		)
-	)
-
-	for status in statuses:
-		if (
-			status == null
-			or status.definition == null
-		):
-			continue
-
-		var instance := chip_scene.instantiate()
-
-		if not (instance is BattleStatusChip):
-			push_error(
-				"Status chip scene must inherit "
-				+"BattleStatusChip."
-			)
-
-			instance.queue_free()
-			continue
-
-		var chip := instance as BattleStatusChip
-
-		chip_container.add_child(
-			chip
-		)
-
-		chip.bind_status(
-			status
-		)
-
-	visible = (
-		chip_container.get_child_count()
-		> 0
-	)
+static func render_into(container: HBoxContainer, model: CombatantState, polarity: int = -1, pixels: int = 20, interactive: bool = false) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.queue_free()
+	for entry in BattleStatusVisualResolver.entries(model, polarity):
+		if entry.semantic == "":
+			var chip := FALLBACK_SCENE.instantiate() as BattleStatusChip
+			container.add_child(chip)
+			chip.bind_status(entry.status)
+			# Legacy text remains readable for unmapped/debug statuses.
+			for child in chip.find_children("*", "Control", true, false):
+				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			chip.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
+			chip.tooltip_text = entry.status.definition.display_name if interactive else ""
+		else:
+			var icon := ICON_SCENE.instantiate() as BattleStatusIcon
+			container.add_child(icon)
+			icon.bind_entry(entry, pixels, interactive)
 
 
 func _connect_state_signals() -> void:
@@ -192,31 +162,6 @@ func _disconnect_state_signals() -> void:
 				signal_name,
 				callback
 			)
-
-
-func _clear_chips() -> void:
-	for child in chip_container.get_children():
-		chip_container.remove_child(
-			child
-		)
-
-		child.queue_free()
-
-
-func _is_status_before(
-	left: BattleStatusInstance,
-	right: BattleStatusInstance
-) -> bool:
-	if left == null:
-		return false
-
-	if right == null:
-		return true
-
-	return (
-		String(left.status_id)
-		< String(right.status_id)
-	)
 
 
 func _on_status_added(

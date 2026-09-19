@@ -365,7 +365,7 @@ func restore_stamina(
 
 func restore_round_stamina() -> int:
 	return restore_stamina(
-		stamina_regeneration,
+		get_effective_stamina_regeneration(),
 		&"round_regeneration"
 	)
 
@@ -1271,6 +1271,9 @@ func get_stat_base_value(
 		BattleStatModifier.Stat.SPIRIT:
 			return spirit
 
+		BattleStatModifier.Stat.STAMINA_REGENERATION:
+			return stamina_regeneration
+
 	return 0
 
 
@@ -1338,6 +1341,10 @@ func get_effective_spirit() -> int:
 	return get_effective_stat(
 		BattleStatModifier.Stat.SPIRIT
 	)
+
+
+func get_effective_stamina_regeneration() -> int:
+	return get_effective_stat(BattleStatModifier.Stat.STAMINA_REGENERATION)
 
 
 func get_effective_armor() -> int:

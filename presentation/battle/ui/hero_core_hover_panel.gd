@@ -41,17 +41,21 @@ func show_for_control(
 	value_label.text = value_text
 	value_label.visible = not value_text.is_empty()
 
-	custom_minimum_size.x = COMPACT_WIDTH
-	custom_minimum_size.y = 0.0
-	size.x = COMPACT_WIDTH
+	custom_minimum_size = Vector2(COMPACT_WIDTH, 0.0)
 
-	# Do not expose stale geometry
-	modulate.a = 0.0
+	# Width must exist BEFORE wrapped text is measured.
+	size = Vector2(COMPACT_WIDTH, 1.0)
+
 	visible = true
+	modulate.a = 0.0
 
-	_finalize_show.call_deferred(source, revision)
+	_finalize_show(source, revision)
 
 func _finalize_show(source: Control, revision: int) -> void:
+	# Allow PanelContainer -> MarginContainer -> VBox -> wrapped Labels
+	# to receive the 310px width and perform their real layout.
+	await get_tree().process_frame
+
 	if revision != _layout_revision:
 		return
 
@@ -59,8 +63,7 @@ func _finalize_show(source: Control, revision: int) -> void:
 		hide_panel()
 		return
 
-	reset_size()
-	var minimum := get_combined_minimum_size()
+	var minimum: Vector2 = $ContentMargin.get_combined_minimum_size()
 	size = Vector2(COMPACT_WIDTH, minimum.y)
 
 	var vp_rect: Rect2 = get_viewport_rect()

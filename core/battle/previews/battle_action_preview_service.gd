@@ -54,6 +54,9 @@ func create_preview(
 			result.ability_id = (
 				command.ability.ability_id
 			)
+			result.ability_display_name = (
+				command.ability.display_name
+			)
 
 	var failure_code := (
 		action_service.get_validation_failure(

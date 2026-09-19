@@ -105,22 +105,23 @@ func _show_hud_card(index: int) -> void:
 	var revision := _card_layout_revision
 
 	$Card.custom_minimum_size = Vector2(440.0, 0.0)
-	$Card.size.x = 440.0
+	$Card.size = Vector2(440.0, 1.0)
 	$Card.modulate.a = 0.0
 	$Card.show()
 
-	_finalize_show_hud_card.call_deferred(slot, revision)
+	_finalize_show_hud_card(slot, revision)
 
 func _finalize_show_hud_card(slot: BattleAbilitySlot, revision: int) -> void:
+	await get_tree().process_frame
+
 	if revision != _card_layout_revision or not $Card.visible:
 		return
 	if slot == null or not is_instance_valid(slot) or not slot.is_inside_tree():
 		_hide_hud_card()
 		return
 
-	$Card.reset_size()
-	var card_size: Vector2 = $Card.get_combined_minimum_size()
-	$Card.size = Vector2(440.0, card_size.y)
+	var minimum: Vector2 = $Card/Margin.get_combined_minimum_size()
+	$Card.size = Vector2(440.0, minimum.y)
 
 	var slot_rect: Rect2 = slot.get_global_rect()
 	var vp_rect: Rect2 = get_viewport_rect()
@@ -129,7 +130,7 @@ func _finalize_show_hud_card(slot: BattleAbilitySlot, revision: int) -> void:
 	const PADDING: float = 10.0
 
 	var target_x: float = slot_rect.position.x + (slot_rect.size.x - 440.0) * 0.5
-	var target_y: float = slot_rect.position.y - card_size.y - OFFSET_Y
+	var target_y: float = slot_rect.position.y - minimum.y - OFFSET_Y
 
 	# Clamp to screen
 	target_x = clampf(target_x, PADDING, maxf(PADDING, vp_rect.size.x - 440.0 - PADDING))
@@ -150,9 +151,9 @@ func _hud_changed(_a: Variant = null, _b: Variant = null, _c: Variant = null) ->
 func _disconnect_hud_actor() -> void:
 	if hud_actor == null:
 		return
-	for name in [&"stamina_changed", &"max_stamina_changed", &"ability_lock_changed", &"status_added", &"status_updated", &"status_removed"]:
-		if hud_actor.is_connected(name, _hud_changed):
-			hud_actor.disconnect(name, _hud_changed)
+	for signal_name in [&"stamina_changed", &"max_stamina_changed", &"ability_lock_changed", &"status_added", &"status_updated", &"status_removed"]:
+		if hud_actor.is_connected(signal_name, _hud_changed):
+			hud_actor.disconnect(signal_name, _hud_changed)
 
 func _exit_tree() -> void:
 	_disconnect_hud_actor()

@@ -83,18 +83,14 @@ func _show_target_previews(
 		if view == null:
 			continue
 
-		var text := (
-			BattleActionPreviewFormatter
-			.build_target_text(
-				target_preview
-			)
+		var is_primary: bool = (
+			target_preview.initial_position == preview_result.aim_coordinate
 		)
 
-		if text.strip_edges().is_empty():
-			continue
-
 		view.show_action_preview(
-			text
+			target_preview,
+			preview_result.ability_display_name,
+			is_primary
 		)
 
 		_shown_target_ids.append(

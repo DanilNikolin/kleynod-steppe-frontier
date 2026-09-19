@@ -7,6 +7,7 @@ var failure_code: StringName = &""
 
 var actor_id: StringName = &""
 var ability_id: StringName = &""
+var ability_display_name: String = ""
 
 var aim_coordinate: Vector2i = (
 	BattleGrid.INVALID_COORDINATE

@@ -1,28 +1,153 @@
-[gd_scene format=3 uid="uid://be72dx7xe6q72"]
+[gd_scene load_steps=5 format=3 uid="uid://be72dx7xe6q72"]
 
 [ext_resource type="Script" uid="uid://yp2lsb5vb7pt" path="res://presentation/battle/previews/battle_action_preview_badge.gd" id="1_badge"]
+[ext_resource type="PackedScene" uid="uid://dp6155k8q8o03" path="res://presentation/battle/ui/tooltips/battle_tooltip_frame.tscn" id="2_frame"]
 
-[node name="BattleActionPreviewBadge" type="PanelContainer" unique_id=878772882]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_badge"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_secondary"]
+bg_color = Color(0.12, 0.12, 0.14, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.6, 0.45, 0.25, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[node name="BattleActionPreviewBadge" type="Control" unique_id=878772882]
 visible = false
 z_index = 100
-offset_left = -95.0
-offset_top = -16.0
-offset_right = 95.0
-offset_bottom = 16.0
+layout_mode = 3
+anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("1_badge")
 
-[node name="ContentMargin" type="MarginContainer" parent="." unique_id=201985948]
-layout_mode = 2
-theme_override_constants/margin_left = 7
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 7
-theme_override_constants/margin_bottom = 4
+[node name="PrimaryForecast" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -115.0
+offset_top = -140.0
+offset_right = 115.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_badge")
 
-[node name="ValueLabel" type="Label" parent="ContentMargin" unique_id=1081161026]
-custom_minimum_size = Vector2(176, 0)
+[node name="BattleTooltipFrame" parent="PrimaryForecast" instance=ExtResource("2_frame")]
 layout_mode = 2
-text = "HP −5"
+
+[node name="Margin" type="MarginContainer" parent="PrimaryForecast"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="PrimaryForecast/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="AbilityTitleLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+text = "СПОСОБНОСТЬ"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="PrimaryForecast/Margin/VBox"]
+layout_mode = 2
+
+[node name="DamageLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "−7 HP"
+horizontal_alignment = 1
+
+[node name="GuardAbsorptionLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "🛡 Поглощено: 3"
+horizontal_alignment = 1
+
+[node name="CriticalOutcomeLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "Крит: 18% → −11 HP"
+horizontal_alignment = 1
+
+[node name="AdditionalEffectsLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "Кровотечение ×2"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LethalBannerLabel" type="Label" parent="PrimaryForecast/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.15, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "☠ СМЕРТЕЛЬНО"
+horizontal_alignment = 1
+
+[node name="SecondaryBadge" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -30.0
+offset_right = 40.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_secondary")
+
+[node name="Margin" type="MarginContainer" parent="SecondaryBadge"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 3
+
+[node name="SecondaryLabel" type="Label" parent="SecondaryBadge/Margin"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
+text = "−5 HP"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

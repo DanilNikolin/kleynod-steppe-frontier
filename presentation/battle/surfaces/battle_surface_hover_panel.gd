@@ -67,22 +67,33 @@ func show_surfaces(
 	coordinate_label.text = "Клетка: %s" % coordinate
 	effects_label.text = _build_effects_text()
 
-	custom_minimum_size.x = 380.0
-	custom_minimum_size.y = 0.0
-	size.x = 380.0
+	custom_minimum_size = Vector2(380.0, 0.0)
+	size = Vector2(380.0, 1.0)
 
-	modulate.a = 0.0
 	visible = true
+	modulate.a = 0.0
 
-	_fit_to_content.call_deferred(has_combatant_neighbor, revision)
+	_fit_to_content(has_combatant_neighbor, revision)
 
 
 func _fit_to_content(has_combatant_neighbor: bool, revision: int) -> void:
+	await get_tree().process_frame
+
 	if revision != _layout_revision or not visible:
 		return
 
-	reset_size()
-	var minimum := get_combined_minimum_size()
+	var combatant_panel: Control = get_node_or_null("../CombatantHoverPanel") as Control
+	if (
+		has_combatant_neighbor
+		and combatant_panel != null
+		and combatant_panel.visible
+		and combatant_panel.modulate.a < 1.0
+	):
+		await get_tree().process_frame
+		if revision != _layout_revision or not visible:
+			return
+
+	var minimum: Vector2 = $ContentMargin.get_combined_minimum_size()
 	size = Vector2(380.0, minimum.y)
 
 	_apply_layout(has_combatant_neighbor)

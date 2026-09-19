@@ -88,6 +88,11 @@ var name_label: Label = (
 )
 
 @onready
+var ghost_health_bar: ProgressBar = (
+	$InterfaceRoot/GhostHealthBar
+)
+
+@onready
 var health_bar: ProgressBar = (
 	$InterfaceRoot/HealthBar
 )
@@ -302,21 +307,47 @@ func refresh_from_state() -> void:
 	]
 
 func show_action_preview(
-	text: String
+	target_preview: BattleTargetPreview,
+	ability_name: String = "",
+	is_primary: bool = true
 ) -> void:
-	if action_preview_badge == null:
-		return
+	if action_preview_badge != null:
+		action_preview_badge.show_target_preview(
+			target_preview,
+			ability_name,
+			is_primary
+		)
 
-	action_preview_badge.show_preview(
-		text
-	)
+	if target_preview != null and state != null:
+		if ghost_health_bar != null:
+			ghost_health_bar.max_value = state.max_health
+			# Ghost bar stays at current health underneath, while health_bar drops to normal_final_health
+			ghost_health_bar.value = state.current_health
+			ghost_health_bar.visible = true
+			health_bar.value = target_preview.normal_final_health
+
+		if health_value_label != null:
+			health_value_label.text = "%d → %d" % [
+				state.current_health,
+				target_preview.normal_final_health
+			]
 
 
 func clear_action_preview() -> void:
-	if action_preview_badge == null:
-		return
+	if action_preview_badge != null:
+		action_preview_badge.clear_preview()
 
-	action_preview_badge.clear_preview()
+	if ghost_health_bar != null:
+		ghost_health_bar.visible = false
+
+	if state != null:
+		if health_bar != null:
+			health_bar.value = state.current_health
+		if health_value_label != null:
+			health_value_label.text = "%d / %d" % [
+				state.current_health,
+				state.max_health
+			]
 
 
 func set_selected_state(value: bool) -> void:

@@ -16,6 +16,7 @@ effect_id = &"effect_rending_cut_damage"
 [sub_resource type="Resource" id="Resource_rending_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("6_bleeding")
+stacks_to_apply = 2
 effect_id = &"effect_rending_cut_bleeding"
 
 [sub_resource type="Resource" id="Resource_rending_targeting"]
@@ -26,7 +27,7 @@ aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1)
 script = ExtResource("1_ability")
 ability_id = &"ability_rending_cut"
 display_name = "Рваная рана"
-description = "Наносит умеренный урон одному врагу и вызывает кровотечение. Кровотечение наносит 2 урона в конце ходов носителя."
+description = "Наносит умеренный урон одному врагу и накладывает 2 стака кровотечения."
 stamina_cost = 4
 targeting = SubResource("Resource_rending_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_rending_damage"), SubResource("Resource_rending_bleeding")])

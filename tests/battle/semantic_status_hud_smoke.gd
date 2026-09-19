@@ -206,6 +206,53 @@ func run() -> void:
 	var normal_dealt: int = normal_results[0].effect_results[0].raw_amount
 	check(normal_dealt == 3, "Non-scaling trigger deals unscaled base damage (3) despite 3 stacks.")
 
+	# Steppe Raider / Debug Rending Cut and Bleeding test
+	actor.current_health = actor.max_health
+	actor.clear_statuses()
+	var rending_cut: AbilityDefinition = load("res://content/abilities/debug/debug_rending_cut.tres")
+	var rending_bleed_res: BattleStatusDefinition = load("res://content/statuses/debug/debug_bleeding.tres")
+	check(rending_cut != null and rending_bleed_res != null, "Debug rending cut and bleeding loaded.")
+	check(rending_bleed_res.max_stacks == 0, "debug_bleeding has unlimited max_stacks (0).")
+	check(rending_bleed_res.reapply_rule == BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH, "debug_bleeding reapply_rule is ADD_STACK_AND_REFRESH.")
+	check(rending_bleed_res.periodic_triggers[0].scale_damage_with_stacks, "debug_bleeding scales damage with stacks.")
+	check((rending_bleed_res.periodic_triggers[0].effects[0] as DamageEffect).base_damage == 1, "debug_bleeding base_damage is 1.")
+
+	# First application of Rending Cut effects
+	var apply_status_eff: ApplyStatusEffect = null
+	for eff in rending_cut.effects:
+		if eff is ApplyStatusEffect:
+			apply_status_eff = eff
+			break
+	check(apply_status_eff != null and apply_status_eff.stacks_to_apply == 2, "Rending cut applies 2 stacks.")
+	var r1 := resolver.resolve(apply_status_eff, actor, actor, screen.session)
+	check(r1.is_successful, "First application succeeded.")
+	var st_inst := actor.get_status(rending_bleed_res.status_id)
+	check(st_inst != null and st_inst.stack_count == 2, "First application gives stack_count == 2.")
+	check(st_inst.remaining_turns == 2, "Remaining turns is 2.")
+	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "HUD label is '2'.")
+	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "World label is '2'.")
+
+	# 1st periodic tick: 2 stacks = 2 damage
+	var tick_1 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
+	check(tick_1.size() == 1 and tick_1[0].effect_results.size() == 1, "Only one aggregated periodic result for 2 stacks.")
+	check(tick_1[0].effect_results[0].raw_amount == 2, "2 stacks deal exactly 2 damage (%d == 2)." % tick_1[0].effect_results[0].raw_amount)
+
+	# Simulate turn pass decrementing remaining_turns
+	st_inst.remaining_turns = 1
+
+	# Second application of Rending Cut
+	var r2 := resolver.resolve(apply_status_eff, actor, actor, screen.session)
+	check(r2.is_successful, "Second application succeeded.")
+	check(st_inst.stack_count == 4, "Second application gives stack_count == 4.")
+	check(st_inst.remaining_turns == 2, "Duration refreshed back to 2.")
+	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "4", "HUD label updated to '4'.")
+	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "4", "World label updated to '4'.")
+
+	# 2nd periodic tick: 4 stacks = 4 damage
+	var tick_2 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
+	check(tick_2.size() == 1 and tick_2[0].effect_results.size() == 1, "Only one aggregated periodic result for 4 stacks.")
+	check(tick_2[0].effect_results[0].raw_amount == 4, "4 stacks deal exactly 4 damage (%d == 4)." % tick_2[0].effect_results[0].raw_amount)
+
 	# Expiry and cleanup
 	actor.clear_statuses()
 	check(debuffs.get_child_count() == 0 and buffs.get_child_count() == 0, "All statuses cleared.")
@@ -214,3 +261,4 @@ func run() -> void:
 	await process_frame
 	print("SEMANTIC STATUS HUD SMOKE: ", "GREEN" if failures == 0 else "FAILED")
 	quit(0 if failures == 0 else 1)
+

@@ -201,18 +201,18 @@ vertical_alignment = 1
 [node name="BuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=2040645016]
 layout_mode = 0
 offset_left = 270.0
-offset_top = 958.0
+offset_top = 955.0
 offset_right = 548.0
-offset_bottom = 984.0
+offset_bottom = 985.0
 mouse_filter = 2
 theme_override_constants/separation = 1
 
 [node name="DebuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=416419464]
 layout_mode = 0
 offset_left = 270.0
-offset_top = 999.0
+offset_top = 996.0
 offset_right = 548.0
-offset_bottom = 1025.0
+offset_bottom = 1026.0
 mouse_filter = 2
 theme_override_constants/separation = 1
 

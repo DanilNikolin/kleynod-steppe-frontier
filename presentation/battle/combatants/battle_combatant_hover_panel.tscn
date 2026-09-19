@@ -2,6 +2,10 @@
 
 [ext_resource type="Script" uid="uid://br4j7cwy6vcij" path="res://presentation/battle/combatants/battle_combatant_hover_panel.gd" id="1_hover"]
 [ext_resource type="PackedScene" uid="uid://dp6155k8q8o03" path="res://presentation/battle/ui/tooltips/battle_tooltip_frame.tscn" id="2_frame"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/health_icon.png" id="health_icon"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/guard_icon.png" id="guard_icon"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/stamina_icon.png" id="stamina_icon"]
+[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/stats/armor_icon.png" id="armor_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_combatant"]
 
@@ -34,50 +38,169 @@ theme_override_constants/margin_bottom = 26
 [node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin" unique_id=1086565144]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 6
 
 [node name="NameLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=1534840285]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Имя бойца"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "ИМЯ БОЙЦА"
 
 [node name="RelationLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=292504896]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 12
 text = "ПРОТИВНИК"
 
 [node name="Separator1" type="HSeparator" parent="ContentMargin/VBoxContainer" unique_id=1769138105]
 layout_mode = 2
 
-[node name="ResourcesLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=1230758898]
+[node name="ResourcesRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer" unique_id=1230758898]
 layout_mode = 2
-text = "Здоровье
-Выносливость
-Мораль"
+theme_override_constants/separation = 12
 
-[node name="HeroCoreLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+[node name="HealthBox" type="HBoxContainer" parent="ContentMargin/VBoxContainer/ResourcesRow"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HealthIcon" type="TextureRect" parent="ContentMargin/VBoxContainer/ResourcesRow/HealthBox"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+texture = ExtResource("health_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HealthLabel" type="Label" parent="ContentMargin/VBoxContainer/ResourcesRow/HealthBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "16/16"
+
+[node name="GuardBox" type="HBoxContainer" parent="ContentMargin/VBoxContainer/ResourcesRow"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="GuardIcon" type="TextureRect" parent="ContentMargin/VBoxContainer/ResourcesRow/GuardBox"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+texture = ExtResource("guard_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GuardLabel" type="Label" parent="ContentMargin/VBoxContainer/ResourcesRow/GuardBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "0"
+
+[node name="StaminaBox" type="HBoxContainer" parent="ContentMargin/VBoxContainer/ResourcesRow"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StaminaIcon" type="TextureRect" parent="ContentMargin/VBoxContainer/ResourcesRow/StaminaBox"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+texture = ExtResource("stamina_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StaminaLabel" type="Label" parent="ContentMargin/VBoxContainer/ResourcesRow/StaminaBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "2/6 (+3)"
+
+[node name="ArmorBox" type="HBoxContainer" parent="ContentMargin/VBoxContainer/ResourcesRow"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ArmorIcon" type="TextureRect" parent="ContentMargin/VBoxContainer/ResourcesRow/ArmorBox"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+texture = ExtResource("armor_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArmorLabel" type="Label" parent="ContentMargin/VBoxContainer/ResourcesRow/ArmorBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "3"
+
+[node name="MoraleLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 12
+text = "Мораль: 2/2"
+
+[node name="AttributesRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer" unique_id=1411565814]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="StrengthLabel" type="Label" parent="ContentMargin/VBoxContainer/AttributesRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "СИЛ 4"
+
+[node name="AgilityLabel" type="Label" parent="ContentMargin/VBoxContainer/AttributesRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "ЛОВ 1"
+
+[node name="SpiritLabel" type="Label" parent="ContentMargin/VBoxContainer/AttributesRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "ВОЛ 1"
+
+[node name="HeroCoreSection" type="VBoxContainer" parent="ContentMargin/VBoxContainer"]
 visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeroCoreSeparator" type="HSeparator" parent="ContentMargin/VBoxContainer/HeroCoreSection"]
+layout_mode = 2
+
+[node name="HeroCoreTitle" type="Label" parent="ContentMargin/VBoxContainer/HeroCoreSection"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
-text = "Hero Core"
-autowrap_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "ОСОБЕННОСТЬ"
 
-[node name="HeroCoreSeparator" type="HSeparator" parent="ContentMargin/VBoxContainer"]
+[node name="HeroCoreEntries" type="VBoxContainer" parent="ContentMargin/VBoxContainer/HeroCoreSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StatusesSection" type="VBoxContainer" parent="ContentMargin/VBoxContainer"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="ArmorLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=1120237684]
-layout_mode = 2
-text = "Броня"
-
-[node name="AttributesLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=1411565814]
-layout_mode = 2
-text = "Характеристики"
-
-[node name="Separator2" type="HSeparator" parent="ContentMargin/VBoxContainer" unique_id=1149434396]
+[node name="StatusesSeparator" type="HSeparator" parent="ContentMargin/VBoxContainer/StatusesSection"]
 layout_mode = 2
 
-[node name="StatusesLabel" type="Label" parent="ContentMargin/VBoxContainer" unique_id=50122377]
+[node name="StatusesTitle" type="Label" parent="ContentMargin/VBoxContainer/StatusesSection"]
 layout_mode = 2
-text = "Статусы: нет"
-vertical_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "СОСТОЯНИЯ"
+
+[node name="StatusesContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer/StatusesSection" unique_id=50122377]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ImmunitiesSection" type="VBoxContainer" parent="ContentMargin/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ImmunitiesSeparator" type="HSeparator" parent="ContentMargin/VBoxContainer/ImmunitiesSection"]
+layout_mode = 2
+
+[node name="ImmunitiesTitle" type="Label" parent="ContentMargin/VBoxContainer/ImmunitiesSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "ИММУНИТЕТЫ"
+
+[node name="ImmunitiesLabel" type="Label" parent="ContentMargin/VBoxContainer/ImmunitiesSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 2

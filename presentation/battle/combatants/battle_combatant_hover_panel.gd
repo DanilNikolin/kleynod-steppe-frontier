@@ -2,46 +2,34 @@ class_name BattleCombatantHoverPanel
 extends PanelContainer
 
 
-@onready
-var name_label: Label = (
-	$ContentMargin/VBoxContainer/NameLabel
-)
+@onready var name_label: Label = $ContentMargin/VBoxContainer/NameLabel
+@onready var relation_label: Label = $ContentMargin/VBoxContainer/RelationLabel
 
-@onready
-var relation_label: Label = (
-	$ContentMargin/VBoxContainer/RelationLabel
-)
+@onready var health_label: Label = $ContentMargin/VBoxContainer/ResourcesRow/HealthBox/HealthLabel
+@onready var guard_label: Label = $ContentMargin/VBoxContainer/ResourcesRow/GuardBox/GuardLabel
+@onready var stamina_label: Label = $ContentMargin/VBoxContainer/ResourcesRow/StaminaBox/StaminaLabel
+@onready var armor_label: Label = $ContentMargin/VBoxContainer/ResourcesRow/ArmorBox/ArmorLabel
+@onready var morale_label: Label = $ContentMargin/VBoxContainer/MoraleLabel
 
-@onready
-var resources_label: Label = (
-	$ContentMargin/VBoxContainer/ResourcesLabel
-)
+@onready var strength_label: Label = $ContentMargin/VBoxContainer/AttributesRow/StrengthLabel
+@onready var agility_label: Label = $ContentMargin/VBoxContainer/AttributesRow/AgilityLabel
+@onready var spirit_label: Label = $ContentMargin/VBoxContainer/AttributesRow/SpiritLabel
 
-@onready
-var hero_core_label: Label = (
-	$ContentMargin/VBoxContainer/HeroCoreLabel
-)
+@onready var hero_core_section: VBoxContainer = $ContentMargin/VBoxContainer/HeroCoreSection
+@onready var hero_core_entries: VBoxContainer = $ContentMargin/VBoxContainer/HeroCoreSection/HeroCoreEntries
 
-@onready
-var hero_core_separator: HSeparator = (
-	$ContentMargin/VBoxContainer/HeroCoreSeparator
-)
+@onready var statuses_section: VBoxContainer = $ContentMargin/VBoxContainer/StatusesSection
+@onready var statuses_container: VBoxContainer = $ContentMargin/VBoxContainer/StatusesSection/StatusesContainer
 
-@onready
-var armor_label: Label = (
-	$ContentMargin/VBoxContainer/ArmorLabel
-)
+@onready var immunities_section: VBoxContainer = $ContentMargin/VBoxContainer/ImmunitiesSection
+@onready var immunities_label: Label = $ContentMargin/VBoxContainer/ImmunitiesSection/ImmunitiesLabel
 
-@onready
-var attributes_label: Label = (
-	$ContentMargin/VBoxContainer/AttributesLabel
-)
-
-@onready
-var statuses_label: Label = (
-	$ContentMargin/VBoxContainer/StatusesLabel
-)
-
+const HERO_CORE_ICONS = {
+	"unbroken": preload("res://Graphics/UI/battle/hero_core/bayda/unbroken_active.png"),
+	"fractured": preload("res://Graphics/UI/battle/hero_core/bayda/fractured_active.png"),
+	"debt": preload("res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_active.png"),
+	"penalty": preload("res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_active.png"),
+}
 
 var _combatant: CombatantState
 var _viewer_team_id: StringName = &""
@@ -84,13 +72,23 @@ func clear_combatant() -> void:
 
 	name_label.text = ""
 	relation_label.text = ""
-	resources_label.text = ""
-	hero_core_label.text = ""
-	hero_core_label.visible = false
-	hero_core_separator.visible = false
+	health_label.text = ""
+	guard_label.text = ""
+	stamina_label.text = ""
 	armor_label.text = ""
-	attributes_label.text = ""
-	statuses_label.text = ""
+	morale_label.text = ""
+	strength_label.text = ""
+	agility_label.text = ""
+	spirit_label.text = ""
+
+	_clear_container(hero_core_entries)
+	hero_core_section.visible = false
+
+	_clear_container(statuses_container)
+	statuses_section.visible = false
+
+	immunities_label.text = ""
+	immunities_section.visible = false
 
 	visible = false
 	modulate.a = 1.0
@@ -104,284 +102,197 @@ func refresh() -> void:
 	var definition := _combatant.definition
 
 	name_label.text = (
-		definition.display_name
-		if definition != null
-		else String(_combatant.instance_id)
+		definition.display_name.to_upper()
+		if definition != null and not definition.display_name.is_empty()
+		else String(_combatant.instance_id).to_upper()
 	)
 
 	if not _combatant.is_alive:
 		relation_label.text = "ПОГИБ"
-
+		relation_label.add_theme_color_override("font_color", Color(0.7, 0.3, 0.3, 1.0))
 	elif _combatant.team_id == _viewer_team_id:
 		relation_label.text = "СОЮЗНИК"
-
+		relation_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.45, 1.0))
 	else:
 		relation_label.text = "ПРОТИВНИК"
+		relation_label.add_theme_color_override("font_color", Color(0.9, 0.4, 0.35, 1.0))
 
-	resources_label.text = (
-		"Здоровье: %d/%d\n"
-		% [
-			_combatant.current_health,
-			_combatant.max_health,
-		]
-		+"Оборона: %d/%d\n"
-		% [
-			_combatant.current_guard,
-			_combatant.max_health,
-		]
-		+"Выносливость: %d/%d  (+%d за раунд)\n"
-		% [
-			_combatant.current_stamina,
-			_combatant.max_stamina,
-			_combatant.get_effective_stamina_regeneration(),
-		]
-		+"Мораль: %d/%d"
-		% [
-			_combatant.current_morale,
-			_combatant.max_morale,
-		]
-	)
-	var hero_core_text := (
-		_build_hero_core_text()
-	)
+	# Resources row
+	health_label.text = "%d/%d" % [_combatant.current_health, _combatant.max_health]
+	guard_label.text = "%d" % _combatant.current_guard
+	stamina_label.text = "%d/%d (+%d)" % [
+		_combatant.current_stamina,
+		_combatant.max_stamina,
+		_combatant.get_effective_stamina_regeneration(),
+	]
+	armor_label.text = "%d" % _combatant.get_effective_armor()
+	morale_label.text = "Мораль: %d/%d" % [_combatant.current_morale, _combatant.max_morale]
 
-	hero_core_label.text = (
-		hero_core_text
-	)
+	# Attributes row (СИЛ / ЛОВ / ВОЛ)
+	strength_label.text = "СИЛ %d" % _combatant.get_effective_strength()
+	agility_label.text = "ЛОВ %d" % _combatant.get_effective_agility()
+	spirit_label.text = "ВОЛ %d" % _combatant.get_effective_spirit()
 
-	hero_core_label.visible = (
-		not hero_core_text.is_empty()
-	)
+	# Hero Core section
+	_populate_hero_core()
 
-	hero_core_separator.visible = (
-		hero_core_label.visible
-	)
-	var effective_armor := (
-		_combatant.get_effective_armor()
-	)
+	# Statuses section
+	_populate_statuses()
 
-	var armor_modifier := (
-		_combatant.get_stat_modifier_total(
-			BattleStatModifier.Stat.ARMOR
-		)
-	)
-
-	if armor_modifier == 0:
-		armor_label.text = (
-			"Броня: %d"
-			% effective_armor
-		)
-
-	else:
-		armor_label.text = (
-			"Броня: %d  (база %d, статусы %s)"
-			% [
-				effective_armor,
-				_combatant.armor,
-				_format_signed_integer(
-					armor_modifier
-				),
-			]
-		)
-
-	attributes_label.text = (
-		_build_stat_line(
-			"Сила",
-			_combatant.strength,
-			_combatant.get_effective_strength(),
-			_combatant.get_stat_modifier_total(
-				BattleStatModifier.Stat.STRENGTH
-			)
-		)
-		+"\n"
-		+ _build_stat_line(
-			"Ловкость",
-			_combatant.agility,
-			_combatant.get_effective_agility(),
-			_combatant.get_stat_modifier_total(
-				BattleStatModifier.Stat.AGILITY
-			)
-		)
-		+"\n"
-		+ _build_stat_line(
-			"Дух",
-			_combatant.spirit,
-			_combatant.get_effective_spirit(),
-			_combatant.get_stat_modifier_total(
-				BattleStatModifier.Stat.SPIRIT
-			)
-		)
-		+"\nИнициатива: %d  (предбоевая)"
-		% _combatant.initiative
-	)
-
-	var statuses_text := (
-		_build_statuses_text()
-	)
-
-	var immunities_text := (
-		_build_immunities_text()
-	)
-
-	if not immunities_text.is_empty():
-		statuses_text += (
-			"\n\n"
-			+ immunities_text
-		)
-
-	statuses_label.text = statuses_text
+	# Immunities section
+	_populate_immunities()
 
 	_layout_revision += 1
 	var revision := _layout_revision
 
-	custom_minimum_size.x = 380.0
-	custom_minimum_size.y = 0.0
-	size.x = 380.0
+	custom_minimum_size = Vector2(380.0, 0.0)
+	size = Vector2(380.0, 1.0)
 
-	modulate.a = 0.0
 	visible = true
+	modulate.a = 0.0
 
-	_fit_to_content.call_deferred(revision)
+	_fit_to_content(revision)
 
 
 func _fit_to_content(revision: int) -> void:
+	await get_tree().process_frame
+
 	if revision != _layout_revision or not visible:
 		return
 
-	reset_size()
-	var minimum := get_combined_minimum_size()
+	var minimum: Vector2 = $ContentMargin.get_combined_minimum_size()
 	size = Vector2(380.0, minimum.y)
 	modulate.a = 1.0
 
 
-func _build_hero_core_text() -> String:
-	if (
-		_combatant == null
-		or _combatant.hero_core_runtime_state == null
-	):
-		return ""
+func _clear_container(container: Control) -> void:
+	for child in container.get_children():
+		child.queue_free()
 
-	return (
-		_combatant
-			.hero_core_runtime_state
-			.get_hover_details_text()
-	)
 
-func _build_immunities_text() -> String:
-	if (
-		_combatant == null
-		or _combatant.definition == null
-	):
-		return ""
+func _populate_hero_core() -> void:
+	_clear_container(hero_core_entries)
+
+	if _combatant == null or _combatant.hero_core_runtime_state == null:
+		hero_core_section.visible = false
+		return
+
+	var core: HeroCoreRuntimeState = _combatant.hero_core_runtime_state
+	var has_entries := false
+
+	if core is BaydaCoreRuntimeState:
+		var bayda := core as BaydaCoreRuntimeState
+		if bayda.unbroken_available:
+			_add_hero_core_row(HERO_CORE_ICONS["unbroken"], "Несломленность — готова")
+			has_entries = true
+		if bayda.is_fractured:
+			_add_hero_core_row(HERO_CORE_ICONS["fractured"], "Надлом")
+			has_entries = true
+		if bayda.exhaustion_debt > 0:
+			_add_hero_core_row(HERO_CORE_ICONS["debt"], "Долг истощения %d" % bayda.exhaustion_debt)
+			has_entries = true
+		if bayda.grit_teeth_max_stamina_penalty > 0:
+			_add_hero_core_row(HERO_CORE_ICONS["penalty"], "Макс. выносливость −%d" % bayda.grit_teeth_max_stamina_penalty)
+			has_entries = true
+
+	hero_core_section.visible = has_entries
+
+
+func _add_hero_core_row(icon_texture: Texture2D, text: String) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(20, 20)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = icon_texture
+	row.add_child(icon)
+
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", Color(1, 0.88, 0.5, 1.0))
+	row.add_child(label)
+
+	hero_core_entries.add_child(row)
+
+
+func _populate_statuses() -> void:
+	_clear_container(statuses_container)
+
+	if _combatant == null:
+		statuses_section.visible = false
+		return
+
+	var active_statuses := _combatant.get_active_statuses()
+	if active_statuses.is_empty():
+		statuses_section.visible = false
+		return
+
+	for status in active_statuses:
+		if status == null or status.definition == null:
+			continue
+
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+
+		# Resolve icon
+		var icon_tex: Texture2D = null
+		var semantics := BattleStatusVisualResolver.resolve(status.definition)
+		for sem in semantics:
+			if BattleStatusVisualResolver.TEXTURES.has(sem):
+				icon_tex = BattleStatusVisualResolver.TEXTURES[sem]
+				break
+
+		if icon_tex != null:
+			var icon := TextureRect.new()
+			icon.custom_minimum_size = Vector2(18, 18)
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.texture = icon_tex
+			row.add_child(icon)
+
+		var stack_str := " ×%d" % status.stack_count if status.stack_count > 1 else ""
+		var duration_str := _format_turn_count(status.remaining_turns) if status.remaining_turns > 0 else "бессрочно"
+
+		var name_lbl := Label.new()
+		name_lbl.text = "%s%s" % [status.definition.display_name, stack_str]
+		name_lbl.add_theme_font_size_override("font_size", 13)
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_lbl)
+
+		var turns_lbl := Label.new()
+		turns_lbl.text = duration_str
+		turns_lbl.add_theme_font_size_override("font_size", 12)
+		turns_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75, 1.0))
+		row.add_child(turns_lbl)
+
+		statuses_container.add_child(row)
+
+	statuses_section.visible = true
+
+
+func _populate_immunities() -> void:
+	if _combatant == null or _combatant.definition == null:
+		immunities_section.visible = false
+		return
 
 	var definition := _combatant.definition
 	var lines := PackedStringArray()
 
-	for status_id in (
-		definition.status_immunity_ids
-	):
-		lines.append(
-			"• статус: %s"
-			% status_id
-		)
+	for status_id in definition.status_immunity_ids:
+		lines.append("• статус: %s" % status_id)
 
-	for tag in (
-		definition.status_immunity_tags
-	):
-		lines.append(
-			"• категория: %s"
-			% tag
-		)
+	for tag in definition.status_immunity_tags:
+		lines.append("• категория: %s" % tag)
 
 	if lines.is_empty():
-		return ""
+		immunities_section.visible = false
+		return
 
-	return (
-		"Иммунитеты:\n"
-		+"\n".join(lines)
-	)
-	
-func _build_statuses_text() -> String:
-	if _combatant == null:
-		return "Статусы: нет"
-
-	var statuses := (
-		_combatant.get_active_statuses()
-	)
-
-	if statuses.is_empty():
-		return "Статусы: нет"
-
-	var lines := PackedStringArray([
-		"Статусы:",
-	])
-
-	for status in statuses:
-		if (
-			status == null
-			or status.definition == null
-		):
-			continue
-
-		var effect_parts := PackedStringArray()
-
-		for modifier in (
-			status.definition.stat_modifiers
-		):
-			if modifier == null:
-				continue
-
-			effect_parts.append(
-				"%s %s"
-				% [
-					_get_stat_name(
-						modifier.stat
-					),
-					_format_signed_integer(
-						modifier.get_total_amount(
-							status.stack_count
-						)
-					),
-				]
-			)
-
-		if effect_parts.is_empty():
-			if not (
-				status.definition
-				.description
-				.strip_edges()
-				.is_empty()
-			):
-				effect_parts.append(
-					status.definition.description
-				)
-
-			else:
-				effect_parts.append(
-					"без модификаторов"
-				)
-
-		var stack_text := ""
-
-		if status.stack_count > 1:
-			stack_text = (
-				" ×%d"
-				% status.stack_count
-			)
-
-		lines.append(
-			"• %s%s — %s, %s"
-			% [
-				status.definition.display_name,
-				stack_text,
-				", ".join(effect_parts),
-				_format_turn_count(
-					status.remaining_turns
-				),
-			]
-		)
-
-	return "\n".join(lines)
+	immunities_label.text = "\n".join(lines)
+	immunities_section.visible = true
 
 
 func _connect_combatant_signals() -> void:

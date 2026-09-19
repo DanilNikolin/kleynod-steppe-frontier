@@ -8,6 +8,15 @@ const PRESSED = preload("res://Graphics/UI/battle/abilities/ability_slot_pressed
 const SELECTED = preload("res://Graphics/UI/battle/abilities/ability_slot_selected.png")
 var ability: AbilityDefinition
 
+func _ready() -> void:
+	button_up.connect(_release_visual.call_deferred)
+
+func _release_visual() -> void:
+	# Binding during pressed can leave BaseButton latched until the next click.
+	# Clear only its transient press state; selection is owned by the panel.
+	set_pressed_no_signal(false)
+
+
 func bind_ability(combatant: CombatantState, value: AbilityDefinition, index: int) -> void:
 	ability = value
 	texture_normal = ACTIVE
@@ -45,4 +54,7 @@ func bind_empty(index: int) -> void:
 
 ## Selection persists independently of the transient mouse-down button state.
 func set_selected(value: bool) -> void:
-	texture_normal = SELECTED if value and ability != null else (ACTIVE if ability != null else INACTIVE)
+	var selected := value and ability != null
+	texture_normal = SELECTED if selected else (ACTIVE if ability != null else INACTIVE)
+	# Hover must not conceal the selection immediately after mouse release.
+	texture_hover = SELECTED if selected else (HOVER if ability != null else null)

@@ -21,9 +21,8 @@
 [ext_resource type="Texture2D" uid="uid://drncajouushka" path="res://Graphics/UI/battle/end_turn/end_turn_pressed.png" id="22"]
 [ext_resource type="Texture2D" uid="uid://vjh4tx6xnfbm" path="res://Graphics/UI/battle/end_turn/end_turn_idle.png" id="23"]
 [ext_resource type="PackedScene" path="res://presentation/common/ui/common_top_menu.tscn" id="24"]
-
-[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/stats/armor_icon.png" id="armor_stat"]
-[ext_resource type="Texture2D" path="res://Graphics/UI/battle/portrait/stats/stamina_regen_icon.png" id="regen_stat"]
+[ext_resource type="Texture2D" uid="uid://b63u10yi8t61o" path="res://Graphics/UI/battle/portrait/stats/armor_icon.png" id="armor_stat"]
+[ext_resource type="Texture2D" uid="uid://kcau6l1fghdr" path="res://Graphics/UI/battle/portrait/stats/stamina_regen_icon.png" id="regen_stat"]
 
 [node name="BattleHUD" type="Control" unique_id=1377347901]
 layout_mode = 3
@@ -48,6 +47,15 @@ grow_vertical = 1
 [node name="PortraitPanel" type="Control" parent="." unique_id=904931660]
 anchors_preset = 0
 mouse_filter = 2
+
+[node name="StatsShelf" type="TextureRect" parent="PortraitPanel" unique_id=2092471942]
+layout_mode = 0
+offset_left = 246.0
+offset_top = 822.0
+offset_right = 577.0
+offset_bottom = 1063.0
+mouse_filter = 2
+texture = ExtResource("5")
 
 [node name="DecorBottom" type="Control" parent="PortraitPanel" unique_id=2010075706]
 anchors_preset = 0
@@ -92,15 +100,6 @@ theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="StatsShelf" type="TextureRect" parent="PortraitPanel" unique_id=2092471942]
-layout_mode = 0
-offset_left = 246.0
-offset_top = 822.0
-offset_right = 474.0
-offset_bottom = 1063.0
-mouse_filter = 2
-texture = ExtResource("5")
 
 [node name="Health" type="Control" parent="PortraitPanel" unique_id=468623108]
 anchors_preset = 0
@@ -202,20 +201,84 @@ vertical_alignment = 1
 [node name="BuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=2040645016]
 layout_mode = 0
 offset_left = 270.0
-offset_top = 950.0
+offset_top = 958.0
 offset_right = 548.0
-offset_bottom = 976.0
+offset_bottom = 984.0
 mouse_filter = 2
 theme_override_constants/separation = 3
 
 [node name="DebuffStrip" type="HBoxContainer" parent="PortraitPanel" unique_id=416419464]
 layout_mode = 0
 offset_left = 270.0
-offset_top = 986.0
+offset_top = 999.0
 offset_right = 548.0
-offset_bottom = 1012.0
+offset_bottom = 1025.0
 mouse_filter = 2
 theme_override_constants/separation = 3
+
+[node name="Armor" type="Control" parent="PortraitPanel" unique_id=1522643506]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PortraitPanel/Armor" unique_id=710831342]
+layout_mode = 0
+offset_left = 364.0
+offset_top = 922.0
+offset_right = 391.0
+offset_bottom = 945.0
+mouse_filter = 2
+texture = ExtResource("armor_stat")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="PortraitPanel/Armor" unique_id=49601627]
+layout_mode = 0
+offset_left = 393.0
+offset_top = 920.0
+offset_right = 448.0
+offset_bottom = 946.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StaminaRegen" type="Control" parent="PortraitPanel" unique_id=20676424]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PortraitPanel/StaminaRegen" unique_id=1505825580]
+layout_mode = 0
+offset_left = 454.0
+offset_top = 922.0
+offset_right = 481.0
+offset_bottom = 945.0
+mouse_filter = 2
+texture = ExtResource("regen_stat")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="PortraitPanel/StaminaRegen" unique_id=1261693914]
+layout_mode = 0
+offset_left = 483.0
+offset_top = 920.0
+offset_right = 538.0
+offset_bottom = 946.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NeutralStatuses" type="Label" parent="PortraitPanel" unique_id=848566647]
+layout_mode = 0
+offset_left = 270.0
+offset_top = 798.0
+offset_right = 548.0
+offset_bottom = 820.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
 
 [node name="TurnOrderArea" type="Control" parent="." unique_id=263887030]
 anchors_preset = 0
@@ -350,63 +413,3 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="Armor" type="Control" parent="PortraitPanel"]
-mouse_filter = 2
-
-[node name="Icon" type="TextureRect" parent="PortraitPanel/Armor"]
-offset_left = 364.0
-offset_top = 922.0
-offset_right = 391.0
-offset_bottom = 945.0
-mouse_filter = 2
-texture = ExtResource("armor_stat")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Value" type="Label" parent="PortraitPanel/Armor"]
-offset_left = 393.0
-offset_top = 920.0
-offset_right = 448.0
-offset_bottom = 946.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 16
-theme_override_constants/outline_size = 3
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="StaminaRegen" type="Control" parent="PortraitPanel"]
-mouse_filter = 2
-
-[node name="Icon" type="TextureRect" parent="PortraitPanel/StaminaRegen"]
-offset_left = 454.0
-offset_top = 922.0
-offset_right = 481.0
-offset_bottom = 945.0
-mouse_filter = 2
-texture = ExtResource("regen_stat")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Value" type="Label" parent="PortraitPanel/StaminaRegen"]
-offset_left = 483.0
-offset_top = 920.0
-offset_right = 538.0
-offset_bottom = 946.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 16
-theme_override_constants/outline_size = 3
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="NeutralStatuses" type="Label" parent="PortraitPanel"]
-offset_left = 270.0
-offset_top = 798.0
-offset_right = 548.0
-offset_bottom = 820.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 12
-theme_override_constants/outline_size = 3
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)

@@ -39,6 +39,27 @@ func run() -> void:
 	hud.ability_panel.ability_selected.connect(func(_ability): selections += 1)
 	actor.restore_stamina(actor.max_stamina)
 	check(hud.ability_panel.select_ability_by_index(0) and selections == 1, "Selection contract.")
+	# Drive real mouse down/up: emitting pressed alone misses a latched draw state.
+	await process_frame
+	var clicked_slot := hud.ability_panel.hud_slots[1]
+	var mouse_at := clicked_slot.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = mouse_at
+	root.push_input(motion, true)
+	for click_index in range(3):
+		for down in [true, false]:
+			var click := InputEventMouseButton.new()
+			click.position = mouse_at
+			click.button_index = MOUSE_BUTTON_LEFT
+			click.pressed = down
+			root.push_input(click, true)
+			await process_frame
+			if down:
+				check(clicked_slot.get_draw_mode() in [BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED], "Mouse hold shows pressed art.")
+			else:
+				check(hud.ability_panel.get_selected_ability() == clicked_slot.ability, "First and repeated clicks retain the selected ability.")
+				check(clicked_slot.get_draw_mode() not in [BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED], "Mouse release never leaves pressed art latched.")
+				check(clicked_slot.texture_hover == BattleAbilitySlot.SELECTED and clicked_slot.texture_normal == BattleAbilitySlot.SELECTED, "Released selection is visible under the cursor and outside it.")
 	hud.end_turn_pressed.connect(func(): end_turns += 1)
 	hud.end_turn_pressed.disconnect(screen.flow._end_turn)
 	hud.end_turn_button.pressed.emit()

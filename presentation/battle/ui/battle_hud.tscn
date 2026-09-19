@@ -23,6 +23,15 @@
 [ext_resource type="PackedScene" path="res://presentation/common/ui/common_top_menu.tscn" id="24"]
 [ext_resource type="Texture2D" uid="uid://b63u10yi8t61o" path="res://Graphics/UI/battle/portrait/stats/armor_icon.png" id="armor_stat"]
 [ext_resource type="Texture2D" uid="uid://kcau6l1fghdr" path="res://Graphics/UI/battle/portrait/stats/stamina_regen_icon.png" id="regen_stat"]
+[ext_resource type="Script" path="res://presentation/battle/ui/hero_core_indicator.gd" id="hero_core_indicator_script"]
+[ext_resource type="Texture2D" uid="uid://bhhjjuegp3238" path="res://Graphics/UI/battle/hero_core/bayda/unbroken_active.png" id="core_unbroken_active"]
+[ext_resource type="Texture2D" uid="uid://bhjuc6f7dxm8t" path="res://Graphics/UI/battle/hero_core/bayda/unbroken_inactive.png" id="core_unbroken_inactive"]
+[ext_resource type="Texture2D" uid="uid://c1po0om1ujtlf" path="res://Graphics/UI/battle/hero_core/bayda/fractured_active.png" id="core_fractured_active"]
+[ext_resource type="Texture2D" uid="uid://dcoyvbi1i2r0l" path="res://Graphics/UI/battle/hero_core/bayda/fractured_inactive.png" id="core_fractured_inactive"]
+[ext_resource type="Texture2D" uid="uid://b77gjx6vrok0r" path="res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_active.png" id="core_debt_active"]
+[ext_resource type="Texture2D" uid="uid://gstvju2wxvs6" path="res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_inactive.png" id="core_debt_inactive"]
+[ext_resource type="Texture2D" uid="uid://do71jd4rc3wc8" path="res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_active.png" id="core_penalty_active"]
+[ext_resource type="Texture2D" uid="uid://y2sn1r5f0cbp" path="res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_inactive.png" id="core_penalty_inactive"]
 
 [node name="BattleHUD" type="Control" unique_id=1377347901]
 layout_mode = 3
@@ -285,63 +294,84 @@ anchors_preset = 0
 mouse_filter = 2
 
 [node name="Unbroken" type="Control" parent="PortraitPanel/HeroCoreIndicators" unique_id=314159266]
-layout_mode = 0
+anchors_preset = 0
 offset_left = 18.0
 offset_top = 998.0
 offset_right = 54.0
 offset_bottom = 1034.0
 mouse_filter = 2
+script = ExtResource("hero_core_indicator_script")
+active_texture = ExtResource("core_unbroken_active")
+inactive_texture = ExtResource("core_unbroken_inactive")
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/Unbroken" unique_id=314159267]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("core_unbroken_active")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Fractured" type="Control" parent="PortraitPanel/HeroCoreIndicators" unique_id=314159268]
-layout_mode = 0
+anchors_preset = 0
 offset_left = 68.0
 offset_top = 1018.0
 offset_right = 104.0
 offset_bottom = 1054.0
 mouse_filter = 2
+script = ExtResource("hero_core_indicator_script")
+active_texture = ExtResource("core_fractured_active")
+inactive_texture = ExtResource("core_fractured_inactive")
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/Fractured" unique_id=314159269]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("core_fractured_inactive")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="ExhaustionDebt" type="Control" parent="PortraitPanel/HeroCoreIndicators" unique_id=314159270]
-layout_mode = 0
+anchors_preset = 0
 offset_left = 176.0
 offset_top = 1018.0
 offset_right = 212.0
 offset_bottom = 1054.0
 mouse_filter = 2
+script = ExtResource("hero_core_indicator_script")
+active_texture = ExtResource("core_debt_active")
+inactive_texture = ExtResource("core_debt_inactive")
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/ExhaustionDebt" unique_id=314159271]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("core_debt_inactive")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="MagnitudeLabel" type="Label" parent="PortraitPanel/HeroCoreIndicators/ExhaustionDebt" unique_id=314159272]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 2.0
 offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
@@ -350,29 +380,38 @@ horizontal_alignment = 2
 vertical_alignment = 2
 
 [node name="MaxStaminaPenalty" type="Control" parent="PortraitPanel/HeroCoreIndicators" unique_id=314159273]
-layout_mode = 0
+anchors_preset = 0
 offset_left = 226.0
 offset_top = 998.0
 offset_right = 262.0
 offset_bottom = 1034.0
 mouse_filter = 2
+script = ExtResource("hero_core_indicator_script")
+active_texture = ExtResource("core_penalty_active")
+inactive_texture = ExtResource("core_penalty_inactive")
 
 [node name="Icon" type="TextureRect" parent="PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty" unique_id=314159274]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("core_penalty_inactive")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="MagnitudeLabel" type="Label" parent="PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty" unique_id=314159275]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 2.0
 offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3

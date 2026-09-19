@@ -4,15 +4,6 @@ extends Control
 signal end_turn_pressed
 const ENTRY_SCENE = preload("res://presentation/battle/ui/battle_turn_order_entry.tscn")
 
-const BAYDA_UNBROKEN_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/unbroken_active.png")
-const BAYDA_UNBROKEN_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/unbroken_inactive.png")
-const BAYDA_FRACTURED_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/fractured_active.png")
-const BAYDA_FRACTURED_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/fractured_inactive.png")
-const BAYDA_EXHAUSTION_DEBT_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_active.png")
-const BAYDA_EXHAUSTION_DEBT_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_inactive.png")
-const BAYDA_MAX_STAMINA_PENALTY_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_active.png")
-const BAYDA_MAX_STAMINA_PENALTY_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_inactive.png")
-
 @onready var ability_panel: BattleAbilityPanel = $AbilityPanel
 @onready var end_turn_button: TextureButton = $EndTurnArea/Button
 @onready var top_menu: CommonTopMenu = $CommonTopMenu
@@ -117,40 +108,20 @@ func _refresh_hero_core_indicators() -> void:
 	panel.show()
 
 	# UNBROKEN
-	$PortraitPanel/HeroCoreIndicators/Unbroken/Icon.texture = (
-		BAYDA_UNBROKEN_ACTIVE
-		if core.unbroken_available
-		else BAYDA_UNBROKEN_INACTIVE
-	)
+	($PortraitPanel/HeroCoreIndicators/Unbroken as HeroCoreIndicator).set_active(core.unbroken_available)
 
 	# FRACTURED
-	$PortraitPanel/HeroCoreIndicators/Fractured/Icon.texture = (
-		BAYDA_FRACTURED_ACTIVE
-		if core.is_fractured
-		else BAYDA_FRACTURED_INACTIVE
-	)
+	($PortraitPanel/HeroCoreIndicators/Fractured as HeroCoreIndicator).set_active(core.is_fractured)
 
 	# EXHAUSTION DEBT
-	var debt_active := core.exhaustion_debt > 0
-	$PortraitPanel/HeroCoreIndicators/ExhaustionDebt/Icon.texture = (
-		BAYDA_EXHAUSTION_DEBT_ACTIVE
-		if debt_active
-		else BAYDA_EXHAUSTION_DEBT_INACTIVE
-	)
-	var debt_label: Label = $PortraitPanel/HeroCoreIndicators/ExhaustionDebt/MagnitudeLabel
-	debt_label.visible = debt_active
-	debt_label.text = str(core.exhaustion_debt)
+	var debt_ind := $PortraitPanel/HeroCoreIndicators/ExhaustionDebt as HeroCoreIndicator
+	debt_ind.set_active(core.exhaustion_debt > 0)
+	debt_ind.set_magnitude(core.exhaustion_debt)
 
 	# MAX STAMINA PENALTY
-	var penalty_active := core.grit_teeth_max_stamina_penalty > 0
-	$PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/Icon.texture = (
-		BAYDA_MAX_STAMINA_PENALTY_ACTIVE
-		if penalty_active
-		else BAYDA_MAX_STAMINA_PENALTY_INACTIVE
-	)
-	var penalty_label: Label = $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/MagnitudeLabel
-	penalty_label.visible = penalty_active
-	penalty_label.text = str(core.grit_teeth_max_stamina_penalty)
+	var penalty_ind := $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty as HeroCoreIndicator
+	penalty_ind.set_active(core.grit_teeth_max_stamina_penalty > 0)
+	penalty_ind.set_magnitude(core.grit_teeth_max_stamina_penalty)
 
 func refresh_turn_order(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	if turns == null:

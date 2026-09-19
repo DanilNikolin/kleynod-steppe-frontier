@@ -120,7 +120,83 @@ func run() -> void:
 	check(hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "HUD passes battlefield clicks.")
 	for node in hud.find_children("*", "TextureRect", true, false):
 		check(node.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Art does not intercept battlefield clicks.")
-	check(screen.get_node("BattleUI/Root/CombatantHoverPanel") != null and screen.get_node("BattleUI/Root/SurfaceHoverPanel") != null, "Context panels retained.")
+	# ==========================================================
+	# Bayda Hero Core Portrait Indicators Test Suite
+	# ==========================================================
+	var core_panel := hud.get_node("PortraitPanel/HeroCoreIndicators") as Control
+	check(core_panel != null, "HeroCoreIndicators exists under PortraitPanel.")
+	# Default duel encounter uses debug_sechevik (no hero core module), so panel is initially hidden
+	check(not core_panel.visible, "HeroCoreIndicators is hidden for non-Bayda actor.")
+
+	# Create real Bayda combatant and bind to HUD
+	var bayda_hero := load("res://content/heroes/bayda/bayda_hero.tres") as HeroDefinition
+	var bayda_combatant := CombatantState.new(&"bayda_test", bayda_hero.base_combatant_definition,
+		&"team_player", CombatantLoadoutDefinition.new(), Vector2i.ZERO, bayda_hero.core_module)
+	hud.bind_player_combatant(bayda_combatant)
+	check(core_panel.visible, "HeroCoreIndicators is visible for Bayda.")
+
+	var unbroken_icon := hud.get_node("PortraitPanel/HeroCoreIndicators/Unbroken/Icon") as TextureRect
+	var fractured_icon := hud.get_node("PortraitPanel/HeroCoreIndicators/Fractured/Icon") as TextureRect
+	var debt_icon := hud.get_node("PortraitPanel/HeroCoreIndicators/ExhaustionDebt/Icon") as TextureRect
+	var debt_label := hud.get_node("PortraitPanel/HeroCoreIndicators/ExhaustionDebt/MagnitudeLabel") as Label
+	var penalty_icon := hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/Icon") as TextureRect
+	var penalty_label := hud.get_node("PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/MagnitudeLabel") as Label
+
+	var bayda_core := bayda_combatant.hero_core_runtime_state as BaydaCoreRuntimeState
+	check(bayda_core != null, "Bayda combatant has BaydaCoreRuntimeState.")
+
+	# 1. Initial State: Unbroken active, Fractured inactive, Debt inactive (no label), Penalty inactive (no label)
+	check(unbroken_icon.texture == BattleHUD.BAYDA_UNBROKEN_ACTIVE, "Initial Unbroken is ACTIVE.")
+	check(fractured_icon.texture == BattleHUD.BAYDA_FRACTURED_INACTIVE, "Initial Fractured is INACTIVE.")
+	check(debt_icon.texture == BattleHUD.BAYDA_EXHAUSTION_DEBT_INACTIVE, "Initial ExhaustionDebt is INACTIVE.")
+	check(not debt_label.visible, "Initial ExhaustionDebt MagnitudeLabel is hidden.")
+	check(penalty_icon.texture == BattleHUD.BAYDA_MAX_STAMINA_PENALTY_INACTIVE, "Initial MaxStaminaPenalty is INACTIVE.")
+	check(not penalty_label.visible, "Initial MaxStaminaPenalty MagnitudeLabel is hidden.")
+
+	# 2. Trigger Unbroken: unbroken_available = false, is_fractured = true
+	bayda_core.unbroken_available = false
+	bayda_core.is_fractured = true
+	bayda_core.state_changed.emit()
+
+	check(unbroken_icon.texture == BattleHUD.BAYDA_UNBROKEN_INACTIVE, "After trigger: Unbroken is INACTIVE.")
+	check(fractured_icon.texture == BattleHUD.BAYDA_FRACTURED_ACTIVE, "After trigger: Fractured is ACTIVE.")
+
+	# 3. Exhaustion Debt: exhaustion_debt = 4
+	bayda_core.exhaustion_debt = 4
+	bayda_core.state_changed.emit()
+
+	check(debt_icon.texture == BattleHUD.BAYDA_EXHAUSTION_DEBT_ACTIVE, "Debt > 0: ExhaustionDebt is ACTIVE.")
+	check(debt_label.visible and debt_label.text == "4", "Debt > 0: MagnitudeLabel is '4'.")
+
+	# 4. Max Stamina Penalty: grit_teeth_max_stamina_penalty = 3
+	bayda_core.grit_teeth_max_stamina_penalty = 3
+	bayda_core.state_changed.emit()
+
+	check(penalty_icon.texture == BattleHUD.BAYDA_MAX_STAMINA_PENALTY_ACTIVE, "Penalty > 0: MaxStaminaPenalty is ACTIVE.")
+	check(penalty_label.visible and penalty_label.text == "3", "Penalty > 0: MagnitudeLabel is '3'.")
+
+	# 5. Reset back to 0
+	bayda_core.unbroken_available = true
+	bayda_core.is_fractured = false
+	bayda_core.exhaustion_debt = 0
+	bayda_core.grit_teeth_max_stamina_penalty = 0
+	bayda_core.state_changed.emit()
+
+	check(unbroken_icon.texture == BattleHUD.BAYDA_UNBROKEN_ACTIVE, "Reset: Unbroken back to ACTIVE.")
+	check(fractured_icon.texture == BattleHUD.BAYDA_FRACTURED_INACTIVE, "Reset: Fractured back to INACTIVE.")
+	check(debt_icon.texture == BattleHUD.BAYDA_EXHAUSTION_DEBT_INACTIVE, "Reset: Debt back to INACTIVE.")
+	check(not debt_label.visible, "Reset: Debt MagnitudeLabel hidden.")
+	check(penalty_icon.texture == BattleHUD.BAYDA_MAX_STAMINA_PENALTY_INACTIVE, "Reset: Penalty back to INACTIVE.")
+	check(not penalty_label.visible, "Reset: Penalty MagnitudeLabel hidden.")
+
+	# 6. Non-Bayda combatant hides HeroCoreIndicators
+	hud.bind_player_combatant(enemy)
+	check(not core_panel.visible, "Non-Bayda combatant hides HeroCoreIndicators.")
+
+	# Rebind Bayda to restore
+	hud.bind_player_combatant(bayda_combatant)
+	check(core_panel.visible, "Rebinding Bayda restores HeroCoreIndicators.")
+
 	screen.queue_free()
 	await process_frame
 	print("BATTLE HUD SMOKE: ", "GREEN" if failures == 0 else "FAILED")

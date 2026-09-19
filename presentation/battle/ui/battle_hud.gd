@@ -4,6 +4,15 @@ extends Control
 signal end_turn_pressed
 const ENTRY_SCENE = preload("res://presentation/battle/ui/battle_turn_order_entry.tscn")
 
+const BAYDA_UNBROKEN_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/unbroken_active.png")
+const BAYDA_UNBROKEN_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/unbroken_inactive.png")
+const BAYDA_FRACTURED_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/fractured_active.png")
+const BAYDA_FRACTURED_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/fractured_inactive.png")
+const BAYDA_EXHAUSTION_DEBT_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_active.png")
+const BAYDA_EXHAUSTION_DEBT_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/exhaustion_debt_inactive.png")
+const BAYDA_MAX_STAMINA_PENALTY_ACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_active.png")
+const BAYDA_MAX_STAMINA_PENALTY_INACTIVE = preload("res://Graphics/UI/battle/hero_core/bayda/max_stamina_penalty_inactive.png")
+
 @onready var ability_panel: BattleAbilityPanel = $AbilityPanel
 @onready var end_turn_button: TextureButton = $EndTurnArea/Button
 @onready var top_menu: CommonTopMenu = $CommonTopMenu
@@ -59,6 +68,8 @@ func bind_player_combatant(combatant: CombatantState) -> void:
 		return
 	for event in [&"health_changed", &"stamina_changed", &"max_stamina_changed", &"guard_changed", &"status_added", &"status_updated", &"status_removed"]:
 		combatant.connect(event, _refresh_player)
+	if combatant.hero_core_runtime_state != null and not combatant.hero_core_runtime_state.state_changed.is_connected(_refresh_player):
+		combatant.hero_core_runtime_state.state_changed.connect(_refresh_player)
 	ability_panel.bind_combatant(combatant)
 	_refresh_player()
 
@@ -92,6 +103,54 @@ func _refresh_player(_a: Variant = null, _b: Variant = null, _c: Variant = null)
 		if status.definition.polarity == BattleStatusDefinition.Polarity.NEUTRAL:
 			neutral.append(status.definition.display_name)
 	$PortraitPanel/NeutralStatuses.text = ", ".join(neutral)
+	_refresh_hero_core_indicators()
+
+func _refresh_hero_core_indicators() -> void:
+	var panel := $PortraitPanel/HeroCoreIndicators
+	if player_combatant == null:
+		panel.hide()
+		return
+	var core := player_combatant.hero_core_runtime_state as BaydaCoreRuntimeState
+	if core == null:
+		panel.hide()
+		return
+	panel.show()
+
+	# UNBROKEN
+	$PortraitPanel/HeroCoreIndicators/Unbroken/Icon.texture = (
+		BAYDA_UNBROKEN_ACTIVE
+		if core.unbroken_available
+		else BAYDA_UNBROKEN_INACTIVE
+	)
+
+	# FRACTURED
+	$PortraitPanel/HeroCoreIndicators/Fractured/Icon.texture = (
+		BAYDA_FRACTURED_ACTIVE
+		if core.is_fractured
+		else BAYDA_FRACTURED_INACTIVE
+	)
+
+	# EXHAUSTION DEBT
+	var debt_active := core.exhaustion_debt > 0
+	$PortraitPanel/HeroCoreIndicators/ExhaustionDebt/Icon.texture = (
+		BAYDA_EXHAUSTION_DEBT_ACTIVE
+		if debt_active
+		else BAYDA_EXHAUSTION_DEBT_INACTIVE
+	)
+	var debt_label: Label = $PortraitPanel/HeroCoreIndicators/ExhaustionDebt/MagnitudeLabel
+	debt_label.visible = debt_active
+	debt_label.text = str(core.exhaustion_debt)
+
+	# MAX STAMINA PENALTY
+	var penalty_active := core.grit_teeth_max_stamina_penalty > 0
+	$PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/Icon.texture = (
+		BAYDA_MAX_STAMINA_PENALTY_ACTIVE
+		if penalty_active
+		else BAYDA_MAX_STAMINA_PENALTY_INACTIVE
+	)
+	var penalty_label: Label = $PortraitPanel/HeroCoreIndicators/MaxStaminaPenalty/MagnitudeLabel
+	penalty_label.visible = penalty_active
+	penalty_label.text = str(core.grit_teeth_max_stamina_penalty)
 
 func refresh_turn_order(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	if turns == null:
@@ -186,6 +245,13 @@ func _disconnect_player() -> void:
 	for event in [&"health_changed", &"stamina_changed", &"max_stamina_changed", &"guard_changed", &"status_added", &"status_updated", &"status_removed"]:
 		if player_combatant.is_connected(event, _refresh_player):
 			player_combatant.disconnect(event, _refresh_player)
+	if (
+		player_combatant.hero_core_runtime_state != null
+		and player_combatant.hero_core_runtime_state.state_changed.is_connected(_refresh_player)
+	):
+		player_combatant.hero_core_runtime_state.state_changed.disconnect(_refresh_player)
+	if has_node("PortraitPanel/HeroCoreIndicators"):
+		$PortraitPanel/HeroCoreIndicators.hide()
 	player_combatant = null
 
 func _disconnect_battle() -> void:

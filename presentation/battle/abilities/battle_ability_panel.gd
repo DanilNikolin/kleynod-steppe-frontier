@@ -8,6 +8,7 @@ var hud_abilities: Array[AbilityDefinition] = []
 var hud_slots: Array[BattleAbilitySlot] = []
 var hud_selected: AbilityDefinition
 var hud_interactable: bool = true
+var _card_layout_revision: int = 0
 
 func _ready() -> void:
 	for child in $Slots.get_children():
@@ -15,7 +16,7 @@ func _ready() -> void:
 		hud_slots.append(slot)
 		slot.pressed.connect(select_ability_by_index.bind(hud_slots.size() - 1))
 		slot.mouse_entered.connect(_show_hud_card.bind(hud_slots.size() - 1))
-		slot.mouse_exited.connect(func(): $Card.hide())
+		slot.mouse_exited.connect(_hide_hud_card)
 	clear_combatant()
 
 func bind_combatant(combatant: CombatantState, selected_ability: AbilityDefinition = null) -> void:
@@ -49,7 +50,7 @@ func clear_combatant() -> void:
 	for i in range(hud_slots.size()):
 		hud_slots[i].bind_empty(i)
 	if is_node_ready():
-		$Card.hide()
+		_hide_hud_card()
 
 func set_selected_ability(ability: AbilityDefinition) -> bool:
 	if hud_actor == null:
@@ -100,13 +101,26 @@ func _show_hud_card(index: int) -> void:
 	$Card/Margin/Content/Description.text = ability.description
 	$Card/Margin/Content/Effects.text = BattleAbilityPresentationBuilder.build_effects_text(ability, hud_actor)
 
-	# Position card over hovered ability slot
-	$Card.custom_minimum_size = Vector2(440, 0)
-	$Card.reset_size()
+	_card_layout_revision += 1
+	var revision := _card_layout_revision
+
+	$Card.custom_minimum_size = Vector2(440.0, 0.0)
+	$Card.size.x = 440.0
+	$Card.modulate.a = 0.0
 	$Card.show()
 
+	_finalize_show_hud_card.call_deferred(slot, revision)
+
+func _finalize_show_hud_card(slot: BattleAbilitySlot, revision: int) -> void:
+	if revision != _card_layout_revision or not $Card.visible:
+		return
+	if slot == null or not is_instance_valid(slot) or not slot.is_inside_tree():
+		_hide_hud_card()
+		return
+
+	$Card.reset_size()
 	var card_size: Vector2 = $Card.get_combined_minimum_size()
-	card_size.x = maxf(card_size.x, 440.0)
+	$Card.size = Vector2(440.0, card_size.y)
 
 	var slot_rect: Rect2 = slot.get_global_rect()
 	var vp_rect: Rect2 = get_viewport_rect()
@@ -114,15 +128,21 @@ func _show_hud_card(index: int) -> void:
 	const OFFSET_Y: float = 12.0
 	const PADDING: float = 10.0
 
-	var target_x: float = slot_rect.position.x + (slot_rect.size.x - card_size.x) * 0.5
+	var target_x: float = slot_rect.position.x + (slot_rect.size.x - 440.0) * 0.5
 	var target_y: float = slot_rect.position.y - card_size.y - OFFSET_Y
 
 	# Clamp to screen
-	target_x = clampf(target_x, PADDING, maxf(PADDING, vp_rect.size.x - card_size.x - PADDING))
+	target_x = clampf(target_x, PADDING, maxf(PADDING, vp_rect.size.x - 440.0 - PADDING))
 	if target_y < PADDING:
 		target_y = PADDING
 
 	$Card.global_position = Vector2(target_x, target_y)
+	$Card.modulate.a = 1.0
+
+func _hide_hud_card() -> void:
+	_card_layout_revision += 1
+	$Card.hide()
+	$Card.modulate.a = 1.0
 
 func _hud_changed(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	_refresh_hud_slots()

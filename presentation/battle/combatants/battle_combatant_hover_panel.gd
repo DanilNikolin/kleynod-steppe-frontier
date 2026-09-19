@@ -45,6 +45,7 @@ var statuses_label: Label = (
 
 var _combatant: CombatantState
 var _viewer_team_id: StringName = &""
+var _layout_revision: int = 0
 
 
 func _ready() -> void:
@@ -72,10 +73,10 @@ func bind_combatant(
 	_connect_combatant_signals()
 
 	refresh()
-	visible = true
 
 
 func clear_combatant() -> void:
+	_layout_revision += 1
 	_disconnect_combatant_signals()
 
 	_combatant = null
@@ -92,6 +93,7 @@ func clear_combatant() -> void:
 	statuses_label.text = ""
 
 	visible = false
+	modulate.a = 1.0
 
 
 func refresh() -> void:
@@ -228,7 +230,29 @@ func refresh() -> void:
 		)
 
 	statuses_label.text = statuses_text
+
+	_layout_revision += 1
+	var revision := _layout_revision
+
+	custom_minimum_size.x = 380.0
+	custom_minimum_size.y = 0.0
+	size.x = 380.0
+
+	modulate.a = 0.0
+	visible = true
+
+	_fit_to_content.call_deferred(revision)
+
+
+func _fit_to_content(revision: int) -> void:
+	if revision != _layout_revision or not visible:
+		return
+
 	reset_size()
+	var minimum := get_combined_minimum_size()
+	size = Vector2(380.0, minimum.y)
+	modulate.a = 1.0
+
 
 func _build_hero_core_text() -> String:
 	if (

@@ -30,6 +30,7 @@ var _coordinate: Vector2i = (
 )
 
 var _instances: Array[BattleSurfaceEffectInstance] = []
+var _layout_revision: int = 0
 
 
 func _ready() -> void:
@@ -59,27 +60,37 @@ func show_surfaces(
 		clear_surfaces()
 		return
 
-	_apply_layout(
-		has_combatant_neighbor
-	)
+	_layout_revision += 1
+	var revision := _layout_revision
 
-	title_label.text = (
-		"Эффекты клетки"
-	)
+	title_label.text = "Эффекты клетки"
+	coordinate_label.text = "Клетка: %s" % coordinate
+	effects_label.text = _build_effects_text()
 
-	coordinate_label.text = (
-		"Клетка: %s"
-		% coordinate
-	)
+	custom_minimum_size.x = 380.0
+	custom_minimum_size.y = 0.0
+	size.x = 380.0
 
-	effects_label.text = (
-		_build_effects_text()
-	)
-
+	modulate.a = 0.0
 	visible = true
+
+	_fit_to_content.call_deferred(has_combatant_neighbor, revision)
+
+
+func _fit_to_content(has_combatant_neighbor: bool, revision: int) -> void:
+	if revision != _layout_revision or not visible:
+		return
+
+	reset_size()
+	var minimum := get_combined_minimum_size()
+	size = Vector2(380.0, minimum.y)
+
+	_apply_layout(has_combatant_neighbor)
+	modulate.a = 1.0
 
 
 func clear_surfaces() -> void:
+	_layout_revision += 1
 	_coordinate = (
 		BattleGrid.INVALID_COORDINATE
 	)
@@ -92,6 +103,7 @@ func clear_surfaces() -> void:
 		effects_label.text = ""
 
 	visible = false
+	modulate.a = 1.0
 
 
 func _apply_layout(
@@ -111,8 +123,6 @@ func _apply_layout(
 		offset_top = c_bottom + STACK_GAP
 	else:
 		offset_top = TOP_MARGIN
-
-	reset_size()
 
 
 func _build_effects_text() -> String:

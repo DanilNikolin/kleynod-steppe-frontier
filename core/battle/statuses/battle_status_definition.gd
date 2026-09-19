@@ -44,7 +44,10 @@ var tags: Array[StringName] = []
 @export_range(1, 999, 1)
 var duration_turns: int = 1
 
-@export_range(1, 99, 1)
+## Максимальное количество стаков.
+## 0 = без ограничений (unlimited).
+## 1+ = явный лимит стаков.
+@export_range(0, 99, 1)
 var max_stacks: int = 1
 
 @export
@@ -104,9 +107,9 @@ func get_validation_errors() -> PackedStringArray:
 			"Status duration must be greater than zero."
 		)
 
-	if max_stacks <= 0:
+	if max_stacks < 0:
 		errors.append(
-			"Maximum status stacks must be greater than zero."
+			"Maximum status stacks must be non-negative (0 for unlimited)."
 		)
 
 	var used_tags: Dictionary = {}

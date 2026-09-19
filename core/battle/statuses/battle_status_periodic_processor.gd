@@ -134,12 +134,18 @@ func _process_trigger(
 		if not owner.is_alive:
 			break
 
+		var effect_to_resolve: BattleEffect = effect
+		if trigger.scale_damage_with_stacks and effect is DamageEffect:
+			var scaled_damage := effect.duplicate() as DamageEffect
+			scaled_damage.base_damage = effect.base_damage * status.stack_count
+			effect_to_resolve = scaled_damage
+
 		# Все периодические эффекты разрешаются
 		# в периодическом контексте.
 		# Для урона это означает обход Guard.
 		var effect_result := (
 			effect_resolver.resolve(
-				effect,
+				effect_to_resolve,
 				source,
 				owner,
 				session,

@@ -85,8 +85,8 @@ func _refresh_player(_a: Variant = null, _b: Variant = null, _c: Variant = null)
 	$PortraitPanel/Guard/Value.text = str(actor.current_guard)
 	$PortraitPanel/Armor/Value.text = str(actor.get_effective_armor())
 	$PortraitPanel/StaminaRegen/Value.text = "+%d" % actor.get_effective_stamina_regeneration()
-	BattleStatusStrip.render_into($PortraitPanel/BuffStrip, actor, BattleStatusDefinition.Polarity.BENEFICIAL, 20, true)
-	BattleStatusStrip.render_into($PortraitPanel/DebuffStrip, actor, BattleStatusDefinition.Polarity.HARMFUL, 20, true)
+	BattleStatusStrip.render_into($PortraitPanel/BuffStrip, actor, BattleStatusDefinition.Polarity.BENEFICIAL, 22, true)
+	BattleStatusStrip.render_into($PortraitPanel/DebuffStrip, actor, BattleStatusDefinition.Polarity.HARMFUL, 22, true)
 	var neutral := PackedStringArray()
 	for status in actor.get_active_statuses():
 		if status.definition.polarity == BattleStatusDefinition.Polarity.NEUTRAL:

@@ -63,10 +63,13 @@ func reapply(
 			)
 
 		BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH:
-			stack_count = mini(
-				definition.max_stacks,
-				stack_count + 1
-			)
+			if definition.max_stacks == 0:
+				stack_count += 1
+			else:
+				stack_count = mini(
+					definition.max_stacks,
+					stack_count + 1
+				)
 
 			remaining_turns = (
 				definition.duration_turns

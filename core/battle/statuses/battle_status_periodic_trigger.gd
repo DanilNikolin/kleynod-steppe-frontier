@@ -13,6 +13,9 @@ enum Timing {
 var timing: Timing = Timing.OWNER_TURN_END
 
 @export
+var scale_damage_with_stacks: bool = false
+
+@export
 var effects: Array[BattleEffect] = []
 
 

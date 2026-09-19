@@ -14,6 +14,8 @@
 [ext_resource type="Resource" uid="uid://c4myldhhd7irj" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank8.tres" id="12_rank8_status"]
 [ext_resource type="Resource" uid="uid://crecort4qkfe3" path="res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank10.tres" id="13_rank10_status"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="do_not_bend_presentation"]
+[ext_resource type="Texture2D" uid="uid://pjbsmlenkley" path="res://Graphics/UI/battle/abilities/bayda/icons/do_not_bend.png" id="do_not_bend_icon"]
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 5
@@ -144,6 +146,10 @@ rank_steps = Array[ExtResource("7_growth_rank")]([SubResource("Resource_rank1"),
 script = ExtResource("2_targeting")
 aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
 
+[sub_resource type="Resource" id="Resource_do_not_bend_presentation"]
+script = ExtResource("do_not_bend_presentation")
+icon = ExtResource("do_not_bend_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_do_not_bend"
@@ -154,3 +160,4 @@ growth_table = SubResource("Resource_growth_table")
 stamina_cost = 5
 targeting = SubResource("Resource_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_damage"), SubResource("Resource_guard")])
+presentation_profile = SubResource("Resource_do_not_bend_presentation")

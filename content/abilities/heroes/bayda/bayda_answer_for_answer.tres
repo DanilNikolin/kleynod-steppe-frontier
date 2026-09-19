@@ -16,6 +16,8 @@
 [ext_resource type="Resource" uid="uid://bglo0hf477jt8" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank7.tres" id="12_breach_rank7"]
 [ext_resource type="Resource" uid="uid://in6by17vnvjx" path="res://content/statuses/heroes/bayda/bayda_answer_for_answer_breach_rank10.tres" id="13_breach_rank10"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="answer_for_answer_presentation"]
+[ext_resource type="Texture2D" uid="uid://yj7a21pyim1d" path="res://Graphics/UI/battle/abilities/bayda/icons/answer_for_answer.png" id="answer_for_answer_icon"]
 [sub_resource type="Resource" id="Resource_r0_counter"]
 script = ExtResource("5_damage")
 base_damage = 3
@@ -483,6 +485,10 @@ aim_relation_mask = 1
 aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 
+[sub_resource type="Resource" id="Resource_answer_for_answer_presentation"]
+script = ExtResource("answer_for_answer_presentation")
+icon = ExtResource("answer_for_answer_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_answer_for_answer"
@@ -494,3 +500,4 @@ stamina_cost = 5
 cooldown_turns = 2
 targeting = SubResource("Resource_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_r0_apply_stance")])
+presentation_profile = SubResource("Resource_answer_for_answer_presentation")

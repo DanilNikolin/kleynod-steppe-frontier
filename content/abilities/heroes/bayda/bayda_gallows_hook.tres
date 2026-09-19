@@ -11,6 +11,8 @@
 [ext_resource type="Resource" uid="uid://4deq3lyjsuuy" path="res://content/statuses/heroes/bayda/bayda_gallows_hooked_exposed.tres" id="9_hooked_exposed"]
 [ext_resource type="Resource" uid="uid://dhyo5v2nr44ut" path="res://content/statuses/heroes/bayda/bayda_gallows_hooked_master.tres" id="10_hooked_master"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="gallows_hook_presentation"]
+[ext_resource type="Texture2D" uid="uid://cqr3upmnjjdqh" path="res://Graphics/UI/battle/abilities/bayda/icons/gallows_hook.png" id="gallows_hook_icon"]
 [sub_resource type="Resource" id="Resource_gallows_hook_damage"]
 script = ExtResource("4_damage")
 base_damage = 7
@@ -148,6 +150,10 @@ rank_steps = Array[ExtResource("7_growth_rank")]([SubResource("Resource_rank_1")
 script = ExtResource("2_targeting")
 aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
 
+[sub_resource type="Resource" id="Resource_gallows_hook_presentation"]
+script = ExtResource("gallows_hook_presentation")
+icon = ExtResource("gallows_hook_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_gallows_hook"
@@ -159,3 +165,4 @@ stamina_cost = 12
 cooldown_turns = 2
 targeting = SubResource("Resource_gallows_hook_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_gallows_hook_damage"), SubResource("Resource_gallows_hook_status")])
+presentation_profile = SubResource("Resource_gallows_hook_presentation")

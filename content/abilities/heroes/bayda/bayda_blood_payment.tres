@@ -15,6 +15,8 @@
 [ext_resource type="Script" uid="uid://cov0ro3x5ptfd" path="res://core/battle/statuses/battle_status_definition.gd" id="12_wvtjv"]
 [ext_resource type="Resource" uid="uid://c12oqivp2gon6" path="res://content/statuses/heroes/bayda/bayda_blood_payment_armor_rank9.tres" id="13_rank9_armor"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="blood_payment_presentation"]
+[ext_resource type="Texture2D" uid="uid://b4g3pljmqqcod" path="res://Graphics/UI/battle/abilities/bayda/icons/blood_payment.png" id="blood_payment_icon"]
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("4_damage")
 base_damage = 2
@@ -171,6 +173,10 @@ rank_steps = Array[ExtResource("10_growth_rank")]([SubResource("Resource_rank1")
 script = ExtResource("2_targeting")
 aim_offsets = Array[Vector2i]([Vector2i(1, -1), Vector2i(2, -1), Vector2i(3, -1), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1)])
 
+[sub_resource type="Resource" id="Resource_blood_payment_presentation"]
+script = ExtResource("blood_payment_presentation")
+icon = ExtResource("blood_payment_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_blood_payment"
@@ -182,3 +188,4 @@ stamina_cost = 0
 cooldown_turns = 1
 targeting = SubResource("Resource_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_damage"), SubResource("Resource_health_cost"), SubResource("Resource_stamina")])
+presentation_profile = SubResource("Resource_blood_payment_presentation")

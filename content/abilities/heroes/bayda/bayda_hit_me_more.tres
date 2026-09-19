@@ -14,6 +14,8 @@
 [ext_resource type="Resource" uid="uid://tgwu0uu1gtcq" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres" id="11_base_stance"]
 [ext_resource type="Resource" uid="uid://dro6yil3ro043" path="res://content/statuses/heroes/bayda/bayda_hit_me_more_exposure.tres" id="12_base_exposure"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="hit_me_more_presentation"]
+[ext_resource type="Texture2D" uid="uid://co6qxj1ps4v3f" path="res://Graphics/UI/battle/abilities/bayda/icons/hit_me_more.png" id="hit_me_more_icon"]
 [sub_resource type="Resource" id="Resource_base_apply_stance"]
 script = ExtResource("4_apply_status")
 status_definition = ExtResource("11_base_stance")
@@ -432,6 +434,10 @@ aim_relation_mask = 1
 aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 
+[sub_resource type="Resource" id="Resource_hit_me_more_presentation"]
+script = ExtResource("hit_me_more_presentation")
+icon = ExtResource("hit_me_more_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_hit_me_more"
@@ -443,3 +449,4 @@ stamina_cost = 0
 cooldown_turns = 3
 targeting = SubResource("Resource_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_base_apply_stance")])
+presentation_profile = SubResource("Resource_hit_me_more_presentation")

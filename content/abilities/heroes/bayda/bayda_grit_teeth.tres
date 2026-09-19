@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://b6x7ygv2drd3f" path="res://core/battle/abilities/growth/ability_growth_rank_definition.gd" id="5_growth_rank"]
 [ext_resource type="Script" uid="uid://cwdmavmpj41mr" path="res://core/battle/abilities/growth/ability_growth_table_definition.gd" id="6_growth_table"]
 
+[ext_resource type="Script" uid="uid://c64uol6xpsdm2" path="res://presentation/battle/actions/battle_ability_presentation_profile.gd" id="grit_teeth_presentation"]
+[ext_resource type="Texture2D" uid="uid://c2laie23tqpxp" path="res://Graphics/UI/battle/abilities/bayda/icons/grit_teeth.png" id="grit_teeth_icon"]
 [sub_resource type="Resource" id="Resource_grit_teeth_effect"]
 script = ExtResource("4_grit_teeth")
 effect_id = &"effect_bayda_grit_teeth"
@@ -124,6 +126,10 @@ aim_relation_mask = 1
 aim_offsets = Array[Vector2i]([Vector2i(0, 0)])
 affected_relation_mask = 1
 
+[sub_resource type="Resource" id="Resource_grit_teeth_presentation"]
+script = ExtResource("grit_teeth_presentation")
+icon = ExtResource("grit_teeth_icon")
+
 [resource]
 script = ExtResource("1_ability")
 ability_id = &"ability_bayda_grit_teeth"
@@ -135,3 +141,4 @@ stamina_cost = 0
 cooldown_turns = 3
 targeting = SubResource("Resource_grit_teeth_targeting")
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_grit_teeth_effect")])
+presentation_profile = SubResource("Resource_grit_teeth_presentation")

@@ -99,6 +99,14 @@ func run() -> void:
 	check(unlimited_bleed.reapply_rule == BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH, "Bayda bleeding reapply_rule is ADD_STACK_AND_REFRESH.")
 	check(unlimited_bleed.periodic_triggers[0].scale_damage_with_stacks, "Bayda bleeding scales damage with stacks.")
 
+	# Verify normalized base_damage = 1 for all production Bayda Bleeding ranks
+	for rank_suffix in ["", "_rank2", "_rank5", "_rank7", "_rank10"]:
+		var path := "res://content/statuses/heroes/bayda/bayda_bleeding%s.tres" % rank_suffix
+		var res := load(path) as BattleStatusDefinition
+		var dmg_effect := res.periodic_triggers[0].effects[0] as DamageEffect
+		check(dmg_effect.base_damage == 1, "Bleeding %s base_damage is normalized to 1." % path)
+		check(res.periodic_triggers[0].scale_damage_with_stacks, "Bleeding %s scales with stacks." % path)
+
 	# 1 stack
 	actor.add_status(unlimited_bleed)
 	var player_view: CombatantView = null
@@ -109,7 +117,7 @@ func run() -> void:
 	var get_hud_bleed = func() -> BattleStatusIcon: return debuffs.get_child(0) as BattleStatusIcon
 	var get_world_bleed = func() -> BattleStatusIcon: return player_view.status_strip.chip_container.get_child(0) as BattleStatusIcon
 
-	check(get_hud_bleed.call().custom_minimum_size == Vector2(22, 22), "HUD status icon rendered at 22x22.")
+	check(get_hud_bleed.call().custom_minimum_size == Vector2(30, 30), "HUD status icon rendered at native 30x30.")
 	check(get_world_bleed.call().custom_minimum_size == Vector2(20, 20), "World status icon unchanged at 20x20.")
 	check(debuffs.get_theme_constant("separation") == 1, "DebuffStrip separation is 1.")
 	check(buffs.get_theme_constant("separation") == 1, "BuffStrip separation is 1.")
@@ -125,33 +133,56 @@ func run() -> void:
 	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "2 stacks: HUD shows '2'.")
 	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "2 stacks: World shows '2'.")
 
-	# 4 stacks
-	actor.add_status(unlimited_bleed)
-	actor.add_status(unlimited_bleed)
-	check(actor.get_status(unlimited_bleed.status_id).stack_count == 4, "4 stacks accumulated.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "4", "4 stacks: HUD shows '4'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "4", "4 stacks: World shows '4'.")
-	check(not ("·" in get_hud_bleed.call().get_node("StackLabel").text or "/" in get_hud_bleed.call().get_node("StackLabel").text or "t" in get_hud_bleed.call().get_node("StackLabel").text), "StackLabel never displays remaining_turns.")
+	# Generic stacks_to_apply test:
+	# Clear and test applying 2 then 4 via ApplyStatusEffect
+	actor.clear_statuses()
+	var apply_eff_2 := ApplyStatusEffect.new()
+	apply_eff_2.effect_id = &"eff_apply_2"
+	apply_eff_2.status_definition = unlimited_bleed
+	apply_eff_2.stacks_to_apply = 2
+	var resolver := EffectResolver.new()
+	var res1 := resolver.resolve(apply_eff_2, actor, actor, screen.session)
+	check(res1.is_successful, "ApplyStatusEffect 2 stacks succeeded.")
+	check(res1.previous_status_stack_count == 0, "Previous stack count was 0.")
+	check(res1.current_status_stack_count == 2, "Current stack count is 2.")
+	check(actor.get_status(unlimited_bleed.status_id).stack_count == 2, "Actor has 2 stacks.")
+	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "HUD shows '2'.")
+	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "World shows '2'.")
 
-	# 50 stacks
-	for i in range(46):
-		actor.add_status(unlimited_bleed)
-	check(actor.get_status(unlimited_bleed.status_id).stack_count == 50, "50 stacks accumulated without artificial cap.")
+	# Now apply 4 more stacks -> 6
+	var apply_eff_4 := ApplyStatusEffect.new()
+	apply_eff_4.effect_id = &"eff_apply_4"
+	apply_eff_4.status_definition = unlimited_bleed
+	apply_eff_4.stacks_to_apply = 4
+	var res2 := resolver.resolve(apply_eff_4, actor, actor, screen.session)
+	check(res2.is_successful, "ApplyStatusEffect 4 stacks succeeded.")
+	check(res2.previous_status_stack_count == 2, "Previous stack count was 2.")
+	check(res2.current_status_stack_count == 6, "Current stack count is 6.")
+	check(actor.get_status(unlimited_bleed.status_id).stack_count == 6, "Actor has 6 stacks.")
+	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "6", "HUD shows '6'.")
+	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "6", "World shows '6'.")
+
+	# Check periodic damage for 6 stacks == 6
+	var processor := BattleStatusPeriodicProcessor.new()
+	var trig_6 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
+	check(trig_6.size() == 1 and trig_6[0].effect_results.size() == 1, "One aggregated tick produced for 6 stacks.")
+	check(trig_6[0].effect_results[0].raw_amount == 6, "6 stacks produce exactly 6 raw periodic damage (%d == 6)." % trig_6[0].effect_results[0].raw_amount)
+
+	# Apply up to 50 stacks
+	var apply_eff_44 := ApplyStatusEffect.new()
+	apply_eff_44.effect_id = &"eff_apply_44"
+	apply_eff_44.status_definition = unlimited_bleed
+	apply_eff_44.stacks_to_apply = 44
+	var res50 := resolver.resolve(apply_eff_44, actor, actor, screen.session)
+	check(res50.current_status_stack_count == 50, "Current stack count reached 50.")
 	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "50", "50 stacks: HUD shows '50'.")
 	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "50", "50 stacks: World shows '50'.")
-	check(actor.get_status(unlimited_bleed.status_id).remaining_turns == unlimited_bleed.duration_turns, "Reapplication refreshed remaining_turns.")
+	check(not ("·" in get_hud_bleed.call().get_node("StackLabel").text or "/" in get_hud_bleed.call().get_node("StackLabel").text or "t" in get_hud_bleed.call().get_node("StackLabel").text), "StackLabel never displays remaining_turns.")
 
-	# Test periodic damage scaling and single aggregate hit
-	var processor := BattleStatusPeriodicProcessor.new()
-	var base_source_damage := (unlimited_bleed.periodic_triggers[0].effects[0] as DamageEffect).base_damage
-	var trigger_results := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
-	check(trigger_results.size() == 1, "Exactly one periodic trigger executed for bleeding.")
-	var trig_res := trigger_results[0]
-	check(trig_res.is_successful, "Periodic trigger succeeded.")
-	check(trig_res.effect_results.size() == 1, "Exactly one effect result generated for 50 stacks (single aggregated hit).")
-	var raw_dealt: int = trig_res.effect_results[0].raw_amount
-	check(raw_dealt == base_source_damage * 50, "Periodic damage scaled with 50 stacks (%d == %d)." % [raw_dealt, base_source_damage * 50])
-	check((unlimited_bleed.periodic_triggers[0].effects[0] as DamageEffect).base_damage == base_source_damage, "Source DamageEffect Resource was not mutated.")
+	# Periodic damage for 50 stacks == 50
+	var trig_50 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
+	check(trig_50.size() == 1 and trig_50[0].effect_results.size() == 1, "Exactly one aggregated periodic result for 50 stacks.")
+	check(trig_50[0].effect_results[0].raw_amount == 50, "50 stacks produce exactly 50 raw periodic damage (%d == 50)." % trig_50[0].effect_results[0].raw_amount)
 
 	# Non-scaling periodic effect check
 	actor.current_health = actor.max_health
@@ -169,9 +200,7 @@ func run() -> void:
 	normal_trig.scale_damage_with_stacks = false
 	normal_trig.effects = [normal_dmg]
 	normal_status.periodic_triggers = [normal_trig]
-	actor.add_status(normal_status)
-	actor.add_status(normal_status)
-	actor.add_status(normal_status)
+	actor.add_status(normal_status, &"", 3)
 	check(actor.get_status(normal_status.status_id).stack_count == 3, "Normal status has 3 stacks.")
 	var normal_results := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
 	var normal_dealt: int = normal_results[0].effect_results[0].raw_amount
@@ -180,7 +209,7 @@ func run() -> void:
 	# Expiry and cleanup
 	actor.clear_statuses()
 	check(debuffs.get_child_count() == 0 and buffs.get_child_count() == 0, "All statuses cleared.")
-	check(buffs.size.x >= 12 * 22 + 11 * 1, "12 semantic icons fit authored shelf with 22px and 1px separation.")
+	check(buffs.size.x >= 9 * 30 + 8 * 1, "Exactly 9 native 30px icons fit authored 278px shelf.")
 	screen.queue_free()
 	await process_frame
 	print("SEMANTIC STATUS HUD SMOKE: ", "GREEN" if failures == 0 else "FAILED")

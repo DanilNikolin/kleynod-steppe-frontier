@@ -484,9 +484,13 @@ func _is_status_id_before(
 	return String(first) < String(second)
     
 func apply_status_definition(
-	status_definition: BattleStatusDefinition
+	status_definition: BattleStatusDefinition,
+	stacks_to_apply: int = 1
 ) -> bool:
 	if status_definition == null:
+		return false
+
+	if not status_definition.is_valid_definition():
 		return false
 
 	if is_immune_to_status(
@@ -499,11 +503,14 @@ func apply_status_definition(
 	)
 
 	if existing_snapshot.is_empty():
+		var initial_count := maxi(1, stacks_to_apply)
+		if status_definition.max_stacks > 0:
+			initial_count = mini(status_definition.max_stacks, initial_count)
 		_statuses_by_id[
 			status_definition.status_id
 		] = {
 			"definition": status_definition,
-			"stack_count": 1,
+			"stack_count": initial_count,
 			"remaining_turns": (
 				status_definition.duration_turns
 			),
@@ -532,12 +539,13 @@ func apply_status_definition(
 			)
 
 		BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH:
+			var to_add := maxi(1, stacks_to_apply)
 			if status_definition.max_stacks == 0:
-				stack_count += 1
+				stack_count += to_add
 			else:
 				stack_count = mini(
 					status_definition.max_stacks,
-					stack_count + 1
+					stack_count + to_add
 				)
 
 			remaining_turns = (

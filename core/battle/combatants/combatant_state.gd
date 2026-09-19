@@ -917,7 +917,8 @@ func has_status(
 
 func add_status(
 	status_definition: BattleStatusDefinition,
-	source_instance_id: StringName = &""
+	source_instance_id: StringName = &"",
+	stacks_to_apply: int = 1
 ) -> BattleStatusInstance:
 	if status_definition == null:
 		return null
@@ -947,7 +948,8 @@ func add_status(
 		)
 
 		existing_status.reapply(
-			source_instance_id
+			source_instance_id,
+			stacks_to_apply
 		)
 
 		status_updated.emit(
@@ -960,7 +962,8 @@ func add_status(
 
 	var new_status := BattleStatusInstance.new(
 		status_definition,
-		source_instance_id
+		source_instance_id,
+		stacks_to_apply
 	)
 
 	_statuses_by_id[

@@ -8,6 +8,9 @@ extends BattleEffect
 @export
 var status_definition: BattleStatusDefinition
 
+@export_range(1, 9999, 1)
+var stacks_to_apply: int = 1
+
 
 func get_validation_errors() -> PackedStringArray:
 	var errors := super.get_validation_errors()

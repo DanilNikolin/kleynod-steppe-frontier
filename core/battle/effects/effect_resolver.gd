@@ -1110,7 +1110,8 @@ func _resolve_apply_status(
 
 	var applied_status := target.add_status(
 		status_definition,
-		source.instance_id
+		source.instance_id,
+		effect.stacks_to_apply
 	)
 
 	if applied_status == null:

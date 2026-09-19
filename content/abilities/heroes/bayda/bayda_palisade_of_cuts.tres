@@ -34,6 +34,7 @@ effect_id = &"effect_bayda_palisade_cut_3"
 [sub_resource type="Resource" id="Resource_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("6_bleeding")
+stacks_to_apply = 2
 effect_id = &"effect_bayda_palisade_bleeding"
 
 [sub_resource type="Resource" id="Resource_self_exposure"]
@@ -136,6 +137,7 @@ effect_id = &"effect_bayda_palisade_cut_4"
 [sub_resource type="Resource" id="Resource_rank4_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("10_bleeding_rank2")
+stacks_to_apply = 3
 effect_id = &"effect_bayda_palisade_bleeding"
 
 [sub_resource type="Resource" id="Resource_rank4"]
@@ -193,6 +195,7 @@ effect_additions = Array[ExtResource("3_effect")]([SubResource("Resource_rank6_c
 [sub_resource type="Resource" id="Resource_rank7_bleeding"]
 script = ExtResource("5_apply_status")
 status_definition = ExtResource("11_bleeding_rank7")
+stacks_to_apply = 4
 effect_id = &"effect_bayda_palisade_bleeding"
 
 [sub_resource type="Resource" id="Resource_rank7"]

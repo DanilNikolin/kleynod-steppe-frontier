@@ -25,7 +25,8 @@ var is_expired: bool:
 
 func _init(
 	p_definition: BattleStatusDefinition,
-	p_source_instance_id: StringName = &""
+	p_source_instance_id: StringName = &"",
+	p_initial_stacks: int = 1
 ) -> void:
 	assert(
 		p_definition != null,
@@ -41,12 +42,17 @@ func _init(
 	definition = p_definition
 	source_instance_id = p_source_instance_id
 
-	stack_count = 1
+	var desired_stacks := maxi(1, p_initial_stacks)
+	if definition.max_stacks == 0:
+		stack_count = desired_stacks
+	else:
+		stack_count = mini(definition.max_stacks, desired_stacks)
 	remaining_turns = definition.duration_turns
 
 
 func reapply(
-	p_source_instance_id: StringName = &""
+	p_source_instance_id: StringName = &"",
+	p_stacks_to_add: int = 1
 ) -> void:
 	if definition == null:
 		return
@@ -63,12 +69,13 @@ func reapply(
 			)
 
 		BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH:
+			var to_add := maxi(1, p_stacks_to_add)
 			if definition.max_stacks == 0:
-				stack_count += 1
+				stack_count += to_add
 			else:
 				stack_count = mini(
 					definition.max_stacks,
-					stack_count + 1
+					stack_count + to_add
 				)
 
 			remaining_turns = (

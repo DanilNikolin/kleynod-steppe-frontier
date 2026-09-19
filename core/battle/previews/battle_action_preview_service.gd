@@ -1514,7 +1514,8 @@ func _preview_apply_status(
 	)
 
 	if not target.apply_status_definition(
-		status_definition
+		status_definition,
+		effect.stacks_to_apply
 	):
 		result.failure_code = (
 			&"status_application_failed"

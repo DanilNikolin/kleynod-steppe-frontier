@@ -50,9 +50,9 @@ func run() -> void:
 	bleed.max_stacks = 3
 	bleed.reapply_rule = BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH
 	actor.add_status(bleed)
-	check(not debuffs.get_child(1).get_node("StackLabel").visible, "Single stack has no count.")
+	check(not debuffs.get_child(1).get_node("MagnitudeLabel").visible, "Single stack has no count.")
 	actor.add_status(bleed)
-	check(debuffs.get_child(1).get_node("StackLabel").visible and debuffs.get_child(1).get_node("StackLabel").text == "2", "Stack count updates via signal.")
+	check(debuffs.get_child(1).get_node("MagnitudeLabel").visible and debuffs.get_child(1).get_node("MagnitudeLabel").text == "2", "Stack count updates via signal.")
 	var regen := definition(&"regen", [&"stamina_regeneration_buff"], 1)
 	regen.stat_modifiers = [modifier(BattleStatModifier.Stat.STAMINA_REGENERATION, 2)]
 	actor.add_status(regen)
@@ -81,16 +81,16 @@ func run() -> void:
 	check(debuffs.get_child_count() == 1, "Removal immediately removes both composite icons.")
 	actor.remove_status(bleed.status_id)
 	actor.add_status(bleed)
-	check(not debuffs.get_child(0).get_node("StackLabel").visible, "Re-added single stack hides number.")
+	check(not debuffs.get_child(0).get_node("MagnitudeLabel").visible, "Re-added single stack hides number.")
 	actor.remove_status(bleed.status_id)
 	actor.add_status(bleed)
-	check(not debuffs.get_child(0).get_node("StackLabel").visible, "Re-added single stack hides number.")
+	check(not debuffs.get_child(0).get_node("MagnitudeLabel").visible, "Re-added single stack hides number.")
 	# Test capped status behavior
 	actor.add_status(bleed) # stack 2
 	actor.add_status(bleed) # stack 3 (cap)
 	actor.add_status(bleed) # try stack 4 -> stays 3
 	check(actor.get_status(bleed.status_id).stack_count == 3, "Capped status stops at max_stacks (3).")
-	check(debuffs.get_child(0).get_node("StackLabel").text == "3", "Capped status displays 3.")
+	check(debuffs.get_child(0).get_node("MagnitudeLabel").text == "3", "Capped status displays 3.")
 	actor.remove_status(bleed.status_id)
 
 	# Test unlimited status (max_stacks = 0)
@@ -123,15 +123,15 @@ func run() -> void:
 	check(buffs.get_theme_constant("separation") == 1, "BuffStrip separation is 1.")
 
 	check(actor.get_status(unlimited_bleed.status_id).stack_count == 1, "First application stack_count == 1.")
-	check(not get_hud_bleed.call().get_node("StackLabel").visible, "1 stack: HUD StackLabel is hidden.")
-	check(not get_world_bleed.call().get_node("StackLabel").visible, "1 stack: World StackLabel is hidden.")
-	check(get_hud_bleed.call().get_node("StackLabel").text == "1", "StackLabel text holds exact integer.")
+	check(not get_hud_bleed.call().get_node("MagnitudeLabel").visible, "1 stack: HUD MagnitudeLabel is hidden.")
+	check(not get_world_bleed.call().get_node("MagnitudeLabel").visible, "1 stack: World MagnitudeLabel is hidden.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").text == "1", "MagnitudeLabel text holds exact integer.")
 
 	# 2 stacks
 	actor.add_status(unlimited_bleed)
 	check(actor.get_status(unlimited_bleed.status_id).stack_count == 2, "Second application stack_count == 2.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "2 stacks: HUD shows '2'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "2 stacks: World shows '2'.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "2", "2 stacks: HUD shows '2'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "2", "2 stacks: World shows '2'.")
 
 	# Generic stacks_to_apply test:
 	# Clear and test applying 2 then 4 via ApplyStatusEffect
@@ -146,8 +146,8 @@ func run() -> void:
 	check(res1.previous_status_stack_count == 0, "Previous stack count was 0.")
 	check(res1.current_status_stack_count == 2, "Current stack count is 2.")
 	check(actor.get_status(unlimited_bleed.status_id).stack_count == 2, "Actor has 2 stacks.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "HUD shows '2'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "World shows '2'.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "2", "HUD shows '2'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "2", "World shows '2'.")
 
 	# Now apply 4 more stacks -> 6
 	var apply_eff_4 := ApplyStatusEffect.new()
@@ -159,8 +159,8 @@ func run() -> void:
 	check(res2.previous_status_stack_count == 2, "Previous stack count was 2.")
 	check(res2.current_status_stack_count == 6, "Current stack count is 6.")
 	check(actor.get_status(unlimited_bleed.status_id).stack_count == 6, "Actor has 6 stacks.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "6", "HUD shows '6'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "6", "World shows '6'.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "6", "HUD shows '6'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "6", "World shows '6'.")
 
 	# Check periodic damage for 6 stacks == 6
 	var processor := BattleStatusPeriodicProcessor.new()
@@ -175,9 +175,9 @@ func run() -> void:
 	apply_eff_44.stacks_to_apply = 44
 	var res50 := resolver.resolve(apply_eff_44, actor, actor, screen.session)
 	check(res50.current_status_stack_count == 50, "Current stack count reached 50.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "50", "50 stacks: HUD shows '50'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "50", "50 stacks: World shows '50'.")
-	check(not ("·" in get_hud_bleed.call().get_node("StackLabel").text or "/" in get_hud_bleed.call().get_node("StackLabel").text or "t" in get_hud_bleed.call().get_node("StackLabel").text), "StackLabel never displays remaining_turns.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "50", "50 stacks: HUD shows '50'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "50", "50 stacks: World shows '50'.")
+	check(not ("·" in get_hud_bleed.call().get_node("MagnitudeLabel").text or "/" in get_hud_bleed.call().get_node("MagnitudeLabel").text or "t" in get_hud_bleed.call().get_node("MagnitudeLabel").text), "MagnitudeLabel never displays remaining_turns.")
 
 	# Periodic damage for 50 stacks == 50
 	var trig_50 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
@@ -229,8 +229,8 @@ func run() -> void:
 	var st_inst := actor.get_status(rending_bleed_res.status_id)
 	check(st_inst != null and st_inst.stack_count == 2, "First application gives stack_count == 2.")
 	check(st_inst.remaining_turns == 2, "Remaining turns is 2.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "2", "HUD label is '2'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "2", "World label is '2'.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "2", "HUD label is '2'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "2", "World label is '2'.")
 
 	# 1st periodic tick: 2 stacks = 2 damage
 	var tick_1 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
@@ -245,13 +245,109 @@ func run() -> void:
 	check(r2.is_successful, "Second application succeeded.")
 	check(st_inst.stack_count == 4, "Second application gives stack_count == 4.")
 	check(st_inst.remaining_turns == 2, "Duration refreshed back to 2.")
-	check(get_hud_bleed.call().get_node("StackLabel").visible and get_hud_bleed.call().get_node("StackLabel").text == "4", "HUD label updated to '4'.")
-	check(get_world_bleed.call().get_node("StackLabel").visible and get_world_bleed.call().get_node("StackLabel").text == "4", "World label updated to '4'.")
+	check(get_hud_bleed.call().get_node("MagnitudeLabel").visible and get_hud_bleed.call().get_node("MagnitudeLabel").text == "4", "HUD label updated to '4'.")
+	check(get_world_bleed.call().get_node("MagnitudeLabel").visible and get_world_bleed.call().get_node("MagnitudeLabel").text == "4", "World label updated to '4'.")
 
 	# 2nd periodic tick: 4 stacks = 4 damage
 	var tick_2 := processor.process_owner_timing(screen.session, actor, BattleStatusPeriodicTrigger.Timing.OWNER_TURN_END)
 	check(tick_2.size() == 1 and tick_2[0].effect_results.size() == 1, "Only one aggregated periodic result for 4 stacks.")
 	check(tick_2[0].effect_results[0].raw_amount == 4, "4 stacks deal exactly 4 damage (%d == 4)." % tick_2[0].effect_results[0].raw_amount)
+
+	# ==========================================================
+	# Comprehensive Semantic Magnitude Badges Test Suite
+	# ==========================================================
+	actor.clear_statuses()
+
+	# 1. Armor Down: -2 with 1 stack -> magnitude 2
+	var armor_down_2 := definition(&"armor_down_2", [&"armor_debuff"])
+	armor_down_2.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, -2)]
+	actor.add_status(armor_down_2)
+	var hud_ad = func() -> BattleStatusIcon: return debuffs.get_child(0) as BattleStatusIcon
+	var world_ad = func() -> BattleStatusIcon: return player_view.status_strip.chip_container.get_child(0) as BattleStatusIcon
+	check(hud_ad.call().get_node("MagnitudeLabel").visible and hud_ad.call().get_node("MagnitudeLabel").text == "2", "Armor Down -2 with 1 stack shows badge '2' in HUD.")
+	check(world_ad.call().get_node("MagnitudeLabel").visible and world_ad.call().get_node("MagnitudeLabel").text == "2", "Armor Down -2 with 1 stack shows badge '2' in World.")
+
+	# Armor Down: -2 with 3 stacks -> magnitude 6
+	armor_down_2.max_stacks = 3
+	armor_down_2.reapply_rule = BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH
+	actor.add_status(armor_down_2) # 2 stacks -> -4
+	actor.add_status(armor_down_2) # 3 stacks -> -6
+	check(actor.get_status(armor_down_2.status_id).stack_count == 3, "Armor Down has 3 stacks.")
+	check(hud_ad.call().get_node("MagnitudeLabel").visible and hud_ad.call().get_node("MagnitudeLabel").text == "6", "Armor Down -2 with 3 stacks shows badge '6' in HUD (not '3').")
+	check(world_ad.call().get_node("MagnitudeLabel").visible and world_ad.call().get_node("MagnitudeLabel").text == "6", "Armor Down -2 with 3 stacks shows badge '6' in World.")
+
+	# Armor Down: -1 with 1 stack -> magnitude 1 -> badge hidden
+	actor.clear_statuses()
+	var armor_down_1 := definition(&"armor_down_1", [&"armor_debuff"])
+	armor_down_1.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, -1)]
+	actor.add_status(armor_down_1)
+	check(not hud_ad.call().get_node("MagnitudeLabel").visible, "Armor Down -1 with 1 stack hides badge.")
+
+	# 2. Armor Up: +3 with 1 stack -> magnitude 3
+	actor.clear_statuses()
+	var armor_up_3 := definition(&"armor_up_3", [&"armor_buff"], 1)
+	armor_up_3.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, 3)]
+	actor.add_status(armor_up_3)
+	var hud_au = func() -> BattleStatusIcon: return buffs.get_child(0) as BattleStatusIcon
+	var world_au = func() -> BattleStatusIcon: return player_view.status_strip.chip_container.get_child(0) as BattleStatusIcon
+	check(hud_au.call().get_node("MagnitudeLabel").visible and hud_au.call().get_node("MagnitudeLabel").text == "3", "Armor Up +3 shows badge '3' in HUD.")
+	check(world_au.call().get_node("MagnitudeLabel").visible and world_au.call().get_node("MagnitudeLabel").text == "3", "Armor Up +3 shows badge '3' in World.")
+
+	# 3. Stamina Regen Up: +2 with 1 stack -> magnitude 2, +2 with 3 stacks -> magnitude 6
+	actor.clear_statuses()
+	var s_regen := definition(&"s_regen", [&"stamina_regeneration_buff"], 1)
+	s_regen.stat_modifiers = [modifier(BattleStatModifier.Stat.STAMINA_REGENERATION, 2)]
+	s_regen.max_stacks = 3
+	s_regen.reapply_rule = BattleStatusDefinition.ReapplyRule.ADD_STACK_AND_REFRESH
+	actor.add_status(s_regen)
+	var hud_sr = func() -> BattleStatusIcon: return buffs.get_child(0) as BattleStatusIcon
+	check(hud_sr.call().get_node("MagnitudeLabel").visible and hud_sr.call().get_node("MagnitudeLabel").text == "2", "Stamina Regen Up +2 shows badge '2'.")
+	actor.add_status(s_regen)
+	actor.add_status(s_regen)
+	check(hud_sr.call().get_node("MagnitudeLabel").visible and hud_sr.call().get_node("MagnitudeLabel").text == "6", "Stamina Regen Up +2 with 3 stacks shows badge '6'.")
+
+	# 4. Composite status: "На крюке" (immobilized + armor_debuff -2)
+	actor.clear_statuses()
+	var hooked := load("res://content/statuses/heroes/bayda/bayda_gallows_hooked_exposed.tres") as BattleStatusDefinition
+	check(hooked != null, "bayda_gallows_hooked_exposed loaded.")
+	actor.add_status(hooked)
+	check(debuffs.get_child_count() == 2, "Hooked produces 2 entries (immobilized, armor_down).")
+	var hook_immob := debuffs.get_child(0) as BattleStatusIcon
+	var hook_armordown := debuffs.get_child(1) as BattleStatusIcon
+	check(hook_immob.semantic == "immobilized" and not hook_immob.get_node("MagnitudeLabel").visible, "Hooked immobilized has magnitude 0 and no badge.")
+	check(hook_armordown.semantic == "armor_down" and hook_armordown.get_node("MagnitudeLabel").visible and hook_armordown.get_node("MagnitudeLabel").text == "2", "Hooked armor_down has magnitude 2 and shows '2'.")
+
+	# 5. Binary non-numeric semantics: stun, immobilized, counterattack -> magnitude 0
+	actor.clear_statuses()
+	actor.add_status(definition(&"test_stun", [&"stun"]))
+	actor.add_status(definition(&"test_immob", [&"immobilized"]))
+	actor.add_status(definition(&"test_counter", [&"counterattack"], 1))
+	check(not (debuffs.get_child(0) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Stun has no badge.")
+	check(not (debuffs.get_child(1) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Immobilized has no badge.")
+	check(not (buffs.get_child(0) as BattleStatusIcon).get_node("MagnitudeLabel").visible, "Counterattack has no badge.")
+
+	# 6. Reactive semantics: reactive_guard, reactive_stamina -> magnitude 0
+	actor.clear_statuses()
+	var do_not_bend := load("res://content/statuses/heroes/bayda/bayda_do_not_bend_stance_rank1.tres") as BattleStatusDefinition
+	var hit_me_more := load("res://content/statuses/heroes/bayda/bayda_hit_me_more_stance.tres") as BattleStatusDefinition
+	actor.add_status(do_not_bend)
+	actor.add_status(hit_me_more)
+	check(buffs.get_child_count() == 2, "Both reactive buffs present.")
+	for i in range(2):
+		var b_icon := buffs.get_child(i) as BattleStatusIcon
+		check(not b_icon.get_node("MagnitudeLabel").visible, "Reactive status %s has no magnitude badge." % b_icon.semantic)
+
+	# 7. Unrelated statuses with same semantic are NOT merged
+	actor.clear_statuses()
+	var debuff_a := definition(&"debuff_a", [&"armor_debuff"])
+	debuff_a.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, -2)]
+	var debuff_b := definition(&"debuff_b", [&"armor_debuff"])
+	debuff_b.stat_modifiers = [modifier(BattleStatModifier.Stat.ARMOR, -4)]
+	actor.add_status(debuff_a)
+	actor.add_status(debuff_b)
+	check(debuffs.get_child_count() == 2, "Unrelated statuses sharing semantic icon are NOT merged.")
+	check((debuffs.get_child(0) as BattleStatusIcon).get_node("MagnitudeLabel").text == "2", "First status magnitude is 2.")
+	check((debuffs.get_child(1) as BattleStatusIcon).get_node("MagnitudeLabel").text == "4", "Second status magnitude is 4.")
 
 	# Expiry and cleanup
 	actor.clear_statuses()

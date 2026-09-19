@@ -28,6 +28,41 @@ static func resolve(definition: BattleStatusDefinition) -> Array[String]:
 			result.append(SEMANTICS[i])
 	return result
 
+static func calculate_magnitude(semantic: String, status: BattleStatusInstance) -> int:
+	if status == null or status.definition == null:
+		return 0
+	match semantic:
+		"bleeding", "burning", "poison":
+			return status.stack_count
+		"armor_down":
+			var total_armor_mod: int = 0
+			for modifier in status.definition.stat_modifiers:
+				if modifier != null and modifier.stat == BattleStatModifier.Stat.ARMOR:
+					total_armor_mod += modifier.get_total_amount(status.stack_count)
+			if total_armor_mod < 0:
+				return abs(total_armor_mod)
+			return 0
+		"armor_up":
+			var total_armor_mod: int = 0
+			for modifier in status.definition.stat_modifiers:
+				if modifier != null and modifier.stat == BattleStatModifier.Stat.ARMOR:
+					total_armor_mod += modifier.get_total_amount(status.stack_count)
+			if total_armor_mod > 0:
+				return total_armor_mod
+			return 0
+		"stamina_regen_up":
+			var total_regen_mod: int = 0
+			for modifier in status.definition.stat_modifiers:
+				if modifier != null and modifier.stat == BattleStatModifier.Stat.STAMINA_REGENERATION:
+					total_regen_mod += modifier.get_total_amount(status.stack_count)
+			if total_regen_mod > 0:
+				return total_regen_mod
+			return 0
+		"stun", "immobilized", "counterattack", "reactive_guard", "reactive_stamina":
+			return 0
+		_:
+			return 0
+
 static func entries(state: CombatantState, polarity: int = -1) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if state == null:
@@ -37,9 +72,10 @@ static func entries(state: CombatantState, polarity: int = -1) -> Array[Dictiona
 			continue
 		var semantics := resolve(status.definition)
 		if semantics.is_empty():
-			result.append({"semantic": "", "status": status, "priority": SEMANTICS.size()})
+			result.append({"semantic": "", "status": status, "priority": SEMANTICS.size(), "magnitude": 0})
 		for semantic in semantics:
-			result.append({"semantic": semantic, "status": status, "priority": SEMANTICS.find(semantic)})
+			var mag := calculate_magnitude(semantic, status)
+			result.append({"semantic": semantic, "status": status, "priority": SEMANTICS.find(semantic), "magnitude": mag})
 	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		if a.priority != b.priority:
 			return a.priority < b.priority

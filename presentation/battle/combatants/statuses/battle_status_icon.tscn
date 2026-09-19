@@ -16,7 +16,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="StackLabel" type="Label" parent="."]
+[node name="MagnitudeLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

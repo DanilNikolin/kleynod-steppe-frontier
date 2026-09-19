@@ -90,15 +90,39 @@ func _refresh_hud_slots() -> void:
 		slot.set_selected(ability == hud_selected)
 
 func _show_hud_card(index: int) -> void:
-	if hud_actor == null or index >= hud_abilities.size():
+	if hud_actor == null or index >= hud_abilities.size() or index >= hud_slots.size():
 		return
 	var ability := hud_abilities[index]
+	var slot := hud_slots[index]
 	$Card/Margin/Content/Title.text = ability.display_name
 	var lock_turns := hud_actor.get_ability_lock_remaining_turns(ability.ability_id)
 	$Card/Margin/Content/Meta.text = BattleAbilityPresentationBuilder.build_meta_text(ability) + (" · Задержка: %d" % lock_turns if lock_turns > 0 else "")
 	$Card/Margin/Content/Description.text = ability.description
 	$Card/Margin/Content/Effects.text = BattleAbilityPresentationBuilder.build_effects_text(ability, hud_actor)
+
+	# Position card over hovered ability slot
+	$Card.custom_minimum_size = Vector2(440, 0)
+	$Card.reset_size()
 	$Card.show()
+
+	var card_size: Vector2 = $Card.get_combined_minimum_size()
+	card_size.x = maxf(card_size.x, 440.0)
+
+	var slot_rect: Rect2 = slot.get_global_rect()
+	var vp_rect: Rect2 = get_viewport_rect()
+
+	const OFFSET_Y: float = 12.0
+	const PADDING: float = 10.0
+
+	var target_x: float = slot_rect.position.x + (slot_rect.size.x - card_size.x) * 0.5
+	var target_y: float = slot_rect.position.y - card_size.y - OFFSET_Y
+
+	# Clamp to screen
+	target_x = clampf(target_x, PADDING, maxf(PADDING, vp_rect.size.x - card_size.x - PADDING))
+	if target_y < PADDING:
+		target_y = PADDING
+
+	$Card.global_position = Vector2(target_x, target_y)
 
 func _hud_changed(_a: Variant = null, _b: Variant = null, _c: Variant = null) -> void:
 	_refresh_hud_slots()

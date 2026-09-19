@@ -1,8 +1,11 @@
-[gd_scene format=3 uid="uid://cq78vd6at87rp"]
+[gd_scene load_steps=5 format=3 uid="uid://cq78vd6at87rp"]
 
 [ext_resource type="Script" uid="uid://gy6q3opjvjqv" path="res://presentation/battle/abilities/battle_ability_panel.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://yaggdbstyahk" path="res://Graphics/UI/battle/abilities/ability_bar_background.png" id="2"]
 [ext_resource type="PackedScene" path="res://presentation/battle/ui/battle_ability_slot.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://dp6155k8q8o03" path="res://presentation/battle/ui/tooltips/battle_tooltip_frame.tscn" id="4_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
 
 [node name="BattleAbilityPanel" type="Control" unique_id=1819520437]
 layout_mode = 3
@@ -80,20 +83,25 @@ toggle_mode = true
 [node name="Card" type="PanelContainer" parent="." unique_id=244821693]
 visible = false
 z_index = 5
+custom_minimum_size = Vector2(440, 0)
 layout_mode = 0
 offset_left = 480.0
 offset_top = 670.0
-offset_right = 1040.0
+offset_right = 920.0
 offset_bottom = 905.0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card")
+
+[node name="BattleTooltipFrame" parent="Card" instance=ExtResource("4_frame")]
+layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="Card" unique_id=1075286852]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
 
 [node name="Content" type="VBoxContainer" parent="Card/Margin" unique_id=707403570]
 layout_mode = 2

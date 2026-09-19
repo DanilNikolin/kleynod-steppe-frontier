@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://dp6155k8q8o03"]
+
+[ext_resource type="Script" uid="uid://dknb0bdrwxrob" path="res://presentation/battle/ui/tooltips/battle_tooltip_frame.gd" id="1_frame"]
+[ext_resource type="Texture2D" uid="uid://bqfhnruogjqvh" path="res://Graphics/UI/battle/tooltips/skin/background.png" id="2_bg"]
+[ext_resource type="Texture2D" uid="uid://4tgtsoe0fing" path="res://Graphics/UI/battle/tooltips/skin/edge_top.png" id="3_et"]
+[ext_resource type="Texture2D" uid="uid://bqwcjngqwsa7q" path="res://Graphics/UI/battle/tooltips/skin/edge_bottom.png" id="4_eb"]
+[ext_resource type="Texture2D" uid="uid://c85anrxcpqcbt" path="res://Graphics/UI/battle/tooltips/skin/edge_left.png" id="5_el"]
+[ext_resource type="Texture2D" uid="uid://cu1iex7fj0i2u" path="res://Graphics/UI/battle/tooltips/skin/edge_right.png" id="6_er"]
+[ext_resource type="Texture2D" uid="uid://cv8jch1r6wvc2" path="res://Graphics/UI/battle/tooltips/skin/corner_top_left.png" id="7_ctl"]
+[ext_resource type="Texture2D" uid="uid://3a1uilan10qq" path="res://Graphics/UI/battle/tooltips/skin/corner_top_right.png" id="8_ctr"]
+[ext_resource type="Texture2D" uid="uid://bhx2bu81x44th" path="res://Graphics/UI/battle/tooltips/skin/corner_bottom_left.png" id="9_cbl"]
+[ext_resource type="Texture2D" uid="uid://ni5ng66gc231" path="res://Graphics/UI/battle/tooltips/skin/corner_bottom_right.png" id="10_cbr"]
+
+[node name="BattleTooltipFrame" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_frame")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+
+[node name="EdgeTop" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("3_et")
+expand_mode = 1
+
+[node name="EdgeBottom" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("4_eb")
+expand_mode = 1
+
+[node name="EdgeLeft" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("5_el")
+expand_mode = 1
+
+[node name="EdgeRight" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("6_er")
+expand_mode = 1
+
+[node name="CornerTopLeft" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("7_ctl")
+expand_mode = 1
+
+[node name="CornerTopRight" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("8_ctr")
+expand_mode = 1
+
+[node name="CornerBottomLeft" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("9_cbl")
+expand_mode = 1
+
+[node name="CornerBottomRight" type="TextureRect" parent="."]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("10_cbr")
+expand_mode = 1

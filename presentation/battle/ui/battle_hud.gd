@@ -101,12 +101,35 @@ func _refresh_player(_a: Variant = null, _b: Variant = null, _c: Variant = null)
 	$PortraitPanel/StaminaRegen/Value.text = "+%d" % actor.get_effective_stamina_regeneration()
 	BattleStatusStrip.render_into($PortraitPanel/BuffStrip, actor, BattleStatusDefinition.Polarity.BENEFICIAL, 30, true)
 	BattleStatusStrip.render_into($PortraitPanel/DebuffStrip, actor, BattleStatusDefinition.Polarity.HARMFUL, 30, true)
+	_connect_status_strip_hover($PortraitPanel/BuffStrip)
+	_connect_status_strip_hover($PortraitPanel/DebuffStrip)
 	var neutral := PackedStringArray()
 	for status in actor.get_active_statuses():
 		if status.definition.polarity == BattleStatusDefinition.Polarity.NEUTRAL:
 			neutral.append(status.definition.display_name)
 	$PortraitPanel/NeutralStatuses.text = ", ".join(neutral)
 	_refresh_hero_core_indicators()
+
+func _connect_status_strip_hover(container: HBoxContainer) -> void:
+	for child in container.get_children():
+		if child is BattleStatusIcon:
+			var icon: BattleStatusIcon = child
+			icon.hover_started.connect(_on_status_icon_hover_started)
+			icon.hover_ended.connect(_on_status_icon_hover_ended)
+
+func _on_status_icon_hover_started(icon: BattleStatusIcon) -> void:
+	if icon == null or hero_core_hover_panel == null:
+		return
+	hero_core_hover_panel.show_for_control(
+		icon,
+		icon.get_hover_title(),
+		icon.get_hover_description(),
+		icon.get_hover_value_text()
+	)
+
+func _on_status_icon_hover_ended(_icon: BattleStatusIcon) -> void:
+	if hero_core_hover_panel != null:
+		hero_core_hover_panel.hide_panel()
 
 func _refresh_hero_core_indicators() -> void:
 	var panel := $PortraitPanel/HeroCoreIndicators
@@ -139,7 +162,8 @@ func _on_hero_core_indicator_hover_started(indicator: HeroCoreIndicatorType) -> 
 	if indicator == null:
 		hero_core_hover_panel.hide_panel()
 		return
-	hero_core_hover_panel.show_info(
+	hero_core_hover_panel.show_for_control(
+		indicator,
 		indicator.get_hover_title(),
 		indicator.get_hover_description(),
 		indicator.get_hover_value_text()

@@ -1,6 +1,9 @@
-[gd_scene format=3]
+[gd_scene load_steps=4 format=3 uid="uid://c6g7e8q4v2m1n"]
 
-[ext_resource type="Script" path="res://presentation/battle/ui/hero_core_hover_panel.gd" id="1_hover"]
+[ext_resource type="Script" uid="uid://ddnkwvp513bs2" path="res://presentation/battle/ui/hero_core_hover_panel.gd" id="1_hover"]
+[ext_resource type="PackedScene" uid="uid://dp6155k8q8o03" path="res://presentation/battle/ui/tooltips/battle_tooltip_frame.tscn" id="2_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 
 [node name="HeroCoreHoverPanel" type="PanelContainer"]
 visible = false
@@ -9,15 +12,19 @@ offset_top = 690.0
 offset_right = 645.0
 offset_bottom = 810.0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 script = ExtResource("1_hover")
+
+[node name="BattleTooltipFrame" parent="." instance=ExtResource("2_frame")]
+layout_mode = 2
 
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
 layout_mode = 2
